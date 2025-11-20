@@ -1,0 +1,20 @@
+<ng-container *ngIf="isOpen">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 transition-opacity duration-300"
+        [class.opacity-100]="isOpen" [class.opacity-0]="!isOpen" [class.pointer-events-auto]="isOpen"
+        [class.pointer-events-none]="!isOpen" (click)="close()">
+    </div>
+
+    <!-- Modal Panel Wrapper -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-auto"
+            [class.scale-100]="isOpen" [class.opacity-100]="isOpen" [class.scale-95]="!isOpen"
+            [class.opacity-0]="!isOpen">
+
+            @if (content) {
+            <ng-container *ngTemplateOutlet="content; context: { $implicit: context }"></ng-container>
+            }
+
+        </div>
+    </div>
+</ng-container>

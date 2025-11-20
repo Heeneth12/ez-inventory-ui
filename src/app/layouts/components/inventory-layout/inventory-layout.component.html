@@ -1,0 +1,142 @@
+<div class="flex h-screen bg-gray-50 font-sans text-slate-800 overflow-hidden">
+
+    <div *ngIf="isMobileMenuOpen" (click)="closeMenu()"
+        class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity">
+    </div>
+
+    <aside
+        class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto"
+        [ngClass]="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'">
+
+        <div class="h-16 flex items-center justify-between px-6 border-b border-gray-50 shrink-0">
+            <div class="flex items-center gap-2 font-bold text-xl text-slate-900">
+                <div
+                    class="w-8 h-8 bg-slate-900 rounded flex items-center justify-center text-white shadow-lg shadow-slate-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                Stampede
+            </div>
+            <button (click)="closeMenu()" class="lg:hidden text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+
+            <ng-container *ngFor="let item of navItems">
+                <a *ngIf="!item.subItems" [routerLink]="item.link" routerLinkActive="bg-gray-100 text-slate-900"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 rounded-md hover:bg-gray-50 hover:text-slate-900 group transition-colors cursor-pointer">
+                    <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.iconPath">
+                        </path>
+                    </svg>
+                    {{ item.label }}
+                </a>
+
+                <div *ngIf="item.subItems" class="space-y-1 pt-2">
+                    <div
+                        class="flex items-center justify-between px-3 py-2 text-sm font-medium bg-blue-50 text-blue-700 rounded-md group cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    [attr.d]="item.iconPath"></path>
+                            </svg>
+                            {{ item.label }}
+                        </div>
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </div>
+
+                    <div class="pl-11 pr-2 space-y-1 relative">
+                        <div class="absolute left-6 top-0 bottom-0 w-px bg-gray-200"></div>
+
+                        <a *ngFor="let sub of item.subItems" [routerLink]="sub.link"
+                            routerLinkActive="font-bold text-slate-900 bg-gray-100 border-l-2 border-slate-900"
+                            [routerLinkActiveOptions]="{exact: true}"
+                            class="block px-2 py-1.5 text-sm font-medium text-slate-500 rounded-md hover:text-slate-900 hover:bg-gray-50 transition-colors border-l-2 border-transparent">
+                            {{ sub.label }}
+                        </a>
+                    </div>
+                </div>
+            </ng-container>
+        </nav>
+
+        <div class="p-4 border-t border-gray-200">
+            <button
+                class="flex items-center justify-between w-full px-1 py-1 text-xs font-medium bg-gray-100 rounded-full p-1">
+                <span
+                    class="flex items-center gap-2 bg-white shadow-sm rounded-full px-3 py-1.5 text-slate-800 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                    Light
+                </span>
+                <span class="text-gray-500 px-3">Dark</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header
+            class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10">
+            <div class="flex items-center text-sm text-gray-500">
+                <button (click)="toggleMenu()"
+                    class="lg:hidden mr-4 text-slate-500 hover:bg-gray-100 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div class="flex items-center whitespace-nowrap">
+                    <span class="hidden sm:inline">Stampede</span>
+                    <svg class="hidden sm:inline w-4 h-4 mx-2 text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                    <span>Inventory</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button class="relative p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                        </path>
+                    </svg>
+                    <span class="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+                </button>
+
+                <div class="flex items-center gap-3 border-l border-gray-200 pl-4">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm font-medium text-slate-900">{{ user.name }}</div>
+                        <div class="text-xs text-gray-500">{{ user.role }}</div>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold cursor-pointer hover:bg-slate-700 transition-colors">
+                        {{ user.initials }}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 scroll-smooth">
+            <ng-component></ng-component>
+        </div>
+    </main>
+</div>
+
+<app-toast></app-toast>
+<app-modal></app-modal>
+<app-drawer></app-drawer>

@@ -1,0 +1,85 @@
+<app-card title="Purchase Orders" [noPadding]="true">
+  
+  <div action>
+    <app-btn variant="primary" [icon]="true">
+      <svg icon class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+      Create PO
+    </app-btn>
+  </div>
+
+  <div class="p-4 border-b border-gray-100 flex gap-4 bg-white">
+     <div class="w-64">
+       <app-dropdown 
+          label="Brand" 
+          [options]="brandOptions" 
+          [searchable]="true"
+          (selectionChange)="filterByBrand($event)">
+       </app-dropdown>
+     </div>
+     <div class="w-48">
+        <app-dropdown 
+          label="Warehouse" 
+          [options]="warehouseOptions">
+        </app-dropdown>
+     </div>
+  </div>
+
+  <app-table [columns]="['Create Date', 'Brand', 'Warehouse', 'Order No', 'Status', 'Action']">
+    
+    <tr *ngFor="let order of orders" class="hover:bg-gray-50 transition-colors">
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+         {{ order.date }}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+         {{ order.brand }}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+         {{ order.warehouse }}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+         {{ order.orderNo }}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+         <app-status-badge 
+            [label]="order.status" 
+            [variant]="getStatusVariant(order.status)">
+         </app-status-badge>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-right">
+        <app-btn variant="secondary" class="text-xs px-2 py-1 h-8">View</app-btn>
+      </td>
+    </tr>
+
+  </app-table>
+
+  <div footer class="flex items-center justify-between">
+     <span class="text-sm text-gray-500">Showing 1-10 of 50</span>
+     <div class="flex gap-2">
+        <app-btn variant="secondary">Prev</app-btn>
+        <app-btn variant="secondary">Next</app-btn>
+     </div>
+  </div>
+
+
+<ng-template #myForm>
+  <p class="text-gray-600">This content is coming from another component!</p>
+  <button class="mt-3 px-4 py-2 rounded bg-blue-600 text-white">Save</button>
+</ng-template>
+
+<ng-template #deleteConfirm>
+  <div class="p-6">
+    <h3 class="text-lg font-bold mb-2">Are you sure?</h3>
+    <p class="text-gray-600 mb-6">This action cannot be undone.</p>
+    <div class="flex justify-end gap-2">
+      <button class="px-4 py-2 bg-red-600 text-white rounded">Delete</button>
+    </div>
+  </div>
+</ng-template>
+
+<button (click)="openModal(deleteConfirm)">Delete</button>
+
+
+</app-card>
+
+
+
