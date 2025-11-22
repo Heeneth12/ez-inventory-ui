@@ -1,7 +1,7 @@
-<div class="max-w-5xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+<div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
     <!-- Header -->
     <div class="mb-8 border-b border-gray-100 pb-4">
-        <h1 class="text-2xl font-bold text-slate-900">New Item</h1>
+        <h1 class="text-2xl font-bold text-slate-900">{{ isEditMode ? 'Edit Item' : 'New Item' }}</h1>
     </div>
 
     <form [formGroup]="itemForm" (ngSubmit)="onSubmit()" class="space-y-10">
@@ -14,12 +14,12 @@
                             title="Help">?</span></label>
                     <div class="flex items-center gap-4">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" formControlName="type" value="goods"
+                            <input type="radio" formControlName="type" value="PRODUCT"
                                 class="text-blue-600 focus:ring-blue-500 border-gray-300">
                             <span class="text-sm text-slate-700">Goods</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" formControlName="type" value="service"
+                            <input type="radio" formControlName="type" value="SERVICE"
                                 class="text-blue-600 focus:ring-blue-500 border-gray-300">
                             <span class="text-sm text-slate-700">Service</span>
                         </label>
@@ -45,7 +45,7 @@
                 <div class="flex items-center gap-6">
                     <label class="w-32 text-sm text-red-500">Unit* <span class="text-gray-400 cursor-help"
                             title="Unit of Measure">?</span></label>
-                    <select formControlName="unit"
+                    <select formControlName="unitOfMeasure"
                         class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all hover:border-gray-400">
                         <option value="" disabled>Select or type to add</option>
                         <option value="pcs">Pieces (pcs)</option>
@@ -54,15 +54,16 @@
                     </select>
                 </div>
 
-                <!-- Returnable Checkbox -->
+                <!-- Category -->
                 <div class="flex items-center gap-6">
-                    <div class="w-32"></div>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" formControlName="returnable"
-                            class="rounded text-blue-600 focus:ring-blue-500 border-gray-300">
-                        <span class="text-sm text-slate-700">Returnable Item</span>
-                        <span class="text-gray-400 text-xs cursor-help" title="Can this item be returned?">?</span>
-                    </label>
+                    <label class="w-32 text-sm text-slate-600">Category</label>
+                    <select formControlName="category"
+                        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all hover:border-gray-400">
+                        <option value="" disabled>Select Category</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Furniture">Furniture</option>
+                        <option value="Stationery">Stationery</option>
+                    </select>
                 </div>
 
             </div>
@@ -88,87 +89,6 @@
 
         </div>
 
-        <!-- PHYSICAL ATTRIBUTES (Dimensions / Weight) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
-
-            <!-- Dimensions -->
-            <div class="flex items-center gap-4">
-                <label class="w-32 text-sm text-slate-600">
-                    Dimensions<br>
-                    <span class="text-xs text-gray-400">(L x W x H)</span>
-                </label>
-                <div class="flex-1 flex gap-2">
-                    <input type="number" placeholder="L"
-                        class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <input type="number" placeholder="W"
-                        class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <input type="number" placeholder="H"
-                        class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <select class="bg-gray-50 border border-gray-300 rounded-lg px-2 text-sm text-slate-600">
-                        <option>cm</option>
-                        <option>in</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Weight -->
-            <div class="flex items-center gap-4">
-                <label class="w-24 text-sm text-slate-600">Weight</label>
-                <div class="flex-1 flex">
-                    <input type="number"
-                        class="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:z-10">
-                    <select
-                        class="border border-l-0 border-gray-300 rounded-r-lg px-3 py-2 text-sm bg-gray-50 text-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        <option>kg</option>
-                        <option>lb</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Manufacturer -->
-            <div class="flex items-center gap-4">
-                <label class="w-32 text-sm text-slate-600">Manufacturer</label>
-                <select
-                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <option>Select or Add Manufacturer</option>
-                </select>
-            </div>
-
-            <!-- Brand -->
-            <div class="flex items-center gap-4">
-                <label class="w-24 text-sm text-slate-600">Brand</label>
-                <select
-                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <option>Select or Add Brand</option>
-                </select>
-            </div>
-
-        </div>
-
-        <!-- IDENTIFIERS (UPC/EAN) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
-            <div class="flex items-center gap-4">
-                <label class="w-32 text-sm text-slate-600">UPC <span class="text-gray-400 text-xs">?</span></label>
-                <input type="text"
-                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            </div>
-            <div class="flex items-center gap-4">
-                <label class="w-24 text-sm text-slate-600">MPN <span class="text-gray-400 text-xs">?</span></label>
-                <input type="text"
-                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            </div>
-            <div class="flex items-center gap-4">
-                <label class="w-32 text-sm text-slate-600">EAN <span class="text-gray-400 text-xs">?</span></label>
-                <input type="text"
-                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            </div>
-            <div class="flex items-center gap-4">
-                <label class="w-24 text-sm text-slate-600">ISBN <span class="text-gray-400 text-xs">?</span></label>
-                <input type="text"
-                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            </div>
-        </div>
-
         <hr class="border-gray-100">
 
         <!-- SALES & PURCHASE INFO (Grid) -->
@@ -190,22 +110,14 @@
                         <div class="flex-1 flex">
                             <span
                                 class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">INR</span>
-                            <input type="number"
+                            <input type="number" formControlName="sellingPrice"
                                 class="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-4">
-                        <label class="w-32 text-sm text-red-500">Account*</label>
-                        <select
-                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option>[ 76440 ] Sales</option>
-                        </select>
-                    </div>
-
                     <div class="flex items-start gap-4">
                         <label class="w-32 text-sm text-slate-600 mt-2">Description</label>
-                        <textarea rows="3"
+                        <textarea rows="3" formControlName="description"
                             class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"></textarea>
                     </div>
                 </div>
@@ -227,31 +139,9 @@
                         <div class="flex-1 flex">
                             <span
                                 class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">INR</span>
-                            <input type="number"
+                            <input type="number" formControlName="purchasePrice"
                                 class="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         </div>
-                    </div>
-
-                    <div class="flex items-center gap-4">
-                        <label class="w-32 text-sm text-red-500">Account*</label>
-                        <select
-                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option>[ 30655 ] Cost of Goods Sold</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-start gap-4">
-                        <label class="w-32 text-sm text-slate-600 mt-2">Description</label>
-                        <textarea rows="3"
-                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"></textarea>
-                    </div>
-
-                    <div class="flex items-center gap-4">
-                        <label class="w-32 text-sm text-slate-600">Preferred Vendor</label>
-                        <select
-                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option></option>
-                        </select>
                     </div>
 
                 </div>
@@ -271,37 +161,12 @@
 
             <div *ngIf="itemForm.get('trackInventory')?.value"
                 class="pl-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-200">
-                <p class="text-xs text-gray-500 -mt-4 mb-4">You cannot enable/disable inventory tracking once you've
-                    created transactions for this item</p>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
 
                     <div class="flex items-center gap-4">
-                        <label class="w-36 text-sm text-red-500">Inventory Account*</label>
-                        <select
-                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option>[ 38859 ] Inventory Asset</option>
-                        </select>
-                    </div>
-
-                    <!-- Empty col for alignment if needed, or just let it flow -->
-                    <div class="hidden lg:block"></div>
-
-                    <div class="flex items-center gap-4">
                         <label class="w-36 text-sm text-slate-600">Opening Stock</label>
-                        <input type="number"
-                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-
-                    <div class="flex items-center gap-4">
-                        <label class="w-32 text-sm text-slate-600">Opening Stock<br>Rate per Unit</label>
-                        <input type="number"
-                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-
-                    <div class="flex items-center gap-4">
-                        <label class="w-36 text-sm text-slate-600">Reorder Point</label>
-                        <input type="number"
+                        <input type="number" formControlName="openingStock"
                             class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
 
@@ -309,25 +174,14 @@
             </div>
         </div>
 
-        <!-- Advanced/Tags -->
-        <div class="pt-2">
-            <button type="button" class="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
-                Associate Tags <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clip-rule="evenodd"></path>
-                </svg>
-            </button>
-        </div>
-
         <!-- FOOTER ACTIONS -->
         <div
             class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 flex items-center justify-start gap-3 shadow-lg z-10 lg:static lg:shadow-none lg:border-t-0 lg:p-0 lg:bg-transparent">
             <button type="submit"
                 class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm">
-                Save
+                {{ isEditMode ? 'Update' : 'Save' }}
             </button>
-            <button type="button"
+            <button type="button" (click)="onCancel()"
                 class="px-6 py-2 bg-white border border-gray-300 text-slate-700 font-medium rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-200 transition-all">
                 Cancel
             </button>

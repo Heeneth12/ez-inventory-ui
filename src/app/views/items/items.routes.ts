@@ -6,4 +6,5 @@ export const ItemsRoutes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: '', component: ItemsComponent },
     { path: "add", component: AddItemsComponent },
+    { path: "edit/:id", component: AddItemsComponent },
 ];

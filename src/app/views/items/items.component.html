@@ -28,16 +28,15 @@
         </div>
 
         <app-table [columns]="columns">
-            <tr *ngFor="let item of items" class="hover:bg-gray-50 transition-colors">
+            @for(item of listList; track item.id){
+            <tr class="hover:bg-gray-50 transition-colors">
                 <!-- Name & Image -->
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                         <div
                             class="h-10 w-10 flex-shrink-0 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                            <img *ngIf="item.image" [src]="item.image" [alt]="item.name"
-                                class="h-full w-full object-cover">
-                            <span *ngIf="!item.image" class="text-xs font-medium text-gray-500">{{ item.sku.substring(0,
-                                2) }}</span>
+                            <span class="text-xs font-medium text-gray-500">{{ item.name.substring(0, 2).toUpperCase()
+                                }}</span>
                         </div>
                         <div class="ml-4">
                             <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
@@ -48,39 +47,40 @@
 
                 <!-- SKU -->
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                    {{ item.sku }}
+                    {{ item.sku || item.itemCode || '-' }}
                 </td>
 
                 <!-- Type -->
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-2 py-1 text-xs font-medium rounded-full"
-                        [ngClass]="item.type === 'Item' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'">
+                        [ngClass]="item.type === 'PRODUCT' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'">
                         {{ item.type }}
                     </span>
                 </td>
 
                 <!-- Price -->
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    \${{ item.price.toFixed(2) }}
+                    ${{ item.sellingPrice | number:'1.2-2' }}
                 </td>
 
-                <!-- Stock / Duration -->
+                <!-- Stock -->
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span *ngIf="item.type === 'Item'">{{ item.stock }} {{ item.unit }}</span>
-                    <span *ngIf="item.type === 'Service'">{{ item.duration }}</span>
+                    <span *ngIf="item.type === 'PRODUCT'">{{ item.openingStock || 0 }} {{ item.unitOfMeasure }}</span>
+                    <span *ngIf="item.type === 'SERVICE'">-</span>
                 </td>
 
                 <!-- Status -->
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 py-1 text-xs font-medium rounded-full" [ngClass]="getStatusClass(item.status)">
-                        {{ item.status }}
+                    <span class="px-2 py-1 text-xs font-medium rounded-full"
+                        [ngClass]="item.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                        {{ item.isActive ? 'Active' : 'Inactive' }}
                     </span>
                 </td>
 
                 <!-- Actions -->
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div class="flex items-center gap-2">
-                        <button
+                        <button (click)="updateItem(1)"
                             class="p-1 text-gray-400 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50">
                             <lucide-icon [name]="Edit" class="w-4 h-4"></lucide-icon>
                         </button>
@@ -91,6 +91,13 @@
                     </div>
                 </td>
             </tr>
+            }@empty{
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    No items found.
+                </td>
+            </tr>
+            }
         </app-table>
     </app-card>
 </div>
