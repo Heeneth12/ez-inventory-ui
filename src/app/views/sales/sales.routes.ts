@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
+import { SalesComponent } from './sales.component';
 
 
 export const SalesRoutes: Routes = [
-    { path: '', redirectTo: '', pathMatch: 'full' },
+    { path: '', component: SalesComponent },
 ];
