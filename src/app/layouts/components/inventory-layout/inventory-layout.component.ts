@@ -1,20 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { RouterModule, ɵEmptyOutletComponent } from "@angular/router";
 import { DrawerComponent } from "../drawer/drawer.component";
 import { ToastComponent } from "../toast/toast.component";
 import { ModalComponent } from "../modal/modal.component";
+import { DrawerService } from '../drawer/drawerService';
+import { UserComponent } from '../user/user.component';
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, ɵEmptyOutletComponent, RouterModule, DrawerComponent, ToastComponent, ModalComponent],
+  imports: [CommonModule, ɵEmptyOutletComponent, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent],
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css'
 })
 export class InventoryLayoutComponent {
   isMobileMenuOpen = false;
   openDropdownIndex: number | null = null;
+  @ViewChild('userProfileTemplate') userProfileTemplate!: TemplateRef<any>;
 
   user: UserProfile = {
     name: 'Adam Driver',
@@ -65,6 +68,15 @@ export class InventoryLayoutComponent {
       iconPath: 'folder.svg'
     }
   ];
+
+
+  constructor(private drawerService: DrawerService) {
+
+  }
+
+  toggleUserMenu() {
+    this.drawerService.open(this.userProfileTemplate, "User Profile");
+  }
 
   toggleMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
