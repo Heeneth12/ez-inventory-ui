@@ -63,15 +63,24 @@ export class InventoryLayoutComponent {
       iconPath: 'document-chart-bar.svg'
     },
     {
+      label: 'Contacts',
+      link: '/contacts',
+      iconPath: 'users.svg'
+    },
+    {
       label: 'Documents',
       link: '/documents',
       iconPath: 'folder.svg'
+    },
+    {
+      label: 'Settings',
+      link: '/settings',
+      iconPath: 'cog-6-tooth.svg'
     }
   ];
 
 
   constructor(private drawerService: DrawerService) {
-
   }
 
   toggleUserMenu() {
