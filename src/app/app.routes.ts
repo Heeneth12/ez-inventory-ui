@@ -7,6 +7,7 @@ import { PurchasesRoutes } from './views/purchases/purchases.routes';
 import { SalesRoutes } from './views/sales/sales.routes';
 import { ReportsRoutes } from './views/reports/reports.routes';
 import { DocumentsRoutes } from './views/documents/documents.routes';
+import { AuthComponent } from './views/auth/auth.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -17,5 +18,6 @@ export const routes: Routes = [
     { path: 'sales', children: SalesRoutes },
     { path: 'reports', children: ReportsRoutes },
     { path: 'documents', children: DocumentsRoutes },
+    { path: 'auth', component: AuthComponent },
     { path: 'forbidden', component: ForbiddenComponent },
 ];
