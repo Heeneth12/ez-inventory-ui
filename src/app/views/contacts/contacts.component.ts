@@ -7,6 +7,7 @@ import { ContactService } from './contacts.service';
 import { ContactFilter, ContactModel } from './contacts.model';
 import { SmartTableComponent, TableColumn } from "../../layouts/components/smart-table/smart-table.component";
 import { TableToolbarComponent } from "../../layouts/components/table-toolbar/table-toolbar.component";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-contacts',
@@ -16,14 +17,12 @@ import { TableToolbarComponent } from "../../layouts/components/table-toolbar/ta
   styleUrls: ['./contacts.component.css']
 })
 export class ContactsComponent implements OnInit {
-  @ViewChild('contactFormTemplate') formTemplate!: TemplateRef<any>;
+  @ViewChild('contactProfile') contactProfile!: TemplateRef<any>;
 
   contacts: ContactModel[] = [];
   filteredContacts: ContactModel[] = [];
   contact?: ContactModel;
   contactFilter: ContactFilter = new ContactFilter();
-  contactForm: FormGroup;
-
   searchTerm = '';
 
   activeTab: 'ALL' | 'CUSTOMER' | 'SUPPLIER' = 'ALL';
@@ -33,7 +32,6 @@ export class ContactsComponent implements OnInit {
     { id: 'SUPPLIER', label: 'Suppliers' }
   ];
 
-  isEditing = false;
   editingId: number | null = null;
 
   tableColumns: TableColumn[] = [
@@ -45,38 +43,20 @@ export class ContactsComponent implements OnInit {
     { key: 'phone', label: 'Phone', type: 'text', sortable: true },
     { key: 'gstNumber', label: 'GST Number', type: 'text', sortable: true },
     { key: 'type', label: 'Type', type: 'text', sortable: true },
-
-    // { key: 'employee', label: 'Employee name', type: 'user-profile', sortable: true, minWidth: '250px' },
-    // { key: 'amount', label: 'Amount', type: 'currency', sortable: true },
-    // { key: 'releaseAmount', label: 'Release amount', type: 'currency', sortable: true },
-    // { key: 'date', label: 'Salary month', type: 'date', sortable: true },
-    // { key: 'status', label: 'Status', type: 'status', sortable: true },
-    // { key: 'actions', label: 'Actions', type: 'actions' }
+    { key: 'actions', label: 'Actions', type: 'actions' }
   ];
 
 
   constructor(
-    private fb: FormBuilder,
     private contactService: ContactService,
     public drawerService: DrawerService,
-    private toast: ToastService
-  ) {
-    this.contactForm = this.fb.group({
-      contactCode: ['', Validators.required],
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      phone: [''],
-      gstNumber: [''],
-      type: ['CUSTOMER', Validators.required],
-      active: [true]
-    });
-  }
+    private toast: ToastService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.getAllContacts();
   }
-
-  // --- CRUD Logic ---
 
   getAllContacts() {
     this.contactService.getContacts(0, 100, {},
@@ -108,7 +88,6 @@ export class ContactsComponent implements OnInit {
           this.toast.show('Contact created successfully', 'success');
           this.contacts.push(response.data);
         }
-
       },
       (error: any) => {
         this.toast.show('Failed to create contact', 'error');
@@ -146,6 +125,22 @@ export class ContactsComponent implements OnInit {
    // Event Handlers
   onTabChange() {
    
+  }
+
+
+  
+  // export const contactsRoutes: Routes = [
+  
+  //     { path: '', redirectTo: '', pathMatch: 'full' },
+  //     { path: '', component: ContactsComponent },
+  //     { path: 'create', component: ContactFormComponent },
+  //     { path: 'edit/:id', component: ContactFormComponent },
+  
+  // ]
+  openEditContact(contactId: number) {
+    this.editingId = contactId;
+    this.router.navigate(['/contacts/edit', 1]);
+
   }
 
   onToolbarAction(action: 'export' | 'create') {

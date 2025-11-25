@@ -18,7 +18,7 @@ export class ContactService {
     }
 
     updateContact(item: ContactModel, successfn: any, errorfn: any) {
-        return this.httpService.putHttp(`${ContactService.CONTACTS_BASE_URL}/${item.id}`, item, successfn, errorfn);
+        return this.httpService.putHttp(`${ContactService.CONTACTS_BASE_URL}/${item.id}/update`, item, successfn, errorfn);
     }
 
     getContacts(page: number, size: number, filter: ContactFilter, successfn: any, errorfn: any) {
