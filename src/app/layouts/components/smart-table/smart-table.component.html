@@ -1,0 +1,191 @@
+<div
+    class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <!-- Header Toolbar -->
+    <div
+        class="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-100/50 bg-white">
+        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">{{ title }}</h2>
+
+        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <!-- Search -->
+            <div class="relative group w-full sm:w-64">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400 group-focus-within:text-gray-600 transition-colors" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                    placeholder="Search..."
+                    class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50/50 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200" />
+            </div>
+
+            <!-- Filter Button -->
+            <button
+                class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                Filters
+            </button>
+
+            <!-- Sort Button -->
+            <button
+                class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm">
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                </svg>
+                Sort
+            </button>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-50">
+            <thead class="bg-gray-50/30">
+                <tr>
+                    @for (col of columns; track col.key) {
+                    <th scope="col" class="px-6 py-4 bg-gray-100 text-left text-sm font-medium text-gray-900 whitespace-nowrap"
+                        [class.cursor-pointer]="col.sortable" [class.group]="col.sortable"
+                        (click)="col.sortable && handleSort(col.key)">
+                        <div class="flex items-center gap-1.5">
+                            {{ col.label }}
+                            @if (col.sortable) {
+                            <div class="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                [class.opacity-100]="sortKey() === col.key">
+                                <!-- Active Sort Arrow -->
+                                @if (sortKey() === col.key && sortDirection() === 'desc') {
+                                <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                                </svg>
+                                } @else if (sortKey() === col.key && sortDirection() === 'asc') {
+                                <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6 1.41 1.41z" />
+                                </svg>
+                                } @else {
+                                <!-- Neutral Sort Icon -->
+                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z" />
+                                </svg>
+                                }
+                            </div>
+                            }
+                        </div>
+                    </th>
+                    }
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-50">
+                @for (row of processedData(); track $index) {
+                <tr class="hover:bg-gray-50/60 transition-colors duration-150 group">
+
+                    @for (col of columns; track col.key) {
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" [style.min-width]="col.minWidth">
+
+                        @switch (col.type) {
+
+                        <!-- Index Type -->
+                        @case ('index') {
+                        <span class="font-medium text-gray-900">
+                            {{ ($index + 1).toString().padStart(2, '0') }}
+                        </span>
+                        }
+
+                        <!-- User Profile Type -->
+                        @case ('user-profile') {
+                        <div class="flex items-center">
+                            <div
+                                class="h-9 w-9 flex-shrink-0 rounded-full bg-gray-100 text-emerald-600 flex items-center justify-center font-bold text-xs mr-3 border border-gray-100 overflow-hidden">
+                                @if (row[col.key]?.avatar) {
+                                <img [src]="row[col.key].avatar" class="h-full w-full object-cover" alt="">
+                                } @else {
+                                {{ getInitials(row[col.key]?.name || row[col.key]) }}
+                                }
+                            </div>
+                            <div class="font-medium text-gray-900">
+                                {{ row[col.key]?.name || row[col.key] }}
+                            </div>
+                        </div>
+                        }
+
+                        <!-- Currency Type -->
+                        @case ('currency') {
+                        <span class="font-medium text-gray-900">
+                            {{ row[col.key] | currency:'USD':'symbol':'1.2-2' }}
+                        </span>
+                        }
+
+                        <!-- Date Type -->
+                        @case ('date') {
+                        <span class="text-gray-500">
+                            {{ row[col.key] | date:'MM-dd-y' }}
+                        </span>
+                        }
+
+                        <!-- Status Type -->
+                        @case ('status') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium border"
+                            [ngClass]="getStatusStyles(row[col.key])">
+                            <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getStatusDotStyles(row[col.key])"></span>
+                            {{ row[col.key] }}
+                        </span>
+                        }
+
+                        <!-- Actions Type -->
+                        @case ('actions') {
+                        <button
+                            class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                            </svg>
+                        </button>
+                        }
+
+                        <!-- Default Text -->
+                        @default {
+                        {{ row[col.key] }}
+                        }
+
+                        }
+                    </td>
+                    }
+
+                </tr>
+                }
+                @empty {
+                <tr>
+                    <td [attr.colspan]="columns.length" class="px-6 py-12 text-center text-gray-500">
+                        <div class="flex flex-col items-center justify-center gap-2">
+                            <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p>No records found matching "{{ searchQuery() }}"</p>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="bg-white px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+        <span class="text-sm text-gray-500">
+            Showing <span class="font-medium text-gray-900">1</span> to <span class="font-medium text-gray-900">{{
+                processedData().length }}</span> of <span class="font-medium text-gray-900">{{ data.length }}</span>
+            results
+        </span>
+        <div class="flex gap-2">
+            <button
+                class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 transition-colors">Previous</button>
+            <button
+                class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 transition-colors">Next</button>
+        </div>
+    </div>
+</div>
