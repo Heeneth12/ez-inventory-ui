@@ -1,0 +1,35 @@
+import { Injectable } from "@angular/core";
+import { HttpService } from "../../layouts/service/http-svc/http.service";
+import { environment } from "../../../environments/environment.development";
+import { ContactFilter, ContactModel } from "./contacts.model";
+
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ContactService {
+
+    private static CONTACTS_BASE_URL = environment.devUrl + '/v1/contact';
+
+    constructor(private httpService: HttpService) { }
+
+    createContact(item: ContactModel, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}`, item, successfn, errorfn);
+    }
+
+    updateContact(item: ContactModel, successfn: any, errorfn: any) {
+        return this.httpService.putHttp(`${ContactService.CONTACTS_BASE_URL}/${item.id}`, item, successfn, errorfn);
+    }
+
+    getContacts(page: number, size: number, filter: ContactFilter, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
+    }
+
+    getContactById(id: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${ContactService.CONTACTS_BASE_URL}/${id}`, successfn, errorfn);
+    }
+
+    toggleContactStatus(id: number, active: boolean, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}/${id}/status?active=${active}`, null, successfn, errorfn);
+    }
+}

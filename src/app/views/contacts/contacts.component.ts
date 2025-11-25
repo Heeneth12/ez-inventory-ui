@@ -3,43 +3,29 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
-
-// 1. Interfaces based on your Java Entity
-export enum ContactType {
-  CUSTOMER = 'CUSTOMER',
-  SUPPLIER = 'SUPPLIER',
-  BOTH = 'BOTH'
-}
-
-export interface Contact {
-  contactCode: string;
-  name: string;
-  email: string;
-  phone: string;
-  gstNumber: string;
-  type: ContactType;
-  active: boolean;
-  // UI helper props
-  avatarColor?: string;
-  initials?: string;
-}
+import { ContactService } from './contacts.service';
+import { ContactFilter, ContactModel } from './contacts.model';
+import { SmartTableComponent, TableColumn } from "../../layouts/components/smart-table/smart-table.component";
+import { TableToolbarComponent } from "../../layouts/components/table-toolbar/table-toolbar.component";
 
 @Component({
   selector: 'app-contacts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SmartTableComponent, TableToolbarComponent],
   templateUrl: './contacts.component.html',
   styleUrls: ['./contacts.component.css']
 })
 export class ContactsComponent implements OnInit {
   @ViewChild('contactFormTemplate') formTemplate!: TemplateRef<any>;
 
-  contacts: Contact[] = [];
-  filteredContacts: Contact[] = [];
+  contacts: ContactModel[] = [];
+  filteredContacts: ContactModel[] = [];
+  contact?: ContactModel;
+  contactFilter: ContactFilter = new ContactFilter();
   contactForm: FormGroup;
-  
-  // Filters
+
   searchTerm = '';
+
   activeTab: 'ALL' | 'CUSTOMER' | 'SUPPLIER' = 'ALL';
   tabs = [
     { id: 'ALL', label: 'All Contacts' },
@@ -48,10 +34,30 @@ export class ContactsComponent implements OnInit {
   ];
 
   isEditing = false;
-  editingId: string | null = null;
+  editingId: number | null = null;
+
+  tableColumns: TableColumn[] = [
+    { key: 'id', label: 'Sl No', type: 'index', sortable: false },
+    { key: 'name', label: 'Name', type: 'user-profile', sortable: true, minWidth: '250px' },
+    { key: 'contactCode', label: 'Contact Code', type: 'text', sortable: true },
+    { key: 'name', label: 'Name', type: 'text', sortable: true },
+    { key: 'email', label: 'Email', type: 'text', sortable: true },
+    { key: 'phone', label: 'Phone', type: 'text', sortable: true },
+    { key: 'gstNumber', label: 'GST Number', type: 'text', sortable: true },
+    { key: 'type', label: 'Type', type: 'text', sortable: true },
+
+    // { key: 'employee', label: 'Employee name', type: 'user-profile', sortable: true, minWidth: '250px' },
+    // { key: 'amount', label: 'Amount', type: 'currency', sortable: true },
+    // { key: 'releaseAmount', label: 'Release amount', type: 'currency', sortable: true },
+    // { key: 'date', label: 'Salary month', type: 'date', sortable: true },
+    // { key: 'status', label: 'Status', type: 'status', sortable: true },
+    // { key: 'actions', label: 'Actions', type: 'actions' }
+  ];
+
 
   constructor(
     private fb: FormBuilder,
+    private contactService: ContactService,
     public drawerService: DrawerService,
     private toast: ToastService
   ) {
@@ -67,126 +73,87 @@ export class ContactsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadMockData();
-    this.applyFilters();
+    this.getAllContacts();
   }
 
   // --- CRUD Logic ---
 
-  openForm(contact?: Contact) {
-    this.isEditing = !!contact;
-    this.editingId = contact ? contact.contactCode : null;
-
-    if (contact) {
-      this.contactForm.patchValue(contact);
-    } else {
-      this.contactForm.reset({
-        contactCode: this.generateCode(),
-        type: 'CUSTOMER',
-        active: true
-      });
-    }
-
-    this.drawerService.open(
-      this.formTemplate, 
-      this.isEditing ? 'Edit Contact' : 'New Contact',
+  getAllContacts() {
+    this.contactService.getContacts(0, 100, {},
+      (response: any) => {
+        this.contacts = response.data.content;
+        this.filteredContacts = [...this.contacts];
+      },
+      (error: any) => {
+        this.toast.show('Failed to load contacts', 'error');
+      }
     );
   }
 
-  saveContact() {
-    if (this.contactForm.invalid) return;
-
-    const formVal = this.contactForm.value;
-    // Helper to generate visuals
-    const enhancedData: Contact = {
-      ...formVal,
-      initials: formVal.name.substring(0, 2).toUpperCase(),
-      avatarColor: this.getRandomColor()
-    };
-
-    if (this.isEditing) {
-      // Update
-      const index = this.contacts.findIndex(c => c.contactCode === this.editingId);
-      if (index !== -1) {
-        this.contacts[index] = enhancedData;
-        this.toast.show('Contact updated successfully', 'success');
+  getContactById(id: number) {
+    this.contactService.getContactById(id,
+      (response: any) => {
+        this.contact = response.data;
+      },
+      (error: any) => {
+        this.toast.show('Failed to load contact details', 'error');
       }
-    } else {
-      // Create
-      this.contacts.unshift(enhancedData);
-      this.toast.show('New contact created', 'success');
-    }
-
-    this.applyFilters();
-    this.drawerService.close();
+    );
   }
 
-  deleteContact(contact: Contact) {
-    if(confirm(`Are you sure you want to delete ${contact.name}?`)) {
-      this.contacts = this.contacts.filter(c => c.contactCode !== contact.contactCode);
-      this.applyFilters();
-      this.toast.show('Contact deleted', 'info');
-    }
+  createContact(contact: ContactModel) {
+    this.contactService.createContact(contact,
+      (response: any) => {
+        if (response && response.data) {
+          this.toast.show('Contact created successfully', 'success');
+          this.contacts.push(response.data);
+        }
+
+      },
+      (error: any) => {
+        this.toast.show('Failed to create contact', 'error');
+      }
+    );
   }
 
-  toggleStatus(contact: Contact) {
-    contact.active = !contact.active;
-    this.toast.show(`${contact.name} is now ${contact.active ? 'Active' : 'Inactive'}`, 'info');
+  updateContact(contact: ContactModel) {
+    this.contactService.updateContact(contact,
+      (response: any) => {  
+        this.toast.show('Contact updated successfully', 'success');
+        const index = this.contacts.findIndex(c => c.id === contact.id);
+        if (index !== -1) {
+          this.contacts[index] = response.data;
+        }
+      },
+      (error: any) => {
+        this.toast.show('Failed to update contact', 'error');
+      }
+    );
   }
 
-  // --- Filtering Logic ---
-
-  applyFilters() {
-    this.filteredContacts = this.contacts.filter(c => {
-      // 1. Tab Filter
-      const matchesType = this.activeTab === 'ALL' || 
-                          c.type === this.activeTab || 
-                          c.type === 'BOTH'; // Both usually shows in both tabs
-
-      // 2. Search Filter
-      const term = this.searchTerm.toLowerCase();
-      const matchesSearch = c.name.toLowerCase().includes(term) || 
-                            c.email.toLowerCase().includes(term) || 
-                            c.contactCode.toLowerCase().includes(term);
-
-      return matchesType && matchesSearch;
-    });
+  toggleStatus(active: boolean, id: number) {
+    this.contactService.toggleContactStatus(id, active,
+      (response: any) => {
+        this.toast.show('Contact status updated', 'success'); 
+      },
+      (error: any) => {
+        this.toast.show('Failed to update contact status', 'error');
+      }
+    );
   }
 
-  // --- Helpers for UI ---
 
-  getTypeBadgeClass(type: ContactType): string {
-    switch (type) {
-      case ContactType.CUSTOMER: return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-      case ContactType.SUPPLIER: return 'bg-purple-50 text-purple-700 border-purple-200';
-      case ContactType.BOTH: return 'bg-teal-50 text-teal-700 border-teal-200';
-      default: return 'bg-gray-100 text-gray-700';
-    }
+   // Event Handlers
+  onTabChange() {
+   
   }
 
-  getTypeDotClass(type: ContactType): string {
-    switch (type) {
-      case ContactType.CUSTOMER: return 'bg-indigo-500';
-      case ContactType.SUPPLIER: return 'bg-purple-500';
-      case ContactType.BOTH: return 'bg-teal-500';
-      default: return 'bg-gray-500';
+  onToolbarAction(action: 'export' | 'create') {
+    console.log('Action triggered:', action);
+    if (action === 'create') {
+        // Logic to open create modal
+        alert('Open Create Modal');
     }
   }
 
-  generateCode() {
-    return 'C-' + Math.floor(1000 + Math.random() * 9000);
-  }
-
-  getRandomColor() {
-    const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#3b82f6'];
-    return colors[Math.floor(Math.random() * colors.length)];
-  }
-
-  loadMockData() {
-    this.contacts = [
-      { contactCode: 'C-1023', name: 'Acme Corp', email: 'billing@acme.com', phone: '+1 555-0101', gstNumber: '29ABCDE1234F1Z5', type: ContactType.CUSTOMER, active: true, initials: 'AC', avatarColor: '#6366f1' },
-      { contactCode: 'S-4021', name: 'Global Supplies Inc', email: 'sales@globalsupplies.com', phone: '+1 555-0202', gstNumber: '19XYZDE1234F1Z1', type: ContactType.SUPPLIER, active: true, initials: 'GS', avatarColor: '#8b5cf6' },
-      { contactCode: 'B-9901', name: 'Tech Solutions Ltd', email: 'contact@techsol.com', phone: '+1 555-0303', gstNumber: '07PQRST1234F1Z9', type: ContactType.BOTH, active: false, initials: 'TS', avatarColor: '#10b981' },
-    ];
-  }
 }
