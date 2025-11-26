@@ -1,103 +1,19 @@
 <div class="space-y-6">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900">Items & Services</h1>
-            <p class="text-slate-500 mt-1">Manage your inventory items and service offerings</p>
-        </div>
-        <div class="flex gap-3">
-            <app-btn variant="secondary" [icon]="true">
-                <lucide-icon [name]="Filter" class="w-4 h-4"></lucide-icon>
-                Filter
-            </app-btn>
-            <app-btn variant="primary" [icon]="true">
-                <lucide-icon [name]="Plus" class="w-4 h-4"></lucide-icon>
-                Add New
-            </app-btn>
-        </div>
+    <div class="flex-1 h-[calc(100vh-90px)] overflow-y-auto">
+        <app-standard-table
+            [title]="'Data Table'"
+            [columns]="columns"
+            [data]="listList"
+            [pagination]="pagination"
+            (pageChange)="onPageChange($event)"
+            (loadMore)="onLoadMore()"
+            (action)="onTableAction($event)">
+        </app-standard-table>
     </div>
-
-    <app-card [noPadding]="true">
-        <!-- Search Bar inside Card Header area or just above table -->
-        <div class="p-4 border-b border-gray-100 bg-white flex gap-4 items-center">
-            <div class="relative flex-1 max-w-md">
-                <lucide-icon [name]="Search"
-                    class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></lucide-icon>
-                <input type="text" placeholder="Search items, SKU, or category..."
-                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-slate-500 focus:ring-1 focus:ring-slate-500 outline-none transition-all text-sm">
-            </div>
-        </div>
-
-        <app-table [columns]="columns">
-            @for(item of listList; track item.id){
-            <tr class="hover:bg-gray-50 transition-colors">
-                <!-- Name & Image -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div
-                            class="h-10 w-10 flex-shrink-0 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                            <span class="text-xs font-medium text-gray-500">{{ item.name.substring(0, 2).toUpperCase()
-                                }}</span>
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
-                            <div class="text-xs text-gray-500">{{ item.category }}</div>
-                        </div>
-                    </div>
-                </td>
-
-                <!-- SKU -->
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                    {{ item.sku || item.itemCode || '-' }}
-                </td>
-
-                <!-- Type -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 py-1 text-xs font-medium rounded-full"
-                        [ngClass]="item.type === 'PRODUCT' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'">
-                        {{ item.type }}
-                    </span>
-                </td>
-
-                <!-- Price -->
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    ${{ item.sellingPrice | number:'1.2-2' }}
-                </td>
-
-                <!-- Stock -->
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span *ngIf="item.type === 'PRODUCT'">{{ item.openingStock || 0 }} {{ item.unitOfMeasure }}</span>
-                    <span *ngIf="item.type === 'SERVICE'">-</span>
-                </td>
-
-                <!-- Status -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 py-1 text-xs font-medium rounded-full"
-                        [ngClass]="item.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                        {{ item.isActive ? 'Active' : 'Inactive' }}
-                    </span>
-                </td>
-
-                <!-- Actions -->
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div class="flex items-center gap-2">
-                        <button (click)="updateItem(1)"
-                            class="p-1 text-gray-400 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50">
-                            <lucide-icon [name]="Edit" class="w-4 h-4"></lucide-icon>
-                        </button>
-                        <button
-                            class="p-1 text-gray-400 hover:text-red-600 transition-colors rounded-md hover:bg-red-50">
-                            <lucide-icon [name]="Trash2" class="w-4 h-4"></lucide-icon>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            }@empty{
-            <tr>
-                <td colspan="7" class="text-center py-4">
-                    No items found.
-                </td>
-            </tr>
-            }
-        </app-table>
-    </app-card>
 </div>
+
+<!-- DRAWER FORM TEMPLATE -->
+<ng-template #contactProfile let-data>
+    <div class="flex flex-col h-full bg-white">
+    </div>
+</ng-template>

@@ -1,0 +1,278 @@
+<div class="flex flex-col h-full bg-white rounded-sm shadow-lg border border-gray-200 font-sans overflow-hidden">
+    <!-- Toolbar -->
+    <div class="px-6 py-4 border-b border-gray-200 bg-white flex flex-col sm:flex-row gap-4 justify-between items-center z-20">
+        <!-- Left: Title & Stats -->
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Right: Controls -->
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+            <!-- Search -->
+            <div class="relative flex-1 sm:flex-none group">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                    class="block w-full sm:w-64 pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all"
+                    placeholder="Search..." />
+            </div>
+
+            <!-- Settings Toggle -->
+            <button (click)="showSettings.set(!showSettings())" [class.bg-indigo-50]="showSettings()"
+                [class.text-indigo-600]="showSettings()"
+                class="p-2 text-gray-500 hover:text-indigo-600 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-200 transition-all focus:outline-none"
+                title="Table Settings">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Configuration Panel -->
+    <div *ngIf="showSettings()"
+        class="bg-gray-50 border-b border-gray-200 p-4 animate-in slide-in-from-top-2 duration-200">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Density -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Display Density</h3>
+                <div class="flex bg-white rounded-md shadow-sm border border-gray-200 p-1">
+                    <button *ngFor="let d of ['compact', 'normal', 'comfortable']" (click)="setDensity(d)"
+                        class="flex-1 px-3 py-1.5 text-xs font-medium rounded capitalize transition-all"
+                        [ngClass]="density() === d ? 'bg-indigo-100 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'">
+                        {{ d }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Styling -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Styling</h3>
+                <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded transition-colors">
+                    <input type="checkbox" [(ngModel)]="stripedRows"
+                        class="rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                    <span class="text-sm text-gray-700">Striped Rows</span>
+                </label>
+            </div>
+
+            <!-- Columns -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Visible Columns</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button *ngFor="let col of columns" (click)="toggleColumn(col)"
+                        class="px-2 py-1 text-xs rounded border transition-all select-none"
+                        [ngClass]="col.visible !== false ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300'">
+                        {{ col.label }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="flex-1 overflow-auto relative custom-scrollbar bg-white" (scroll)="onScroll($event)">
+
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                <tr>
+                    <th *ngFor="let col of visibleColumns()"
+                        class="font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200 select-none group hover:bg-gray-100 transition-colors cursor-pointer"
+                        [ngClass]="[getCellPadding(true), 'text-' + (col.align || 'left')]" [style.width]="col.width"
+                        (click)="sort(col.key)">
+
+                        <div class="flex items-center gap-1"
+                            [ngClass]="{'justify-end': col.align === 'right', 'justify-center': col.align === 'center'}">
+                            {{ col.label }}
+                            <!-- Sort Icon -->
+                            <span *ngIf="col.sortable !== false && col.type !== 'action'"
+                                class="text-[10px] text-gray-400 transition-opacity"
+                                [class.text-indigo-600]="sortKey() === col.key"
+                                [class.opacity-0]="sortKey() !== col.key && !searchQuery()"
+                                [class.group-hover:opacity-100]="true">
+                                {{ sortKey() === col.key && sortDirection() === 'desc' ? '▼' : '▲' }}
+                            </span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-100">
+                <tr *ngFor="let row of displayedRows(); let i = index"
+                    class="group transition-colors hover:bg-indigo-50/30"
+                    [class.bg-gray-50]="stripedRows && i % 2 === 1">
+
+                    <td *ngFor="let col of visibleColumns()" class="text-sm text-gray-700 whitespace-nowrap"
+                        [ngClass]="[getCellPadding(), 'text-' + (col.align || 'left')]">
+
+                        <!-- Switch based on Column Type -->
+                        <ng-container [ngSwitch]="col.type || 'text'">
+
+                            <!-- 1. Profile Type (Avatar + Text) -->
+                            <div *ngSwitchCase="'profile'" class="flex items-center gap-3">
+                                <div class="shrink-0 h-9 w-9">
+                                    <img class="h-9 w-9 rounded-full object-cover border border-gray-200"
+                                        [src]="'https://ui-avatars.com/api/?name=' + row[col.key] + '&background=random&color=fff'"
+                                        alt="">
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-medium text-gray-900">{{ row[col.key] }}</span>
+                                    <span class="text-xs text-gray-400">{{ 'user@example.com' }}</span>
+                                </div>
+                            </div>
+
+                            <!-- 2. Badge Type (Status Pills) -->
+                            <span *ngSwitchCase="'badge'"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                                [ngClass]="getBadgeClass(row[col.key])">
+                                {{ row[col.key] }}
+                            </span>
+
+                            <!-- 3. Toggle Type (Switch) -->
+                            <button *ngSwitchCase="'toggle'"
+                                (click)="emitAction('toggle', row, col.key); $event.stopPropagation()"
+                                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                [class.bg-indigo-600]="row[col.key]" [class.bg-gray-200]="!row[col.key]">
+                                <span
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                    [class.translate-x-5]="row[col.key]" [class.translate-x-0]="!row[col.key]"></span>
+                            </button>
+
+                            <!-- 4. Link Type -->
+                            <a *ngSwitchCase="'link'" href="#" (click)="$event.preventDefault()"
+                                class="text-indigo-600 hover:text-indigo-900 hover:underline font-medium">
+                                {{ row[col.key] }}
+                            </a>
+
+                            <!-- 5. Currency Type -->
+                            <span *ngSwitchCase="'currency'" class="font-medium text-gray-700">
+                                {{ row[col.key] | currency }}
+                            </span>
+
+                            <!-- 6. Number Type -->
+                            <span *ngSwitchCase="'number'" [class.text-red-600]="row[col.key] < 0">
+                                {{ row[col.key] | number:'1.0-2' }}
+                            </span>
+
+                            <!-- 7. Action Type (Buttons) -->
+                            <div *ngSwitchCase="'action'" class="flex items-center justify-center gap-2">
+                                <button (click)="emitAction('view', row)"
+                                    class="p-1 text-gray-400 hover:text-blue-600 transition-colors" title="View">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <button (click)="emitAction('edit', row)"
+                                    class="p-1 text-gray-400 hover:text-amber-600 transition-colors" title="Edit">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <button (click)="emitAction('delete', row)"
+                                    class="p-1 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Default Text -->
+                            <ng-container *ngSwitchDefault>
+                                <!-- Highlight logic for search matches -->
+                                <ng-container *ngIf="isMatch(row[col.key]); else normalText">
+                                    <span class="bg-yellow-100 text-gray-900 font-medium px-0.5 rounded">
+                                        {{ row[col.key] }}
+                                    </span>
+                                </ng-container>
+                                <ng-template #normalText>
+                                    <span>{{ row[col.key] }}</span>
+                                </ng-template>
+                            </ng-container>
+                        </ng-container>
+                    </td>
+                </tr>
+
+                <!-- Infinite Scroll Loading Indicator -->
+                <tr *ngIf="loadMode === 'infinite' && isLoading">
+                    <td [attr.colspan]="visibleColumns().length" class="p-4 text-center bg-gray-50">
+                        <div class="inline-flex items-center gap-2 text-sm text-gray-500">
+                            <svg class="animate-spin h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Loading more records...
+                        </div>
+                    </td>
+                </tr>
+                <!-- Empty State -->
+                <tr *ngIf="displayedRows().length === 0 && !isLoading">
+                    <td [attr.colspan]="visibleColumns().length" class="py-16 text-center">
+                        <div class="flex flex-col items-center justify-center text-gray-400">
+                            <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            <span class="text-base font-medium">No results found</span>
+                            <span class="text-sm mt-1">Try adjusting your search terms</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-50 border-t border-gray-200 px-4 py-3 flex items-center justify-between text-xs text-gray-500">
+        <!-- Pagination Controls -->
+        <div *ngIf="loadMode === 'pagination'" class="flex items-center gap-4 w-full justify-between sm:justify-start">
+            <span class="hidden sm:inline">
+                Showing {{ getStartItem() }} - {{ getEndItem() }} of {{ pagination.totalItems }}
+            </span>
+
+            <div class="flex items-center gap-2">
+                <button (click)="changePage(-1)" [disabled]="pagination.currentPage === 1"
+                    class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Previous
+                </button>
+                <span class="font-medium text-gray-700">Page {{ pagination.currentPage }}</span>
+                <button (click)="changePage(1)"
+                    [disabled]="(pagination.currentPage * pagination.pageSize) >= pagination.totalItems"
+                    class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <!-- Infinite Mode Status -->
+        <div *ngIf="loadMode === 'infinite'" class="flex justify-between w-full">
+            <span>Showing {{ displayedRows().length }} of {{ pagination.totalItems }} records</span>
+            <span class="italic text-gray-400">Scroll for more</span>
+        </div>
+    </div>
+</div>
