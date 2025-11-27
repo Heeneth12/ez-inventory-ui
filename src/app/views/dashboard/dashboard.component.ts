@@ -1,18 +1,15 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
-import { CardComponent } from "../../layouts/UI/card/card.component";
-import { ButtonComponent } from "../../layouts/UI/button/button.component";
-import { DropdownComponent } from "../../layouts/UI/dropdown/dropdown.component";
-import { TableComponent } from "../../layouts/UI/table/table.component";
-import { StatusBadgeComponent } from "../../layouts/components/status-badge/status-badge.component";
 import { CommonModule } from '@angular/common';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { ModalService } from '../../layouts/components/modal/modalService';
+import { StandardTableComponent } from '../../layouts/components/standard-table/standard-table.component';
+import { LoadMode, TableRow, PaginationConfig, TableColumn, TableAction } from '../../layouts/components/standard-table/standard-table.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, CardComponent, ButtonComponent, DropdownComponent, TableComponent, StatusBadgeComponent],
+  imports: [CommonModule,StandardTableComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -43,7 +40,10 @@ export class DashboardComponent {
     { id: '6', date: '2022-10-28', brand: 'Mi Rancho', warehouse: 'TOP Warehouse', orderNo: 'PO-22-000051', status: 'Canceled' },
   ];
 
-    constructor(private drawer: DrawerService, private toast :ToastService , private modal : ModalService) {}
+    constructor(private drawer: DrawerService, private toast :ToastService , private modal : ModalService) {
+    this.generateData(500); 
+    this.setMode('pagination');
+    }
 
   /**
    * 3. Helper to map Data Status -> Badge Variant
@@ -89,6 +89,106 @@ export class DashboardComponent {
   openModal(x :TemplateRef<any>){
     console.log("hello")
     this.modal.open(x)
+  }
+
+
+  currentMode: LoadMode = 'pagination';
+  tableTitle = 'Employee Directory';
+  isLoading = false;
+  lastAction = '';
+
+  allData: TableRow[] = [];
+  displayedData: TableRow[] = [];
+  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
+
+  // --- RICH COLUMN DEFINITIONS ---
+  columns: TableColumn[] = [
+    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
+    { key: 'name', label: 'Employee Profile', width: '280px', type: 'profile' },
+    { key: 'role', label: 'Job Title', type: 'badge' }, 
+    { key: 'dept', label: 'Department', type: 'text' },
+    { key: 'salary', label: 'Salary (Annual)', align: 'right', type: 'currency' },
+    { key: 'website', label: 'Portfolio', type: 'link' },
+    { key: 'isActive', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+  ];
+
+  setMode(mode: LoadMode) {
+    this.currentMode = mode;
+    this.pagination.currentPage = 1;
+    
+    if (mode === 'pagination') {
+      this.tableTitle = 'Team Overview (Paged)';
+      this.displayedData = [...this.allData]; 
+    } else {
+      this.tableTitle = 'Team Overview (Infinite)';
+      this.displayedData = this.allData.slice(0, 30); 
+    }
+  }
+
+  handleAction(event: TableAction) {
+    console.log('Action Triggered:', event);
+    if (event.type === 'toggle') {
+      this.lastAction = `Toggled ${event.row['name']} to ${event.row[event.key!]}`;
+    } else {
+      this.lastAction = `${event.type.toUpperCase()} clicked for ${event.row['name']}`;
+    }
+    
+    // Clear toast after 3s
+    setTimeout(() => this.lastAction = '', 3000);
+  }
+
+  onPageChange(page: number) {
+    this.pagination.currentPage = page;
+  }
+
+  onLoadMore() {
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    setTimeout(() => {
+      const currentLen = this.displayedData.length;
+      const nextBatch = this.allData.slice(currentLen, currentLen + 20);
+      
+      if (nextBatch.length > 0) {
+        this.displayedData = [...this.displayedData, ...nextBatch];
+      } else {
+        const moreData = this.generateMoreRows(20, this.allData.length + 1);
+        this.allData = [...this.allData, ...moreData];
+        this.displayedData = [...this.displayedData, ...moreData];
+        this.pagination.totalItems = this.allData.length;
+      }
+      this.isLoading = false;
+    }, 800);
+  }
+
+  generateData(count: number) {
+    this.allData = this.generateMoreRows(count, 1);
+    this.pagination.totalItems = this.allData.length;
+  }
+
+  generateMoreRows(count: number, startId: number): TableRow[] {
+    const roles = ['Senior Engineer', 'Product Manager', 'UX Designer', 'Sales Lead', 'DevOps Engineer'];
+    const depts = ['Engineering', 'Product', 'Design', 'Sales', 'Operations'];
+    const domains = ['portfolio.com', 'github.io', 'dribbble.com', 'linkedin.com'];
+    const firstNames = ['Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Jamie', 'Riley', 'Avery'];
+    const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+
+    return Array.from({ length: count }, (_, i) => {
+      const fname = firstNames[Math.floor(Math.random() * firstNames.length)];
+      const lname = lastNames[Math.floor(Math.random() * lastNames.length)];
+      return {
+        id: startId + i,
+        name: `${fname} ${lname}`,
+        email: `${fname.toLowerCase()}.${lname.toLowerCase()}@company.com`,
+        role: roles[Math.floor(Math.random() * roles.length)],
+        dept: depts[Math.floor(Math.random() * depts.length)],
+        salary: Math.floor(Math.random() * 80000) + 60000,
+        website: domains[Math.floor(Math.random() * domains.length)],
+        isActive: Math.random() > 0.2, // 80% active
+        rating: (Math.random() * 5).toFixed(1)
+      };
+    });
   }
 }
 
