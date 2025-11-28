@@ -1,0 +1,19 @@
+<div class="space-y-6">
+    <div class="flex-1 h-[calc(100vh-90px)] overflow-y-auto">
+        <app-standard-table
+            [title]="'Data Table'"
+            [columns]="columns"
+            [data]="stockLedgerList"
+            [pagination]="pagination"
+            (pageChange)="onPageChange($event)"
+            (loadMore)="onLoadMore()"
+            (action)="onTableAction($event)">
+        </app-standard-table>
+    </div>
+</div>
+
+<!-- DRAWER FORM TEMPLATE -->
+<ng-template #contactProfile let-data>
+    <div class="flex flex-col h-full bg-white">
+    </div>
+</ng-template>
