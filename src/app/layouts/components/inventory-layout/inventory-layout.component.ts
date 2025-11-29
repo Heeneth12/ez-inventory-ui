@@ -6,15 +6,31 @@ import { ToastComponent } from "../toast/toast.component";
 import { ModalComponent } from "../modal/modal.component";
 import { DrawerService } from '../drawer/drawerService';
 import { UserComponent } from '../user/user.component';
+import { SearchService } from '../search-modal/search-modal.service';
+import { SearchModalComponent } from "../search-modal/search-modal.component";
+import { 
+  LucideAngularModule, 
+  LayoutDashboard, 
+  PackagePlus, 
+  Warehouse, 
+  ShoppingCart, 
+  Truck, 
+  Users, 
+  CircleUser, 
+  FileChartColumn, 
+  Folder, 
+  Settings 
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, ɵEmptyOutletComponent, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent],
+  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent],
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css'
 })
 export class InventoryLayoutComponent {
+  
   isMobileMenuOpen = false;
   openDropdownIndex: number | null = null;
   @ViewChild('userProfileTemplate') userProfileTemplate!: TemplateRef<any>;
@@ -29,12 +45,12 @@ export class InventoryLayoutComponent {
     {
       label: 'Dashboard',
       link: '/dashboard',
-      iconPath: 'chart-bar.svg'
+      icon: LayoutDashboard // Replaced string with Icon Object
     },
     {
       label: 'Items',
       link: '/items',
-      iconPath: 'squares-plus.svg',
+      icon: PackagePlus,
       subItems: [
         { label: 'Items', link: '/items' },
         { label: 'Add Item', link: '/items/add' }
@@ -43,45 +59,53 @@ export class InventoryLayoutComponent {
     {
       label: 'Inventory',
       link: '/inventory',
-      iconPath: 'home-modern.svg'
-
-
+      icon: Warehouse
     },
     {
       label: 'Purchases',
       link: '/purchases',
-      iconPath: 'shopping-cart.svg'
+      icon: ShoppingCart
     },
     {
       label: 'Sales',
       link: '/sales',
-      iconPath: 'truck.svg'
-    },
-    {
-      label: 'Reports',
-      link: '/reports',
-      iconPath: 'document-chart-bar.svg'
+      icon: Truck,
+      subItems: [
+        { label: 'Sales Order', link: '/sales/order' },
+        { label: 'Add Sale', link: '/sales/add' }
+      ]
     },
     {
       label: 'Contacts',
       link: '/contacts',
-      iconPath: 'users.svg'
+      icon: Users
+    },
+    {
+      label: 'Employees',
+      link: '/employees',
+      icon: CircleUser
+    },
+    {
+      label: 'Reports',
+      link: '/reports',
+      icon: FileChartColumn
     },
     {
       label: 'Documents',
       link: '/documents',
-      iconPath: 'folder.svg'
+      icon: Folder
     },
     {
       label: 'Settings',
       link: '/settings',
-      iconPath: 'cog-6-tooth.svg'
+      icon: Settings
     }
   ];
 
-
-  constructor(private drawerService: DrawerService) {
-  }
+  constructor(
+    private drawerService: DrawerService,
+    private searchService: SearchService
+  ) {}
 
   toggleUserMenu() {
     this.drawerService.open(this.userProfileTemplate, "User Profile");
@@ -106,6 +130,10 @@ export class InventoryLayoutComponent {
   isDropdownOpen(index: number): boolean {
     return this.openDropdownIndex === index;
   }
+
+  openSmartSearch() {
+    this.searchService.open();
+  }
 }
 
 export interface SubMenuItem {
@@ -115,7 +143,7 @@ export interface SubMenuItem {
 
 export interface NavItem {
   label: string;
-  iconPath: string;
+  icon: any; 
   link?: string;
   subItems?: SubMenuItem[];
 }
