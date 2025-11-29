@@ -1,0 +1,244 @@
+<div class="space-y-6">
+  <div class="flex-1 h-[calc(100vh-90px)] overflow-y-auto bg-white ">
+
+    <!-- header -->
+    <div class="flex items-center justify-between px-8 py-3 border-b border-gray-100 shrink-0">
+      <div>
+        <h1 class="text-lg font-bold text-gray-900 tracking-tight">Sales Order</h1>
+      </div>
+      <div class="flex gap-4">
+        <button type="button"
+          class="px-6 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
+          Cancel
+        </button>
+        <button type="button" (click)="saveOrder()"
+          class="px-8 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors">
+          Save
+        </button>
+      </div>
+    </div>
+
+    <form [formGroup]="orderForm" class="flex-1 overflow-y-auto p-6">
+      <div class="mb-6">
+        <h2 class="text-sm font-bold text-gray-900 mb-4">Order detail</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Customer</label>
+            <div class="relative">
+              <select formControlName="customerId"
+                class="appearance-none w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8 shadow-sm">
+                <option value="" disabled>Select Customer</option>
+                <option value="1">Walk-in customer</option>
+                <option value="2">John Doe</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">From warehouse</label>
+            <div class="relative">
+              <select formControlName="warehouse"
+                class="appearance-none w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8 shadow-sm">
+                <option>Main stock</option>
+                <option>Secondary Warehouse</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Pricelist</label>
+            <div class="relative">
+              <select formControlName="priceList"
+                class="appearance-none w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-8 shadow-sm">
+                <option>USD - Retail price</option>
+                <option>USD - Wholesale</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+        <div class="flex gap-2">
+          <div class="relative flex-grow">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg aria-hidden="true" class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input type="text" (keyup)="onSearchInput($event)"
+              class="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              placeholder="Type to add product">
+
+            <div *ngIf="itemSearchResults.length > 0"
+              class="absolute z-10 w-full bg-white shadow-lg rounded-lg mt-1 border border-gray-200 max-h-60 overflow-y-auto">
+              <div *ngFor="let item of itemSearchResults" (click)="addProductRow(item)"
+                class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <img [src]="item.imageUrl || 'assets/placeholder.png'" class="w-8 h-8 rounded object-cover">
+                  <div>
+                    <p class="text-sm font-medium text-gray-800">{{item.name}}</p>
+                  </div>
+                </div>
+                <span class="text-sm font-bold text-blue-600">{{item.sellingPrice | currency}}</span>
+              </div>
+            </div>
+          </div>
+          <button type="button"
+            class="px-4 py-2.5 text-sm font-medium text-blue-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm">
+            Browse products
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <div class="flex text-xs font-medium text-gray-400 px-2 pb-2 uppercase">
+          <div class="flex-grow pl-10">Product</div>
+          <div class="w-32 text-left">Price</div>
+          <div class="w-40 text-left pl-6">Quantity</div>
+          <div class="w-24 text-right">Total</div>
+          <div class="w-8"></div>
+        </div>
+
+        <div formArrayName="items" class="space-y-0 divide-y divide-gray-100 border-t border-b border-gray-100">
+          <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
+            class="py-4 flex flex-col sm:flex-row sm:items-center gap-4 group fade-in">
+
+            <div class="flex-grow flex items-start gap-3 min-w-[30%]">
+              <button class="mt-3 text-blue-500">
+                <svg class="w-3 h-3 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M6 6L14 10L6 14V6Z" />
+                </svg>
+              </button>
+
+              <div class="w-10 h-10 rounded bg-gray-200 border border-gray-300 flex-shrink-0 overflow-hidden">
+                <img [src]="item.get('image')?.value" class="w-full h-full object-cover opacity-70">
+              </div>
+
+              <div class="flex flex-col">
+                <span class="text-sm font-bold text-gray-700 leading-tight">{{ item.get('name')?.value }}</span>
+                <span class="text-xs mt-0.5" [ngClass]="item.get('stockColor')?.value">
+                  {{ item.get('stockText')?.value }}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <div class="relative w-28">
+                <input type="number" formControlName="price"
+                  class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                  placeholder="0">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <span class="text-gray-400 text-xs">USD</span>
+                </div>
+              </div>
+
+              <span class="text-gray-400 text-sm font-light px-1">✕</span>
+
+              <div class="relative w-20">
+                <input type="number" formControlName="quantity"
+                  class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                <div class="absolute inset-y-0 right-0 flex flex-col border-l border-gray-300 h-full">
+                  <button type="button" (click)="adjustQuantity(i, 1)"
+                    class="h-1/2 px-1 hover:bg-gray-100 text-gray-500 text-[8px] flex items-center justify-center border-b border-gray-300">▲</button>
+                  <button type="button" (click)="adjustQuantity(i, -1)"
+                    class="h-1/2 px-1 hover:bg-gray-100 text-gray-500 text-[8px] flex items-center justify-center">▼</button>
+                </div>
+              </div>
+
+              <div class="w-20">
+                <select formControlName="unit"
+                  class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2 shadow-sm">
+                  <option *ngFor="let u of item.get('availableUnits')?.value" [value]="u">{{ u }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-4 sm:ml-auto w-32">
+              <span class="text-sm font-medium text-gray-900 whitespace-nowrap">
+                {{ getItemTotal(i) | number:'1.2-2' }} USD
+              </span>
+              <button type="button" (click)="removeItem(i)" class="text-gray-300 hover:text-red-500 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 border-t border-gray-200 pt-6">
+
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+            <textarea formControlName="remarks" rows="3"
+              class="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              placeholder="Type here"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <div class="flex flex-wrap gap-2">
+              <label *ngFor="let s of ['Completed', 'Shipped', 'Pending']" class="cursor-pointer">
+                <input type="radio" formControlName="status" [value]="s" class="peer sr-only">
+                <div class="px-4 py-1.5 rounded-full border text-sm font-medium transition-all
+                            peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700
+                            border-gray-200 text-gray-600 bg-gray-50 hover:bg-gray-100 flex items-center gap-2">
+                  <div
+                    class="w-4 h-4 rounded-full border border-blue-600 bg-blue-600 flex items-center justify-center peer-checked:opacity-100 opacity-0 transition-opacity">
+                    <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <span class="-ml-6 peer-checked:ml-0 transition-all">{{s}}</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-6 flex flex-col justify-center h-full">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-gray-500 font-medium text-sm">Subtotal:</span>
+            <span class="text-gray-900 font-semibold">{{ subtotal | currency }}</span>
+          </div>
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-blue-500 font-medium text-sm">Discount (-):</span>
+            <input formControlName="discount" type="number"
+              class="w-20 text-right bg-transparent border-b border-blue-300 focus:border-blue-600 focus:outline-none text-sm p-0">
+          </div>
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-gray-500 font-medium text-sm">Tax (+):</span>
+            <input formControlName="tax" type="number"
+              class="w-20 text-right bg-transparent border-b border-gray-300 focus:border-blue-600 focus:outline-none text-sm p-0">
+          </div>
+          <div class="border-t border-gray-200 pt-4 flex justify-between items-center">
+            <span class="text-gray-900 font-bold text-lg">Total:</span>
+            <span class="text-gray-900 font-bold text-xl">{{ total | currency }}</span>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
