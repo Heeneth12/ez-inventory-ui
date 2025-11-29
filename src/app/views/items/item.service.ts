@@ -32,4 +32,8 @@ export class ItemService {
     toggleItemActiveStatus(id: string, active: boolean, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${ItemService.ITEMS_BASE_URL}/${id}/status?active=${active}`, null, successfn, errorfn);
     }
+
+    searchItems(searchFilter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${ItemService.ITEMS_BASE_URL}/search`, searchFilter, successfn, errorfn);
+    }
 }
