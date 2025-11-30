@@ -16,7 +16,7 @@ export class EmployeeService {
     }
 
     updateEmployee(employeeId: number, item: any, successfn: any, errorfn: any) {
-        return this.httpService.putHttp(`${EmployeeService.EMPLOYEE_BASE_URL}/${employeeId}/update`, item, successfn, errorfn);
+        return this.httpService.postHttp(`${EmployeeService.EMPLOYEE_BASE_URL}/${employeeId}/update`, item, successfn, errorfn);
     }
 
     getEmployeeById(id: number, successfn: any, errorfn: any) {

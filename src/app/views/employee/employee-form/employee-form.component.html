@@ -1,0 +1,159 @@
+ <div class="w-full h-screen flex flex-col bg-white overflow-hidden font-sans">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-8 py-3 border-b border-gray-100 shrink-0 bg-white z-10">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ isEditMode ? 'Edit Employee' : 'New Employee' }}</h1>
+        </div>
+        <div class="flex gap-4">
+          <button type="button" (click)="onCancel()" 
+            class="px-6 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200">
+            Cancel
+          </button>
+          <button type="button" (click)="onSubmit()" 
+            [disabled]="employeeForm.invalid || isLoading"
+            class="px-8 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+            {{ isLoading ? 'Saving...' : 'Save Employee' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Scrollable Content -->
+      <form [formGroup]="employeeForm" class="flex-1 flex flex-col px-8 py-6 gap-12 overflow-y-auto lg:overflow-x-hidden">
+        
+        <!-- Section: Identity -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-6">
+          <div class="lg:col-span-4 pb-2 border-b border-gray-50">
+             <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Identity</h3>
+          </div>
+
+          <!-- Employee Code -->
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee Code <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="employeeCode" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm" 
+              placeholder="e.g. EMP-001"
+              [class.border-red-500]="isFieldInvalid('employeeCode')">
+            <span *ngIf="isFieldInvalid('employeeCode')" class="text-red-500 text-xs">Required</span>
+          </div>
+
+          <!-- Role -->
+          <div class="space-y-1 lg:col-span-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Role <span class="text-red-500">*</span></label>
+            <select formControlName="role" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors sm:text-sm appearance-none cursor-pointer"
+              [class.border-red-500]="isFieldInvalid('role')">
+              <option value="" disabled class="text-gray-400">Select Role</option>
+              <option *ngFor="let role of roles" [value]="role">{{ formatRole(role) }}</option>
+            </select>
+          </div>
+
+          <!-- Active Toggle (Styled as Toggle) -->
+          <div class="flex items-end pb-2 justify-start">
+             <label class="flex items-center gap-3 cursor-pointer group">
+               <div class="relative">
+                 <input type="checkbox" formControlName="active" class="sr-only peer">
+                 <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+               </div>
+               <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">Active Status</span>
+             </label>
+          </div>
+        </div>
+
+        <!-- Section: Personal Info -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-6">
+          <div class="lg:col-span-4 pb-2 border-b border-gray-50">
+             <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Personal Details</h3>
+          </div>
+
+          <div class="space-y-1 lg:col-span-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">First Name <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="firstName" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm"
+              [class.border-red-500]="isFieldInvalid('firstName')">
+          </div>
+
+          <div class="space-y-1 lg:col-span-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Last Name <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="lastName" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm"
+              [class.border-red-500]="isFieldInvalid('lastName')">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gender <span class="text-red-500">*</span></label>
+            <select formControlName="gender" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors sm:text-sm appearance-none cursor-pointer"
+              [class.border-red-500]="isFieldInvalid('gender')">
+              <option value="" disabled>Select</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div class="space-y-1 lg:col-span-3">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact Number <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="contactNumber" placeholder="+1 (555) 000-0000"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm"
+              [class.border-red-500]="isFieldInvalid('contactNumber')">
+          </div>
+
+          <div class="space-y-1 lg:col-span-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Official Email <span class="text-red-500">*</span></label>
+            <input type="email" formControlName="officialEmail" placeholder="user@company.com"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm"
+              [class.border-red-500]="isFieldInvalid('officialEmail')">
+          </div>
+
+          <div class="space-y-1 lg:col-span-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Personal Email</label>
+            <input type="email" formControlName="personalEmail" placeholder="user@gmail.com"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+        </div>
+
+        <!-- Section: Address -->
+        <!-- Updated to use 3 columns per row (grid-cols-3) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6" formGroupName="address">
+          <div class="lg:col-span-3 pb-2 border-b border-gray-50">
+             <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Location</h3>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Address Line 1</label>
+            <input type="text" formControlName="addressLine1" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Address Line 2</label>
+            <input type="text" formControlName="addressLine2" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">City</label>
+            <input type="text" formControlName="city" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">State</label>
+            <input type="text" formControlName="state" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Country</label>
+            <input type="text" formControlName="country" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pin Code</label>
+            <input type="text" formControlName="pinCode" 
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+        </div>
+      </form>
+    </div>

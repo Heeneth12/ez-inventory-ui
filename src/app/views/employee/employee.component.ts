@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { EmployeeService } from './employee.service';
 import { Router } from '@angular/router';
@@ -7,11 +7,12 @@ import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { EmployeeModel } from './employee.model';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
-
+import { TabItem, } from '../../layouts/UI/tab-card/tab-card.component';
+import { CircleUser, LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'app-employee',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent],
+  imports: [CommonModule, StandardTableComponent, LucideAngularModule],
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.css']
 })
@@ -30,6 +31,18 @@ export class EmployeeComponent implements OnInit {
     { key: 'active', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
+
+
+  // --- Configuration ---
+  navigationTabs: TabItem[] = [
+    { id: 'employee', label: 'All employees', icon: CircleUser },
+    { id: 'create', label: 'Create employee', icon: CircleUser },
+  ];
+
+  // --- State ---
+  activeTab = signal<string>('all');
+  searchQuery = '';
+  isLoading = signal<boolean>(false);
 
   constructor(
     private employeeService: EmployeeService,
@@ -103,5 +116,16 @@ export class EmployeeComponent implements OnInit {
       default:
         console.warn("Unhandled table action:", event);
     }
+  }
+
+
+  // --- Actions ---
+  onTabChange(newTabId: string) {
+    // Simulate API network delay for better UX feel
+    this.isLoading.set(true);
+    setTimeout(() => {
+      this.activeTab.set(newTabId);
+      this.isLoading.set(false);
+    }, 400); // 400ms fake load
   }
 }
