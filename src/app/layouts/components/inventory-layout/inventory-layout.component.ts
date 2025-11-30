@@ -82,7 +82,7 @@ export class InventoryLayoutComponent {
     },
     {
       label: 'Employees',
-      link: '/employees',
+      link: '/employee',
       icon: CircleUser
     },
     {
