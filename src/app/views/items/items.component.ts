@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ItemModel } from './models/Item.model';
+import { ItemModel, ItemSearchFilter } from './models/Item.model';
 import { ItemService } from './item.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../layouts/components/toast/toastService';
@@ -16,7 +16,9 @@ import { PaginationConfig, TableAction, TableColumn } from '../../layouts/compon
 })
 export class ItemsComponent implements OnInit {
 
-  listList: ItemModel[] = [];
+  itemList: ItemModel[] = [];
+  itemFilter:ItemSearchFilter = new ItemSearchFilter();
+  
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
@@ -41,7 +43,9 @@ export class ItemsComponent implements OnInit {
     private itemService: ItemService,
     private router: Router,
     private toastService: ToastService
-  ) { }
+  ) { 
+    this.itemFilter.active = true;
+  }
 
   ngOnInit(): void {
     this.getAllItems();
@@ -49,8 +53,8 @@ export class ItemsComponent implements OnInit {
 
   getAllItems() {
     this.itemService.getAllItems
-      (this.page - 1, this.size, {}, (response: any) => {
-        this.listList = response.data.content;
+      (this.page - 1, this.size, this.itemFilter, (response: any) => {
+        this.itemList = response.data.content;
       }, (error: any) => {
         this.toastService.show('Failed to load Items', 'error');
         console.error('Error fetching items:', error);
