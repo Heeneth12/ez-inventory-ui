@@ -1,0 +1,42 @@
+<div class="w-full">
+    <!-- Tab Navigation Header -->
+    <div class="flex items-end">
+        @for (tab of tabs; track tab.id) {
+        <button (click)="selectTab(tab.id)" [class]="getTabClass(tab.id)"
+            class="group relative flex items-center space-x-2.5 px-6 py-3.5  transition-all duration-300 ease-out focus:outline-none select-none">
+            <!-- Hover Effect Background (only for inactive) -->
+            <div *ngIf="activeTabId !== tab.id"
+                class="absolute inset-0 bg-slate-200/30  opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <!-- Tab Icon -->
+              <lucide-icon
+                     [name]="tab.icon"
+                    class="w-5 h-5"
+                    [ngClass]="activeTabId === tab.id ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'">
+                </lucide-icon>
+
+            <!-- Label -->
+            <span class="relative z-10 font-semibold text-sm tracking-wide">{{ tab.label }}</span>
+
+            <!-- Counter Badge -->
+            @if (tab.count !== undefined) {
+            <span [class]="activeTabId === tab.id 
+                  ? 'bg-blue-600/10 text-blue-700' 
+                  : 'bg-slate-200 text-slate-500 group-hover:bg-slate-300'"
+                class="relative z-10 ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold transition-colors duration-200">
+                {{ tab.count }}
+            </span>
+            }
+            <!-- Active Indicator Line (Optional, aesthetic touch) -->
+            @if (activeTabId === tab.id) {
+            <div class="absolute top-0 left-0 right-0 h-0.5 bg-blue-500 rounded-t-xl opacity-50"></div>
+            }
+        </button>
+        }
+    </div>
+    <!-- Main Content Area-->
+    <div
+        class="bg-white border border-slate-100 relative overflow-hidden">
+        <!-- Projection Slot: Parent content renders here -->
+        <ng-content></ng-content>
+    </div>
+</div>
