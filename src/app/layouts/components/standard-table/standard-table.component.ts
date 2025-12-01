@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter, signal, computed, ViewEncapsula
 import { CommonModule, DecimalPipe, CurrencyPipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density } from './standard-table.model';
+import { LucideAngularModule, Filter, Calculator, Download, Calendar, Edit, View, Delete, Trash2, ViewIcon, EyeIcon} from 'lucide-angular';
 
 @Component({
   selector: 'app-standard-table',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule],
   templateUrl: './standard-table.component.html',
   styleUrls: ['./standard-table.component.css'],
 })
@@ -21,6 +22,13 @@ export class StandardTableComponent implements OnChanges {
   @Output() pageChange = new EventEmitter<number>();
   @Output() loadMore = new EventEmitter<void>();
   @Output() action = new EventEmitter<TableAction>();
+
+  readonly Filter = Filter;
+  readonly Calendar = Calendar;
+  readonly Download = Download;
+  readonly Edit = Edit;
+  readonly View = EyeIcon;
+  readonly Delete = Trash2;
 
   // State
   searchQuery = signal('');
@@ -92,11 +100,11 @@ export class StandardTableComponent implements OnChanges {
 
   getBadgeClass(status: string): string {
     const s = String(status).toLowerCase();
-    if (s.includes('active') || s.includes('success') || s.includes('paid')) return 'bg-green-100 text-green-800 border-green-200';
+    if (s.includes('active') || s.includes('success') || s.includes('paid') || s.includes('product') || s.includes('customer')) return 'bg-green-100 text-green-800 border-green-200';
     if (s.includes('inactive') || s.includes('error') || s.includes('fail')) return 'bg-red-100 text-red-800 border-red-200';
     if (s.includes('warning') || s.includes('pending') || s.includes('hold')) return 'bg-amber-100 text-amber-800 border-amber-200';
     if (s.includes('engineer') || s.includes('dev')) return 'bg-purple-100 text-purple-800 border-purple-200';
-    if (s.includes('manager') || s.includes('lead')) return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (s.includes('manager') || s.includes('lead') || s.includes('service') || s.includes('supplier')) return 'bg-blue-100 text-blue-800 border-blue-200';
     return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 

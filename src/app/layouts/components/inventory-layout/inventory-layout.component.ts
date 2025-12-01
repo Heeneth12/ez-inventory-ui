@@ -8,18 +8,18 @@ import { DrawerService } from '../drawer/drawerService';
 import { UserComponent } from '../user/user.component';
 import { SearchService } from '../search-modal/search-modal.service';
 import { SearchModalComponent } from "../search-modal/search-modal.component";
-import { 
-  LucideAngularModule, 
-  LayoutDashboard, 
-  PackagePlus, 
-  Warehouse, 
-  ShoppingCart, 
-  Truck, 
-  Users, 
-  CircleUser, 
-  FileChartColumn, 
-  Folder, 
-  Settings 
+import {
+  LucideAngularModule,
+  LayoutDashboard,
+  PackagePlus,
+  Warehouse,
+  ShoppingCart,
+  Truck,
+  Users,
+  CircleUser,
+  FileChartColumn,
+  Folder,
+  Settings
 } from 'lucide-angular';
 
 @Component({
@@ -30,7 +30,7 @@ import {
   styleUrl: './inventory-layout.component.css'
 })
 export class InventoryLayoutComponent {
-  
+
   isMobileMenuOpen = false;
   openDropdownIndex: number | null = null;
   @ViewChild('userProfileTemplate') userProfileTemplate!: TemplateRef<any>;
@@ -45,16 +45,12 @@ export class InventoryLayoutComponent {
     {
       label: 'Dashboard',
       link: '/dashboard',
-      icon: LayoutDashboard // Replaced string with Icon Object
+      icon: LayoutDashboard
     },
     {
       label: 'Items',
       link: '/items',
       icon: PackagePlus,
-      subItems: [
-        { label: 'Items', link: '/items' },
-        { label: 'Add Item', link: '/items/add' }
-      ]
     },
     {
       label: 'Inventory',
@@ -105,7 +101,7 @@ export class InventoryLayoutComponent {
   constructor(
     private drawerService: DrawerService,
     private searchService: SearchService
-  ) {}
+  ) { }
 
   toggleUserMenu() {
     this.drawerService.open(this.userProfileTemplate, "User Profile");
@@ -143,7 +139,7 @@ export interface SubMenuItem {
 
 export interface NavItem {
   label: string;
-  icon: any; 
+  icon: any;
   link?: string;
   subItems?: SubMenuItem[];
 }
