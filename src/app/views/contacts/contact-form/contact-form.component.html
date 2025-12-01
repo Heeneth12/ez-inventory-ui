@@ -1,159 +1,158 @@
-<div class="space-y-6">
-  <app-card>
-      <div class="mx-auto">
-    <div class="md:flex md:items-center md:justify-between mb-8">
-      <div class="min-w-0 flex-1">
-        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          {{ isEditMode ? 'Edit Contact' : 'Create New Contact' }}
-        </h2>
+<div class="w-full h-screen flex flex-col bg-white overflow-hidden font-sans">
+
+  <div class="flex items-center justify-between px-8 py-3 border-b border-gray-100 shrink-0 bg-white z-10">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 tracking-tight">
+        {{ isEditMode ? 'Edit Contact' : 'Create New Contact' }}
+      </h1>
+    </div>
+    <div class="flex gap-4">
+      <button type="button" (click)="onCancel()"
+        class="px-6 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200">
+        Cancel
+      </button>
+      <button type="button" (click)="onSubmit()" [disabled]="contactForm.invalid || isLoading"
+        class="px-8 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+        {{ isLoading ? 'Saving...' : 'Save Contact' }}
+      </button>
+    </div>
+  </div>
+
+  <form [formGroup]="contactForm" class="flex-1 flex flex-col px-8 py-6 gap-12 overflow-y-auto lg:overflow-x-hidden">
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-6">
+      <div class="lg:col-span-4 pb-2 border-b border-gray-50">
+        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Basic Information</h3>
+      </div>
+
+      <div class="space-y-1">
+        <label for="contactCode" class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Contact Code <span class="text-red-500">*</span>
+        </label>
+        <input type="text" formControlName="contactCode" id="contactCode"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm"
+          [class.border-red-500]="contactForm.get('contactCode')?.touched && contactForm.get('contactCode')?.invalid">
+        <p *ngIf="contactForm.get('contactCode')?.touched && contactForm.get('contactCode')?.invalid"
+          class="text-red-500 text-xs">Required</p>
+      </div>
+
+      <div class="space-y-1 lg:col-span-2">
+        <label for="name" class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Name <span class="text-red-500">*</span>
+        </label>
+        <input type="text" formControlName="name" id="name"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm"
+          [class.border-red-500]="contactForm.get('name')?.touched && contactForm.get('name')?.invalid">
+        <p *ngIf="contactForm.get('name')?.touched && contactForm.get('name')?.invalid" class="text-red-500 text-xs">
+          Required</p>
+      </div>
+
+      <div class="flex items-end pb-2 justify-start">
+        <label class="flex items-center gap-3 cursor-pointer group">
+          <div class="relative">
+            <input type="checkbox" formControlName="active" id="active" class="sr-only peer">
+            <div
+              class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+            </div>
+          </div>
+          <span
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">Is
+            Active?</span>
+        </label>
+      </div>
+
+      <div class="space-y-1 lg:col-span-2">
+        <label for="email" class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email Address</label>
+        <input type="email" formControlName="email" id="email"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+      </div>
+
+      <div class="space-y-1">
+        <label for="phone" class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</label>
+        <input type="text" formControlName="phone" id="phone" placeholder="9876543210"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+      </div>
+
+      <div class="space-y-1">
+        <label for="type" class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact Type</label>
+        <select id="type" formControlName="type"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors sm:text-sm appearance-none cursor-pointer">
+          <option *ngFor="let type of contactTypes" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="space-y-1 lg:col-span-2">
+        <label for="gstNumber" class="text-xs font-semibold text-gray-500 uppercase tracking-wider">GST Number</label>
+        <input type="text" formControlName="gstNumber" id="gstNumber"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
       </div>
     </div>
 
-    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="space-y-6">
-      
-      <div class="bg-white p-1">
-        <div class="md:grid md:grid-cols-3 md:gap-6">
-          <div class="md:col-span-1">
-            <h3 class="text-lg font-medium leading-6 text-gray-900">Basic Information</h3>
-            <p class="mt-1 text-sm text-gray-500">General details about the contact.</p>
-          </div>
-          
-          <div class="mt-5 md:col-span-2 md:mt-0">
-            <div class="grid grid-cols-6 gap-6">
-              
-              <div class="col-span-6 sm:col-span-3">
-                <label for="contactCode" class="block text-sm font-medium text-gray-700">Contact Code</label>
-                <input type="text" formControlName="contactCode" id="contactCode" 
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                <p *ngIf="contactForm.get('contactCode')?.touched && contactForm.get('contactCode')?.invalid" class="text-red-500 text-xs mt-1">Code is required</p>
-              </div>
+    <div formArrayName="addresses" class="space-y-8">
 
-              <div class="col-span-6 sm:col-span-3">
-                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" formControlName="name" id="name" 
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                  <p *ngIf="contactForm.get('name')?.touched && contactForm.get('name')?.invalid" class="text-red-500 text-xs mt-1">Name is required</p>
-              </div>
+      <div *ngFor="let address of addressControls; let i = index" [formGroupName]="i" class="animate-fade-in">
 
-              <div class="col-span-6 sm:col-span-4">
-                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                <input type="email" formControlName="email" id="email" 
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-              </div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-6">
 
-              <div class="col-span-6 sm:col-span-2">
-                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                <input type="text" formControlName="phone" id="phone" placeholder="9876543210"
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-              </div>
-
-              <div class="col-span-6 sm:col-span-3">
-                <label for="type" class="block text-sm font-medium text-gray-700">Contact Type</label>
-                <select id="type" formControlName="type" 
-                  class="mt-1 block w-full rounded-md border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm border">
-                  <option *ngFor="let type of contactTypes" [value]="type">{{ type }}</option>
-                </select>
-              </div>
-
-              <div class="col-span-6 sm:col-span-3">
-                <label for="gstNumber" class="block text-sm font-medium text-gray-700">GST Number</label>
-                <input type="text" formControlName="gstNumber" id="gstNumber" 
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-              </div>
-
-              <div class="col-span-6 flex items-center">
-                <input id="active" formControlName="active" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                <label for="active" class="ml-2 block text-sm text-gray-900">Is Active?</label>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="hidden sm:block" aria-hidden="true">
-        <div class="py-5">
-          <div class="border-t border-gray-200"></div>
-        </div>
-      </div>
-
-      <div class="bg-white p-1">
-        <div class="md:grid md:grid-cols-3 md:gap-6">
-          <div class="md:col-span-1">
-            <h3 class="text-lg font-medium leading-6 text-gray-900">Addresses</h3>
-            <p class="mt-1 text-sm text-gray-500">
-              Manage billing, shipping, and other addresses.
-            </p>
-            <button type="button" (click)="addAddress()" 
-              class="mt-4 inline-flex items-center rounded border border-transparent bg-indigo-100 px-2.5 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-              + Add Another Address
+          <div class="lg:col-span-4 pb-2 border-b border-gray-50 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">
+              Address Location #{{i + 1}}
+            </h3>
+            <button *ngIf="addressControls.length > 1" type="button" (click)="removeAddress(i)"
+              class="text-xs font-semibold text-red-500 hover:text-red-700 uppercase tracking-wider transition-colors">
+              Remove
             </button>
           </div>
-          
-          <div class="mt-5 md:col-span-2 md:mt-0">
-            <div formArrayName="addresses">
-              <div *ngFor="let address of addressControls; let i = index" [formGroupName]="i" class="mb-6 p-4 border border-gray-200 rounded-md bg-gray-50 relative">
-                
-                <button *ngIf="addressControls.length > 1" type="button" (click)="removeAddress(i)" class="absolute top-2 right-2 text-red-600 hover:text-red-800 text-sm font-semibold">
-                  Remove
-                </button>
 
-                <h4 class="text-sm font-bold text-gray-700 mb-3 uppercase">Address #{{i + 1}}</h4>
-
-                <div class="grid grid-cols-6 gap-6">
-                  <div class="col-span-6 sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">Type</label>
-                    <select formControlName="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                      <option *ngFor="let t of addressTypes" [value]="t">{{ t }}</option>
-                    </select>
-                  </div>
-
-                  <div class="col-span-6">
-                    <label class="block text-sm font-medium text-gray-700">Address Line 1</label>
-                    <input type="text" formControlName="addressLine1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                    <p *ngIf="address.get('addressLine1')?.touched && address.get('addressLine1')?.invalid" class="text-red-500 text-xs mt-1">Address is required</p>
-                  </div>
-
-                  <div class="col-span-6">
-                    <label class="block text-sm font-medium text-gray-700">Address Line 2</label>
-                    <input type="text" formControlName="addressLine2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                  </div>
-
-                  <div class="col-span-6 sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">City</label>
-                    <input type="text" formControlName="city" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                  </div>
-
-                  <div class="col-span-6 sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">State</label>
-                    <input type="text" formControlName="state" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                  </div>
-
-                  <div class="col-span-6 sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">Pincode</label>
-                    <input type="text" formControlName="pinCode" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Address Type</label>
+            <select formControlName="type"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors sm:text-sm appearance-none cursor-pointer">
+              <option *ngFor="let t of addressTypes" [value]="t">{{ t }}</option>
+            </select>
           </div>
+
+          <div class="space-y-1 lg:col-span-3">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Address Line 1</label>
+            <input type="text" formControlName="addressLine1"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+            <p *ngIf="address.get('addressLine1')?.touched && address.get('addressLine1')?.invalid"
+              class="text-red-500 text-xs">Required</p>
+          </div>
+
+          <div class="space-y-1 lg:col-span-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Address Line 2</label>
+            <input type="text" formControlName="addressLine2"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">City</label>
+            <input type="text" formControlName="city"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">State</label>
+            <input type="text" formControlName="state"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pincode</label>
+            <input type="text" formControlName="pinCode"
+              class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+          </div>
+
         </div>
       </div>
 
-      <div class="flex justify-end gap-x-3">
-        <button type="button" (click)="onCancel()" class="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-          Cancel
-        </button>
-        <button type="submit" [disabled]="contactForm.invalid || isLoading" 
-          [class.opacity-50]="contactForm.invalid || isLoading"
-          class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-          {{ isLoading ? 'Saving...' : 'Save Contact' }}
+      <div class="pt-4 pb-12">
+        <button type="button" (click)="addAddress()"
+          class="flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-wide">
+          <span class="text-lg">+</span> Add Another Location
         </button>
       </div>
-
-    </form>
-  </div>
-
-  </app-card>
-
+    </div>
+  </form>
 </div>
