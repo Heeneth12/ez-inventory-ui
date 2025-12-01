@@ -36,7 +36,7 @@ export class StandardTableComponent implements OnChanges {
   density = signal<Density>('normal');
 
   // Settings
-  stripedRows: boolean = false;
+  stripedRows: boolean = true;
   sortKey = signal<string | null>(null);
   sortDirection = signal<'asc' | 'desc'>('asc');
 
