@@ -1,32 +1,36 @@
 
 export class ContactModel {
-    id?: number;
-    contactCode?: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    gstNumber?: string;
-    type?: string;
-    active?: boolean;
+    id!: number;
+    contactCode!: string;
+    name!: string;
+    email!: string;
+    phone!: string;
+    gstNumber!: string;
+    type!: ContactType;
+    active!: boolean;
     addresses: AddressModel[] = [];
 }
 
 export class AddressModel {
-    id?: number;
-    addressLine1?: string;
-    addressLine2?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    pinCode?: string;
-    type?: string;
-    contactId?: number;
+    id!: number;
+    addressLine1!: string;
+    addressLine2!: string;
+    city!: string;
+    state!: string;
+    country!: string;
+    pinCode!: string;
+    type!: AddressType;
+    contactId!: number;
 }
 
 export class ContactFilter {
+    searchQuery?: string;
     name?: string;
-    type?: string;
-    isActive?: boolean;
+    email?: string;
+    phone?: string;
+    gstNumber?: string;
+    type?: ContactType;
+    active?: boolean;
 }
 
 export enum ContactType {

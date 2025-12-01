@@ -1,20 +1,13 @@
 <div class="space-y-6">
-    <app-table-toolbar
-        [tabs]="tabs"
-        [activeTab]="activeTab"
-        createLabel="New Advance"
-        (tabChange)="onTabChange()"
-        (actionTrigger)="onToolbarAction($event)"
-    ></app-table-toolbar>
-    <app-smart-table
-        title="Contact list"
-        [columns]="tableColumns"
-        [data]="contacts"
-    ></app-smart-table>
-</div>
-
-<!-- DRAWER FORM TEMPLATE -->
-<ng-template #contactProfile let-data>
-    <div class="flex flex-col h-full bg-white">
+    <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
+        <app-standard-table
+            [title]="'Data Table'"
+            [columns]="columns"
+            [data]="filteredContacts"
+            [pagination]="pagination"
+            (pageChange)="onPageChange($event)"
+            (loadMore)="onLoadMore()"
+            (action)="onTableAction($event)">
+        </app-standard-table>
     </div>
-</ng-template>
+</div>

@@ -32,4 +32,8 @@ export class ContactService {
     toggleContactStatus(id: number, active: boolean, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}/${id}/status?active=${active}`, null, successfn, errorfn);
     }
+
+    searchContacts(filter: ContactFilter, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}/search`, filter, successfn, errorfn);
+    }
 }

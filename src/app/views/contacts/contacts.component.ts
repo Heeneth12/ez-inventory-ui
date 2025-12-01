@@ -5,14 +5,15 @@ import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { ContactService } from './contacts.service';
 import { ContactFilter, ContactModel } from './contacts.model';
-import { SmartTableComponent, TableColumn } from "../../layouts/components/smart-table/smart-table.component";
 import { TableToolbarComponent } from "../../layouts/components/table-toolbar/table-toolbar.component";
 import { Router } from '@angular/router';
+import { PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
+import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 
 @Component({
   selector: 'app-contacts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SmartTableComponent, TableToolbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, TableToolbarComponent, StandardTableComponent],
   templateUrl: './contacts.component.html',
   styleUrls: ['./contacts.component.css']
 })
@@ -34,16 +35,17 @@ export class ContactsComponent implements OnInit {
 
   editingId: number | null = null;
 
-  tableColumns: TableColumn[] = [
-    { key: 'id', label: 'Sl No', type: 'index', sortable: false },
-    { key: 'name', label: 'Name', type: 'user-profile', sortable: true, minWidth: '250px' },
-    { key: 'contactCode', label: 'Contact Code', type: 'text', sortable: true },
-    { key: 'name', label: 'Name', type: 'text', sortable: true },
-    { key: 'email', label: 'Email', type: 'text', sortable: true },
-    { key: 'phone', label: 'Phone', type: 'text', sortable: true },
-    { key: 'gstNumber', label: 'GST Number', type: 'text', sortable: true },
-    { key: 'type', label: 'Type', type: 'text', sortable: true },
-    { key: 'actions', label: 'Actions', type: 'actions' }
+  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
+
+  columns: TableColumn[] = [
+    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
+    { key: 'name', label: 'Contact Profile', width: '280px', type: 'profile' },
+    { key: 'contactCode', label: 'Contact Code', type: 'text' },
+    { key: 'type', label: 'Type', type: 'badge' },
+    { key: 'phone', label: 'Contact Number', type: 'text' },
+    { key: 'email', label: 'Email', type: 'text' },
+    { key: 'active', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
 
 
@@ -52,7 +54,7 @@ export class ContactsComponent implements OnInit {
     public drawerService: DrawerService,
     private toast: ToastService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.getAllContacts();
@@ -97,7 +99,7 @@ export class ContactsComponent implements OnInit {
 
   updateContact(contact: ContactModel) {
     this.contactService.updateContact(contact,
-      (response: any) => {  
+      (response: any) => {
         this.toast.show('Contact updated successfully', 'success');
         const index = this.contacts.findIndex(c => c.id === contact.id);
         if (index !== -1) {
@@ -113,7 +115,7 @@ export class ContactsComponent implements OnInit {
   toggleStatus(active: boolean, id: number) {
     this.contactService.toggleContactStatus(id, active,
       (response: any) => {
-        this.toast.show('Contact status updated', 'success'); 
+        this.toast.show('Contact status updated', 'success');
       },
       (error: any) => {
         this.toast.show('Failed to update contact status', 'error');
@@ -122,21 +124,11 @@ export class ContactsComponent implements OnInit {
   }
 
 
-   // Event Handlers
+  // Event Handlers
   onTabChange() {
-   
+
   }
 
-
-  
-  // export const contactsRoutes: Routes = [
-  
-  //     { path: '', redirectTo: '', pathMatch: 'full' },
-  //     { path: '', component: ContactsComponent },
-  //     { path: 'create', component: ContactFormComponent },
-  //     { path: 'edit/:id', component: ContactFormComponent },
-  
-  // ]
   openEditContact(contactId: number) {
     this.editingId = contactId;
     this.router.navigate(['/contacts/edit', 1]);
@@ -146,9 +138,42 @@ export class ContactsComponent implements OnInit {
   onToolbarAction(action: 'export' | 'create') {
     console.log('Action triggered:', action);
     if (action === 'create') {
-        // Logic to open create modal
-        alert('Open Create Modal');
+      // Logic to open create modal
+      alert('Open Create Modal');
     }
   }
 
+  onPageChange($event: number) {
+    console.log('Page changed to:', $event);
+  }
+  onLoadMore() {
+    console.log('Load more triggered');
+  }
+
+  onTableAction(event: TableAction) {
+    console.log("Table action event:", event);
+    const { type, row, key } = event;
+
+    switch (type) {
+
+      case 'view':
+        console.log("View action for item:", row.id);
+        break;
+
+      case 'edit':
+        console.log("Edit action for item:", row.id);
+        break;
+
+      case 'delete':
+        console.log("Delete action for item:", row.id);
+        break;
+
+      case 'toggle':
+        console.log("Toggle active status for item:", row.id, "New status:");
+        break;
+
+      default:
+        console.warn("Unhandled table action:", event);
+    }
+  }
 }
