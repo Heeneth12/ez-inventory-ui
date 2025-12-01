@@ -1,10 +1,16 @@
 import { Routes } from '@angular/router';
 import { ItemsComponent } from './items.component';
 import { AddItemsComponent } from './add-items/add-items.component';
+import { ItemsManagementComponent } from './items-management.component';
 
 export const ItemsRoutes: Routes = [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-    { path: '', component: ItemsComponent },
-    { path: "add", component: AddItemsComponent },
-    { path: "edit/:id", component: AddItemsComponent },
+    {
+        path: '',
+        component: ItemsManagementComponent,
+        children: [
+            { path: '', component: ItemsComponent },
+            { path: 'create', component: AddItemsComponent },
+            { path: 'edit/:id', component: AddItemsComponent },
+        ]
+    }
 ];
