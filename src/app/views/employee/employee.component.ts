@@ -82,6 +82,11 @@ export class EmployeeComponent implements OnInit {
     );
   }
 
+  updateEmployee(employeeId: string | number) {
+    this.router.navigate(['/employee/edit', employeeId]);
+  }
+
+
 
   onPageChange($event: number) {
     console.log('Page changed to:', $event);
@@ -102,6 +107,7 @@ export class EmployeeComponent implements OnInit {
 
       case 'edit':
         console.log("Edit action for item:", row.id);
+        this.updateEmployee(row.id);
         break;
 
       case 'delete':

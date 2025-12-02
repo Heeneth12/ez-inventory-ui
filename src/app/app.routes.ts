@@ -11,7 +11,7 @@ import { UserManagementComponent } from './views/user-management/user-management
 import { stockRoutes } from './views/stock/stock.routes';
 import { SettingsComponent } from './views/settings/settings.component';
 import { employeeManagementRoutes } from './views/employee/employee-management.routes';
-import { contactsManagementRoutes } from './views/contacts/contacts-management.routes';
+import { contactsRoutes } from './views/contacts/contacts.routes';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -21,7 +21,7 @@ export const routes: Routes = [
     { path: 'purchases', children: PurchasesRoutes },
     { path: 'sales', children: SalesRoutes },
     { path: 'reports', children: ReportsRoutes },
-    { path: 'contacts', children: contactsManagementRoutes },
+    { path: 'contacts', children: contactsRoutes },
     { path: 'employee', children: employeeManagementRoutes },
     { path: 'documents', children: DocumentsRoutes },
     { path: 'settings', component: SettingsComponent },
