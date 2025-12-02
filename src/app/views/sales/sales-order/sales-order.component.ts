@@ -3,13 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { EmployeeModel } from '../../employee/employee.model';
 import { SalesOrderModal } from './sales-order.modal';
 import { Router } from '@angular/router';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
-import { EmployeeService } from '../../employee/employee.service';
 import { SalesOrderService } from './sales-order.service';
 
 interface Product {
@@ -23,7 +21,7 @@ interface Product {
 }
 
 @Component({
-  selector: 'app-sales-order-ui',
+  selector: 'app-sales-order',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent],
   templateUrl: './sales-order.component.html',
@@ -38,10 +36,11 @@ export class SalesOrderComponent implements OnInit {
 
   columns: TableColumn[] = [
     { key: 'orderNumber', label: 'Order No', width: '130px', type: 'text' },
-    {key :'customerId', label: 'Customer ID', width: '100px', type: 'text' },
+    { key: 'customerId', label: 'Customer ID', width: '100px', type: 'text' },
     { key: 'customerName', label: 'Customer', width: '220px', type: 'text' },
     { key: 'orderDate', label: 'Order Date', width: '130px', type: 'text', align: 'center' },
     { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
+    { key: 'totalDiscount', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
     { key: 'status', label: 'Status', width: '140px', type: 'badge' },
     { key: 'active', label: 'Active', width: '80px', type: 'toggle', align: 'center' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
