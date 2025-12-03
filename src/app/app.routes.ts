@@ -16,19 +16,77 @@ import { AuthGuard } from './layouts/guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-    { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-    { path: 'items', children: ItemsRoutes, canActivate: [AuthGuard] },
-    { path: 'stock', children: stockRoutes, canActivate: [AuthGuard] },
-    { path: 'purchases', children: PurchasesRoutes, canActivate: [AuthGuard] },
-    { path: 'sales', children: SalesRoutes, canActivate: [AuthGuard] },
-    { path: 'reports', children: ReportsRoutes, canActivate: [AuthGuard] },
-    { path: 'contacts', children: contactsRoutes, canActivate: [AuthGuard] },
-    { path: 'employee', children: employeeManagementRoutes, canActivate: [AuthGuard] },
-    { path: 'documents', children: DocumentsRoutes, canActivate: [AuthGuard] },
-    { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
-    // auth routes
+
+    {
+        path: 'dashboard',
+        component: DashboardComponent,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_DASHBOARD' }
+    },
+    {
+        path: 'items',
+        children: ItemsRoutes,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_ITEMS' }
+    },
+    {
+        path: 'stock',
+        children: stockRoutes,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_STOCK' }
+    },
+    {
+        path: 'purchases',
+        children: PurchasesRoutes,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_PURCHASES' }
+    },
+    {
+        path: 'sales',
+        children: SalesRoutes,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_SALES' }
+    },
+    {
+        path: 'reports',
+        children: ReportsRoutes,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_REPORTS' }
+    },
+    {
+        path: 'contacts',
+        children: contactsRoutes,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_CONTACTS' }
+    },
+    {
+        path: 'employee',
+        children: employeeManagementRoutes,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_EMPLOYEE' }
+    },
+    {
+        path: 'documents',
+        children: DocumentsRoutes,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_DOCUMENTS' }
+    },
+    {
+        path: 'settings',
+        component: SettingsComponent,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_SETTINGS' }
+    },
+    
+    // User Management (Admin)
+    {
+        path: 'admin/user-management',
+        component: UserManagementComponent,
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_USER_MGMT' }
+    },
+
+    // Public/Auth routes
     { path: 'login', component: AuthComponent },
-    // admin routes
-    { path: 'admin/user-management', component: UserManagementComponent },
     { path: 'forbidden', component: ForbiddenComponent },
 ];

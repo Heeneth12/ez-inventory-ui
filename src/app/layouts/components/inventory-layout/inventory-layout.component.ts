@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { RouterModule, ɵEmptyOutletComponent } from "@angular/router";
 import { DrawerComponent } from "../drawer/drawer.component";
 import { ToastComponent } from "../toast/toast.component";
@@ -21,6 +21,7 @@ import {
   Folder,
   Settings
 } from 'lucide-angular';
+import { AuthService } from '../../guards/auth.service';
 
 @Component({
   selector: 'app-inventory-layout',
@@ -29,7 +30,7 @@ import {
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css'
 })
-export class InventoryLayoutComponent {
+export class InventoryLayoutComponent implements OnInit {
 
   isMobileMenuOpen = false;
   openDropdownIndex: number | null = null;
@@ -41,31 +42,38 @@ export class InventoryLayoutComponent {
     initials: 'AD'
   };
 
-  navItems: NavItem[] = [
+  visibleNavItems: NavItem[] = [];
+
+  allNavItems: NavItem[] = [
     {
       label: 'Dashboard',
       link: '/dashboard',
-      icon: LayoutDashboard
+      icon: LayoutDashboard,
+      moduleKey: 'EZH_INV_DASHBOARD'
     },
     {
       label: 'Items',
       link: '/items',
       icon: PackagePlus,
+      moduleKey: 'EZH_INV_ITEMS'
     },
     {
-      label: 'Inventory',
-      link: '/inventory',
-      icon: Warehouse
+      label: 'Stock', // Stock in your routes
+      link: '/stock',
+      icon: Warehouse,
+      moduleKey: 'EZH_INV_STOCK'
     },
     {
       label: 'Purchases',
       link: '/purchases',
-      icon: ShoppingCart
+      icon: ShoppingCart,
+      moduleKey: 'EZH_INV_PURCHASES'
     },
     {
       label: 'Sales',
       link: '/sales',
       icon: Truck,
+      moduleKey: 'EZH_INV_SALES',
       subItems: [
         { label: 'Sales Order', link: '/sales/order' },
         { label: 'Add Sale', link: '/sales/add' }
@@ -74,34 +82,72 @@ export class InventoryLayoutComponent {
     {
       label: 'Contacts',
       link: '/contacts',
-      icon: Users
+      icon: Users,
+      moduleKey: 'EZH_INV_CONTACTS'
     },
     {
       label: 'Employees',
       link: '/employee',
-      icon: CircleUser
+      icon: CircleUser,
+      moduleKey: 'EZH_INV_EMPLOYEE'
     },
     {
       label: 'Reports',
       link: '/reports',
-      icon: FileChartColumn
+      icon: FileChartColumn,
+      moduleKey: 'EZH_INV_REPORTS'
     },
     {
       label: 'Documents',
       link: '/documents',
-      icon: Folder
+      icon: Folder,
+      moduleKey: 'EZH_INV_DOCUMENTS'
     },
     {
       label: 'Settings',
       link: '/settings',
-      icon: Settings
+      icon: Settings,
+      moduleKey: 'EZH_INV_SETTINGS'
     }
   ];
 
   constructor(
     private drawerService: DrawerService,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private authService: AuthService
   ) { }
+
+  ngOnInit() {
+    // Subscribe to user changes to update menu dynamically
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.filterNavItems(user);
+
+        // Update local user profile data for display
+        this.user = {
+          name: user.fullName,
+          role: user.userRoles[0] || 'User', // Taking first role as display
+          initials: this.getInitials(user.fullName)
+        };
+      }
+    });
+  }
+
+  filterNavItems(user: any) {
+    this.visibleNavItems = this.allNavItems.filter(item => {
+      // If item has no moduleKey, it's public/always visible
+      if (!item.moduleKey) return true;
+
+      // Check against the user's applications
+      return user.userApplications?.some((app: any) =>
+        app.modulePrivileges && item.moduleKey && app.modulePrivileges[item.moduleKey]
+      );
+    });
+  }
+
+  getInitials(name: string): string {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  }
 
   toggleUserMenu() {
     this.drawerService.open(this.userProfileTemplate, "User Profile");
@@ -141,6 +187,7 @@ export interface NavItem {
   label: string;
   icon: any;
   link?: string;
+  moduleKey?: string;
   subItems?: SubMenuItem[];
 }
 

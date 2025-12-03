@@ -5,49 +5,32 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { UserInitResponse } from '../models/Init-response.model';
 
-// Mapping configuration: URL path -> Required Module Key
-const ROUTE_MODULE_MAPPING = [
-  { moduleKey: "FIN_REP", url: "/dashboard" },
-  { moduleKey: "FIN_BILL", url: "/bill" }
-];
-
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree | Observable<boolean | UrlTree> {
-
     const isLoggedIn = this.authService.isLoggedIn();
 
-    // 1. If not logged in -> Redirect immediately
     if (!isLoggedIn) {
-      return this.router.createUrlTree(
-        ['/login'],
-        { queryParams: { returnUrl: route.url.map(u => u.path).join('/') } }
-      );
+      return this.router.createUrlTree(['/login'], { queryParams: { returnUrl: route.url.join('/') } });
     }
 
-    // 2. If logged in, check if we have User Init Data in memory
     const currentUser = this.authService.getCurrentUserValue();
 
     if (currentUser) {
-      // Data exists, proceed with Role/Privilege checks
       return this.checkPermissions(route, currentUser);
     } else {
-      // 3. Token exists (Page Refresh), but memory is empty. Fetch Init Data first.
+      // Handle page refresh - fetch data first
       return this.authService.fetchUserInit().pipe(
         map((user) => {
-          // Data fetched successfully, proceed with Role/Privilege checks
-          const permissionCheck = this.checkPermissions(route, user);
-          if (permissionCheck === true) return true;
-          return permissionCheck; // Returns UrlTree if failed
+          return this.checkPermissions(route, user);
         }),
-        catchError((err) => {
-          // Token might be invalid or expired, redirect to login
+        catchError(() => {
           this.authService.logout();
           return of(this.router.createUrlTree(['/login']));
         })
@@ -55,85 +38,40 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  // Helper function to handle role/privilege logic
   private checkPermissions(route: ActivatedRouteSnapshot, user: UserInitResponse): boolean | UrlTree {
-    
-    // ----------------------------------------------------------------
-    // 1. Role Check (Existing Logic)
-    // ----------------------------------------------------------------
-    const allowedRoles = route.data['roles'] as Array<string>;
-    if (allowedRoles?.length) {
-      const userRoles = user.userRoles || []; 
-      const hasRole = allowedRoles.some(role => userRoles.includes(role));
-      if (!hasRole) {
-        return this.router.createUrlTree(['/unauthorized']);
-      }
+
+    // 1. Get the required Module Key from the Route Data (defined in step 1)
+    const requiredModuleKey = route.data['moduleKey'] as string;
+
+    // If the route has no specific module requirement, allow access (e.g., home page)
+    if (!requiredModuleKey) {
+      return true;
     }
 
-    // ----------------------------------------------------------------
-    // 2. URL-based Module Access Check (NEW LOGIC)
-    // Checks if the current URL requires a specific Module Key
-    // ----------------------------------------------------------------
-    
-    // Get the current path segment (e.g. "reports" or "bill")
-    const currentPath = route.url.map(segment => segment.path).join('/');
+    // 2. Check if the user has this module in any of their applications
+    const hasModuleAccess = this.hasModuleAccess(user, requiredModuleKey);
 
-    // Find if the current path exists in our mapping list
-    // We strip the leading '/' from the mapping URL to match the route path format
-    const requiredModuleMap = ROUTE_MODULE_MAPPING.find(m => 
-      m.url.replace(/^\//, '') === currentPath
-    );
-
-    if (requiredModuleMap) {
-      const requiredKey = requiredModuleMap.moduleKey;
-      let userHasModule = false;
-
-      // Check if user has this module key in any of their applications
-      if (user.userApplications) {
-        // We look through all apps -> all modulePrivileges
-        userHasModule = user.userApplications.some(app => 
-          app.modulePrivileges?.some(mod => mod.moduleKey === requiredKey)
-        );
-      }
-
-      if (!userHasModule) {
-        console.warn(`Access denied: User missing module ${requiredKey} for path ${currentPath}`);
-        return this.router.createUrlTree(['/unauthorized']);
-      }
+    if (hasModuleAccess) {
+      return true;
     }
 
-    // ----------------------------------------------------------------
-    // 3. Specific Privilege Check (Existing Logic)
-    // Expects route data: { privileges: ['MODULE_KEY:PRIVILEGE_KEY'] }
-    // ----------------------------------------------------------------
-    const requiredPrivileges = route.data['privileges'] as Array<string>;
-    
-    if (requiredPrivileges?.length) {
-      
-      const userPrivileges = new Set<string>();
+    // 3. Access Denied
+    console.warn(`Access denied: User missing module ${requiredModuleKey}`);
+    return this.router.createUrlTree(['/forbidden']);
+  }
 
-      if (user.userApplications) {
-        user.userApplications.forEach((app: any) => {
-          if (app.modulePrivileges) {
-            app.modulePrivileges.forEach((mod: any) => {
-              const mKey = mod.moduleKey;
-              if (mod.privilegeKey && Array.isArray(mod.privilegeKey)) {
-                mod.privilegeKey.forEach((pKey: string) => {
-                  userPrivileges.add(`${mKey}:${pKey}`);
-                });
-              }
-            });
-          }
-        });
-      }
-
-      const hasAccess = requiredPrivileges.every(req => userPrivileges.has(req));
-
-      if (!hasAccess) {
-        return this.router.createUrlTree(['/unauthorized']);
-      }
+  /**
+   * Helper to parse the UserInitResponse structure
+   */
+  public hasModuleAccess(user: UserInitResponse, moduleKey: string): boolean {
+    if (!user.userApplications || user.userApplications.length === 0) {
+      return false;
     }
 
-    return true;
+    // Look through all applications assigned to the user
+    return user.userApplications.some(app => {
+      // Check if modulePrivileges exists and has the specific key
+      return app.modulePrivileges && Object.prototype.hasOwnProperty.call(app.modulePrivileges, moduleKey);
+    });
   }
 }

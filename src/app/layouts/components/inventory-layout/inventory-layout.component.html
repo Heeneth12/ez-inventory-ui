@@ -21,7 +21,7 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-            <ng-container *ngFor="let item of navItems; let i = index">
+            <ng-container *ngFor="let item of visibleNavItems; let i = index">
 
                 <a *ngIf="!item.subItems" [routerLink]="item.link"
                     routerLinkActive="text-white shadow-md border-l-4 border-blue-500 bg-slate-700"
