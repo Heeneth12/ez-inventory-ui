@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { AuthService } from '../../guards/auth.service';
 
 @Component({
   selector: 'app-user',
@@ -10,6 +11,8 @@ import { Component } from '@angular/core';
 })
 export class UserComponent {
 
+  constructor(private authSvs: AuthService) {}
+
   status: 'online' | 'away' | 'dnd' = 'online';
   isDND = false;
   toggleDND() {
@@ -18,7 +21,7 @@ export class UserComponent {
   }
 
   onLogout() {
-    console.log('Logout');
+    this.authSvs.logout();
   }
 
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../../layouts/guards/auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -14,7 +15,7 @@ export class AuthComponent {
   isLoading = false;
   authForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private authSvc: AuthService) {
     this.authForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -29,11 +30,14 @@ export class AuthComponent {
 
   onSubmit() {
     if (this.authForm.valid) {
-      this.isLoading = true;
-      setTimeout(() => {
-        console.log('Form Data:', this.authForm.value);
-        this.isLoading = false;
-      }, 1500);
+      this.authSvc.login(this.authForm.value,
+        (response: any) => {
+          console.log("success")
+        },
+        (error: any) => {
+          console.log("error")
+        }
+      )
     } else {
       this.authForm.markAllAsTouched();
     }

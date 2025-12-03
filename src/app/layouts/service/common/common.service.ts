@@ -1,0 +1,27 @@
+import { Injectable } from '@angular/core';
+import { HttpService } from '../http-svc/http.service';
+import { environment } from '../../../../environments/environment.development';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CommonService {
+
+
+  private static AUTH_BASE_URL = environment.devUrl + '/api/v1/auth';
+
+  constructor(private httpService: HttpService) { }
+
+  signIn(request: any, successfn: any, errorfn: any) {
+    return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/signin`, request, successfn, errorfn);
+  }
+
+  initUser(success: any, error: any) {
+    return this.httpService.getHttp(`${CommonService.AUTH_BASE_URL}/user/init`, success, error);
+  }
+
+  refreshToken(request: any, success: any, error: any) {
+    return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/refresh`, request, success, error);
+  }
+
+}

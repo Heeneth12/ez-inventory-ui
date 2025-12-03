@@ -1,17 +1,12 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../../environments/environment.development';
 
 @Injectable({
     providedIn: 'root'
 })
 export class HttpService {
-
-    // private headers = new HttpHeaders({
-    //   'app-key': environment.appKey,
-    //   'b-key': environment.bKey,
-    // });
 
     private headers = new HttpHeaders();
     constructor(private http: HttpClient) {

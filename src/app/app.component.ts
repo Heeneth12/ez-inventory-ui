@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { InventoryLayoutComponent } from "./layouts/components/inventory-layout/inventory-layout.component";
+import { AuthService } from './layouts/guards/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,5 +13,7 @@ import { InventoryLayoutComponent } from "./layouts/components/inventory-layout/
 })
 export class AppComponent {
   title = 'inventory-management-system';
-  
+
+  constructor(public authSvc: AuthService) { }
+
 }

@@ -1,3 +1,7 @@
-<app-inventory-layout>
-    <router-outlet></router-outlet>
-</app-inventory-layout>
+@if (authSvc.isLoggedIn()) {
+  <app-inventory-layout>
+      <router-outlet></router-outlet>
+  </app-inventory-layout>
+} @else {
+  <router-outlet></router-outlet>
+}
