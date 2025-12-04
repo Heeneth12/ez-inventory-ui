@@ -4,7 +4,6 @@ export class ApplicationModel {
     appKey!: string;
     description!: string;
     isActive!: boolean;
-    modules!: ModuleModel[];
 }
 
 export class ModuleModel {
@@ -13,7 +12,9 @@ export class ModuleModel {
     moduleKey!: string;     // "DASHBOARD", "BILLING"
     description!: string;
     isActive!: boolean;
-    privileges!: PrivilegeModel[];
+    privileges?: PrivilegeModel[];
+    // Helper: UI state for accordion
+    isExpanded?: boolean;
 }
 
 export class PrivilegeModel {
@@ -21,4 +22,9 @@ export class PrivilegeModel {
     privilegeName!: string;  // "View", "Edit"
     privilegeKey!: string;    // "VIEW", "EDIT"
     description!: string;
+}
+
+export class RoleModel {
+    id!: number;
+    roleName!: string;
 }

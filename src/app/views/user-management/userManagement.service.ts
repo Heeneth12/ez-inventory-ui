@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-import { environment } from "../../../environments/environment";
 import { HttpService } from "../../layouts/service/http-svc/http.service";
 import { CreateUserModel } from "./models/create-user.model";
 
@@ -9,8 +8,10 @@ import { CreateUserModel } from "./models/create-user.model";
 })
 export class UserManagementService {
 
-    private static ITEMS_BASE_URL = environment.devUrl + '/api/v1/common';
-    private static USER_BASE_URL = environment.devUrl + '/api/v1/user';
+    private static BASE_URL = "http://localhost:8080";
+
+    private static ITEMS_BASE_URL = UserManagementService.BASE_URL + '/api/v1/common';
+    private static USER_BASE_URL = UserManagementService.BASE_URL + '/api/v1/user';
 
     constructor(private httpService: HttpService) { }
 
@@ -20,6 +21,14 @@ export class UserManagementService {
 
     getAllRoles(successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${UserManagementService.ITEMS_BASE_URL}/role/all`, successfn, errorfn);
+    }
+
+    createRole(requestBody: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${UserManagementService.ITEMS_BASE_URL}/role/create`, requestBody, successfn, errorfn);
+    }
+
+    getUserById(id: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${UserManagementService.USER_BASE_URL}/${id}`, successfn, errorfn);
     }
 
     getModulesByApplication(appId: number, successfn: any, errorfn: any) {
@@ -38,25 +47,7 @@ export class UserManagementService {
         return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/create`, requestBody, successfn, errorfn);
     }
 
-    updateUser(requestBody: any, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/update`, requestBody, successfn, errorfn);
+    updateUser(requestBody: any, id: number, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/${id}/update`, requestBody, successfn, errorfn);
     }
 }
-
-// create user request body example
-// {
-//   "fullName": "John Doe",
-//   "email": "john@mail.com",
-//   "phone": "9876543210",
-//   "password": "Default@123",
-//   "tenantId": 1,
-//   "roleIds": [2, 3],
-//   "applicationIds": [1, 4],
-//   "privilegeMapping": [
-//     {
-//       "applicationId": 1,
-//       "moduleId": 10,
-//       "privilegeIds": [101, 102, 103]
-//     }
-//   ]
-// }

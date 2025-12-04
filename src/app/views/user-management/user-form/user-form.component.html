@@ -1,0 +1,171 @@
+<div class="w-full h-screen flex flex-col bg-white  overflow-hidden">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between px-8 py-3 border-b border-gray-200 shrink-0">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">
+                {{ isEditing ? 'Edit User' : 'New User' }}
+            </h1>
+        </div>
+        <div class="flex gap-4">
+            <button type="button" (click)="onCancel()"
+                class="px-6 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
+                Cancel
+            </button>
+            <button type="button" (click)="onSubmit()" [disabled]="isSubmitting || userForm.invalid"
+                class="px-8 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                <span *ngIf="isSubmitting"
+                    class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                {{ isEditing ? 'Update User' : 'Save User' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- LOADING SPINNER -->
+    <div *ngIf="isLoading" class="flex-1 flex items-center justify-center bg-gray-50/50">
+        <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <!-- SCROLLABLE FORM CONTENT -->
+    <form *ngIf="!isLoading" [formGroup]="userForm" class="flex-1 flex flex-col px-8 py-6 gap-8 overflow-y-auto">
+
+        <!-- SECTION 1: PROFILE GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-8">
+
+            <!-- Status Radio Group -->
+            <div class="lg:col-span-4 flex items-center gap-8">
+                <label class="text-sm font-semibold text-gray-900">User Status:</label>
+                <div class="flex items-center gap-6">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" [value]="true" formControlName="isActive"
+                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="text-sm text-gray-700 group-hover:text-gray-900">Active</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" [value]="false" formControlName="isActive"
+                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="text-sm text-gray-700 group-hover:text-gray-900">Inactive</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="space-y-1 lg:col-span-2">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Full Name <span
+                        class="text-red-500">*</span></label>
+                <input type="text" formControlName="fullName"
+                    class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-600 focus:outline-none bg-transparent transition-colors placeholder-gray-300"
+                    placeholder="Enter full name">
+            </div>
+
+            <div class="space-y-1 lg:col-span-2">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email Address <span
+                        class="text-red-500">*</span></label>
+                <input type="email" formControlName="email"
+                    class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-600 focus:outline-none bg-transparent transition-colors placeholder-gray-300 disabled:opacity-50"
+                    placeholder="Enter email address">
+            </div>
+
+            <div class="space-y-1 lg:col-span-2">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone Number</label>
+                <input type="text" formControlName="phone"
+                    class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-600 focus:outline-none bg-transparent transition-colors placeholder-gray-300"
+                    placeholder="Enter phone number">
+            </div>
+
+            <div class="space-y-1 lg:col-span-2">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Password</label>
+                <input type="password" formControlName="password"
+                    class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-600 focus:outline-none bg-transparent transition-colors placeholder-gray-300"
+                    [placeholder]="isEditing ? 'Leave blank to keep current' : 'Enter password'">
+            </div>
+        </div>
+
+        <!-- SECTION 2: ROLES -->
+        <div class="space-y-3">
+            <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                Assigned Roles
+                <span class="text-xs font-normal text-gray-500">(Select at least one)</span>
+            </h3>
+            <div class="flex flex-wrap gap-3">
+                <label *ngFor="let role of roles"
+                    class="cursor-pointer px-4 py-2 border rounded-md text-sm font-medium transition-all select-none"
+                    [ngClass]="selectedRoleIds.has(role.id) 
+                        ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-sm' 
+                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">
+                    <input type="checkbox" class="hidden" [checked]="selectedRoleIds.has(role.id)"
+                        (change)="toggleRole(role.id)">
+                    {{ role.roleName }}
+                </label>
+            </div>
+        </div>
+
+        <!-- SECTION 3: APPLICATIONS & PRIVILEGES -->
+        <div class="space-y-4 pt-4 border-t border-gray-100">
+            <h3 class="text-sm font-bold text-gray-900">Applications & Permissions</h3>
+
+            <div class="grid grid-cols-1 gap-6">
+                <div *ngFor="let app of applications"
+                    class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+
+                    <!-- App Selection Header -->
+                    <div class="px-5 py-4 flex items-center gap-4 transition-colors"
+                        [ngClass]="selectedAppIds.has(app.id) ? 'bg-gray-50' : 'bg-white hover:bg-gray-50'">
+                        <input type="checkbox" [checked]="selectedAppIds.has(app.id)" (change)="toggleApp(app.id)"
+                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+
+                        <div (click)="toggleApp(app.id)" class="cursor-pointer flex-1">
+                            <p class="text-sm font-bold text-gray-900">{{ app.appName }}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ app.description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Modules/Privileges (Shown only if App is Selected) -->
+                    <div *ngIf="selectedAppIds.has(app.id)"
+                        class="border-t border-gray-200 p-5 bg-white space-y-4 animate-fade-in">
+
+                        <div *ngIf="!appModulesMap.get(app.id)"
+                            class="text-xs text-gray-400 italic flex items-center gap-2">
+                            <span
+                                class="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+                            Loading modules...
+                        </div>
+
+                        <div *ngFor="let module of appModulesMap.get(app.id)">
+                            <!-- Module Accordion Header -->
+                            <div (click)="toggleModuleExpand(app.id, module)"
+                                class="flex items-center justify-between py-2 cursor-pointer group select-none border-b border-gray-100 last:border-0">
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">{{
+                                        module.moduleName }}</span>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                    [class.rotate-180]="module.isExpanded" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+
+                            <!-- Module Privileges Body -->
+                            <div *ngIf="module.isExpanded"
+                                class="py-3 pl-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-3 gap-x-6">
+                                <div *ngIf="!module.privileges" class="text-xs text-gray-400">Loading privileges...
+                                </div>
+
+                                <label *ngFor="let priv of module.privileges"
+                                    class="flex items-center gap-2 cursor-pointer group">
+                                    <input type="checkbox" [checked]="isPrivilegeSelected(app.id, module.id, priv.id)"
+                                        (change)="togglePrivilege(app.id, module.id, priv.id)"
+                                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <span class="text-xs text-gray-600 group-hover:text-gray-900 transition-colors">{{
+                                        priv.privilegeName }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
