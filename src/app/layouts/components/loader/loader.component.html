@@ -1,0 +1,21 @@
+@if (isLoading$ | async) {
+<div class="loader-overlay">
+    <!-- Backdrop Blur & Darken -->
+    <div class="loader-backdrop"></div>
+
+    <!-- Centered Content -->
+    <div class="loader-content">
+
+        <!-- Outer Spinning Ring -->
+        <div class="spinner-ring"></div>
+
+        <!-- Inner Pulsing Core -->
+        <div class="spinner-core"></div>
+
+        <!-- Text (Optional) -->
+        <div class="mt-8 text-white font-medium tracking-widest text-sm animate-pulse uppercase">
+            Loading
+        </div>
+    </div>
+</div>
+}
