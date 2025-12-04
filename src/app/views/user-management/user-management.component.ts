@@ -29,7 +29,7 @@ export class UserManagementComponent implements OnInit {
     { key: 'fullName', label: 'User', width: '130px', type: 'profile' },
     { key: 'email', label: 'Email', width: '100px', type: 'text' },
     { key: 'phone', label: 'Phone', width: '220px', type: 'text' },
-    { key: 'role', label: 'Role', width: '100px', type: 'badge' },
+    { key: 'roles', label: 'Role', width: '100px', type: 'badge' },
     { key: 'isActive', label: 'Active', width: '130px', type: 'toggle', align: 'center' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
   ];

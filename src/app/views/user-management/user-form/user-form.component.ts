@@ -13,7 +13,7 @@ import { UserManagementService } from '../userManagement.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './user-form.component.html',
-  styleUrl: './user-form.component.css' // Ensure you have this file or remove if using inline styles
+  styleUrl: './user-form.component.css'
 })
 export class UserFormComponent implements OnInit {
 
@@ -52,7 +52,6 @@ export class UserFormComponent implements OnInit {
 
   ngOnInit() {
     this.isLoading = true;
-
     // Check Edit Mode
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
@@ -116,7 +115,6 @@ export class UserFormComponent implements OnInit {
     });
   }
 
-  // --- ACTIONS ---
 
   onCancel() {
     this.location.back();
@@ -130,7 +128,6 @@ export class UserFormComponent implements OnInit {
 
     this.isSubmitting = true;
     const formVal = this.userForm.value;
-
     const privilegeMapping: PrivilegeAssignRequest[] = [];
     this.selectedPrivileges.forEach((modulesMap, appId) => {
       if (this.selectedAppIds.has(appId)) {
@@ -158,7 +155,6 @@ export class UserFormComponent implements OnInit {
     if (!this.isEditing) {
       requestBody.email = formVal.email;
       requestBody.password = formVal.password;
-      requestBody.tenantId = 1;
     } else {
       if (formVal.password) requestBody.password = formVal.password;
       requestBody.id = this.userId;

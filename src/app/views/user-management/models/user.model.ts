@@ -4,7 +4,7 @@ export class UserModel {
     fullName!: string;
     email!: string;
     phone!: string;
-    role!: string[];
+    roles!: string[];
     isActive!: boolean;
     tenantId!: number;
 }
