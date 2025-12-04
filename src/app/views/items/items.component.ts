@@ -17,8 +17,8 @@ import { PaginationConfig, TableAction, TableColumn } from '../../layouts/compon
 export class ItemsComponent implements OnInit {
 
   itemList: ItemModel[] = [];
-  itemFilter:ItemSearchFilter = new ItemSearchFilter();
-  
+  itemFilter: ItemSearchFilter = new ItemSearchFilter();
+
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
@@ -36,14 +36,14 @@ export class ItemsComponent implements OnInit {
   ];
 
   page: number = 1;
-  size: number = 10;
+  size: number = 20;
   tabs: any;
 
   constructor(
     private itemService: ItemService,
     private router: Router,
     private toastService: ToastService
-  ) { 
+  ) {
     this.itemFilter.active = true;
   }
 
@@ -104,9 +104,8 @@ export class ItemsComponent implements OnInit {
         break;
 
       case 'toggle': // enable/disable item
-          console.log("Toggle active status for item:", row.id, "New status:");
-          this.toggleActiveStatus(row as ItemModel);
-        
+        console.log("Toggle active status for item:", row.id, "New status:");
+        this.toggleActiveStatus(row as ItemModel);
         break;
 
       default:

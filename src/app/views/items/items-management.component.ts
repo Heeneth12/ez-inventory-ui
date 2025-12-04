@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { TabCardComponent, TabItem } from '../../layouts/UI/tab-card/tab-card.component';
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { LucideAngularModule, UsersRound, UserPlus, UserPen, PackagePlus, Package2, PackageOpen} from 'lucide-angular';
+import { LucideAngularModule, UsersRound, UserPlus, UserPen, PackagePlus, Package2, PackageOpen } from 'lucide-angular';
 
 @Component({
   selector: 'app-items-management',
@@ -25,7 +25,7 @@ export class ItemsManagementComponent {
   isLoading = signal<boolean>(false);
 
   navigationTabs: TabItem[] = [
-    { id: 'item', label: 'All Items', icon:  Package2},
+    { id: 'item', label: 'All Items', icon: Package2 },
     { id: 'create', label: 'Create Item', icon: PackagePlus },
     { id: 'edit', label: 'Edit Item', icon: PackageOpen }
   ];
@@ -36,9 +36,9 @@ export class ItemsManagementComponent {
   ) {
     this.router.events.subscribe(() => {
       const currentUrl = this.router.url;
-      if (currentUrl.includes('/item/edit')) {
+      if (currentUrl.includes('/edit')) {
         this.activeTab.set('edit');
-      } else if (currentUrl.includes('/item/create')) {
+      } else if (currentUrl.includes('/create')) {
         this.activeTab.set('create');
       } else {
         this.activeTab.set('item');
