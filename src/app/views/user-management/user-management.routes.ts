@@ -1,0 +1,17 @@
+import { Routes } from '@angular/router';
+import { UserManagementAdapterComponent } from './user-management-adapter.component';
+import { UserManagementComponent } from './user-management.component';
+import { UserFormComponent } from './user-form/user-form.component';
+
+export const UserManagementRoutes: Routes = [
+    {
+        path: '',
+        component: UserManagementAdapterComponent,
+        children: [
+            { path: '', component: UserManagementComponent },
+            { path: 'create', component: UserFormComponent },
+            { path: 'edit/:id', component: UserFormComponent },
+            { path: '', redirectTo: '', pathMatch: 'full' },
+        ]
+    }
+];
