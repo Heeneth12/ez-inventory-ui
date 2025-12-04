@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { DrawerService } from './drawerService';
 
 @Component({
@@ -10,7 +10,7 @@ import { DrawerService } from './drawerService';
   templateUrl: './drawer.component.html',
   styleUrl: './drawer.component.css'
 })
-export class DrawerComponent {
+export class DrawerComponent implements OnInit {
 
   isOpen$!: Observable<boolean>;
   content$!: Observable<any>;

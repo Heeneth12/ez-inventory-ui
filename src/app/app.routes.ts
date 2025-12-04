@@ -1,92 +1,118 @@
 import { Routes } from '@angular/router';
-import { ForbiddenComponent } from './views/forbidden/forbidden.component';
-import { DashboardComponent } from './views/dashboard/dashboard.component';
-import { ItemsRoutes } from './views/items/items.routes';
-import { PurchasesRoutes } from './views/purchases/purchases.routes';
-import { SalesRoutes } from './views/sales/sales.routes';
-import { ReportsRoutes } from './views/reports/reports.routes';
-import { DocumentsRoutes } from './views/documents/documents.routes';
-import { AuthComponent } from './views/auth/auth.component';
-import { UserManagementComponent } from './views/user-management/user-management.component';
-import { stockRoutes } from './views/stock/stock.routes';
-import { SettingsComponent } from './views/settings/settings.component';
-import { employeeManagementRoutes } from './views/employee/employee-management.routes';
-import { contactsRoutes } from './views/contacts/contacts.routes';
 import { AuthGuard } from './layouts/guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
+    // 1. DASHBOARD (Lazy load single component)
     {
         path: 'dashboard',
-        component: DashboardComponent,
+        loadComponent: () => import('./views/dashboard/dashboard.component')
+            .then(c => c.DashboardComponent),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_DASHBOARD' }
     },
+
+    // 2. ITEMS (Lazy load route file)
     {
         path: 'items',
-        children: ItemsRoutes,
+        loadChildren: () => import('./views/items/items.routes')
+            .then(m => m.ItemsRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_ITEMS' }
     },
+
+    // 3. STOCK
     {
         path: 'stock',
-        children: stockRoutes,
+        loadChildren: () => import('./views/stock/stock.routes')
+            .then(m => m.stockRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_STOCK' }
     },
+
+    // 4. PURCHASES
     {
         path: 'purchases',
-        children: PurchasesRoutes,
+        loadChildren: () => import('./views/purchases/purchases.routes')
+            .then(m => m.PurchasesRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_PURCHASES' }
     },
+
+    // 5. SALES
     {
         path: 'sales',
-        children: SalesRoutes,
+        loadChildren: () => import('./views/sales/sales.routes')
+            .then(m => m.SalesRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_SALES' }
     },
+
+    // 6. REPORTS
     {
         path: 'reports',
-        children: ReportsRoutes,
+        loadChildren: () => import('./views/reports/reports.routes')
+            .then(m => m.ReportsRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_REPORTS' }
     },
+
+    // 7. CONTACTS
     {
         path: 'contacts',
-        children: contactsRoutes,
+        loadChildren: () => import('./views/contacts/contacts.routes')
+            .then(m => m.contactsRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_CONTACTS' }
     },
+
+    // 8. EMPLOYEE
     {
         path: 'employee',
-        children: employeeManagementRoutes,
+        loadChildren: () => import('./views/employee/employee-management.routes')
+            .then(m => m.employeeManagementRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_EMPLOYEE' }
     },
+
+    // 9. DOCUMENTS
     {
         path: 'documents',
-        children: DocumentsRoutes,
+        loadChildren: () => import('./views/documents/documents.routes')
+            .then(m => m.DocumentsRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_DOCUMENTS' }
     },
+
+    // 10. SETTINGS
     {
         path: 'settings',
-        component: SettingsComponent,
+        loadComponent: () => import('./views/settings/settings.component')
+            .then(c => c.SettingsComponent),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_SETTINGS' }
     },
-    
-    // User Management (Admin)
+
+    // 11. USER MANAGEMENT (Admin)
     {
         path: 'admin/user-management',
-        component: UserManagementComponent,
+        loadChildren: () => import('./views/user-management/user-management.routes')
+            .then(m => m.UserManagementRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_USER_MGMT' }
     },
 
-    // Public/Auth routes
-    { path: 'login', component: AuthComponent },
-    { path: 'forbidden', component: ForbiddenComponent },
+    // 12. PUBLIC ROUTES
+    // Even these should be lazy loaded to speed up the first paint
+    {
+        path: 'login',
+        loadComponent: () => import('./views/auth/auth.component')
+            .then(c => c.AuthComponent)
+    },
+    {
+        path: 'forbidden',
+        loadComponent: () => import('./views/forbidden/forbidden.component')
+            .then(c => c.ForbiddenComponent)
+    },
 ];
