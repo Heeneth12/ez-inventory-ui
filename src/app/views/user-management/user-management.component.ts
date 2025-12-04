@@ -8,6 +8,7 @@ import { StandardTableComponent } from "../../layouts/components/standard-table/
 import { PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { RoleModel, ApplicationModel } from './models/application.model';
 import { UserModel } from './models/user.model';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -37,6 +38,7 @@ export class UserManagementComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   constructor(
+    private router: Router,
     public drawerService: DrawerService,
     private toast: ToastService,
     private userManagementService: UserManagementService
@@ -71,6 +73,7 @@ export class UserManagementComponent implements OnInit {
 
       case 'edit':
         console.log("Edit action for item:", row.id);
+        this.editUser(row.id);
         break;
 
       case 'delete':
@@ -91,5 +94,9 @@ export class UserManagementComponent implements OnInit {
   }
   onLoadMore() {
     console.log("Load more event");
+  }
+
+  editUser(userId: any) {
+    this.router.navigate(['/admin/user-management/edit', userId]);
   }
 }

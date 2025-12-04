@@ -5,13 +5,12 @@ import { UserFormComponent } from './user-form/user-form.component';
 
 export const UserManagementRoutes: Routes = [
     {
-        path: '',
+        path: 'user-management',
         component: UserManagementAdapterComponent,
         children: [
             { path: '', component: UserManagementComponent },
             { path: 'create', component: UserFormComponent },
             { path: 'edit/:id', component: UserFormComponent },
-            { path: '', redirectTo: '', pathMatch: 'full' },
         ]
     }
 ];

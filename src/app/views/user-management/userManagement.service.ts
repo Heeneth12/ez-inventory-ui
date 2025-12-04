@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-import { environment } from "../../../environments/environment.development";
 import { HttpService } from "../../layouts/service/http-svc/http.service";
 import { CreateUserModel } from "./models/create-user.model";
 
@@ -9,8 +8,10 @@ import { CreateUserModel } from "./models/create-user.model";
 })
 export class UserManagementService {
 
-    private static ITEMS_BASE_URL = environment.devUrl + '/api/v1/common';
-    private static USER_BASE_URL = environment.devUrl + '/api/v1/user';
+    private static BASE_URL = "http://localhost:8080";
+
+    private static ITEMS_BASE_URL = UserManagementService.BASE_URL + '/api/v1/common';
+    private static USER_BASE_URL = UserManagementService.BASE_URL + '/api/v1/user';
 
     constructor(private httpService: HttpService) { }
 
@@ -24,6 +25,10 @@ export class UserManagementService {
 
     createRole(requestBody: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${UserManagementService.ITEMS_BASE_URL}/role/create`, requestBody, successfn, errorfn);
+    }
+
+    getUserById(id: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${UserManagementService.USER_BASE_URL}/${id}`, successfn, errorfn);
     }
 
     getModulesByApplication(appId: number, successfn: any, errorfn: any) {
@@ -42,7 +47,7 @@ export class UserManagementService {
         return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/create`, requestBody, successfn, errorfn);
     }
 
-    updateUser(requestBody: any, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/update`, requestBody, successfn, errorfn);
+    updateUser(requestBody: any, id: number, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/${id}/update`, requestBody, successfn, errorfn);
     }
 }

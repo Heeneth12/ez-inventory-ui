@@ -53,9 +53,18 @@ export class UserFormComponent implements OnInit {
   ngOnInit() {
     this.isLoading = true;
     // Check Edit Mode
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.userId = Number(idParam);
+    this.route.paramMap.subscribe(params => {
+      this.userId = Number(params.get('id'));
+      if (this.userId) {
+        this.isEditing = true;
+        this.loadUserData(this.userId);
+      } else {
+        this.userForm.get('password')?.addValidators([Validators.required, Validators.minLength(8)]);
+      }
+    });
+
+    console.log(this.userId);
+    if (this.userId) {
       this.isEditing = true;
       this.userForm.get('email')?.disable();
       this.userForm.get('password')?.removeValidators(Validators.required);
@@ -74,7 +83,7 @@ export class UserFormComponent implements OnInit {
         this.applications = resApps.data;
 
         if (this.isEditing && this.userId) {
-          // this.loadUserData(this.userId);
+          this.loadUserData(this.userId);
         } else {
           this.isLoading = false;
         }
@@ -82,17 +91,21 @@ export class UserFormComponent implements OnInit {
     }, (err: any) => this.handleError(err));
   }
 
-  // loadUserData(id: number) {
-  //   this.userService.getUserById(id, (res: any) => {
-  //     this.patchUserToForm(res.data);
-  //     this.isLoading = false;
-  //   }, (err: any) => {
-  //     this.toast.show('Failed to load user', 'error');
-  //     this.onCancel();
-  //   });
-  // }
+  loadUserData(id: number) {
+    // Assuming you created a specific endpoint in your controller like /api/users/{id}/edit
+    // If you are reusing the standard get, ensure it calls the new service logic.
+    this.userService.getUserById(id, (res: any) => {
+      // res.data should match UserEditResponse structure
+      this.patchUserToForm(res.data);
+      this.isLoading = false;
+    }, (err: any) => {
+      this.toast.show('Failed to load user', 'error');
+      this.onCancel();
+    });
+  }
 
   patchUserToForm(user: any) {
+    // 1. Patch basic Form Control values
     this.userForm.patchValue({
       fullName: user.fullName,
       email: user.email,
@@ -100,19 +113,35 @@ export class UserFormComponent implements OnInit {
       isActive: user.isActive
     });
 
-    user.userRoles?.forEach((ur: any) => this.selectedRoleIds.add(ur.role.id));
+    // 2. Patch Roles (Backend now returns a simple list of IDs: [1, 2, 3])
+    if (user.roleIds) {
+      user.roleIds.forEach((roleId: number) => {
+        this.selectedRoleIds.add(roleId);
+      });
+    }
 
-    user.userApplications?.forEach((ua: any) => {
-      const appId = ua.application.id;
-      this.selectedAppIds.add(appId);
-      this.loadModulesForApp(appId);
+    // 3. Patch Applications & Privileges
+    if (user.userApplications) {
+      user.userApplications.forEach((uaDto: any) => {
 
-      if (ua.modulePrivileges) {
-        ua.modulePrivileges.forEach((ump: any) => {
-          this.addPrivilegeToMap(appId, ump.module.id, ump.privilege.id);
-        });
-      }
-    });
+        // Note: DTO returns 'applicationId', not 'id'
+        const appId = uaDto.applicationId;
+
+        // Select the Application Checkbox
+        this.selectedAppIds.add(appId);
+
+        // Trigger loading modules for this app so the UI can render the accordion
+        this.loadModulesForApp(appId);
+
+        // Map the privileges
+        if (uaDto.modulePrivileges) {
+          uaDto.modulePrivileges.forEach((umpDto: any) => {
+            // DTO structure: { moduleId: 1, privilegeId: 5 }
+            this.addPrivilegeToMap(appId, umpDto.moduleId, umpDto.privilegeId);
+          });
+        }
+      });
+    }
   }
 
 
@@ -171,7 +200,7 @@ export class UserFormComponent implements OnInit {
     };
 
     if (this.isEditing) {
-      this.userService.updateUser(requestBody, callback, errCallback);
+      this.userService.updateUser(requestBody, requestBody.id, callback, errCallback);
     } else {
       this.userService.createUser(requestBody, callback, errCallback);
     }
