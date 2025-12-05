@@ -96,7 +96,7 @@ export const routes: Routes = [
 
     // 11. USER MANAGEMENT (Admin)
     {
-        path: 'admin/user-management',
+        path: 'admin',
         loadChildren: () => import('./views/user-management/user-management.routes')
             .then(m => m.UserManagementRoutes),
         canActivate: [AuthGuard],
