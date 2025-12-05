@@ -7,8 +7,9 @@ import { environment } from '../../../../environments/environment.development';
 })
 export class CommonService {
 
+  private static BASE_URL = environment.authUrl;
 
-  private static AUTH_BASE_URL = environment.devUrl + '/api/v1/auth';
+  private static AUTH_BASE_URL = CommonService.BASE_URL + '/api/v1/auth';
 
   constructor(private httpService: HttpService) { }
 

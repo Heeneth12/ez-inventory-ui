@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, signal, computed, ViewEncapsulation, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule, DecimalPipe, CurrencyPipe, TitleCasePipe } from '@angular/common';
+import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, effect } from '@angular/core';
+import { CommonModule, DecimalPipe, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density } from './standard-table.model';
-import { LucideAngularModule, Filter, Calculator, Download, Calendar, Edit, View, Delete, Trash2, ViewIcon, EyeIcon} from 'lucide-angular';
+import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon } from 'lucide-angular';
 
 @Component({
   selector: 'app-standard-table',
@@ -12,17 +12,21 @@ import { LucideAngularModule, Filter, Calculator, Download, Calendar, Edit, View
   styleUrls: ['./standard-table.component.css'],
 })
 export class StandardTableComponent implements OnChanges {
-  @Input() title: string = '  ';
+  @Input() title: string = '';
   @Input() columns: TableColumn[] = [];
   @Input() data: TableRow[] = [];
   @Input() loadMode: LoadMode = 'pagination';
   @Input() pagination: PaginationConfig = { pageSize: 10, currentPage: 1, totalItems: 0 };
   @Input() isLoading: boolean = false;
+  @Input() enableSelection: boolean = true; // New: Toggle selection column
+  @Input() isServerSide: boolean = false;
 
   @Output() pageChange = new EventEmitter<number>();
   @Output() loadMore = new EventEmitter<void>();
   @Output() action = new EventEmitter<TableAction>();
+  @Output() selectionChange = new EventEmitter<(string | number)[]>(); // New: Emit selected IDs
 
+  // Icons
   readonly Filter = Filter;
   readonly Calendar = Calendar;
   readonly Download = Download;
@@ -30,21 +34,32 @@ export class StandardTableComponent implements OnChanges {
   readonly View = EyeIcon;
   readonly Delete = Trash2;
 
-  // State
+  // State Signals
   searchQuery = signal('');
   showSettings = signal(false);
   density = signal<Density>('normal');
-
-  // Settings
-  stripedRows: boolean = true;
   sortKey = signal<string | null>(null);
   sortDirection = signal<'asc' | 'desc'>('asc');
 
+  // Reactivity Fixes
   private _localData = signal<TableRow[]>([]);
+  // We need a signal for the page to trigger 'displayedRows' recalculation
+  currentPageSignal = signal(1);
+
+  // Selection State
+  selectedIds = signal<Set<string | number>>(new Set());
+
+  // Settings
+  stripedRows: boolean = true;
 
   ngOnChanges(changes: SimpleChanges) {
+    // Sync local data
     if (changes['data']) {
       this._localData.set([...this.data]);
+    }
+    // Sync pagination input to signal (Fixes the "Not working" issue)
+    if (changes['pagination'] && this.pagination) {
+      this.currentPageSignal.set(this.pagination.currentPage);
     }
   }
 
@@ -55,7 +70,7 @@ export class StandardTableComponent implements OnChanges {
     let rows = [...this._localData()];
     const query = this.searchQuery().toLowerCase();
 
-    // 1. Client-side Search (Broad search across all values)
+    // 1. Client-side Search
     if (query) {
       rows = rows.filter(row =>
         Object.keys(row).some(key =>
@@ -71,7 +86,6 @@ export class StandardTableComponent implements OnChanges {
       rows.sort((a, b) => {
         const valA = a[key];
         const valB = b[key];
-
         if (typeof valA === 'string' && typeof valB === 'string') {
           return valA.localeCompare(valB) * dir;
         }
@@ -79,13 +93,33 @@ export class StandardTableComponent implements OnChanges {
       });
     }
 
-    // 3. Pagination Logic
-    if (this.loadMode === 'pagination') {
-      const start = (this.pagination.currentPage - 1) * this.pagination.pageSize;
-      return rows.slice(start, start + this.pagination.pageSize);
+    // 3. Pagination Logic (Using Signals now)
+    if (this.loadMode === 'pagination' && !this.isServerSide) {
+      const page = this.currentPageSignal(); // Dependency on Signal
+      const size = this.pagination.pageSize;
+      const start = (page - 1) * size;
+      // Safety check for client-side pagination
+      return rows.slice(start, start + size);
     }
 
     return rows;
+  });
+
+  // Check if all CURRENTLY displayed rows are selected
+  isAllSelected = computed(() => {
+    const rows = this.displayedRows();
+    if (rows.length === 0) return false;
+    const selected = this.selectedIds();
+    return rows.every(row => selected.has(row.id));
+  });
+
+  // Check if some but not all are selected
+  isIndeterminate = computed(() => {
+    const rows = this.displayedRows();
+    if (rows.length === 0) return false;
+    const selected = this.selectedIds();
+    const count = rows.filter(row => selected.has(row.id)).length;
+    return count > 0 && count < rows.length;
   });
 
   // --- UI Helpers ---
@@ -110,11 +144,11 @@ export class StandardTableComponent implements OnChanges {
 
   getStartItem() {
     if (this.pagination.totalItems === 0) return 0;
-    return (this.pagination.currentPage - 1) * this.pagination.pageSize + 1;
+    return (this.currentPageSignal() - 1) * this.pagination.pageSize + 1;
   }
 
   getEndItem() {
-    return Math.min(this.pagination.currentPage * this.pagination.pageSize, this.pagination.totalItems);
+    return Math.min(this.currentPageSignal() * this.pagination.pageSize, this.pagination.totalItems);
   }
 
   isMatch(value: any): boolean {
@@ -123,6 +157,35 @@ export class StandardTableComponent implements OnChanges {
   }
 
   // --- Actions ---
+
+  // Select/Deselect a single row
+  toggleRowSelection(row: TableRow) {
+    const newSet = new Set(this.selectedIds());
+    if (newSet.has(row.id)) {
+      newSet.delete(row.id);
+    } else {
+      newSet.add(row.id);
+    }
+    this.selectedIds.set(newSet);
+    this.selectionChange.emit(Array.from(newSet));
+  }
+
+  // Select/Deselect all visible rows
+  toggleSelectAll() {
+    const newSet = new Set(this.selectedIds());
+    const rows = this.displayedRows();
+
+    if (this.isAllSelected()) {
+      // Deselect current page
+      rows.forEach(row => newSet.delete(row.id));
+    } else {
+      // Select current page
+      rows.forEach(row => newSet.add(row.id));
+    }
+    this.selectedIds.set(newSet);
+    this.selectionChange.emit(Array.from(newSet));
+  }
+
   setDensity(value: string) {
     this.density.set(value as Density);
   }
@@ -142,13 +205,17 @@ export class StandardTableComponent implements OnChanges {
   }
 
   changePage(delta: number) {
-    const newPage = this.pagination.currentPage + delta;
-    if (newPage > 0) this.pageChange.emit(newPage);
+    const newPage = this.currentPageSignal() + delta;
+    if (newPage > 0) {
+      // Optimistically update signal for immediate UI response
+      this.currentPageSignal.set(newPage);
+      // Emit event for parent to fetch data if server-side
+      this.pageChange.emit(newPage);
+    }
   }
 
   emitAction(type: 'view' | 'edit' | 'delete' | 'toggle', row: TableRow, key?: string) {
     if (type === 'toggle' && key) {
-      // Optimistic Update
       row[key] = !row[key];
     }
     this.action.emit({ type, row, key });

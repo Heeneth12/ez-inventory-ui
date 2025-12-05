@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
+import { LoaderService } from '../../layouts/components/loader/loaderService';
 
 @Component({
   selector: 'app-items',
@@ -18,9 +19,10 @@ export class ItemsComponent implements OnInit {
 
   itemList: ItemModel[] = [];
   itemFilter: ItemSearchFilter = new ItemSearchFilter();
-
-
-  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
+  
+  pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
+  isLoading = false;
+  selectedItemIds: (string | number)[] = [];
 
   columns: TableColumn[] = [
     { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
@@ -35,14 +37,11 @@ export class ItemsComponent implements OnInit {
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
 
-  page: number = 1;
-  size: number = 20;
-  tabs: any;
-
   constructor(
     private itemService: ItemService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private loaderSvc :LoaderService
   ) {
     this.itemFilter.active = true;
   }
@@ -52,26 +51,38 @@ export class ItemsComponent implements OnInit {
   }
 
   getAllItems() {
-    this.itemService.getAllItems
-      (this.page - 1, this.size, this.itemFilter, (response: any) => {
+    this.loaderSvc.show();
+    const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
+    this.itemService.getAllItems(
+      apiPage, 
+      this.pagination.pageSize,
+      this.itemFilter, 
+      (response: any) => {
         this.itemList = response.data.content;
-      }, (error: any) => {
+        this.pagination = {
+          currentPage: this.pagination.currentPage,
+          totalItems: response.data.totalElements,
+          pageSize: response.data.size
+        };
+        this.loaderSvc.hide();
+      }, 
+      (error: any) => {
+        this.loaderSvc.hide();
         this.toastService.show('Failed to load Items', 'error');
         console.error('Error fetching items:', error);
       }
-      );
+    );
   }
 
   toggleActiveStatus(item: ItemModel) {
-    const updatedStatus = item.isActive;
-    this.itemService.toggleItemActiveStatus(item.id, updatedStatus,
+    const originalStatus = !item.isActive; 
+    this.itemService.toggleItemActiveStatus(item.id, item.isActive,
       (response: any) => {
-        item.isActive = updatedStatus;
-        this.toastService.show(`Item ${updatedStatus ? 'enabled' : 'disabled'} successfully`, 'success');
+        this.toastService.show(`Item ${item.isActive ? 'enabled' : 'disabled'} successfully`, 'success');
       },
       (error: any) => {
+        item.isActive = originalStatus;
         this.toastService.show('Failed to update item status', 'error');
-        console.error('Error updating item status:', error);
       }
     );
   }
@@ -84,42 +95,35 @@ export class ItemsComponent implements OnInit {
     this.router.navigate(['/items/edit', itemId]);
   }
 
+  onSelectionChange(selectedIds: (string | number)[]) {
+    this.selectedItemIds = selectedIds;
+    console.log("Current Selection:", this.selectedItemIds);
+  }
+
   onTableAction(event: TableAction) {
-    console.log("Table action event:", event);
     const { type, row, key } = event;
 
     switch (type) {
-
       case 'view':
-        console.log("View action for item:", row.id);
+        console.log("View:", row.id);
         break;
-
       case 'edit':
-        console.log("Edit action for item:", row.id);
         this.updateItem(row.id);
         break;
-
       case 'delete':
-        console.log("Delete action for item:", row.id);
+        console.log("Delete:", row.id);
         break;
-
-      case 'toggle': // enable/disable item
-        console.log("Toggle active status for item:", row.id, "New status:");
+      case 'toggle': 
         this.toggleActiveStatus(row as ItemModel);
         break;
-
-      default:
-        console.warn("Unhandled table action:", event);
     }
   }
 
-
-  onPageChange($event: number) {
-    throw new Error('Method not implemented.');
+  onPageChange(newPage: number) {
+    this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getAllItems();
   }
+  
   onLoadMore() {
-    throw new Error('Method not implemented.');
   }
-
-
 }

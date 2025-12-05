@@ -1,10 +1,9 @@
 <div class="flex flex-col h-full bg-white border border-gray-200 font-sans overflow-hidden">
-    <!-- Toolbar -->
     <div
         class="px-6 py-4 border-b border-gray-200 bg-white flex flex-col sm:flex-row gap-4 justify-between items-center z-20">
-
+        
         <div class="flex items-center gap-3 w-full sm:w-auto">
-            <div class="relative flex-1 sm:flex-none group">
+            <div *ngIf="selectedIds().size === 0" class="relative flex-1 sm:flex-none group">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -15,37 +14,35 @@
                     class="block w-full sm:w-80 pl-10 pr-3 py-2.5 border-none rounded-full bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all"
                     placeholder="Search..." />
             </div>
+
+            <div *ngIf="selectedIds().size > 0" class="flex items-center gap-4 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 animate-in fade-in duration-200">
+                <span class="text-sm font-semibold text-indigo-700">{{ selectedIds().size }} selected</span>
+                <div class="h-4 w-px bg-indigo-200"></div>
+                <button (click)="selectedIds().clear(); selectionChange.emit([])" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                    Clear
+                </button>
+            </div>
         </div>
 
         <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
             <button
-                class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none">
-                <lucide-icon [img]="Filter" class="w-4 h-4 opacity-100 group-hover:opacity-100 transition-opacity">
-                </lucide-icon>
-                <span>Filter</span>
-            </button>
-
-            <button
-                class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none">
-                <lucide-icon [img]="Calendar" class="w-4 h-4 opacity-100 group-hover:opacity-100 transition-opacity">
-                </lucide-icon>
-                <span>01 Dec - 16 Dec</span>
+                class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none"
+                (click)="showSettings.set(!showSettings())">
+                <lucide-icon [img]="Filter" class="w-4 h-4"></lucide-icon>
+                <span>Display</span>
             </button>
 
             <button
                 class="flex items-center gap-2 px-6 py-2.5 bg-[#E86426] hover:bg-[#d5561b] text-white rounded-full transition-colors text-sm font-medium shadow-sm focus:outline-none ml-auto sm:ml-0">
-                <lucide-icon [img]="Download" class="w-4 h-4 opacity-100 group-hover:opacity-100 transition-opacity">
-                </lucide-icon>
-                <span>Download as CSV</span>
+                <lucide-icon [img]="Download" class="w-4 h-4"></lucide-icon>
+                <span>Export</span>
             </button>
         </div>
     </div>
 
-    <!-- Configuration Panel -->
     <div *ngIf="showSettings()"
         class="bg-gray-50 border-b border-gray-200 p-4 animate-in slide-in-from-top-2 duration-200">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Density -->
             <div>
                 <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Display Density</h3>
                 <div class="flex bg-white rounded-md shadow-sm border border-gray-200 p-1">
@@ -56,8 +53,6 @@
                     </button>
                 </div>
             </div>
-
-            <!-- Styling -->
             <div>
                 <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Styling</h3>
                 <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded transition-colors">
@@ -66,8 +61,6 @@
                     <span class="text-sm text-gray-700">Striped Rows</span>
                 </label>
             </div>
-
-            <!-- Columns -->
             <div>
                 <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Visible Columns</h3>
                 <div class="flex flex-wrap gap-2">
@@ -81,12 +74,20 @@
         </div>
     </div>
 
-    <!-- Table Container -->
     <div class="flex-1 overflow-auto relative custom-scrollbar bg-white" (scroll)="onScroll($event)">
-
         <table class="w-full text-left border-collapse">
             <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
                 <tr>
+                    <th *ngIf="enableSelection" class="w-10 px-4 border-b border-gray-200 bg-gray-50">
+                        <div class="flex items-center justify-center">
+                            <input type="checkbox" 
+                                [checked]="isAllSelected()" 
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleSelectAll()"
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                        </div>
+                    </th>
+
                     <th *ngFor="let col of visibleColumns()"
                         class="font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200 select-none group hover:bg-gray-100 transition-colors cursor-pointer"
                         [ngClass]="[getCellPadding(true), 'text-' + (col.align || 'left')]" [style.width]="col.width"
@@ -95,7 +96,6 @@
                         <div class="flex items-center gap-1"
                             [ngClass]="{'justify-end': col.align === 'right', 'justify-center': col.align === 'center'}">
                             {{ col.label }}
-                            <!-- Sort Icon -->
                             <span *ngIf="col.sortable !== false && col.type !== 'action'"
                                 class="text-[10px] text-gray-400 transition-opacity"
                                 [class.text-indigo-600]="sortKey() === col.key"
@@ -110,17 +110,27 @@
 
             <tbody class="divide-y divide-gray-100">
                 <tr *ngFor="let row of displayedRows(); let i = index"
-                    class="group transition-colors hover:bg-indigo-50/30"
-                    [class.bg-gray-50]="stripedRows && i % 2 === 1">
+                    class="group transition-colors duration-150"
+                    [class.bg-indigo-50]="selectedIds().has(row.id)"
+                    [class.bg-gray-50]="stripedRows && i % 2 === 1 && !selectedIds().has(row.id)"
+                    [class.hover:bg-gray-100]="!selectedIds().has(row.id)">
+
+                    <td *ngIf="enableSelection" class="px-4 whitespace-nowrap">
+                        <div class="flex items-center justify-center">
+                            <input type="checkbox" 
+                                [checked]="selectedIds().has(row.id)"
+                                (change)="toggleRowSelection(row)"
+                                (click)="$event.stopPropagation()"
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                        </div>
+                    </td>
 
                     <td *ngFor="let col of visibleColumns()" class="text-sm text-gray-700 whitespace-nowrap"
                         [ngClass]="[getCellPadding(), 'text-' + (col.align || 'left')]">
 
-                        <!-- Switch based on Column Type -->
                         <ng-container [ngSwitch]="col.type || 'text'">
 
-                            <!-- 1. Profile Type (Avatar + Text) -->
-                            <div *ngSwitchCase="'profile'" class="flex items-center gap-3">
+                             <div *ngSwitchCase="'profile'" class="flex items-center gap-3">
                                 <div class="shrink-0 h-9 w-9">
                                     <img class="h-9 w-9 rounded-full object-cover border border-gray-200"
                                         [src]="'https://ui-avatars.com/api/?name=' + row[col.key] + '&background=eff6ff&color=3b82f6&bold=true'"
@@ -128,18 +138,16 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="font-medium text-gray-900">{{ row[col.key] }}</span>
-                                    <span class="text-xs text-gray-400">{{ 'user@example.com' }}</span>
+                                    <span class="text-xs text-gray-400">user&#64;example.com</span>
                                 </div>
                             </div>
 
-                            <!-- 2. Badge Type (Status Pills) -->
                             <span *ngSwitchCase="'badge'"
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
                                 [ngClass]="getBadgeClass(row[col.key])">
                                 {{ row[col.key] }}
                             </span>
 
-                            <!-- 3. Toggle Type (Switch) -->
                             <button *ngSwitchCase="'toggle'"
                                 (click)="emitAction('toggle', row, col.key); $event.stopPropagation()"
                                 class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -149,49 +157,35 @@
                                     [class.translate-x-5]="row[col.key]" [class.translate-x-0]="!row[col.key]"></span>
                             </button>
 
-                            <!-- 4. Link Type -->
                             <a *ngSwitchCase="'link'" href="#" (click)="$event.preventDefault()"
                                 class="text-indigo-600 hover:text-indigo-900 hover:underline font-medium">
                                 {{ row[col.key] }}
                             </a>
 
-                            <!-- 5. Currency Type -->
                             <span *ngSwitchCase="'currency'" class="font-medium text-gray-700">
                                 {{ row[col.key] | currency }}
                             </span>
 
-                            <!-- 6. Number Type -->
                             <span *ngSwitchCase="'number'" [class.text-red-600]="row[col.key] < 0">
                                 {{ row[col.key] | number:'1.0-2' }}
                             </span>
 
-                            <!-- 7. Action Type (Buttons) -->
                             <div *ngSwitchCase="'action'" class="flex items-center justify-center gap-2">
                                 <button (click)="emitAction('view', row)"
-                                        class="group relative p-2 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                        title="View Details"
-                                        aria-label="View Details">
+                                    class="group relative p-2 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200">
                                     <lucide-icon [img]="View" class="w-4 h-4 stroke-[2px]"></lucide-icon>
                                 </button>
-
                                 <button (click)="emitAction('edit', row)"
-                                        class="group relative p-2 rounded-full text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-                                        title="Edit Record"
-                                        aria-label="Edit Record">
+                                    class="group relative p-2 rounded-full text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200">
                                     <lucide-icon [img]="Edit" class="w-4 h-4 stroke-[2px]"></lucide-icon>
                                 </button>
-
                                 <button (click)="emitAction('delete', row)"
-                                        class="group relative p-2 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                        title="Delete Record"
-                                        aria-label="Delete Record">
+                                    class="group relative p-2 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200">
                                     <lucide-icon [img]="Delete" class="w-4 h-4 stroke-[2px]"></lucide-icon>
                                 </button>
                             </div>
 
-                            <!-- Default Text -->
                             <ng-container *ngSwitchDefault>
-                                <!-- Highlight logic for search matches -->
                                 <ng-container *ngIf="isMatch(row[col.key]); else normalText">
                                     <span class="bg-yellow-100 text-gray-900 font-medium px-0.5 rounded">
                                         {{ row[col.key] }}
@@ -205,32 +199,15 @@
                     </td>
                 </tr>
 
-                <!-- Infinite Scroll Loading Indicator -->
                 <tr *ngIf="loadMode === 'infinite' && isLoading">
-                    <td [attr.colspan]="visibleColumns().length" class="p-4 text-center bg-gray-50">
-                        <div class="inline-flex items-center gap-2 text-sm text-gray-500">
-                            <svg class="animate-spin h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                            Loading more records...
-                        </div>
+                    <td [attr.colspan]="visibleColumns().length + (enableSelection ? 1 : 0)" class="p-4 text-center bg-gray-50">
+                        <span class="text-sm text-gray-500">Loading...</span>
                     </td>
                 </tr>
-                <!-- Empty State -->
                 <tr *ngIf="displayedRows().length === 0 && !isLoading">
-                    <td [attr.colspan]="visibleColumns().length" class="py-16 text-center">
+                    <td [attr.colspan]="visibleColumns().length + (enableSelection ? 1 : 0)" class="py-16 text-center">
                         <div class="flex flex-col items-center justify-center text-gray-400">
-                            <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                            <span class="text-base font-medium">No results found</span>
-                            <span class="text-sm mt-1">Try adjusting your search terms</span>
+                           <span class="text-base font-medium">No results found</span>
                         </div>
                     </td>
                 </tr>
@@ -238,32 +215,28 @@
         </table>
     </div>
 
-    <!-- Footer -->
     <div class="bg-gray-50 border-t border-gray-200 px-4 py-3 flex items-center justify-between text-xs text-gray-500">
-        <!-- Pagination Controls -->
         <div *ngIf="loadMode === 'pagination'" class="flex items-center gap-4 w-full justify-between sm:justify-start">
             <span class="hidden sm:inline">
                 Showing {{ getStartItem() }} - {{ getEndItem() }} of {{ pagination.totalItems }}
             </span>
 
             <div class="flex items-center gap-2">
-                <button (click)="changePage(-1)" [disabled]="pagination.currentPage === 1"
+                <button (click)="changePage(-1)" [disabled]="currentPageSignal() === 1"
                     class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                     Previous
                 </button>
-                <span class="font-medium text-gray-700">Page {{ pagination.currentPage }}</span>
+                <span class="font-medium text-gray-700">Page {{ currentPageSignal() }}</span>
                 <button (click)="changePage(1)"
-                    [disabled]="(pagination.currentPage * pagination.pageSize) >= pagination.totalItems"
+                    [disabled]="(currentPageSignal() * pagination.pageSize) >= pagination.totalItems"
                     class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                     Next
                 </button>
             </div>
         </div>
 
-        <!-- Infinite Mode Status -->
         <div *ngIf="loadMode === 'infinite'" class="flex justify-between w-full">
             <span>Showing {{ displayedRows().length }} of {{ pagination.totalItems }} records</span>
-            <span class="italic text-gray-400">Scroll for more</span>
         </div>
     </div>
 </div>

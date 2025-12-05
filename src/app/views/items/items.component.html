@@ -1,7 +1,8 @@
 <div class="space-y-6">
     <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="itemList" [pagination]="pagination"
-            (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)">
+            [isServerSide]="true"
+            (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)" >
         </app-standard-table>
     </div>
 </div>
