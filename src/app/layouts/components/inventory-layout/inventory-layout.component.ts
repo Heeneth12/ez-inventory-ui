@@ -68,7 +68,12 @@ export class InventoryLayoutComponent implements OnInit {
       label: 'Purchases',
       link: '/purchases',
       icon: ShoppingCart,
-      moduleKey: 'EZH_INV_PURCHASES'
+      moduleKey: 'EZH_INV_PURCHASES',
+      subItems: [
+        { label: 'Purchase Order', link: '/purchases/order' },
+        { label: 'Goods Receipt (GRN)', link: '/purchases/grn' },
+        { label: 'Purchase Return', link: '/purchases/return' },
+      ]
     },
     {
       label: 'Sales',
