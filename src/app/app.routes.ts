@@ -34,7 +34,7 @@ export const routes: Routes = [
     // 4. PURCHASES
     {
         path: 'purchases',
-        loadChildren: () => import('./views/purchases/purchases.routes')
+        loadChildren: () => import('./views/purchases/purchase.routes')
             .then(m => m.PurchasesRoutes),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_PURCHASES' }

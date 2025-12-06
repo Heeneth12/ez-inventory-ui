@@ -134,8 +134,8 @@ export class StandardTableComponent implements OnChanges {
 
   getBadgeClass(status: string): string {
     const s = String(status).toLowerCase();
-    if (s.includes('active') || s.includes('success') || s.includes('paid') || s.includes('product') || s.includes('customer')) return 'bg-green-100 text-green-800 border-green-200';
-    if (s.includes('inactive') || s.includes('error') || s.includes('fail')) return 'bg-red-100 text-red-800 border-red-200';
+    if (s.includes('active') || s.includes('success') || s.includes('paid') || s.includes('product') || s.includes('customer') || s.includes('in')) return 'bg-green-100 text-green-800 border-green-200';
+    if (s.includes('inactive') || s.includes('error') || s.includes('fail') || s.includes('out')) return 'bg-red-100 text-red-800 border-red-200';
     if (s.includes('warning') || s.includes('pending') || s.includes('hold')) return 'bg-amber-100 text-amber-800 border-amber-200';
     if (s.includes('engineer') || s.includes('dev')) return 'bg-purple-100 text-purple-800 border-purple-200';
     if (s.includes('manager') || s.includes('lead') || s.includes('service') || s.includes('supplier')) return 'bg-blue-100 text-blue-800 border-blue-200';
