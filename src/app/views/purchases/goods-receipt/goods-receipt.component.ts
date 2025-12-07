@@ -27,7 +27,7 @@ export class GoodsReceiptComponent implements OnInit {
   
   // Columns Definition
   columns: TableColumn[] = [
-    { key: 'grnNumber', label: 'GRN Number', width: '180px', type: 'text', sortable: true },
+    { key: 'grnNumber', label: 'GRN Number', width: '180px', type: 'link', sortable: true },
     { key: 'purchaseOrderId', label: 'PO Reference', width: '150px', type: 'text' },
     { key: 'supplierInvoiceNo', label: 'Supplier', width: '200px', type: 'text' },
     { key: 'receivedDate', label: 'Received Date', width: '120px', type: 'text' },

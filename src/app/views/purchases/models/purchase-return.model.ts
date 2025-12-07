@@ -6,6 +6,7 @@ export interface PurchaseReturnItemModel {
 }
 
 export interface PurchaseReturnModel {
+    id: number;
     supplierId: number;
     warehouseId: number;
     goodsReceiptId?: number;
