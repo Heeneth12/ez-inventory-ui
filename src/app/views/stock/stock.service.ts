@@ -20,4 +20,11 @@ export class StockService {
         return this.httpService.postHttp(`${StockService.STOCK_BASE_URL}/ledger?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
+    createStockAdjustment(filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${StockService.STOCK_BASE_URL}/adjustment`, filter, successfn, errorfn)
+    }
+
+    getStockAdjustment(page: number, size: number, filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${StockService.STOCK_BASE_URL}/adjustment/all?page=${page}&size=${size}`, filter, successfn, errorfn)
+    }
 }
