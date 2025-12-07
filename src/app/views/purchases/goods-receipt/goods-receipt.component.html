@@ -1,1 +1,109 @@
-<p>goods-receipt works!</p>
+<div class="space-y-6">
+    <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
+        <app-standard-table [title]="'Goods Receipt Notes'" [columns]="columns" [data]="grnList"
+            [pagination]="pagination" [isServerSide]="true" (pageChange)="onPageChange($event)"
+            (loadMore)="onLoadMore()" (action)="onTableAction($event)">
+        </app-standard-table>
+    </div>
+</div>
+<!-- 
+<ng-template #grnSummary let-data>
+  <div class="flex flex-col h-full bg-white rounded-lg shadow-xl overflow-hidden">
+
+    <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+      <div>
+        <h3 class="text-lg font-bold text-gray-800">
+          {{ selectedGrn?.grnNumber }}
+        </h3>
+        <p class="text-sm text-gray-500 mt-1">
+          Received on {{ selectedGrn?.receivedDate | date:'mediumDate' }}
+        </p>
+      </div>
+      
+      <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide"
+            [ngClass]="getStatusColor(selectedGrn?.status)">
+        {{ selectedGrn?.status }}
+      </span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        
+        <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+          <label class="text-xs font-semibold text-blue-600 uppercase mb-2 block">Supplier Info</label>
+          <div class="text-sm text-gray-800 font-medium">{{ selectedGrn?.supplierName }}</div>
+          <div class="text-xs text-gray-500 mt-1">PO Ref: <span class="font-bold">{{ selectedGrn?.poNumber }}</span></div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+          <label class="text-xs font-semibold text-gray-600 uppercase mb-2 block">Invoice Details</label>
+           <div class="text-sm text-gray-800 font-medium">Inv #: {{ selectedGrn?.supplierInvoiceNo || 'N/A' }}</div>
+          <div class="text-xs text-gray-500 mt-1">
+            Warehouse ID: {{ selectedGrn?.warehouseId || 'Main' }}
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedGrn?.notes" class="mb-8">
+        <h4 class="text-sm font-semibold text-gray-700 mb-2">Receipt Notes</h4>
+        <div class="p-3 bg-yellow-50 text-sm text-yellow-800 rounded border border-yellow-100 italic">
+          "{{ selectedGrn?.notes }}"
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">Received Items</h4>
+        <div class="border rounded-lg overflow-hidden">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-gray-50 text-gray-500 font-medium border-b">
+              <tr>
+                <th class="px-4 py-3">Item Name</th>
+                <th class="px-4 py-3 text-center">Ordered</th>
+                <th class="px-4 py-3 text-center">Received</th>
+                <th class="px-4 py-3 text-center">Rejected</th>
+                <th class="px-4 py-3 text-right">Batch / Expiry</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr *ngFor="let item of selectedGrn?.items" class="hover:bg-gray-50 transition-colors">
+                
+                <td class="px-4 py-3">
+                  <div class="font-medium text-gray-800">{{ item.itemName }}</div>
+                  <div class="text-xs text-gray-400">ID: {{ item.itemId }}</div>
+                </td>
+                
+                <td class="px-4 py-3 text-center text-gray-400">
+                  {{ item.orderedQty }}
+                </td>
+
+                <td class="px-4 py-3 text-center font-bold text-green-700 bg-green-50/30">
+                  {{ item.receivedQty }}
+                </td>
+
+                <td class="px-4 py-3 text-center font-medium" 
+                    [ngClass]="item.rejectedQty > 0 ? 'text-red-600' : 'text-gray-400'">
+                  {{ item.rejectedQty }}
+                </td>
+
+                <td class="px-4 py-3 text-right text-xs">
+                  <div *ngIf="item.batchNumber" class="text-gray-800 font-mono">{{ item.batchNumber }}</div>
+                  <div *ngIf="item.expiryDate" class="text-gray-500">Exp: {{ item.expiryDate | date:'shortDate' }}</div>
+                  <div *ngIf="!item.batchNumber && !item.expiryDate" class="text-gray-300">-</div>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end items-center">
+        <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                (click)="modalService.close()">
+            Close Details
+        </button>
+    </div>
+  </div>
+</ng-template> -->

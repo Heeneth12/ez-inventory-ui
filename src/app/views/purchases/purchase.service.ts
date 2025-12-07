@@ -39,6 +39,10 @@ export class PurchaseService {
         return this.httpService.postHttp(PurchaseService.GRN_BASE_URL, request, successfn, errorfn);
     }
 
+    getAllGrn(page: number, size: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PurchaseService.GRN_BASE_URL}?page=${page}&size=${size}`, successfn, errorfn);
+    }
+
     getGrnDetails(grnId: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${PurchaseService.GRN_BASE_URL}/${grnId}`, successfn, errorfn);
     }

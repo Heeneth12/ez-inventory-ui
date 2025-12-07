@@ -7,8 +7,11 @@ export interface GrnItemModel {
     expiryDate?: number;
 }
 
-export interface GrnRequestModel {
+export interface GrnModel {
+    id:number;
+    grnNumber:string;
     purchaseOrderId: number;
     supplierInvoiceNo?: string;
+    status:string;
     items: GrnItemModel[];
 }
