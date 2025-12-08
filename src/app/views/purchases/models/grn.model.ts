@@ -8,10 +8,12 @@ export interface GrnItemModel {
 }
 
 export interface GrnModel {
-    id:number;
-    grnNumber:string;
+    id: number;
+    supplierId: number;
+    supplierName: string;
+    grnNumber: string;
     purchaseOrderId: number;
     supplierInvoiceNo?: string;
-    status:string;
+    status: string;
     items: GrnItemModel[];
 }

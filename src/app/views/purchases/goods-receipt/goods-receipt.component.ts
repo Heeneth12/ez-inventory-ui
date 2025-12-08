@@ -8,6 +8,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PurchaseService } from '../purchase.service';
 import { GrnModel } from '../models/grn.model';
+import { PurchaseReturnFormComponent } from '../purchase-returns/purchase-return-form/purchase-return-form.component';
 
 @Component({
   selector: 'app-goods-receipt',
@@ -75,6 +76,18 @@ export class GoodsReceiptComponent implements OnInit {
     this.getAllGrn();
   }
 
+  createPurchaseReturn(grnId: any) {
+    this.modalService.openComponent(
+      PurchaseReturnFormComponent,
+      {
+        data: {
+          grnId: grnId
+        }
+      },
+      'lg'
+    );
+  }
+
   onLoadMore() {
     // Implement if using infinite scroll instead of pagination
   }
@@ -85,6 +98,7 @@ export class GoodsReceiptComponent implements OnInit {
     switch (type) {
       case 'view':
         //this.getGrnById(row.id);
+        this.createPurchaseReturn(row.id);
         break;
       case 'edit':
         // Navigate to edit page if applicable

@@ -1,1 +1,152 @@
-<p>purchase-return-form works!</p>
+<div class="flex flex-col h-full bg-white text-gray-800 font-sans w-full md:w-[650px] lg:w-[800px]">
+
+    <div class="flex-none px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white z-30 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="bg-red-50 p-2 rounded-lg text-red-600">
+                <i class="fas fa-undo-alt text-lg"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-gray-900 leading-tight">Purchase Return</h2>
+                <p class="text-xs text-gray-500">Create a return note for received goods</p>
+            </div>
+        </div>
+        <button (click)="close()"
+            class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-all">
+            <i class="fas fa-times text-lg"></i>
+        </button>
+    </div>
+
+    <div *ngIf="showSearch" class="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50">
+        <div class="w-full max-w-md text-center">
+            <div class="mb-6">
+                <div
+                    class="w-16 h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm mb-4">
+                    <i class="fas fa-search text-2xl text-emerald-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900">Find Goods Receipt</h3>
+                <p class="text-sm text-gray-500">Enter the GRN ID to load items available for return.</p>
+            </div>
+
+            <div class="relative flex items-center">
+                <input type="number" [(ngModel)]="grnSearchInput" (keyup.enter)="loadGrnDetails(grnSearchInput)"
+                    class="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm text-center font-mono text-lg"
+                    placeholder="e.g. 1045">
+                <button (click)="loadGrnDetails(grnSearchInput)"
+                    class="absolute right-2 bg-gray-900 text-white p-2 rounded hover:bg-gray-800 transition-colors">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!showSearch" class="flex flex-col flex-1 overflow-hidden" [formGroup]="returnForm">
+
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Returning From GRN</label>
+                <div class="flex items-center gap-2">
+                    <span
+                        class="font-mono font-bold text-gray-900 bg-white border border-gray-200 px-2 py-0.5 rounded text-sm">
+                        #{{ grnDetails?.id }}
+                    </span>
+                    <button type="button" (click)="resetSearch()"
+                        class="text-xs text-blue-600 hover:underline">Change</button>
+                </div>
+            </div>
+            <div class="text-right">
+                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Supplier</label>
+                <div class="font-bold text-gray-900 text-sm truncate">{{ grnDetails?.id }}</div>
+            </div>
+
+            <div class="col-span-2">
+                <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Reason for Return <span
+                        class="text-red-500">*</span></label>
+                <textarea formControlName="reason" rows="2" placeholder="e.g. Internal fungus found in crate 2..."
+                    class="w-full text-sm border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 resize-none"></textarea>
+                <p *ngIf="returnForm.get('reason')?.touched && returnForm.get('reason')?.invalid"
+                    class="text-xs text-red-500 mt-1">
+                    A reason is required (min 5 chars).
+                </p>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto bg-white">
+            <div
+                class="px-6 py-3 bg-white border-b border-gray-100 sticky top-0 z-10 flex justify-between items-center">
+                <h3 class="text-xs font-bold text-gray-500 uppercase">Items Available ({{ itemsFormArray.length }})</h3>
+            </div>
+
+            <div formArrayName="items" class="divide-y divide-gray-100">
+                <div *ngFor="let item of itemsFormArray.controls; let i = index" [formGroupName]="i"
+                    class="px-6 py-4 hover:bg-gray-50 transition-colors group">
+
+                    <div class="flex flex-col md:flex-row md:items-center gap-4">
+
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-bold text-gray-400">#{{i+1}}</span>
+                                <p class="font-bold text-sm text-gray-900">{{ item.get('itemName')?.value }}</p>
+                            </div>
+                            <div class="flex gap-3 text-xs text-gray-500">
+                                <span class="bg-gray-100 px-1.5 rounded border border-gray-200 font-mono text-[10px]">
+                                    Batch: {{ item.get('batchNumber')?.value }}
+                                </span>
+                                <span>Recv: {{ item.get('receivedQty')?.value }}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-end gap-3">
+
+                            <div class="w-24">
+                                <label class="block text-[10px] uppercase font-bold text-red-600 mb-1">Return
+                                    Qty</label>
+                                <input type="number" formControlName="returnQty" min="0"
+                                    [max]="item.get('receivedQty')?.value"
+                                    [class.border-red-300]="item.get('returnQty')?.value > 0"
+                                    [class.bg-red-50]="item.get('returnQty')?.value > 0"
+                                    class="w-full text-center text-sm font-bold border-gray-300 rounded focus:ring-red-500 focus:border-red-500 transition-colors">
+                            </div>
+
+                            <div class="w-28">
+                                <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Refund
+                                    Price</label>
+                                <div class="relative">
+                                    <span class="absolute left-2 top-1.5 text-gray-400 text-xs">$</span>
+                                    <input type="number" formControlName="refundPrice" min="0" step="0.01"
+                                        class="w-full pl-5 pr-2 py-1.5 text-sm border-gray-300 rounded focus:ring-emerald-500 focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div *ngIf="item.get('returnQty')?.invalid && item.get('returnQty')?.touched"
+                        class="mt-2 text-xs text-red-500 text-right">
+                        Cannot return more than received quantity ({{ item.get('receivedQty')?.value }}).
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-none px-6 py-4 bg-white border-t border-gray-200 z-30">
+            <div class="flex items-center justify-between">
+                <div class="flex flex-col">
+                    <span class="text-[10px] uppercase font-bold text-gray-400">Est. Refund Amount</span>
+                    <span class="text-lg font-bold text-gray-900">{{ calculateTotalRefund() | currency }}</span>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button" (click)="close()"
+                        class="px-5 py-2.5 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="button" (click)="onSubmit()" [disabled]="isSubmitting"
+                        class="px-6 py-2.5 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
+                        <i *ngIf="isSubmitting" class="fas fa-spinner fa-spin"></i>
+                        {{ isSubmitting ? 'Processing' : 'Create Return' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

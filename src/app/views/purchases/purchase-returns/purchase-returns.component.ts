@@ -8,6 +8,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PurchaseService } from '../purchase.service';
 import { PurchaseReturnModel } from '../models/purchase-return.model';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
+import { PurchaseReturnFormComponent } from './purchase-return-form/purchase-return-form.component';
 
 @Component({
   selector: 'app-purchase-returns',
