@@ -31,7 +31,7 @@ export class PurchaseOrderComponent {
   selectedItemIds: (string | number)[] = [];
 
   columns: TableColumn[] = [
-    { key: 'orderNumber', label: 'Order number', width: '100px', type: 'link' },
+    { key: 'orderNumber', label: 'PO Number', width: '100px', type: 'link' },
     { key: 'supplierName', label: 'Supplier', width: '110px', type: 'text' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
     { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency' },
@@ -46,7 +46,7 @@ export class PurchaseOrderComponent {
       icon: ArrowRight,
       color: 'primary',
       // Only show if status is Approved
-      //condition: (row) => row['status'] === 'Approved'
+      condition: (row) => row['status'] !== 'COMPLETED'
     }
   ];
 
@@ -122,9 +122,8 @@ export class PurchaseOrderComponent {
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'move_to_grn') {
       console.log('Moving PO to GRN:', event.row);
-      // Logic to navigate or update API
+      this.openGrnForm(event.row.id);
     }
-
     if (event.type === 'edit') {
       // Standard edit logic
     }

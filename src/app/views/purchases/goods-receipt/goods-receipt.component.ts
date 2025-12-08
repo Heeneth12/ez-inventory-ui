@@ -2,13 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component'; // Adjust path
-import { PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model'; // Adjust path
+import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model'; // Adjust path
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PurchaseService } from '../purchase.service';
 import { GrnModel } from '../models/grn.model';
 import { PurchaseReturnFormComponent } from '../purchase-returns/purchase-return-form/purchase-return-form.component';
+import { ArrowRight } from 'lucide-angular';
 
 @Component({
   selector: 'app-goods-receipt',
@@ -23,7 +24,7 @@ export class GoodsReceiptComponent implements OnInit {
 
   grnList: GrnModel[] = [];
   selectedGrn: GrnModel | null = null;
-
+  readonly ArrowRight = ArrowRight;
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
 
   // Columns Definition
@@ -34,6 +35,17 @@ export class GoodsReceiptComponent implements OnInit {
     { key: 'receivedDate', label: 'Received Date', width: '120px', type: 'text' },
     { key: 'status', label: 'Status', width: '100px', type: 'badge' },
     { key: 'actions', label: 'Actions', align: 'center', width: '100px', type: 'action', sortable: false }
+  ];
+
+  prActions: TableActionConfig[] = [
+    {
+      key: 'move_to_pr',
+      label: 'Move to PR',
+      icon: ArrowRight,
+      color: 'danger',
+      // Only show if status is Approved
+      condition: (row) => row['status'] === 'APPROVED'
+    }
   ];
 
   constructor(
@@ -86,6 +98,16 @@ export class GoodsReceiptComponent implements OnInit {
       },
       'lg'
     );
+  }
+
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'move_to_pr') {
+      console.log('Moving GRN to PR:', event.row);
+      this.createPurchaseReturn(event.row.id);
+    }
+    if (event.type === 'edit') {
+      // Standard edit logic
+    }
   }
 
   onLoadMore() {

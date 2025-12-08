@@ -113,6 +113,7 @@ export class GoodsReceiptFormComponent implements OnInit {
   }
 
   close() {
+    this.modalService.close();
   }
 
   onSubmit() {
@@ -144,6 +145,7 @@ export class GoodsReceiptFormComponent implements OnInit {
       (res: any) => {
         this.loaderSvc.hide();
         this.isSubmitting = false;
+        this.close();
         this.toastService.show('Goods Receipt Created Successfully', 'success');
       },
       (err: any) => {
