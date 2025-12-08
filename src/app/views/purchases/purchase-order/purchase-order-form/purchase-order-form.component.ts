@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -31,10 +31,10 @@ export class PurchaseOrderFormComponent implements OnInit {
   // --- Typeahead State ---
   supplierSearchResults: ContactModel[] = [];
   showSupplierDropdown = false;
-  supplierSearchInput = ''; // What the user types
+  supplierSearchInput = '';
 
   itemSearchResults: ItemModel[] = [];
-  activeItemSearchIndex: number | null = null; // Which row is currently searching?
+  activeItemSearchIndex: number | null = null;
 
   // Search Subjects (to handle debouncing)
   private supplierSearchSubject = new Subject<string>();
@@ -66,18 +66,6 @@ export class PurchaseOrderFormComponent implements OnInit {
     });
   }
 
-  // --- Click Outside Listener to close dropdowns ---
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: Event) {
-    // Logic to close dropdowns if clicked outside (simplified for this example)
-    // In a real app, check if event.target is inside the dropdown
-    const target = event.target as HTMLElement;
-    if (!target.closest('.typeahead-container')) {
-      this.showSupplierDropdown = false;
-      this.activeItemSearchIndex = null;
-    }
-  }
-
   private initForm() {
     this.poForm = this.fb.group({
       supplierId: [null, [Validators.required]],
@@ -91,15 +79,12 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   private setupSearchListeners() {
-    // Supplier Search Debounce
     this.supplierSearchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
     ).subscribe(query => {
       this.executeSupplierSearch(query);
     });
-
-    // Item Search Debounce
     this.itemSearchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged((prev, curr) => prev.query === curr.query)
@@ -143,9 +128,9 @@ export class PurchaseOrderFormComponent implements OnInit {
     row.patchValue({
       itemId: item.id,
       unitPrice: item.purchasePrice,
-      itemName: item.name // Store name temporarily for display if needed
+      itemName: item.name
     });
-    this.activeItemSearchIndex = null; // Close dropdown
+    this.activeItemSearchIndex = null;
   }
 
   // Helper to get item name for input value display
@@ -174,8 +159,8 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   // --- Standard Form Logic ---
-  loadMasterData() { /* ... existing logic ... */
-    this.warehouseList = [{ id: 1, name: 'Main Warehouse' }]; // Mock
+  loadMasterData() {
+    this.warehouseList = [{ id: 1, name: 'Main Warehouse' }];
   }
 
   loadPoDetails(id: number) {
@@ -189,7 +174,6 @@ export class PurchaseOrderFormComponent implements OnInit {
           expectedDeliveryDate: new Date(res.expectedDeliveryDate).toISOString().split('T')[0],
           notes: res.notes
         });
-
         const itemControl = this.poForm.get('items') as FormArray;
         itemControl.clear();
         res.items.forEach((item: any) => itemControl.push(this.createItemGroup(item)));
@@ -201,7 +185,7 @@ export class PurchaseOrderFormComponent implements OnInit {
   createItemGroup(data?: any): FormGroup {
     return this.fb.group({
       itemId: [data ? data.itemId : null, Validators.required],
-      itemName: [data ? data.itemName : ''], // Added helper control for UI
+      itemName: [data ? data.itemName : ''],
       orderedQty: [data ? data.orderedQty : 1, [Validators.required, Validators.min(1)]],
       unitPrice: [data ? data.unitPrice : 0, [Validators.required, Validators.min(0)]]
     });
@@ -223,20 +207,9 @@ export class PurchaseOrderFormComponent implements OnInit {
       this.toastService.show('Please fill in all required fields', 'warning');
       return;
     }
-
-    const formVal = this.poForm.value;
-    const payload = {
-      supplierId: formVal.supplierId,
-      warehouseId: formVal.warehouseId,
-      expectedDeliveryDate: new Date(formVal.expectedDeliveryDate).getTime(),
-      notes: formVal.notes,
-      items: formVal.items.map((i: any) => ({
-        itemId: i.itemId,
-        orderedQty: i.orderedQty,
-        unitPrice: i.unitPrice
-      }))
-    };
-
+    this.poForm.get('expectedDeliveryDate')?.setValue(new Date(this.poForm.get('expectedDeliveryDate')?.value).getTime());
+    const payload = this.poForm.value;
+    console.log(payload);
     this.loaderSvc.show();
     const cb = (res: any) => {
       this.loaderSvc.hide();
