@@ -28,11 +28,11 @@ export class PurchaseOrderComponent {
   selectedItemIds: (string | number)[] = [];
 
   columns: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
-    { key: 'orderNumber', label: 'Order number', width: '230px', type: 'text' },
-    { key: 'supplierId', label: 'supplier id', width: '110px', type: 'text' },
+    { key: 'orderNumber', label: 'Order number', width: '100px', type: 'link' },
+    { key: 'supplierName', label: 'Supplier', width: '110px', type: 'text' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
     { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency' },
+    { key: 'id', label: 'Grn', width: '150px', type: 'link' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
 

@@ -115,7 +115,7 @@
                     [class.bg-gray-50]="stripedRows && i % 2 === 1 && !selectedIds().has(row.id)"
                     [class.hover:bg-gray-100]="!selectedIds().has(row.id)">
 
-                    <td *ngIf="enableSelection" class="px-4 whitespace-nowrap">
+                    <td *ngIf="enableSelection" class="whitespace-nowrap">
                         <div class="flex items-center justify-center">
                             <input type="checkbox" 
                                 [checked]="selectedIds().has(row.id)"

@@ -1,12 +1,11 @@
 import { Routes } from '@angular/router';
-import { PurchaseReturnsComponent } from './purchase-returns/purchase-returns.component';
-import { GoodsReceiptComponent } from './goods-receipt/goods-receipt.component';
 import { PurchasesOrderRoutes } from './purchase-order/purchase-order.routes';
+import { GoodsReceiptRoutes } from './goods-receipt/purchase-return.routes';
+import { PurchaseReturnRoutes } from './purchase-returns/purchase-return.routes';
 
 
 export const PurchasesRoutes: Routes = [
     { path: 'order', children: PurchasesOrderRoutes },
-    { path: 'grn', component: GoodsReceiptComponent },
-    { path: 'return', component: PurchaseReturnsComponent },
-
+    { path: 'grn', children: GoodsReceiptRoutes },
+    { path: 'return', children: PurchaseReturnRoutes },
 ];
