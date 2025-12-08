@@ -82,12 +82,13 @@ export class PurchaseOrderComponent {
       (error: any) => {
         this.loaderSvc.hide();
         this.toastService.show("error while getting data ", 'error')
-        console.log("")
       }
     )
   }
 
-
+  openUpdatePoForm(poId: any) {
+    this.router.navigate(['purchases/order/edit/', poId]);
+  }
 
   onSelectionChange(selectedIds: (string | number)[]) {
     this.selectedItemIds = selectedIds;
@@ -101,10 +102,10 @@ export class PurchaseOrderComponent {
       case 'view':
         console.log("View:", row.id);
         this.getPoById(row.id);
-        this.modalService.open(this.opSummary)
+        this.modalService.openTemplate(this.opSummary)
         break;
       case 'edit':
-        console.log("sdsd")
+        this.openUpdatePoForm(row.id);
         break;
       case 'delete':
         console.log("Delete:", row.id);
@@ -125,24 +126,24 @@ export class PurchaseOrderComponent {
 
   // inside your component class
 
-getStatusColor(status: string | undefined): string {
-  if (!status) return 'bg-gray-100 text-gray-600';
+  getStatusColor(status: string | undefined): string {
+    if (!status) return 'bg-gray-100 text-gray-600';
 
-  const normalizedStatus = status.toLowerCase();
+    const normalizedStatus = status.toLowerCase();
 
-  switch (normalizedStatus) {
-    case 'approved':
-    case 'completed':
-      return 'bg-green-100 text-green-700 border border-green-200';
-    case 'pending':
-    case 'draft':
-      return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
-    case 'cancelled':
-    case 'rejected':
-      return 'bg-red-100 text-red-700 border border-red-200';
-    default:
-      return 'bg-blue-100 text-blue-700 border border-blue-200';
+    switch (normalizedStatus) {
+      case 'approved':
+      case 'completed':
+        return 'bg-green-100 text-green-700 border border-green-200';
+      case 'pending':
+      case 'draft':
+        return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+      case 'cancelled':
+      case 'rejected':
+        return 'bg-red-100 text-red-700 border border-red-200';
+      default:
+        return 'bg-blue-100 text-blue-700 border border-blue-200';
+    }
   }
-}
 
 }
