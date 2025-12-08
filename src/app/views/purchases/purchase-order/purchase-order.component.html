@@ -1,10 +1,10 @@
 <div class="space-y-6">
-    <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
-        <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="purchaseOrderList" [pagination]="pagination"
-            [isServerSide]="true"
-            (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)" >
-        </app-standard-table>
-    </div>
+  <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
+    <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="purchaseOrderList" [pagination]="pagination"
+      [isServerSide]="true" (pageChange)="onPageChange($event)" [customActions]="poActions" (loadMore)="onLoadMore()"
+      (action)="onTableAction($event)" (action)="handleTableAction($event)">
+    </app-standard-table>
+  </div>
 </div>
 
 <ng-template #opSummary let-data>
@@ -19,9 +19,9 @@
           Created on {{ purchaseOrder?.expectedDeliveryDate | date:'mediumDate' }}
         </p>
       </div>
-      
+
       <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide"
-            [ngClass]="getStatusColor(purchaseOrder?.status)">
+        [ngClass]="getStatusColor(purchaseOrder?.status)">
         {{ purchaseOrder?.status }}
       </span>
     </div>

@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, effect, ElementRef, HostListener } from '@angular/core';
 import { CommonModule, DecimalPipe, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density } from './standard-table.model';
-import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon } from 'lucide-angular';
+import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig } from './standard-table.model';
+import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight } from 'lucide-angular';
 
 @Component({
   selector: 'app-standard-table',
@@ -21,6 +21,9 @@ export class StandardTableComponent implements OnChanges {
   @Input() enableSelection: boolean = true; // New: Toggle selection column
   @Input() isServerSide: boolean = false;
 
+  // NEW: Input for your custom buttons
+  @Input() customActions: TableActionConfig[] = [];
+
   @Output() pageChange = new EventEmitter<number>();
   @Output() loadMore = new EventEmitter<void>();
   @Output() action = new EventEmitter<TableAction>();
@@ -33,6 +36,8 @@ export class StandardTableComponent implements OnChanges {
   readonly Edit = Edit;
   readonly View = EyeIcon;
   readonly Delete = Trash2;
+  readonly MoreVertical = MoreVertical;
+  readonly ArrowRight = ArrowRight;
 
   // State Signals
   searchQuery = signal('');
@@ -51,6 +56,10 @@ export class StandardTableComponent implements OnChanges {
 
   // Settings
   stripedRows: boolean = true;
+
+  activeMenuRowId = signal<string | number | null>(null);
+
+  constructor(private eRef: ElementRef) { }
 
   ngOnChanges(changes: SimpleChanges) {
     // Sync local data
@@ -214,18 +223,43 @@ export class StandardTableComponent implements OnChanges {
     }
   }
 
-  emitAction(type: 'view' | 'edit' | 'delete' | 'toggle', row: TableRow, key?: string) {
-    if (type === 'toggle' && key) {
-      row[key] = !row[key];
-    }
-    this.action.emit({ type, row, key });
-  }
-
   onScroll(event: any) {
     if (this.loadMode !== 'infinite' || this.isLoading) return;
     const el = event.target;
     if (el.scrollHeight - el.scrollTop <= el.clientHeight + 50) {
       this.loadMore.emit();
     }
+  }
+
+  // Close menu when clicking outside
+  @HostListener('document:click', ['$event'])
+  clickout(event: any) {
+    // If the click is NOT inside a dropdown trigger or menu, close it
+    if (!event.target.closest('.action-menu-container')) {
+      this.activeMenuRowId.set(null);
+    }
+  }
+
+  toggleActionMenu(rowId: string | number, event: Event) {
+    event.stopPropagation();
+    if (this.activeMenuRowId() === rowId) {
+      this.activeMenuRowId.set(null);
+    } else {
+      this.activeMenuRowId.set(rowId);
+    }
+  }
+
+  // Handle Custom Action Click
+  emitCustomAction(actConfig: TableActionConfig, row: TableRow) {
+    this.action.emit({ type: 'custom', row, key: actConfig.key });
+  }
+
+  // Handle Standard Action Click (from dropdown)
+  emitAction(type: 'view' | 'edit' | 'delete' | 'toggle', row: TableRow, key?: string) {
+    if (type === 'toggle' && key) {
+      row[key] = !row[key];
+    }
+    this.action.emit({ type, row, key });
+    this.activeMenuRowId.set(null); // Close menu after action
   }
 }

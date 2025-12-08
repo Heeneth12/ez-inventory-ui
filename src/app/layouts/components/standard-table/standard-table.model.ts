@@ -23,8 +23,17 @@ export interface PaginationConfig {
     totalItems: number;
 }
 
+export interface TableActionConfig {
+    key: string;            // Identifier (e.g., 'move_to_grn')
+    label: string;          // Text to show (e.g., 'Move to GRN')
+    icon?: any;             // Lucide icon (optional)
+    color?: 'primary' | 'danger' | 'success' | 'neutral'; // Button style
+    condition?: (row: TableRow) => boolean; // Logic to show/hide this button per row
+}
+
+// Update TableAction to include the custom definition
 export interface TableAction {
-    type: 'view' | 'edit' | 'delete' | 'toggle';
+    type: 'view' | 'edit' | 'delete' | 'toggle' | 'custom'; // Added 'custom'
     row: TableRow;
-    key?: string; // which column triggered it (for toggles)
+    key?: string;
 }

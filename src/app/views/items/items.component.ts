@@ -5,8 +5,11 @@ import { ItemService } from './item.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
-import { PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { LoaderService } from '../../layouts/components/loader/loaderService';
+import { ModalService } from '../../layouts/components/modal/modalService';
+import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
+import { ArrowRight } from 'lucide-angular';
 
 @Component({
   selector: 'app-items',
@@ -19,7 +22,7 @@ export class ItemsComponent implements OnInit {
 
   itemList: ItemModel[] = [];
   itemFilter: ItemSearchFilter = new ItemSearchFilter();
-  
+
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
@@ -41,7 +44,8 @@ export class ItemsComponent implements OnInit {
     private itemService: ItemService,
     private router: Router,
     private toastService: ToastService,
-    private loaderSvc :LoaderService
+    private loaderSvc: LoaderService,
+    private modalService: ModalService
   ) {
     this.itemFilter.active = true;
   }
@@ -54,9 +58,9 @@ export class ItemsComponent implements OnInit {
     this.loaderSvc.show();
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.itemService.getAllItems(
-      apiPage, 
+      apiPage,
       this.pagination.pageSize,
-      this.itemFilter, 
+      this.itemFilter,
       (response: any) => {
         this.itemList = response.data.content;
         this.pagination = {
@@ -65,7 +69,7 @@ export class ItemsComponent implements OnInit {
           pageSize: response.data.size
         };
         this.loaderSvc.hide();
-      }, 
+      },
       (error: any) => {
         this.loaderSvc.hide();
         this.toastService.show('Failed to load Items', 'error');
@@ -75,7 +79,7 @@ export class ItemsComponent implements OnInit {
   }
 
   toggleActiveStatus(item: ItemModel) {
-    const originalStatus = !item.isActive; 
+    const originalStatus = !item.isActive;
     this.itemService.toggleItemActiveStatus(item.id, item.isActive,
       (response: any) => {
         this.toastService.show(`Item ${item.isActive ? 'enabled' : 'disabled'} successfully`, 'success');
@@ -100,12 +104,17 @@ export class ItemsComponent implements OnInit {
     console.log("Current Selection:", this.selectedItemIds);
   }
 
+  bulkUploadItems() {
+    this.modalService.openComponent(BulkUploadComponent, 'full')
+  }
+
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
 
     switch (type) {
       case 'view':
         console.log("View:", row.id);
+        this.bulkUploadItems()
         break;
       case 'edit':
         this.updateItem(row.id);
@@ -113,7 +122,7 @@ export class ItemsComponent implements OnInit {
       case 'delete':
         console.log("Delete:", row.id);
         break;
-      case 'toggle': 
+      case 'toggle':
         this.toggleActiveStatus(row as ItemModel);
         break;
     }

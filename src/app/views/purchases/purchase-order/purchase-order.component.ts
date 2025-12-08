@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { PurchaseService } from '../purchase.service';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
@@ -10,6 +10,7 @@ import { PurchaseOrderModel } from '../models/purchase-order.model';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { GoodsReceiptFormComponent } from '../goods-receipt/goods-receipt-form/goods-receipt-form.component';
+import { ArrowRight } from 'lucide-angular';
 
 @Component({
   selector: 'app-purchase-order',
@@ -24,7 +25,7 @@ export class PurchaseOrderComponent {
 
   purchaseOrderList: PurchaseOrderModel[] = [];
   purchaseOrder: PurchaseOrderModel | null = null;
-
+  readonly ArrowRight = ArrowRight;
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
@@ -36,6 +37,17 @@ export class PurchaseOrderComponent {
     { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency' },
     { key: 'id', label: 'Grn', width: '150px', type: 'link' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+  ];
+
+  poActions: TableActionConfig[] = [
+    {
+      key: 'move_to_grn',
+      label: 'Move to GRN',
+      icon: ArrowRight,
+      color: 'primary',
+      // Only show if status is Approved
+      //condition: (row) => row['status'] === 'Approved'
+    }
   ];
 
   constructor(
@@ -105,6 +117,17 @@ export class PurchaseOrderComponent {
         poId: poId
       }
     })
+  }
+
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'move_to_grn') {
+      console.log('Moving PO to GRN:', event.row);
+      // Logic to navigate or update API
+    }
+
+    if (event.type === 'edit') {
+      // Standard edit logic
+    }
   }
 
   onTableAction(event: TableAction) {
