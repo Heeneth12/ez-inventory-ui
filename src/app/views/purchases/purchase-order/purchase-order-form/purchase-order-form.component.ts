@@ -116,6 +116,17 @@ export class PurchaseOrderFormComponent implements OnInit {
     }, () => { });
   }
 
+  getSupplierById(id: number) {
+    this.contactService.getContactById(id,
+      (res: any) => {
+        this.selectedSupplier = res.data;
+      },
+      (err: any) => {
+        this.selectedSupplier = null;
+      }
+    );
+  }
+
   // --- Item Typeahead Logic ---
   onItemSearch(event: any, index: number) {
     this.activeItemSearchIndex = index;
@@ -168,15 +179,20 @@ export class PurchaseOrderFormComponent implements OnInit {
     this.purchaseService.getPoById(id,
       (res: any) => {
         this.loaderSvc.hide();
+        const data = res.data;
         this.poForm.patchValue({
-          supplierId: res.supplierId,
-          warehouseId: res.warehouseId,
-          expectedDeliveryDate: new Date(res.expectedDeliveryDate).toISOString().split('T')[0],
-          notes: res.notes
+          supplierId: data.supplierId,
+          warehouseId: data.warehouseId,
+          expectedDeliveryDate: new Date(data.expectedDeliveryDate).toISOString().split('T')[0],
+          notes: data.notes
         });
         const itemControl = this.poForm.get('items') as FormArray;
         itemControl.clear();
-        res.items.forEach((item: any) => itemControl.push(this.createItemGroup(item)));
+        data.items.forEach((item: any) => itemControl.push(this.createItemGroup(item)));
+        this.getSupplierById(data.supplierId);
+        if (this.selectedSupplier) {
+          this.selectSupplier(this.selectedSupplier);
+        }
       },
       (err: any) => this.loaderSvc.hide()
     );
