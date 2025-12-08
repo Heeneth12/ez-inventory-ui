@@ -24,7 +24,7 @@ export class GoodsReceiptComponent implements OnInit {
   selectedGrn: GrnModel | null = null;
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
-  
+
   // Columns Definition
   columns: TableColumn[] = [
     { key: 'grnNumber', label: 'GRN Number', width: '180px', type: 'link', sortable: true },
@@ -36,12 +36,12 @@ export class GoodsReceiptComponent implements OnInit {
   ];
 
   constructor(
-    private purchaseService :PurchaseService,
+    private purchaseService: PurchaseService,
     private router: Router,
     private modalService: ModalService,
     private toastService: ToastService,
     private loaderSvc: LoaderService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getAllGrn();
@@ -50,12 +50,10 @@ export class GoodsReceiptComponent implements OnInit {
   getAllGrn() {
     this.loaderSvc.show();
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
-
     this.purchaseService.getAllGrn(
       apiPage,
       this.pagination.pageSize,
       (response: any) => {
-        // Assuming API returns standard Spring Boot Pageable response
         this.grnList = response.data.content;
         this.pagination = {
           currentPage: this.pagination.currentPage,
@@ -71,24 +69,6 @@ export class GoodsReceiptComponent implements OnInit {
       }
     );
   }
-
-  getGrnById(id: number) {
-    this.loaderSvc.show();
-    // this.purchaseService.getGrnById(id,
-    //   (response: any) => {
-    //     this.selectedGrn = response.data;
-    //     this.loaderSvc.hide();
-    //     // Open Modal after data is loaded
-    //     this.modalService.open(this.grnSummary);
-    //   },
-    //   (error: any) => {
-    //     this.loaderSvc.hide();
-    //     this.toastService.show("Error fetching details", 'error');
-    //   }
-    // );
-  }
-
-  // --- Table Events ---
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };

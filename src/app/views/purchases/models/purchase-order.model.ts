@@ -1,19 +1,20 @@
 export interface PurchaseOrderItemModel {
+    id: number;
     itemId: number;
-    itemName:String
+    itemName: String
     orderedQty: number;
     unitPrice: number;
 }
 
 export interface PurchaseOrderModel {
-    id:number;
-    orderNumber:number;
+    id: number;
+    orderNumber: number;
     supplierId: number;
-    supplierName:string;
+    supplierName: string;
     warehouseId: number;
     expectedDeliveryDate: number;
-    status:string;
+    status: string;
     notes?: string;
-    totalAmount:number;
+    totalAmount: number;
     items: PurchaseOrderItemModel[];
 }

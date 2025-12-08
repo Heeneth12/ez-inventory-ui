@@ -1,0 +1,176 @@
+<div class="flex flex-col h-full bg-white text-gray-800 font-sans w-full md:w-[600px] lg:w-[750px]">
+
+    <div class="flex-none px-5 py-3 border-b border-gray-200 flex justify-between items-center bg-white z-30">
+        <div>
+            <h2 class="text-lg font-bold text-gray-900 leading-tight">Receive Goods (GRN)</h2>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="text-xs font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">
+                    PO-{{ poDetails?.id }}
+                </span>
+                <span class="text-gray-300 text-xs">•</span>
+                <span class="text-xs font-medium text-emerald-700 truncate max-w-[200px]">
+                    {{ poDetails?.supplierName }}
+                </span>
+            </div>
+        </div>
+        <button (click)="close()"
+            class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <div [formGroup]="grnForm"
+        class="flex-none bg-gray-50 border-b border-gray-200 px-5 py-4 z-20 grid grid-cols-12 gap-6 items-end">
+
+        <div class="col-span-7 grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-0.5">Target Warehouse</label>
+                <div class="text-sm font-medium text-gray-800 truncate" title="{{ poDetails?.warehouseId }}">
+                    {{ poDetails?.warehouseId || 'Main Warehouse' }}
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-0.5">Expected Date</label>
+                <div class="text-sm font-medium text-gray-800">
+                    {{ poDetails?.expectedDeliveryDate | date:'mediumDate' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-span-5">
+            <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">
+                Supplier Invoice No <span class="text-red-500">*</span>
+            </label>
+            <input type="text" formControlName="supplierInvoiceNo" placeholder="INV-202X-..."
+                class="w-full bg-white text-gray-900 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 block px-3 py-1.5 shadow-sm">
+
+            <div class="h-4 mt-0.5">
+                <p *ngIf="grnForm.get('supplierInvoiceNo')?.touched && grnForm.get('supplierInvoiceNo')?.invalid"
+                    class="text-[10px] text-red-500 font-medium">
+                    Required field.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto bg-gray-50/50" [formGroup]="grnForm">
+
+        <div class="px-5 py-3 flex justify-between items-center border-b border-gray-100 bg-white sticky top-0 z-10">
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                Items ({{ itemsFormArray.length }})
+            </h3>
+            <button type="button" (click)="markAllPerfect()"
+                class="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded transition-colors flex items-center gap-1">
+                <i class="fas fa-check-double text-[10px]"></i> Auto-fill All
+            </button>
+        </div>
+
+        <div formArrayName="items" class="px-5 py-4 space-y-3">
+            <div *ngFor="let item of itemsFormArray.controls; let i = index" [formGroupName]="i"
+                class="bg-white rounded border border-gray-200 shadow-sm relative group hover:border-emerald-300 transition-colors">
+
+                <div class="p-3 grid grid-cols-12 gap-4">
+
+                    <div
+                        class="col-span-12 md:col-span-4 flex gap-3 border-b md:border-b-0 border-gray-100 pb-2 md:pb-0">
+                        <div
+                            class="flex-shrink-0 w-8 h-8 rounded bg-gray-100 text-gray-500 flex items-center justify-center text-xs font-bold">
+                            {{ i + 1 }}
+                        </div>
+                        <div class="overflow-hidden">
+                            <p class="font-semibold text-sm text-gray-900 truncate"
+                                title="{{ item.get('itemName')?.value }}">
+                                {{ item.get('itemName')?.value }}
+                            </p>
+                            <p class="text-[10px] text-gray-400 font-mono mt-0.5">SKU: {{ item.get('itemCode')?.value }}
+                            </p>
+                            <div
+                                class="mt-1 inline-flex items-center px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-medium">
+                                Ord: {{ item.get('orderedQty')?.value }} {{ item.get('uom')?.value }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 md:col-span-4 grid grid-cols-1 gap-2 border-r border-gray-100 pr-4">
+                        <div>
+                            <label class="sr-only">Batch</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-2 top-1.5 text-gray-400 text-[10px] uppercase font-bold">Batch</span>
+                                <input type="text" formControlName="batchNumber"
+                                    class="w-full pl-12 pr-2 py-1 text-xs border border-gray-200 rounded focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-300"
+                                    placeholder="Required">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="sr-only">Expiry</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-2 top-1.5 text-gray-400 text-[10px] uppercase font-bold">Exp</span>
+                                <input type="date" formControlName="expiryDate"
+                                    class="w-full pl-10 pr-2 py-1 text-xs border border-gray-200 rounded focus:ring-emerald-500 focus:border-emerald-500 text-gray-600">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 md:col-span-4 flex gap-2 items-center">
+                        <div class="flex-1">
+                            <label
+                                class="block text-[10px] text-center text-emerald-700 font-bold mb-1">ACCEPTED</label>
+                            <input type="number" formControlName="receivedQty" min="0"
+                                class="w-full text-center text-sm font-bold text-emerald-700 border border-emerald-200 bg-emerald-50/30 rounded py-1.5 focus:ring-emerald-500 focus:border-emerald-500">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-[10px] text-center text-red-600 font-bold mb-1">REJECTED</label>
+                            <input type="number" formControlName="rejectedQty" min="0"
+                                class="w-full text-center text-sm font-bold text-red-600 border border-red-200 bg-red-50/30 rounded py-1.5 focus:ring-red-500 focus:border-red-500">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div *ngIf="item.invalid && item.touched" class="absolute -top-1 -right-1">
+                    <span class="flex h-3 w-3">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-none px-5 py-3 bg-white border-t border-gray-200 z-30">
+        <div class="flex items-center justify-between">
+
+            <div class="flex flex-col">
+                <span class="text-[10px] uppercase font-bold text-gray-400">Total Value</span>
+                <span class="text-base font-bold text-gray-900">{{ totalReceivedValue | currency }}</span>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" (click)="close()"
+                    class="px-4 py-2 border border-gray-300 text-xs font-semibold rounded text-gray-700 hover:bg-gray-50 transition-colors">
+                    Cancel
+                </button>
+                <button type="button" (click)="onSubmit()" [disabled]="isSubmitting"
+                    class="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm transition-all">
+                    <svg *ngIf="isSubmitting" class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    {{ isSubmitting ? 'Processing' : 'Confirm Receipt' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>

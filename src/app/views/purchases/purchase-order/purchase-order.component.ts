@@ -8,6 +8,8 @@ import { LoaderService } from '../../../layouts/components/loader/loaderService'
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PurchaseOrderModel } from '../models/purchase-order.model';
 import { ModalService } from '../../../layouts/components/modal/modalService';
+import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { GoodsReceiptFormComponent } from '../goods-receipt/goods-receipt-form/goods-receipt-form.component';
 
 @Component({
   selector: 'app-purchase-order',
@@ -41,7 +43,8 @@ export class PurchaseOrderComponent {
     private router: Router,
     private modalService: ModalService,
     private toastService: ToastService,
-    private loaderSvc: LoaderService
+    private loaderSvc: LoaderService,
+    private drawerService: DrawerService
   ) {
   }
 
@@ -95,6 +98,15 @@ export class PurchaseOrderComponent {
     console.log("Current Selection:", this.selectedItemIds);
   }
 
+  openGrnForm(poId: any) {
+    this.modalService.openComponent(GoodsReceiptFormComponent, {
+      size: 'lg',
+      data: {
+        poId: poId
+      }
+    })
+  }
+
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
 
@@ -108,6 +120,7 @@ export class PurchaseOrderComponent {
         this.openUpdatePoForm(row.id);
         break;
       case 'delete':
+        this.openGrnForm(row.id)
         console.log("Delete:", row.id);
         break;
       case 'toggle':
