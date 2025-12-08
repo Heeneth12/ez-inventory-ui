@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
@@ -16,7 +16,7 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
   templateUrl: './purchase-returns.component.html',
   styleUrl: './purchase-returns.component.css'
 })
-export class PurchaseReturnsComponent {
+export class PurchaseReturnsComponent implements OnInit {
 
   purchaseReturnList: PurchaseReturnModel[] = [];
 
@@ -43,7 +43,33 @@ export class PurchaseReturnsComponent {
   ) {
   }
 
-  
+
+  ngOnInit(): void {
+    this.getPurchaseReturns();
+  }
+
+  getPurchaseReturns() {
+    this.loaderSvc.show();
+    const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
+    this.purchaseService.getAllReturns(
+      apiPage,
+      this.pagination.pageSize,
+      (response: any) => {
+        this.purchaseReturnList = response.data.content;
+        this.pagination = {
+          currentPage: this.pagination.currentPage,
+          totalItems: response.data.totalElements,
+          pageSize: response.data.size
+        };
+        this.loaderSvc.hide();
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastService.show('Failed to load Items', 'error');
+        console.error('Error fetching items:', error);
+      }
+    );
+  }
 
 
   onSelectionChange(selectedIds: (string | number)[]) {

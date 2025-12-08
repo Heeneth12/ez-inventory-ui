@@ -1,4 +1,5 @@
 export interface PurchaseReturnItemModel {
+    id: number;
     itemId: number;
     returnQty: number;
     batchNumber?: string;
