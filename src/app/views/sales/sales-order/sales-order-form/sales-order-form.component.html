@@ -1,319 +1,290 @@
-<div class="w-full h-screen flex flex-col border-t border-gray-200 bg-white overflow-hidden font-sans">
-
-    <div class="flex items-center justify-between px-8 py-4 border-b border-gray-100 shrink-0 z-20 bg-white">
-        <div>
-            <div class="flex items-center gap-3">
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Sales Order</h1>
-                <span
-                    class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold tracking-wide uppercase">
-                    New
-                </span>
-            </div>
-        </div>
-
-        <div class="flex gap-4">
-            <button type="button"
-                class="px-6 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
-                Cancel
-            </button>
-            <button type="button" (click)="saveOrder()"
-                class="px-8 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors flex items-center gap-2">
-                <span>Create Order</span>
-                <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
-                    </path>
-                </svg>
-            </button>
-        </div>
-    </div>
-
-    <form [formGroup]="orderForm" class="flex-1 flex flex-col overflow-y-auto">
-        <div class="px-8 py-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-x-12 gap-y-8">
-
-                <div class="lg:col-span-8 space-y-6">
-                    <div class="relative group">
-                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
-                            Customer Details <span class="text-red-500">*</span>
-                        </label>
-
-                        <div *ngIf="!selectedCustomer" class="relative">
-                            <div
-                                class="flex items-center justify-between border-b border-gray-300 py-2 group-focus-within:border-blue-500 transition-colors">
-                                <div class="flex items-center flex-1 gap-3">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                    <input type="text" [(ngModel)]="customerSearchInput"
-                                        [ngModelOptions]="{standalone: true}" (ngModelChange)="onCustomerSearchChange()"
-                                        class="w-full text-lg font-medium text-gray-900 focus:outline-none bg-transparent placeholder-gray-300"
-                                        placeholder="Search by Name, Phone or GST...">
+<div class="min-h-screen bg-gray-50  font-sans">
+    <form [formGroup]="orderForm" (ngSubmit)="saveOrder()">
+        <div class="mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-0">
+                <!-- MAIN CONTENT - LEFT SIDE (2 Cols) -->
+                <div class="lg:col-span-2">
+                    <!-- ORDER INFO CARD -->
+                    <div class="bg-white p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Order Details -->
+                            <!-- Warehouse Info (Static or Dynamic) -->
+                            <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                                <div class="flex items-start gap-3">
+                                    <div class="p-2 bg-white rounded-lg shadow-sm text-blue-600">
+                                        
+                                    </div>
+                                    <div>
+                                           <div *ngIf="selectedCustomer">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                                    {{ selectedCustomer.name.substring(0,2).toUpperCase() }}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-base leading-tight">{{ selectedCustomer.name }}</h4>
+                                    <p class="text-sm text-gray-500 mt-0.5">{{ selectedCustomer.phone || 'No phone' }}</p>
                                 </div>
                             </div>
 
-                            <ul *ngIf="showCustomerResults && filteredCustomers.length > 0"
-                                class="absolute top-full left-0 right-0 bg-white border border-gray-200 shadow-lg max-h-60 overflow-y-auto z-50 rounded-b-md mt-1">
-                                <li *ngFor="let cust of filteredCustomers" (click)="selectCustomer(cust)"
-                                    class="px-4 py-3 cursor-pointer hover:bg-blue-50 border-b border-gray-50 last:border-0 flex justify-between items-center">
-                                    <div>
-                                        <div class="font-semibold text-gray-900">{{ cust.name }}</div>
-                                        <div class="text-xs text-gray-500">{{ cust.phone }}</div>
-                                    </div>
-                                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{{ cust.gstNumber
-                                        || 'No GST' }}</span>
-                                </li>
-                            </ul>
+                            <div class="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-100">
+                                <div class="flex items-start gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <p class="text-sm text-gray-600 leading-snug">{{ getFormattedAddress() }}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    <p class="text-sm text-gray-600">{{ selectedCustomer.email || 'No email' }}</p>
+                                </div>
+                            </div>
+
+                            <button type="button" (click)="clearCustomer()" 
+                                    class="w-full py-2 text-sm text-gray-500 hover:text-gray-900 border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors">
+                                Change Customer
+                            </button>
                         </div>
 
-                        <div *ngIf="selectedCustomer"
-                            class="bg-blue-50/50 border-2 border-dashed border-blue-300 rounded-xl p-5 transition-all">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center gap-4">
-                                    <div
-                                        class="w-12 h-12 bg-white border-2 border-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg shadow-sm">
-                                        {{ getInitials(selectedCustomer.name) }}
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold text-gray-900 leading-tight">{{
-                                            selectedCustomer.name }}</h3>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <span
-                                                class="text-xs font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-                                                {{ selectedCustomer.contactCode || 'CUST' }}
-                                            </span>
+                        <!-- Customer Search View -->
+                        <div *ngIf="!selectedCustomer" class="relative">
+                            <input type="text" 
+                                   [(ngModel)]="customerSearchInput" 
+                                   [ngModelOptions]="{standalone: true}"
+                                   (keyup)="filterCustomers()"
+                                   placeholder="Search customers..."
+                                   class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            
+                            <!-- Search Dropdown -->
+                            <div *ngIf="showCustomerResults && filteredCustomers.length > 0" 
+                                 class="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto">
+                                <ul>
+                                    <li *ngFor="let cust of filteredCustomers" (click)="selectCustomer(cust)"
+                                        class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 flex items-center justify-between">
+                                        <div>
+                                            <div class="font-medium text-gray-900 text-sm">{{ cust.name }}</div>
+                                            <div class="text-xs text-gray-500">{{ cust.phone }}</div>
                                         </div>
-                                    </div>
-                                </div>
-                                <button type="button" (click)="clearCustomer()"
-                                    class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                                    Change
+                                        <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
+                                            {{ cust.name.charAt(0) }}
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-4 text-center">
+                                <p class="text-xs text-gray-400 mb-2">or</p>
+                                <button type="button" class="w-full py-3 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors text-sm">
+                                    + Add New Customer
                                 </button>
                             </div>
-
-                            <div class="h-px bg-blue-200/60 w-full mb-4"></div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8">
-                                <div class="space-y-1">
-                                    <label class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Contact
-                                        Info</label>
-                                    <div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
-                                        <span class="text-blue-400">📞</span> {{ selectedCustomer.phone || 'N/A' }}
-                                    </div>
-                                    <div class="flex items-center gap-2 text-sm text-gray-500">
-                                        <span class="text-gray-400">✉️</span> {{ selectedCustomer.email || 'No Email' }}
+                        </div>
+                                        
+                                        
                                     </div>
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Billing
-                                        Details</label>
-                                    <div class="flex items-start gap-2 text-sm text-gray-700 font-medium">
-                                        <span class="text-blue-400 mt-0.5">📍</span>
-                                        <span class="line-clamp-2">{{ getFormattedAddress(selectedCustomer) }}</span>
+                            </div>
+
+                            <!-- Warehouse Info (Static or Dynamic) -->
+                            <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                                <div class="flex items-start gap-3">
+                                    <div class="p-2 bg-white rounded-lg shadow-sm text-blue-600">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                     </div>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-[10px] font-bold text-gray-400 uppercase">GST:</span>
-                                        <span
-                                            class="font-mono text-xs bg-white border border-gray-200 px-2 py-0.5 rounded text-gray-800">
-                                            {{ selectedCustomer.gstNumber || 'Unregistered' }}
-                                        </span>
+                                    <div>
+                                        <h4 class="text-sm font-bold text-gray-900">Shipping From</h4>
+                                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                                            Select a warehouse to see the shipping address.
+                                            Stock will be deducted from this location upon invoicing.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="lg:col-span-4 flex flex-col gap-6">
-                    <!-- <div class="space-y-4">
-                        <app-dropdown [label]="'Warehouse'" [placeholder]="'Select Warehouse'" [options]="warehouseOptions"
-                             [formControlName]="'warehouse'"></app-dropdown>
-                        
-                        <app-dropdown [label]="'Price List'" [placeholder]="'Select Currency'" [options]="priceListOptions"
-                             [formControlName]="'priceList'"></app-dropdown>
-                             
-                        <div>
-                             <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Order Date</label>
-                             <input type="date" formControlName="orderDate" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div> -->
-                </div>
-            </div>
-        </div>
-
-        <div class="flex-1 bg-gray-50 border-t border-gray-200 flex flex-col min-h-0">
-
-            <div class="px-8 py-6 relative z-10">
-                <div class="relative max-w-2xl">
-                    <svg class="absolute left-0 top-3 w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                    <input type="text" [value]="itemSearchQuery" (keyup)="onItemSearchInput($event)"
-                        class="w-full pl-8 pr-4 py-2 bg-transparent border-b border-gray-300 focus:border-blue-500 text-gray-900 placeholder-gray-400 focus:outline-none transition-colors text-lg"
-                        placeholder="Search items to add (e.g. 'Wireless Mouse')...">
-
-                    <div *ngIf="showItemResults"
-                        class="absolute top-full left-0 right-0 mt-1 bg-white shadow-xl rounded-lg border border-gray-100 max-h-80 overflow-y-auto">
-                        <div *ngFor="let item of itemSearchResults" (click)="selectItemFromSearch(item)"
-                            class="flex items-center gap-4 px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors">
-                            <img [src]="item.imageUrl || 'assets/placeholder.png'"
-                                class="w-10 h-10 object-cover rounded bg-gray-100">
-                            <div class="flex-1">
-                                <h4 class="text-sm font-medium text-gray-900">{{ item.name }}</h4>
-                                <p class="text-xs text-gray-500">Stock: {{ item.brand }} • SKU: {{ item.sku }}</p>
+                    <!-- ITEM DETAILS CARD -->
+                    <div class="bg-white  p-8 min-h-[500px] flex flex-col">
+                        <div class="mb-6 flex justify-between items-end">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Items</h3>
+                                <p class="text-sm text-gray-400 mt-1">Add products and services to this order</p>
                             </div>
-                            <div class="font-bold text-gray-700">{{ item.sellingPrice | currency:'INR' }}</div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <div
-                class="px-8 pb-2 grid grid-cols-12 gap-4 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                <div class="col-span-4">Item</div>
-                <div class="col-span-2 text-right">Price</div>
-                <div class="col-span-2 text-center">Quantity</div>
-                <div class="col-span-1 text-center">Disc</div>
-                <div class="col-span-1 text-right">Total</div>
-                <div class="col-span-1 text-center">Actions</div>
-            </div>
+                        <!-- Item Search Bar -->
+                        <div class="relative mb-6 z-20">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <div>
+                                <input type="text" [value]="itemSearchQuery" (keyup)="onItemSearchInput($event)"
+                                   class="block w-full pl-10 pr-4 py-3 bg-gray-50 border-transparent rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                                   placeholder="Search items to add...">
 
-
-            <div class="flex-1 overflow-y-auto px-8  py-4 space-y-2" formArrayName="items">
-
-                <div *ngIf="items.controls.length === 0"
-                    class="flex flex-col items-center justify-center h-40 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
-                    <p>No items added. Search above to begin.</p>
-                </div>
-
-                <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
-                    class="grid grid-cols-12 gap-2 items-center py-3 border-b border-gray-100 last:border-0 hover:bg-white transition-colors rounded-lg px-2 -mx-2 group">
-
-                    <div class="col-span-4 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded bg-gray-200 shrink-0 overflow-hidden">
-                            <img [src]="item.get('image')?.value"
-                                class="w-full h-full object-cover opacity-80 mix-blend-multiply">
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">{{ item.get('name')?.value }}</p>
-                            <p class="text-xs text-gray-500"><span class="text-green-600">In Stock</span></p>
-                        </div>
-                    </div>
-
-                    <div class="col-span-2">
-                        <div class="flex items-center justify-end">
-                            <span class="text-gray-400 text-xs mr-2">₹</span>
-                            <input type="number" formControlName="price"
-                                class="w-24 text-right border-b border-transparent hover:border-gray-300 focus:border-blue-500 bg-transparent py-1 text-sm font-medium text-gray-900 focus:outline-none transition-colors">
-                        </div>
-                    </div>
-
-                    <div class="col-span-2 flex justify-center">
-                        <div class="flex items-center bg-white border border-gray-200 rounded shadow-sm h-8">
-                            <button type="button" (click)="adjustQuantity(i, -1)"
-                                class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-gray-50 rounded-l transition-colors">-</button>
-                            <input type="number" formControlName="quantity"
-                                class="w-10 h-full text-center text-sm font-bold text-gray-900 border-x border-gray-100 focus:outline-none py-0 appearance-none">
-                            <button type="button" (click)="adjustQuantity(i, 1)"
-                                class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-gray-50 rounded-r transition-colors">+</button>
-                        </div>
-                    </div>
-
-                    <!-- Discount -->
-                    <div class="col-span-1 flex justify-center">
-                        <input type="number" formControlName="discount" placeholder="0"
-                            class="w-full text-center border-b border-gray-200 focus:border-blue-500 bg-transparent text-sm focus:outline-none">
-                    </div>
-
-                    <div class="col-span-1 text-right">
-                        <span class="text-sm font-bold text-gray-900">{{ getItemTotal(i) | currency:'INR' }}</span>
-                    </div>
-
-                    <div class="col-span-1 text-right">
-                        <button (click)="removeItem(i)" class="text-gray-300 hover:text-red-500 transition-colors p-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                </path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white border-t border-gray-200 px-8 py-6">
-                <div class="grid grid-cols-12 gap-12">
-                    <div class="col-span-7">
-                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Notes
-                            Terms</label>
-                        <textarea formControlName="remarks" rows="3"
-                            class="w-full text-sm border border-gray-200 rounded-lg p-3 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none transition-colors placeholder-gray-400"
-                            placeholder="Add payment terms, delivery instructions, or internal notes..."></textarea>
-                    </div>
-
-                    <div class="col-span-5">
-                        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 shadow-sm">
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-gray-500 font-medium">Subtotal</span>
-                                    <span class="text-gray-900 font-bold tracking-wide">{{ subtotal | currency:'INR'
-                                        }}</span>
-                                </div>
-
-                                <div class="flex justify-between items-center group">
-                                    <div class="flex flex-col">
-                                        <span
-                                            class="text-xs font-semibold uppercase tracking-wider text-red-500 mb-0.5">Discount</span>
+                                <input type="text" [value]="itemSearchQuery" (keyup)="onItemSearchInput($event)"
+                                   class="block w-50 pl-10 pr-4 py-3 bg-gray-50 border-transparent rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                                   placeholder="scan bar code...">
+                            </div>
+                            
+                                   
+                            
+                            <!-- Search Results Dropdown -->
+                            <div *ngIf="showItemResults" class="absolute mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-80 overflow-y-auto">
+                                <div *ngFor="let item of itemSearchResults" (click)="selectItemFromSearch(item)"
+                                     class="flex items-center gap-4 px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors">
+                                    <div class="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                                        <img [src]="item.imageUrl || 'assets/placeholder.png'" class="w-full h-full object-cover">
                                     </div>
-                                    <div class="flex items-center gap-3">
-                                        <div class="relative w-20 transition-all transform group-hover:scale-105">
-                                            <input formControlName="discount" type="number"
-                                                class="w-full pl-3 pr-6 py-1.5 text-right text-sm font-bold text-red-600 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-100 focus:border-red-400 focus:outline-none placeholder-red-200 transition-all">
-                                            <span
-                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-red-300 text-xs font-bold">%</span>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-semibold text-gray-900">{{ item.name }}</h4>
+                                        <p class="text-xs text-gray-500">SKU: {{ item.sku }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-gray-900">{{ item.sellingPrice | currency:'INR' }}</div>
+                                        <div class="text-xs text-green-600">In Stock</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table Headers -->
+                        <div class="hidden md:grid grid-cols-12 gap-4 pb-3 border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <div class="col-span-5">Product Details</div>
+                            <div class="col-span-2 text-right">Price</div>
+                            <div class="col-span-2 text-center">Qty</div>
+                            <div class="col-span-2 text-right">Total</div>
+                            <div class="col-span-1"></div>
+                        </div>
+
+                        <!-- Items List -->
+                        <div class="flex-1" formArrayName="items">
+                            
+                            <div *ngIf="items.controls.length === 0" class="flex flex-col items-center justify-center h-40 text-gray-400  bg-gray-100 border-2 border-dashed border-gray-200 rounded-xl mt-4">
+                                <svg class="w-10 h-10 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                                <p class="text-sm">Your cart is empty</p>
+                            </div>
+
+                            <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" 
+                                 class="grid grid-cols-1 md:grid-cols-12 gap-4 py-4 border-b border-gray-50 items-center hover:bg-gray-50/50 transition-colors group">
+                                
+                                <!-- Item Info -->
+                                <div class="col-span-5 flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-white border border-gray-100 rounded-lg p-0.5 shrink-0">
+                                        <img [src]="item.get('imageUrl')?.value" class="w-full h-full object-cover rounded">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-semibold text-gray-900 truncate">{{ item.get('name')?.value }}</p>
+                                        <div class="flex items-center gap-2 mt-0.5">
+                                            <span class="text-xs text-gray-400">Disc:</span>
+                                            <input type="number" formControlName="discount" placeholder="0"
+                                                   class="w-16 bg-transparent border-b border-gray-200 text-xs py-0 focus:border-blue-500 focus:ring-0 px-0">
                                         </div>
-                                        <span class="text-red-600 font-medium text-sm min-w-[60px] text-right">
-                                            - {{ discountAmount | currency:'INR' }}
-                                        </span>
                                     </div>
                                 </div>
 
-                                <div class="flex justify-between items-center text-sm">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-gray-500 font-medium">GST</span>
-                                        <span
-                                            class="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-200">
-                                            {{ orderForm.get('taxPercentage')?.value }}%
-                                        </span>
+                                <!-- Price -->
+                                <div class="col-span-2 md:text-right">
+                                    <label class="md:hidden text-xs text-gray-400 block mb-1">Price</label>
+                                    <input type="number" formControlName="unitPrice" 
+                                           class="w-full md:text-right bg-transparent border-0 p-0 text-sm font-medium text-gray-600 focus:ring-0">
+                                </div>
+
+                                <!-- Qty -->
+                                <div class="col-span-2 flex justify-start md:justify-center">
+                                    <div class="flex items-center bg-white border border-gray-200 rounded-lg h-8 shadow-sm">
+                                        <button type="button" (click)="adjustQuantity(i, -1)" class="w-8 h-full flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-gray-50 rounded-l-lg transition-colors">-</button>
+                                        <input type="number" formControlName="orderedQty" class="w-10 text-center text-sm font-bold text-gray-900 border-x border-gray-100 focus:ring-0 border-none p-0 h-full">
+                                        <button type="button" (click)="adjustQuantity(i, 1)" class="w-8 h-full flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-gray-50 rounded-r-lg transition-colors">+</button>
                                     </div>
-                                    <span class="text-gray-700 font-semibold">{{ taxAmount | currency:'INR' }}</span>
                                 </div>
-                            </div>
 
-                            <div class="border-t-2 border-dashed border-gray-200 my-5 relative">
-                                <div class="absolute -left-8 -top-2 w-4 h-4 rounded-full bg-white"></div>
-                                <div class="absolute -right-8 -top-2 w-4 h-4 rounded-full bg-white"></div>
-                            </div>
-
-                            <div class="flex justify-between items-end">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-semibold text-gray-900">Total Payable</span>
-                                    <a href="#" class="text-xs text-blue-500 hover:text-blue-700 mt-1">View Split-up</a>
+                                <!-- Total -->
+                                <div class="col-span-2 text-right">
+                                    <label class="md:hidden text-xs text-gray-400 block mb-1">Total</label>
+                                    <span class="text-sm font-bold text-gray-900">{{ getRowTotal(i) | currency:'INR' }}</span>
                                 </div>
-                                <div class="text-right">
-                                    <span
-                                        class="block text-3xl font-extrabold text-gray-900 tracking-tight leading-none">
-                                        {{ grandTotal | currency:'INR' }}
-                                    </span>
-                                    <span
-                                        class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold mt-1 block">Due
-                                        on Receipt</span>
+
+                                <!-- Remove -->
+                                <div class="col-span-1 text-right">
+                                    <button type="button" (click)="removeItem(i)" class="text-gray-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Summary Section -->
+                        <div class="mt-8 border-t border-gray-100 pt-6">
+                            <div class="flex flex-col gap-3 w-full md:w-1/2 ml-auto">
+                                <div class="flex justify-between text-sm text-gray-500">
+                                    <span>Subtotal</span>
+                                    <span>{{ subtotal | currency:'INR' }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm text-gray-500">
+                                    <span>Item Discounts</span>
+                                    <span class="text-red-500">- {{ totalItemDiscounts | currency:'INR' }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm text-gray-500">
+                                    <span>Global Discount</span>
+                                    <div class="w-24">
+                                        <input type="number" formControlName="discount" class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm text-gray-500">
+                                    <span>Tax Rate (%)</span>
+                                    <div class="w-24">
+                                        <input type="number" formControlName="taxPercentage" class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                                    <span class="text-base font-bold text-gray-900">Grand Total</span>
+                                    <span class="text-xl font-bold text-gray-900">{{ grandTotal | currency:'INR' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIDEBAR - RIGHT SIDE (1 Col) -->
+                <div class="lg:col-span-1">
+                    <!-- DATES CARD -->
+                    <div class="bg-white border-gray-200 p-6">
+                        <h3 class="font-bold text-gray-900 text-lg mb-6">Dates</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-gray-500 mb-2">Order Date <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <input type="date" formControlName="orderDate"
+                                           class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ACTIONS CARD -->
+                    <div class="space-y-3">
+                        <button type="submit" [disabled]="isLoading"
+                                class="w-full py-4 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                            <span *ngIf="isLoading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            {{ isEditMode ? 'Update Order' : 'Create Sales Order' }}
+                        </button>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" class="py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                Preview
+                            </button>
+                            <button type="button" class="py-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Save Draft
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- NOTES CARD -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <label class="block text-sm font-bold text-gray-900 mb-3">Notes & Remarks</label>
+                        <textarea formControlName="remarks" 
+                                  class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-32 placeholder-gray-400 transition-shadow" 
+                                  placeholder="Enter delivery instructions or internal notes..."></textarea>
                     </div>
                 </div>
             </div>

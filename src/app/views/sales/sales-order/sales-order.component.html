@@ -1,19 +1,142 @@
 <div class="space-y-6">
     <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
-        <app-standard-table
-            [title]="'Data Table'"
-            [columns]="columns"
-            [data]="salesOrders"
-            [pagination]="pagination"
-            (pageChange)="onPageChange($event)"
-            (loadMore)="onLoadMore()"
-            (action)="onTableAction($event)">
+        <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="salesOrders" [pagination]="pagination"
+            (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)"
+            (action)="onTableAction($event)" [customActions]="soActions">
         </app-standard-table>
     </div>
 </div>
 
 <!-- DRAWER FORM TEMPLATE -->
-<ng-template #contactProfile let-data>
-    <div class="flex flex-col h-full bg-white">
+<ng-template #soDetails>
+    <div class="flex flex-col h-full bg-white text-gray-800">
+
+        <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-white z-10">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-bold text-gray-900">{{ salesOrderDetail?.orderNumber }}</h2>
+                    <span [ngClass]="{
+                        'bg-green-100 text-green-700': salesOrderDetail?.status === 'COMPLETED',
+                        'bg-blue-100 text-blue-700': salesOrderDetail?.status === 'CREATED',
+                        'bg-yellow-100 text-yellow-700': salesOrderDetail?.status === 'PENDING'
+                    }" class="px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase">
+                        {{ salesOrderDetail?.status }}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">
+                    Created on {{ salesOrderDetail?.orderDate | date:'mediumDate' }} • Warehouse #{{ 12 }}
+                </p>
+            </div>
+
+            <button
+                class="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto">
+
+            <div class="px-6 py-6 bg-gray-50/50 border-b border-gray-100">
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Customer Details</h3>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                        {{ salesOrderDetail?.customerName?.substring(0,2)?.toUpperCase() }}
+                    </div>
+                    <div>
+                        <h4 class="text-base font-bold text-gray-900">{{ salesOrderDetail?.customerName }}</h4>
+                        <p class="text-sm text-gray-500">ID: #{{ salesOrderDetail?.customerId }}</p>
+                    </div>
+                    <div class="ml-auto text-right">
+                        <p class="text-xs text-gray-400">Payment Terms</p>
+                        <p class="text-sm font-medium text-gray-700">{{ salesOrderDetail?.paymentTerms || 'Standard' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-6">
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Order Items ({{
+                    salesOrderDetail?.items?.length }})</h3>
+
+                <div class="border border-gray-100 rounded-lg overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 font-medium text-gray-500">Item</th>
+                                <th class="px-4 py-3 font-medium text-gray-500 text-center">Qty</th>
+                                <th class="px-4 py-3 font-medium text-gray-500 text-right">Price</th>
+                                <th class="px-4 py-3 font-medium text-gray-500 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr *ngFor="let item of salesOrderDetail?.items" class="hover:bg-gray-50/50 transition-colors">
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-gray-900">{{ item.itemName }}</p>
+                                    <p class="text-xs text-gray-400">SKU: {{ item.itemId }}</p>
+                                </td>
+                                <td class="px-4 py-3 text-center text-gray-600">
+                                    {{ item.orderedQty }}
+                                    <span *ngIf="item.quantity" class="block text-[10px] text-green-600">
+                                        {{ item.quantity }} Inv
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-right text-gray-600">{{ item.unitPrice | currency:'INR' }}
+                                </td>
+                                <td class="px-4 py-3 text-right font-medium text-gray-900">{{ item.lineTotal |
+                                    currency:'INR' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="px-6 pb-6">
+                <div class="bg-gray-50 rounded-xl p-5 space-y-3">
+                    <!-- <div class="flex justify-between text-sm text-gray-600">
+                        <span>Subtotal</span>
+                        <span class="font-medium">{{ salesOrderDetail.subTotal | currency:'INR' }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600" *ngIf="salesOrderDetail.totalDiscount > 0">
+                        <span>Discount</span>
+                        <span class="text-red-500">- {{ salesOrderDetail?.totalDiscount | currency:'INR' }}</span>
+                    </div> -->
+                    <!-- <div class="flex justify-between text-sm text-gray-600" *ngIf="salesOrderDetail.totalTax > 0">
+                        <span>Tax</span>
+                        <span>{{ salesOrderDetail?.totalTax | currency:'INR' }}</span>
+                    </div> -->
+                    <div class="border-t border-gray-200 pt-3 flex justify-between items-center">
+                        <span class="font-bold text-gray-900 text-base">Grand Total</span>
+                        <span class="font-bold text-gray-900 text-xl">{{ salesOrderDetail?.grandTotal | currency:'INR' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 pb-8" *ngIf="salesOrderDetail?.remarks">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Remarks</p>
+                <p class="text-sm text-gray-600 bg-yellow-50 p-3 rounded-lg border border-yellow-100 italic">
+                    "{{ salesOrderDetail?.remarks }}"
+                </p>
+            </div>
+        </div>
+
+        <div class="px-6 py-4 border-t border-gray-100 bg-white grid grid-cols-2 gap-3 z-10">
+            <button
+                class="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                    </path>
+                </svg>
+                Print PDF
+            </button>
+            <button
+                class="px-4 py-2.5 rounded-lg bg-gray-900 text-white font-medium hover:bg-gray-800 transition-colors shadow-lg shadow-gray-200">
+                Edit Order
+            </button>
+        </div>
+
     </div>
 </ng-template>

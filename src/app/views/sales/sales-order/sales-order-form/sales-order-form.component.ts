@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Subject, switchMap, of, identity } from 'rxjs';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
 import { ContactModel, AddressType } from '../../../contacts/contacts.model';
 import { ContactService } from '../../../contacts/contacts.service';
@@ -13,293 +13,307 @@ import { SalesOrderService } from '../sales-order.service';
 @Component({
   selector: 'app-sales-order-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
   templateUrl: './sales-order-form.component.html',
-  styleUrl: './sales-order-form.component.css'
+  styleUrls: ['./sales-order-form.component.css']
 })
 export class SalesOrderFormComponent implements OnInit {
 
   orderForm: FormGroup;
+  isEditMode = false;
+  orderId: number | null = null;
+  isLoading = false;
 
-  // Customer Data
+  // Customer Search
   selectedCustomer: ContactModel | null = null;
-  customerSearchInput: string = "";
+  customerSearchInput = "";
   filteredCustomers: ContactModel[] = [];
   allCustomers: ContactModel[] = [];
-  showCustomerResults: boolean = false;
+  showCustomerResults = false;
 
-  // Item Search Data
+  // Item Search
   itemSearchResults: ItemModel[] = [];
-  itemSearchQuery: string = "";
-  showItemResults: boolean = false;
+  itemSearchQuery = "";
+  showItemResults = false;
   private searchSubject = new Subject<string>();
 
-  // Static Options
+  // Options
   warehouseOptions = [
     { label: 'Main Warehouse (Chennai)', value: 1 },
-    { label: 'Bangalore Distribution Center', value: 2 },
-    { label: 'Mumbai West Hub', value: 3 }
-  ];
-
-  priceListOptions = [
-    { label: 'Standard Retail — INR', value: 1 },
-    { label: 'Wholesale Tier 1 — INR', value: 2 },
-    { label: 'Export Pricing — USD', value: 3 }
+    { label: 'Bangalore DC', value: 2 },
+    { label: 'Mumbai Hub', value: 3 }
   ];
 
   constructor(
+    private fb: FormBuilder,
     private salesOrderService: SalesOrderService,
     private contactService: ContactService,
     private itemService: ItemService,
     private toast: ToastService,
     private router: Router,
-    private fb: FormBuilder
+    private route: ActivatedRoute
   ) {
-    // Initialize Form
     this.orderForm = this.fb.group({
-      id: [''],
-      orderNumber: ['SO-2025-' + Math.floor(1000 + Math.random() * 9000)],
-      orderDate: [new Date().toISOString().split('T')[0]],
-      customerId: ['', Validators.required],
-      paymentTerms: [''],
-      warehouse: [1],
-      priceList: [1],
-      discount: [0],
-      discountPercentage: [0, [Validators.min(0), Validators.max(100)]],
-      taxPercentage: [18], // Default 18% GST
-      status: ['Pending'],
-      items: this.fb.array([], Validators.required),
+      id: [null],
+      customerId: [1, Validators.required],
+      warehouseId: [1, Validators.required],
+      orderDate: [new Date().toISOString().split('T')[0], Validators.required],
       remarks: [''],
+      items: this.fb.array([], Validators.required),
+      // Financials (Global)
+      discount: [0], // Global Discount Amount
+      taxPercentage: [0] // Global Tax % to apply to rows
     });
   }
-
 
   ngOnInit(): void {
     this.loadContacts();
+    this.setupItemSearch();
+    this.checkEditMode();
+  }
 
-    // Setup Item Search Debounce
-    this.searchSubject.pipe(
-      debounceTime(400),
-      distinctUntilChanged()
-    ).subscribe(query => {
-      this.executeItemSearch(query);
+  // --- Initialization Logic ---
+  private checkEditMode() {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+
+      if (id) {
+        this.isEditMode = true;
+        this.orderId = +id;
+        this.loadOrderDetails(this.orderId);
+      }
     });
   }
 
+  private loadOrderDetails(id: number) {
+    this.isLoading = true;
+    this.salesOrderService.getSalesOrderById(id,
+      (response: any) => {
+        const order = response.data;
+        // 1. Patch Header
+        this.orderForm.patchValue({
+          id: order.id,
+          customerId: order.customerId,
+          warehouseId: order.warehouseId,
+          orderDate: order.orderDate,
+          remarks: order.remarks,
+          discount: order.totalDiscount,
+          // Calculate tax % based on total for display, or default to 0
+          taxPercentage: order.subTotal > 0 ? ((order.totalTax / order.subTotal) * 100) : 0
+        });
+        // 2. Set Customer Display
+        const customer = this.allCustomers.find(c => c.id === order.customerId);
+        if (customer) this.selectCustomer(customer);
+        else this.selectedCustomer = { id: order.customerId, name: order.customerName } as ContactModel; // Fallback
+
+        // 3. Patch Items
+        const itemArray = this.orderForm.get('items') as FormArray;
+        itemArray.clear();
+
+        order.items.forEach((item: any) => {
+          itemArray.push(this.createItemControl({
+            id: item.itemId,
+            name: item.itemName,
+            sellingPrice: item.unitPrice,
+            // Map existing line data
+            orderedQty: item.orderedQty,
+            discount: item.discount
+          }));
+        });
+
+        this.isLoading = false;
+      },
+      (err: any) => {
+        this.toast.show('Failed to load order details', 'error');
+        this.isLoading = false;
+      }
+    );
+  }
+
+  private setupItemSearch() {
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      switchMap(query => {
+        if (!query.trim()) return of([]);
+        const filter = new ItemSearchFilter();
+        filter.searchQuery = query;
+        filter.active = true;
+        // wrapping in observable for switchMap
+        return new Promise(resolve => {
+          this.itemService.searchItems(filter,
+            (res: any) => resolve(res.data),
+            () => resolve([])
+          );
+        });
+      })
+    ).subscribe((results: any) => {
+      this.itemSearchResults = results;
+      this.showItemResults = results.length > 0;
+    });
+  }
+
+  // --- Form Accessors ---
 
   get items(): FormArray {
     return this.orderForm.get('items') as FormArray;
   }
 
-  // Sum of (Price * Qty)
+  // --- Financial Calculations (Getters) ---
+
   get subtotal(): number {
-    // Loop through all items and sum their individual totals (which now includes item discount)
-    return this.items.controls.reduce((acc, control, index) => {
-      return acc + this.getItemTotal(index);
+    return this.items.controls.reduce((sum, ctrl) => {
+      const qty = ctrl.get('orderedQty')?.value || 0;
+      const price = ctrl.get('unitPrice')?.value || 0;
+      return sum + (qty * price);
     }, 0);
   }
 
-  // (Subtotal * Discount%) / 100
-  get discountAmount(): number {
-    const percent = this.orderForm.get('discountPercentage')?.value || 0;
-    return (this.subtotal * percent) / 100;
+  get totalItemDiscounts(): number {
+    // Sum of individual item discounts
+    return this.items.controls.reduce((sum, ctrl) => {
+      return sum + (ctrl.get('discount')?.value || 0);
+    }, 0);
   }
 
-  // (Subtotal - Global Order Discount) * Tax%
-  get taxAmount(): number {
+  get globalDiscount(): number {
+    return this.orderForm.get('discount')?.value || 0;
+  }
+
+  get calculatedTax(): number {
     const taxPercent = this.orderForm.get('taxPercentage')?.value || 0;
-    const globalDiscount = this.orderForm.get('discount')?.value || 0; // Bottom section discount
-    
-    // Tax is usually calculated on (Subtotal - Global Discount)
-    const taxableAmount = Math.max(0, this.subtotal - globalDiscount); 
-    
-    return (taxableAmount * taxPercent) / 100;
+    // Taxable = Subtotal - Total Discounts
+    const taxable = Math.max(0, this.subtotal - this.totalItemDiscounts - this.globalDiscount);
+    return (taxable * taxPercent) / 100;
   }
 
-  // Final Total
   get grandTotal(): number {
-    const globalDiscount = this.orderForm.get('discount')?.value || 0;
-    return (this.subtotal - globalDiscount) + this.taxAmount;
+    return (this.subtotal - this.totalItemDiscounts - this.globalDiscount) + this.calculatedTax;
   }
 
-  getItemTotal(index: number): number {
-    const itemGroup = this.items.at(index) as FormGroup;
-    const price = itemGroup.get('price')?.value || 0;
-    const quantity = itemGroup.get('quantity')?.value || 0;
-    const itemDiscount = itemGroup.get('discount')?.value || 0; // Get Item Discount
-
-    const total = (price * quantity) - itemDiscount;
-    
-    // Ensure total doesn't go below 0
-    return total > 0 ? total : 0;
+  getRowTotal(index: number): number {
+    const ctrl = this.items.at(index);
+    const qty = ctrl.get('orderedQty')?.value || 0;
+    const price = ctrl.get('unitPrice')?.value || 0;
+    const disc = ctrl.get('discount')?.value || 0;
+    return Math.max(0, (qty * price) - disc);
   }
 
-  // --- Actions ---
+  // --- Item Management ---
 
   onItemSearchInput(event: any) {
     const query = event.target.value;
     this.itemSearchQuery = query;
-    if (query.length > 0) {
-      this.searchSubject.next(query);
-    } else {
-      this.itemSearchResults = [];
-      this.showItemResults = false;
-    }
-  }
-
-  executeItemSearch(query: string) {
-    const filter = new ItemSearchFilter();
-    filter.searchQuery = query;
-    filter.itemType = 'PRODUCT';
-    filter.active = true;
-
-    this.itemService.searchItems(filter,
-      (response: any) => {
-        this.itemSearchResults = response.data;
-        this.showItemResults = this.itemSearchResults.length > 0;
-      },
-      (error: any) => {
-        this.itemSearchResults = [];
-      });
+    this.searchSubject.next(query);
   }
 
   selectItemFromSearch(item: ItemModel) {
-    const itemGroup = this.fb.group({
-      itemId: [item.id],
-      name: [item.name],
-      image: [item.imageUrl || 'assets/placeholder.png'],
-      discount: [0],
-      price: [item.sellingPrice || 0, [Validators.required, Validators.min(0)]],
-      quantity: [1, [Validators.required, Validators.min(1)]],
-      lineTotal: []
-    });
-
-    this.items.push(itemGroup);
+    this.items.push(this.createItemControl(item));
     this.itemSearchQuery = "";
-    this.itemSearchResults = [];
     this.showItemResults = false;
+  }
+
+  private createItemControl(data: any): FormGroup {
+    return this.fb.group({
+      itemId: [data.id],
+      name: [data.name],
+      imageUrl: [data.imageUrl || 'assets/placeholder.png'],
+      unitPrice: [data.sellingPrice || 0, [Validators.required, Validators.min(0)]],
+      orderedQty: [data.orderedQty || 1, [Validators.required, Validators.min(1)]],
+      discount: [data.discount || 0, Validators.min(0)]
+    });
   }
 
   removeItem(index: number) {
     this.items.removeAt(index);
   }
 
-  adjustQuantity(index: number, change: number) {
-    const control = this.items.at(index).get('quantity');
-    const currentVal = control?.value || 0;
-    const newVal = currentVal + change;
-    if (newVal > 0) {
-      control?.setValue(newVal);
+  adjustQuantity(index: number, delta: number) {
+    const ctrl = this.items.at(index).get('orderedQty');
+    const current = ctrl?.value || 0;
+    if (current + delta > 0) {
+      ctrl?.setValue(current + delta);
     }
   }
 
-  // --- Customer Logic ---
+  // --- Customer Management ---
 
   loadContacts() {
-    this.contactService.getContacts(0, 50, {},
-      (res: any) => {
-        this.allCustomers = res.data.content;
-      },
-      (err: any) => console.error(err)
-    );
+    this.contactService.getContacts(0, 100, {}, (res: any) => {
+      this.allCustomers = res.data.content;
+      this.filteredCustomers = this.allCustomers;
+    }, (err: any) => console.error(err));
   }
 
-  onCustomerSearchChange() {
-    const text = this.customerSearchInput.toLowerCase().trim();
-    if (!text) {
-      this.showCustomerResults = false;
-      return;
-    }
+  filterCustomers() {
+    const term = this.customerSearchInput.toLowerCase();
     this.filteredCustomers = this.allCustomers.filter(c =>
-      (c.name && c.name.toLowerCase().includes(text)) ||
-      (c.phone && c.phone.includes(text))
+      c.name.toLowerCase().includes(term) || c.phone?.includes(term)
     );
     this.showCustomerResults = true;
   }
 
-  selectCustomer(customer: ContactModel) {
-    this.selectedCustomer = customer;
-    this.orderForm.patchValue({ customerId: customer.id });
-    this.customerSearchInput = "";
+  selectCustomer(cust: ContactModel) {
+    this.selectedCustomer = cust;
+    this.orderForm.patchValue({ customerId: cust.id });
     this.showCustomerResults = false;
+    this.customerSearchInput = "";
   }
 
   clearCustomer() {
     this.selectedCustomer = null;
-    this.orderForm.patchValue({ customerId: '' });
+    this.orderForm.patchValue({ customerId: null });
   }
 
-  getInitials(name: string): string {
-    if (!name) return '??';
-    const parts = name.split(' ');
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return name.substring(0, 2).toUpperCase();
+  getFormattedAddress(): string {
+    if (!this.selectedCustomer?.addresses?.length) return 'No address on file';
+    const addr = this.selectedCustomer.addresses.find(a => a.type === AddressType.BILLING)
+      || this.selectedCustomer.addresses[0];
+    return `${addr.city}, ${addr.state}`;
   }
 
-  getFormattedAddress(customer: ContactModel): string {
-    if (!customer?.addresses?.length) return 'No address available';
-    const addr = customer.addresses.find(a => a.type === AddressType.BILLING) || customer.addresses[0];
-    return [addr.addressLine1, addr.city, addr.state, addr.pinCode].filter(Boolean).join(', ');
-  }
 
   saveOrder() {
     if (this.orderForm.invalid) {
       this.orderForm.markAllAsTouched();
-      this.toast.show('Please complete all required fields', 'warning');
+      this.toast.show('Please fill required fields', 'warning');
       return;
     }
 
-    const formValue = this.orderForm.getRawValue();
-    const globalTaxRate = formValue.taxPercentage || 0; // e.g., 18
+    const formVal = this.orderForm.getRawValue();
+    const taxPerItem = this.calculatedTax / formVal.items.length; // Simple distribution for DTO
 
-    // 1. Map Items to specific JSON format
-    const mappedItems = formValue.items.map((item: any) => {
-      const qty = item.quantity || 0;
-      const price = item.price || 0;
-      const itemDiscount = item.discount || 0; // Item level discount amount
-      const taxableAmount = (price * qty) - itemDiscount;
-      const itemTaxAmount = (taxableAmount * globalTaxRate) / 100;
-      const lineTotal = taxableAmount + itemTaxAmount;
-
-      return {
-        itemId: item.itemId,
-        quantity: qty,
-        unitPrice: price,      // Renamed from 'price' to 'unitPrice'
-        discount: itemDiscount, // Item specific discount
-        tax: Number(itemTaxAmount.toFixed(2)),
-        lineTotal: Number(lineTotal.toFixed(2))
-      };
-    });
-    const sumLineTotals = mappedItems.reduce((sum: number, item: any) => sum + item.lineTotal, 0);
-    const totalTax = mappedItems.reduce((sum: number, item: any) => sum + item.tax, 0);
-    const orderLevelDiscount = formValue.discount || 0;
-    const grandTotal = sumLineTotals - orderLevelDiscount;
-
-    // 3. Construct Final JSON Payload
+    // Map to Backend DTO
     const payload = {
-      orderNumber: formValue.orderNumber,
-      orderDate: formValue.orderDate,
-      customerId: formValue.customerId,
-      paymentTerms: formValue.paymentTerms || 'Due on Receipt',
-      remarks: formValue.remarks,
-      discount: orderLevelDiscount, // Order level discount
-      tax: Number(totalTax.toFixed(2)), // Total tax amount
-      grandTotal: Number(grandTotal.toFixed(2)),
-      active: true,
-      items: mappedItems
+      customerId: formVal.customerId,
+      warehouseId: formVal.warehouseId,
+      orderDate: formVal.orderDate,
+      remarks: formVal.remarks,
+      items: formVal.items.map((i: any) => ({
+        itemId: i.itemId,
+        orderedQty: i.orderedQty,
+        unitPrice: i.unitPrice,
+        discount: i.discount,
+        tax: Number(taxPerItem.toFixed(2)) // Distributing global tax to items if backend requires per-item tax
+      }))
     };
 
-    this.salesOrderService.createSalesOrder(
-      payload,
-      (response:any)=>{
-        console.log();
-        this.router.navigate(['/sales'])
-        this.toast.show("Successfully creates SO", "success")
-      },
-      (err:any)=>{
-        console.log("error while saving SO", err)
-      }
-    )
-    console.log('Final Payload:', JSON.stringify(payload, null, 2));
+    if (this.isEditMode && this.orderId) {
+      this.salesOrderService.updateSalesOrder(this.orderId, payload,
+        () => {
+          this.toast.show('Order updated successfully', 'success');
+          this.router.navigate(['/sales']);
+        },
+        (err: any) => this.toast.show(err.error?.message || 'Update failed', 'error')
+      );
+    } else {
+      this.salesOrderService.createSalesOrder(payload,
+        () => {
+          this.toast.show('Order created successfully', 'success');
+          this.router.navigate(['/sales']);
+        },
+        (err: any) => this.toast.show(err.error?.message || 'Creation failed', 'error')
+      );
+    }
   }
 }
