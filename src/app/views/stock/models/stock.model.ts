@@ -2,6 +2,7 @@
 export class StockModel {
     id!: number
     itemId!: number
+    itemName!: string
     warehouseId!: number
     openingQty: number = 0
     inQty: number = 0

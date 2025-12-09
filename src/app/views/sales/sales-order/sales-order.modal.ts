@@ -1,5 +1,6 @@
 export class SalesOrderModal {
     id!: number;
+    warehouseId!: number;
     orderNumber!: string;
     orderDate!: string;
     customerId!: number;
