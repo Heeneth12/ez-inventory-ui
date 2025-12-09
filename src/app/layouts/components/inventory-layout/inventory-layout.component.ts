@@ -82,7 +82,7 @@ export class InventoryLayoutComponent implements OnInit {
       moduleKey: 'EZH_INV_SALES',
       subItems: [
         { label: 'Sales Order', link: '/sales/order' },
-        { label: 'Add Sale', link: '/sales/add' }
+        { label: 'Invoices', link: '/sales/invoices' },
       ]
     },
     {

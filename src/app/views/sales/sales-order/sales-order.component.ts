@@ -45,7 +45,7 @@ export class SalesOrderComponent implements OnInit {
       icon: ArrowRight,
       color: 'primary',
       // Only show if status is Approved
-      condition: (row) => row['status'] !== 'COMPLETED'
+      condition: (row) => row['status'] !== 'FULLY_INVOICED'
     }
   ];
 
