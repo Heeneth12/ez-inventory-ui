@@ -50,7 +50,7 @@ export class InvoiceAdapterComponent {
     onTabChange(newTabId: string) {
         // Simulate API network delay for better UX feel
         this.isLoading.set(true);
-        if (newTabId === 'salesOrder') {
+        if (newTabId === 'invoice') {
             this.router.navigate(['./'], { relativeTo: this.route });
         } else if (newTabId === 'create') {
             this.router.navigate(['create'], { relativeTo: this.route });
