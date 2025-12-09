@@ -1,57 +1,127 @@
-<div class="min-h-screen bg-slate-50 font-sans py-8">
-    <form [formGroup]="invoiceForm" (ngSubmit)="saveOrder()" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">New Sales Order</h1>
-                <p class="text-slate-500 mt-1">Create a new invoice and manage order details.</p>
-            </div>
-            <div class="mt-4 md:mt-0 flex items-center gap-3">
-                 <div class="text-sm font-medium px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100">
-                    Draft Status
-                 </div>
+<div class="min-h-screen bg-white pt-4">
+    <form [formGroup]="invoiceForm" (ngSubmit)="saveOrder()" class="mx-auto sm:px-6">
+
+        <div class="mb-4 bg-white p-6 rounded-lg  border border-slate-300">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+                <div class="space-y-1">
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        New Sales Order
+                    </h1>
+                    <p class="text-slate-500 text-sm">
+                        Create, review and manage your sales orders efficiently
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full border border-blue-100 text-sm font-semibold">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                        Draft
+                    </div>
+
+                    <button type="submit" [disabled]="isLoading"
+                        class="min-w-[200px] px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex justify-center items-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed">
+
+                        <span *ngIf="isLoading"
+                            class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+
+                        {{ isEditMode ? 'Update Order' : 'Create Sales Order' }}
+                    </button>
+
+                    <div class="flex gap-3">
+                        <!-- Preview -->
+                        <button type="button"
+                            class="px-4 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-sm flex items-center gap-2 transition-all">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                </path>
+                            </svg>
+                            Preview
+                        </button>
+                        <button type="button"
+                            class="px-4 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-sm flex items-center gap-2 transition-all">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
+                                </path>
+                            </svg>
+                            Save Draft
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
+
             <div class="lg:col-span-8 space-y-6">
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-white rounded-lg border border-slate-300 overflow-visible relative">
                     <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                         <h2 class="font-semibold text-slate-800 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
                             Customer Information
                         </h2>
                     </div>
 
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                        
+
                         <div>
                             <div *ngIf="selectedCustomer" class="relative group">
                                 <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-md shrink-0">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-md shrink-0">
                                         {{ selectedCustomer.name.substring(0,2).toUpperCase() }}
                                     </div>
                                     <div class="flex-1">
                                         <h4 class="font-bold text-slate-900 text-lg">{{ selectedCustomer.name }}</h4>
                                         <div class="mt-1 space-y-1 text-sm text-slate-500">
                                             <p class="flex items-center gap-2" *ngIf="selectedCustomer.phone">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
+                                                    </path>
+                                                </svg>
                                                 {{ selectedCustomer.phone }}
                                             </p>
                                             <p class="flex items-center gap-2" *ngIf="selectedCustomer.email">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                                    </path>
+                                                </svg>
                                                 {{ selectedCustomer.email }}
                                             </p>
                                             <p class="flex items-start gap-2 pt-1" *ngIf="getFormattedAddress()">
-                                                <svg class="w-3.5 h-3.5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                                <svg class="w-3.5 h-3.5 mt-0.5 shrink-0" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                                    </path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                </svg>
                                                 {{ getFormattedAddress() }}
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-                                <button type="button" (click)="clearCustomer()" class="absolute top-0 right-0 text-xs text-slate-400 hover:text-red-600 font-medium underline">
+                                <button type="button" (click)="clearCustomer()"
+                                    class="absolute top-0 right-0 text-xs text-slate-400 hover:text-red-600 font-medium underline">
                                     Change
                                 </button>
                             </div>
@@ -60,25 +130,31 @@
                                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Search Customer</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                        <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
                                     </div>
-                                    <input type="text" 
-                                           [(ngModel)]="customerSearchInput" 
-                                           [ngModelOptions]="{standalone: true}"
-                                           (keyup)="filterCustomers()"
-                                           placeholder="Name, Phone or Email..."
-                                           class="w-full bg-white border border-slate-300 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-sm transition-all">
+                                    <input type="text" [(ngModel)]="customerSearchInput"
+                                        [ngModelOptions]="{standalone: true}" (keyup)="filterCustomers()"
+                                        placeholder="Name, Phone or Email..."
+                                        class="w-full bg-white border border-slate-300 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-sm transition-all">
                                 </div>
 
-                                <div *ngIf="showCustomerResults && filteredCustomers.length > 0" class="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-xl border border-slate-100 max-h-60 overflow-y-auto ring-1 ring-black ring-opacity-5">
+                                <div *ngIf="showCustomerResults && filteredCustomers.length > 0"
+                                    class="absolute left-0 right-0 z-50 mt-1 w-full bg-white rounded-lg shadow-2xl border border-slate-100 max-h-60 overflow-y-auto ring-1 ring-black ring-opacity-5">
                                     <ul class="py-1">
                                         <li *ngFor="let cust of filteredCustomers" (click)="selectCustomer(cust)"
                                             class="px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-center justify-between group">
                                             <div>
-                                                <div class="font-medium text-slate-900 text-sm group-hover:text-blue-700">{{ cust.name }}</div>
+                                                <div
+                                                    class="font-medium text-slate-900 text-sm group-hover:text-blue-700">
+                                                    {{ cust.name }}</div>
                                                 <div class="text-xs text-slate-500">{{ cust.phone }}</div>
                                             </div>
-                                            <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">
                                                 {{ cust.name.charAt(0) }}
                                             </div>
                                         </li>
@@ -88,14 +164,19 @@
                         </div>
 
                         <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                             <div class="flex items-start gap-3">
+                            <div class="flex items-start gap-3">
                                 <div class="p-2 bg-white rounded-lg shadow-sm text-slate-600 border border-slate-100">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                        </path>
+                                    </svg>
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-bold text-slate-900">Shipping From</h4>
                                     <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                                        Select a warehouse to see the shipping address. Stock will be deducted from this location.
+                                        Select a warehouse to see the shipping address. Stock will be deducted from this
+                                        location.
                                     </p>
                                 </div>
                             </div>
@@ -103,54 +184,74 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col min-h-[500px]">
+                <div class="bg-white rounded-lg  border border-slate-300 flex flex-col min-h-[500px]">
                     <div class="p-6 border-b border-slate-100 bg-slate-50/50">
                         <h2 class="font-semibold text-slate-800 flex items-center gap-2">
-                             <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
                             Order Items
                         </h2>
                     </div>
 
                     <div class="p-6 flex-1">
-                        
+
                         <div class="flex flex-col md:flex-row gap-3 mb-6 relative z-20">
                             <div class="flex-1 relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
                                 </div>
                                 <input type="text" [value]="itemSearchQuery" (keyup)="onItemSearchInput($event)"
-                                   class="block w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-sm transition-all"
-                                   placeholder="Search products by name or SKU...">
-                            </div>
-                            
-                            <div class="relative md:w-48">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-                                </div>
-                                <input type="text" [value]="itemSearchQuery" (keyup)="onItemSearchInput($event)"
-                                   class="block w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-sm transition-all"
-                                   placeholder="Scan Barcode">
+                                    class="block w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-sm transition-all"
+                                    placeholder="Search products by name or SKU...">
                             </div>
 
-                             <div *ngIf="showItemResults" class="absolute top-full left-0 mt-1 w-full md:w-3/4 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden max-h-80 overflow-y-auto ring-1 ring-black ring-opacity-5 z-50">
+                            <div class="relative md:w-48">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <input type="text" [value]="itemSearchQuery" (keyup)="onItemSearchInput($event)"
+                                    class="block w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-sm transition-all"
+                                    placeholder="Scan Barcode">
+                            </div>
+
+                            <div *ngIf="showItemResults"
+                                class="absolute top-full left-0 mt-1 w-full md:w-3/4 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden max-h-80 overflow-y-auto ring-1 ring-black ring-opacity-5 z-50">
                                 <div *ngFor="let item of itemSearchResults" (click)="selectItemFromSearch(item)"
-                                     class="flex items-center gap-4 px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors group">
-                                    <div class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
-                                        <img [src]="item.imageUrl || 'assets/placeholder.png'" class="w-full h-full object-cover">
+                                    class="flex items-center gap-4 px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors group">
+                                    <div
+                                        class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
+                                        <img [src]="item.imageUrl || 'assets/placeholder.png'"
+                                            class="w-full h-full object-cover">
                                     </div>
                                     <div class="flex-1">
-                                        <h4 class="text-sm font-semibold text-slate-900 group-hover:text-blue-700">{{ item.name }}</h4>
+                                        <h4 class="text-sm font-semibold text-slate-900 group-hover:text-blue-700">{{
+                                            item.name }}</h4>
                                         <p class="text-xs text-slate-500">SKU: {{ item.sku }}</p>
                                     </div>
                                     <div class="text-right">
-                                        <div class="font-bold text-slate-900">{{ item.sellingPrice | currency:'INR' }}</div>
-                                        <div class="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full inline-block mt-1">In Stock</div>
+                                        <div class="font-bold text-slate-900">{{ item.sellingPrice | currency:'INR' }}
+                                        </div>
+                                        <div
+                                            class="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full inline-block mt-1">
+                                            In Stock</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="hidden md:grid grid-cols-12 gap-4 pb-3 px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50 rounded-lg mb-2 items-center">
+                        <div
+                            class="hidden md:grid grid-cols-12 gap-4 pb-3 px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50 rounded-lg mb-2 items-center">
                             <div class="col-span-5 pl-2 py-2">Product</div>
                             <div class="col-span-2 text-right py-2">Price</div>
                             <div class="col-span-2 text-center py-2">Qty</div>
@@ -158,22 +259,30 @@
                             <div class="col-span-1 py-2"></div>
                         </div>
 
-                        <div *ngIf="items.controls.length === 0" class="flex flex-col items-center justify-center h-48 text-slate-400 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl">
-                            <svg class="w-12 h-12 mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        <div *ngIf="items.controls.length === 0"
+                            class="flex flex-col items-center justify-center h-48 text-slate-400 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl">
+                            <svg class="w-12 h-12 mb-3 opacity-20" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
                             <p class="text-sm font-medium">Your cart is currently empty</p>
                             <p class="text-xs mt-1">Search for items above to begin</p>
                         </div>
 
                         <div class="space-y-1" formArrayName="items">
-                            <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" 
+                            <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
                                 class="grid grid-cols-1 md:grid-cols-12 gap-4 p-2 rounded-xl border border-transparent hover:border-slate-100 hover:bg-slate-50 hover:shadow-sm transition-all items-center group">
-                                
+
                                 <div class="col-span-5 flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-white border border-slate-200 rounded-lg p-0.5 shrink-0 shadow-sm">
-                                        <img [src]="item.get('imageUrl')?.value" class="w-full h-full object-cover rounded-md">
+                                    <div
+                                        class="w-12 h-12 bg-white border border-slate-200 rounded-lg p-0.5 shrink-0 shadow-sm">
+                                        <img [src]="item.get('imageUrl')?.value"
+                                            class="w-full h-full object-cover rounded-md">
                                     </div>
                                     <div class="min-w-0 flex-1">
-                                        <p class="text-sm font-semibold text-slate-900 truncate">{{ item.get('name')?.value }}</p>
+                                        <p class="text-sm font-semibold text-slate-900 truncate">{{
+                                            item.get('name')?.value }}</p>
                                         <div class="flex items-center gap-2 mt-1">
                                             <span class="text-xs text-slate-400">Disc:</span>
                                             <input type="number" formControlName="discount" placeholder="0"
@@ -184,26 +293,36 @@
 
                                 <div class="col-span-2 md:text-right flex justify-between md:block">
                                     <label class="md:hidden text-xs text-slate-400">Price</label>
-                                    <input type="number" formControlName="unitPrice" 
-                                           class="w-24 md:w-full text-right bg-transparent border-0 p-0 text-sm font-medium text-slate-600 focus:ring-0 cursor-text">
+                                    <input type="number" formControlName="unitPrice"
+                                        class="w-24 md:w-full text-right bg-transparent border-0 p-0 text-sm font-medium text-slate-600 focus:ring-0 cursor-text">
                                 </div>
 
                                 <div class="col-span-2 flex justify-end md:justify-center">
-                                    <div class="flex items-center bg-white border border-slate-300 rounded-lg h-8 shadow-sm">
-                                        <button type="button" (click)="adjustQuantity(i, -1)" class="w-8 h-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 rounded-l-lg transition-colors">-</button>
-                                        <input type="number" formControlName="orderedQty" class="w-10 text-center text-sm font-bold text-slate-900 border-x border-slate-100 focus:ring-0 border-none p-0 h-full">
-                                        <button type="button" (click)="adjustQuantity(i, 1)" class="w-8 h-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 rounded-r-lg transition-colors">+</button>
+                                    <div
+                                        class="flex items-center bg-white border border-slate-300 rounded-lg h-8 shadow-sm">
+                                        <button type="button" (click)="adjustQuantity(i, -1)"
+                                            class="w-8 h-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 rounded-l-lg transition-colors">-</button>
+                                        <input type="number" formControlName="orderedQty"
+                                            class="w-10 text-center text-sm font-bold text-slate-900 border-x border-slate-100 focus:ring-0 border-none p-0 h-full">
+                                        <button type="button" (click)="adjustQuantity(i, 1)"
+                                            class="w-8 h-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 rounded-r-lg transition-colors">+</button>
                                     </div>
                                 </div>
 
                                 <div class="col-span-2 text-right flex justify-between md:block">
                                     <label class="md:hidden text-xs text-slate-400">Total</label>
-                                    <span class="text-sm font-bold text-slate-900">{{ getRowTotal(i) | currency:'INR' }}</span>
+                                    <span class="text-sm font-bold text-slate-900">{{ getRowTotal(i) | currency:'INR'
+                                        }}</span>
                                 </div>
 
                                 <div class="col-span-1 text-right">
-                                    <button type="button" (click)="removeItem(i)" class="text-slate-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50 opacity-0 group-hover:opacity-100">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <button type="button" (click)="removeItem(i)"
+                                        class="text-red-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50 opacity-0 group-hover:opacity-100">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
+                                        </svg>
                                     </button>
                                 </div>
                             </div>
@@ -220,23 +339,26 @@
                                 <span>Item Discounts</span>
                                 <span class="text-red-500">- {{ totalItemDiscounts | currency:'INR' }}</span>
                             </div>
-                            
+
                             <div class="flex justify-between items-center text-sm text-slate-600">
                                 <span>Global Discount</span>
                                 <div class="w-24 relative">
-                                    <input type="number" formControlName="discount" class="w-full text-right bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-shadow">
+                                    <input type="number" formControlName="discount"
+                                        class="w-full text-right bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-shadow">
                                 </div>
                             </div>
                             <div class="flex justify-between items-center text-sm text-slate-600">
                                 <span>Tax Rate (%)</span>
                                 <div class="w-24 relative">
-                                    <input type="number" formControlName="taxPercentage" class="w-full text-right bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-shadow">
+                                    <input type="number" formControlName="taxPercentage"
+                                        class="w-full text-right bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-shadow">
                                 </div>
                             </div>
 
                             <div class="flex justify-between items-center pt-4 border-t border-slate-200 mt-2">
                                 <span class="text-base font-bold text-slate-900">Grand Total</span>
-                                <span class="text-2xl font-extrabold text-slate-900">{{ grandTotal | currency:'INR' }}</span>
+                                <span class="text-2xl font-extrabold text-slate-900">{{ grandTotal | currency:'INR'
+                                    }}</span>
                             </div>
                         </div>
                     </div>
@@ -244,49 +366,73 @@
             </div>
 
             <div class="lg:col-span-4 space-y-6">
-                
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wide mb-4">Actions</h3>
-                    <div class="space-y-3">
-                        <button type="submit" [disabled]="isLoading"
-                                class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5">
-                            <span *ngIf="isLoading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                            {{ isEditMode ? 'Update Order' : 'Create Sales Order' }}
-                        </button>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <button type="button" class="py-2.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                Preview
-                            </button>
-                            <button type="button" class="py-2.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                                Save Draft
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wide mb-4">Order Details</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Order Date</label>
-                            <input type="date" formControlName="orderDate"
-                                class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-slate-900 focus:border-slate-900">
-                        </div>
-                         </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <div class="bg-white rounded-xl border-2 border-dashed border-gray-200 p-5">
                     <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wide mb-4">Notes</h3>
                     <div class="relative">
-                        <textarea formControlName="remarks" 
-                            class="w-full bg-yellow-50/50 border border-yellow-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 resize-none h-40 placeholder-slate-400/70" 
+                        <textarea formControlName="remarks"
+                            class="w-full bg-yellow-50/50 border border-yellow-200 rounded-xl px-4 py-2 text-sm text-slate-700 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 resize-none h-34"
                             placeholder="Add delivery instructions or internal notes here..."></textarea>
-                         <svg class="w-4 h-4 absolute bottom-3 right-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        <svg class="w-4 h-4 absolute bottom-3 right-3 text-yellow-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                            </path>
+                        </svg>
                     </div>
                 </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+  <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wide mb-5">
+    Actions
+  </h3>
+
+  <div class="space-y-3">
+
+    <!-- ✅ Primary Action -->
+    <button type="button"
+      class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12l2 2l4-4M12 2a10 10 0 100 20 10 10 0 000-20z"></path>
+      </svg>
+      Create Invoice
+    </button>
+
+    <!-- ✅ Secondary Action -->
+    <button type="button"
+      class="w-full py-3 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 17l6-6 4 4 8-8"></path>
+      </svg>
+      Move to Delivery
+    </button>
+
+    <!-- ✅ Preview -->
+    <button type="button"
+      class="w-full py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+      </svg>
+      Preview Bill
+    </button>
+
+    <!-- ⚠️ Destructive Action -->
+    <button type="button"
+      class="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      Cancel Order
+    </button>
+
+  </div>
+</div>
 
             </div>
         </div>

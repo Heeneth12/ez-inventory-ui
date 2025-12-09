@@ -10,6 +10,8 @@ import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
+import { InvoiceService } from '../invoice.service';
+import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 
 @Component({
   selector: 'app-invoice-form',
@@ -52,9 +54,11 @@ export class InvoiceFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private invoiceService: InvoiceService,
     private salesOrderService: SalesOrderService,
     private contactService: ContactService,
     private itemService: ItemService,
+    private loaderSvc: LoaderService,
     private toast: ToastService,
     private router: Router,
     private route: ActivatedRoute
@@ -79,19 +83,20 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   private checkEditMode() {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-
-      if (id) {
+    this.route.queryParamMap.subscribe(params => {
+      const salesOrderId = params.get('salesOrderId');
+      console.log('Query Params:', params.keys, params, salesOrderId);
+      if (salesOrderId) {
+        console.log('Edit mode for Sales Order ID:', salesOrderId);
         this.isEditMode = true;
-        this.orderId = +id;
+        this.orderId = +salesOrderId;
         this.loadOrderDetails(this.orderId);
       }
     });
   }
 
   private loadOrderDetails(id: number) {
-    this.isLoading = true;
+    this.loaderSvc.show();
     this.salesOrderService.getSalesOrderById(id,
       (response: any) => {
         const order = response.data;
@@ -126,9 +131,11 @@ export class InvoiceFormComponent implements OnInit {
           }));
         });
 
-        this.isLoading = false;
+        this.loaderSvc.hide();
       },
       (err: any) => {
+        console.error(err);
+        this.loaderSvc.hide();
         this.toast.show('Failed to load order details', 'error');
         this.isLoading = false;
       }
@@ -160,7 +167,7 @@ export class InvoiceFormComponent implements OnInit {
 
 
   // NEW: Autofill Logic
-  applySalesOrder(order: any) {
+  applySalesOrder(order: SalesOrderModal) {
     if (!confirm(`Autofill invoice from Order #${order.id}? This will replace current items.`)) return;
 
     // 1. Patch Header Details
@@ -170,7 +177,7 @@ export class InvoiceFormComponent implements OnInit {
       remarks: order.remarks,
       discountAmount: order.totalDiscount || 0,
       // Calculate tax % approximately
-      taxPercentage: order.subTotal > 0 ? ((order.totalTax / order.subTotal) * 100) : 0
+      taxPercentage: order.subTotal > 0 ? ((order.tax / order.subTotal) * 100) : 0
     });
 
     // 2. Patch Items
@@ -181,6 +188,7 @@ export class InvoiceFormComponent implements OnInit {
       order.items.forEach((item: any) => {
         // Map SO Item ItemModel for form
         itemArray.push(this.createItemControl({
+          soItemId: item.id,
           id: item.itemId, // Note: SO item usually has itemId inside
           name: item.itemName || item.name,
           imageUrl: item.imageUrl,
@@ -278,7 +286,7 @@ export class InvoiceFormComponent implements OnInit {
 
   private createItemControl(data: any): FormGroup {
     return this.fb.group({
-      soItemId: [null],
+      soItemId: [data.soItemId],
       itemId: [data.id],
       name: [data.name],
       imageUrl: [data.imageUrl || 'assets/placeholder.png'],
@@ -350,13 +358,38 @@ export class InvoiceFormComponent implements OnInit {
       this.toast.show('Please fill required fields', 'warning');
       return;
     }
-
     const formVal = this.invoiceForm.getRawValue();
     const taxPerItem = this.calculatedTax / formVal.items.length; // Simple distribution for DTO
-
     // Map to Backend DTO
-
+    const requestPayload = {
+      salesOrderId: formVal.salesOrderId,
+      customerId: formVal.customerId,
+      invoiceDate: formVal.invoiceDate,
+      remarks: formVal.remarks,
+      discountAmount: formVal.discountAmount,
+      taxPercentage: formVal.taxPercentage,
+      items: formVal.items.map((item: any) => ({
+        soItemId: item.soItemId,
+        itemId: item.itemId,
+        quantity: item.orderedQty,
+        unitPrice: item.unitPrice,
+        discount: item.discount,
+        batchNumber: item.batchNumber
+      }))
+    };
+    this.isLoading = true;
+    this.loaderSvc.show();
+    this.invoiceService.createInvoice(requestPayload,
+      (res: any) => {
+        this.toast.show('Invoice created successfully', 'success');
+        this.loaderSvc.hide();
+        this.router.navigate(['/sales/invoices', res.data.id]);
+      }
+      , (err: any) => {
+        console.error(err);
+        this.toast.show('Failed to create invoice', 'error');
+        this.loaderSvc.hide();
+      }
+    );
   }
-
 }
-

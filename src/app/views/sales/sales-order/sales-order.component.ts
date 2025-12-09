@@ -112,7 +112,10 @@ export class SalesOrderComponent implements OnInit {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'move_to_invoice') {
-      console.log('Moving PO to Invoice:', event.row);
+      console.log('Moving PO to Invoice:', event.row.id);
+      this.router.navigate(['/sales/invoice/create'], {
+        queryParams: { salesOrderId: event.row.id }
+      });
     }
     if (event.type === 'edit') {
       // Standard edit logic
