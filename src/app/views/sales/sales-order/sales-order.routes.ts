@@ -12,7 +12,7 @@ export const SalesOrderRoutes: Routes = [
             { path: '', component: SalesOrderComponent },
             { path: 'create', component: SalesOrderFormComponent },
             { path: 'edit/:id', component: SalesOrderFormComponent },
-            { path: '', redirectTo: 'employee', pathMatch: 'full' },
+            { path: '', redirectTo: '', pathMatch: 'full' },
         ]
     }
 ];

@@ -1,0 +1,170 @@
+<div class="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
+  
+  <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 border border-gray-100">
+    <div class="flex flex-col md:flex-row justify-between items-center w-full relative">
+      
+      <div *ngFor="let step of steps; let i = index; let isLast = last" 
+           class="flex-1 flex items-center w-full md:w-auto relative z-10 group">
+        
+        <div class="flex items-center w-full">
+          <div class="flex items-center gap-3 px-4 py-2 rounded-full transition-all duration-500"
+               [ngClass]="{
+                 'bg-yellow-100 text-yellow-700 ring-2 ring-yellow-400': step.status === 'processing',
+                 'bg-green-500 text-white': step.status === 'completed',
+                 'bg-gray-100 text-gray-400': step.status === 'pending'
+               }">
+            
+            <div class="w-6 h-6 flex items-center justify-center">
+               <svg *ngIf="step.status === 'completed'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+               <svg *ngIf="step.status === 'processing'" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+               <svg *ngIf="step.status === 'pending'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            
+            <span class="font-semibold text-sm whitespace-nowrap">{{ step.label }}</span>
+          </div>
+
+          <div *ngIf="!isLast" class="flex-1 h-1 mx-2 rounded bg-gray-100 overflow-hidden relative">
+            <div class="h-full bg-green-500 transition-all duration-1000 ease-in-out"
+                 [style.width]="step.status === 'completed' ? '100%' : '0%'">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-600">
+        <span>Order #75643290</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <div class="lg:col-span-4 space-y-6">
+      
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex justify-between items-start mb-4">
+          <h3 class="font-bold text-gray-800">Shipper Details</h3>
+          <button class="text-gray-400 hover:text-gray-600">...</button>
+        </div>
+        
+        <div class="space-y-4 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-500">Shipper Code</span>
+            <span class="font-bold text-gray-800">75643290</span>
+          </div>
+          <div class="flex justify-between items-center">
+             <div class="flex items-center gap-2">
+               <span class="text-gray-500">Carrier</span>
+             </div>
+             <div class="flex items-center gap-2">
+               <div class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">M</div>
+               <span class="font-bold text-gray-800">Mohmaad Aizan</span>
+             </div>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Contact</span>
+            <span class="font-bold text-gray-800">(702) 555-0122</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Email</span>
+            <span class="font-bold text-gray-800">dominicgmail.com</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex justify-between items-start mb-4">
+          <h3 class="font-bold text-gray-800">Stock Availability</h3>
+          <button class="text-gray-400 hover:text-gray-600">...</button>
+        </div>
+
+        <div class="bg-green-50 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm font-medium mb-6">
+          <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+          Estimated Delivery: 11 June 2024
+        </div>
+
+        <div class="flex justify-between mb-6 text-sm">
+          <div>
+            <p class="text-gray-500 font-medium mb-1">From</p>
+            <p class="text-gray-800">1901 Thornridge Cir.</p>
+            <p class="text-gray-400 text-xs">Shiloh, Hawaii 81063</p>
+          </div>
+          <div class="text-right">
+            <p class="text-gray-500 font-medium mb-1">To</p>
+            <p class="text-gray-800">6391 Elgin St. Celina</p>
+            <p class="text-gray-400 text-xs">Delaware 10299</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl mb-6">
+          <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+          </div>
+          <div>
+            <p class="font-bold text-gray-800">Freightliner Cascadia</p>
+            <p class="text-xs text-gray-500">Truck - 4FRG652</p>
+          </div>
+        </div>
+
+        <div class="relative pl-4 space-y-6">
+          <div class="absolute left-[21px] top-2 bottom-2 w-0.5 bg-gray-200"></div>
+
+          <div *ngFor="let event of timelineEvents; let isLast=last" class="relative flex gap-4">
+             <div class="relative z-10 w-3 h-3 mt-1.5 rounded-full border-2 bg-white transition-colors duration-300"
+                  [ngClass]="{
+                    'border-green-500 bg-green-500 ring-4 ring-green-100': event.isCurrent,
+                    'border-green-500 bg-green-500': event.isCompleted,
+                  }">
+             </div>
+
+             <div class="flex-1">
+               <div class="flex justify-between items-start">
+                 <h4 class="text-sm font-bold text-gray-800" [class.text-green-600]="event.isCurrent">{{ event.title }}</h4>
+                 <span class="text-xs font-bold text-gray-800">{{ event.date }}</span>
+               </div>
+               <div class="flex justify-between items-start mt-0.5">
+                <p class="text-xs text-gray-500 max-w-[180px]">{{ event.location }}</p>
+                <span class="text-xs text-gray-400">{{ event.time }}</span>
+               </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-8">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full flex flex-col relative overflow-hidden">
+         <div class="flex justify-between items-center mb-4 z-20">
+           <h3 class="font-bold text-gray-800">Map Over View</h3>
+           <div class="flex gap-2">
+             <button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50">+</button>
+             <button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50">-</button>
+           </div>
+         </div>
+
+         <div class="absolute inset-0 top-16 m-4 rounded-xl bg-gray-50 overflow-hidden map-pattern border border-gray-100">
+           <div class="absolute top-1/4 left-0 w-full h-4 bg-white border-y-2 border-dashed border-gray-200 transform -rotate-6"></div>
+           <div class="absolute top-0 right-1/4 h-full w-4 bg-white border-x-2 border-dashed border-gray-200 transform rotate-12"></div>
+           <div class="absolute bottom-1/4 left-1/4 w-1/2 h-32 border-2 border-gray-300 rounded-lg"></div>
+
+           <div class="absolute transition-all duration-[2000ms] ease-in-out z-30"
+                [style.top]="currentMapPos.top"
+                [style.left]="currentMapPos.left">
+             
+             <div class="relative">
+               <div class="absolute -inset-4 bg-red-500 opacity-20 rounded-full animate-ping"></div>
+               <svg class="w-10 h-10 text-red-500 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+               </svg>
+             </div>
+             
+             <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-md text-xs font-bold whitespace-nowrap">
+               Current Location
+             </div>
+           </div>
+         </div>
+      </div>
+    </div>
+
+  </div>
+</div>

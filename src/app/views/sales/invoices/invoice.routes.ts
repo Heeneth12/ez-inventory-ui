@@ -13,7 +13,6 @@ export const InvoiceRoutes: Routes = [
             { path: '', component: InvoicesComponent },
             { path: 'create', component: InvoiceFormComponent },
             { path: 'edit/:id', component: InvoiceFormComponent },
-            { path: '', redirectTo: 'employee', pathMatch: 'full' },
         ]
     }
 ];

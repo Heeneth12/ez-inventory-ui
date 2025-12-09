@@ -24,7 +24,12 @@ export class SalesOrderService {
     getAllSalesOrders(page: number, size: number, filter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
+
     getSalesOrderById(id: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/${id}`, successfn, errorfn);
+    }
+
+    searchSalesOrders(query: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/search`, query, successfn, errorfn);
     }
 }

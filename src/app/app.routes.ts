@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './layouts/guards/auth.guard';
+import { OrderTrackerComponent } from './layouts/components/order-tracker/order-tracker.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -92,6 +93,11 @@ export const routes: Routes = [
             .then(c => c.SettingsComponent),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_SETTINGS' }
+    },
+
+    {
+        path: 'test',
+        component: OrderTrackerComponent
     },
 
     // 11. USER MANAGEMENT (Admin)
