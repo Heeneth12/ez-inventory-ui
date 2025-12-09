@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, effect, ElementRef, HostListener } from '@angular/core';
-import { CommonModule, DecimalPipe, CurrencyPipe } from '@angular/common';
+import { CommonModule, DecimalPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig } from './standard-table.model';
 import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight } from 'lucide-angular';
@@ -7,7 +7,7 @@ import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon,
 @Component({
   selector: 'app-standard-table',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe],
   templateUrl: './standard-table.component.html',
   styleUrls: ['./standard-table.component.css'],
 })

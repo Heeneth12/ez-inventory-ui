@@ -167,6 +167,10 @@
                                 {{ row[col.key] | number:'1.0-2' }}
                             </span>
 
+                            <span *ngSwitchCase="'date'" class="text-gray-600 whitespace-nowrap">
+                                {{ row[col.key] | date : (col.dateFormat || 'dd-MMM-yyy') }}
+                            </span>
+
                             <div *ngSwitchCase="'action'"
                                 class="flex items-center justify-end gap-2 relative action-menu-container">
                                 <ng-container *ngFor="let act of customActions">

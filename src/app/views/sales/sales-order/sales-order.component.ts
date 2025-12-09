@@ -31,7 +31,7 @@ export class SalesOrderComponent implements OnInit {
     { key: 'orderNumber', label: 'Order No', width: '130px', type: 'link' },
     { key: 'customerId', label: 'Customer ID', width: '100px', type: 'text' },
     { key: 'customerName', label: 'Customer', width: '220px', type: 'text' },
-    { key: 'orderDate', label: 'Order Date', width: '130px', type: 'text', align: 'center' },
+    { key: 'orderDate', label: 'Order Date', width: '130px', type: 'date', align: 'center' },
     { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
     { key: 'totalDiscount', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
     { key: 'status', label: 'Status', width: '140px', type: 'badge' },
