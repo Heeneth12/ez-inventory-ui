@@ -83,6 +83,7 @@ export class InventoryLayoutComponent implements OnInit {
       subItems: [
         { label: 'Sales Order', link: '/sales/order' },
         { label: 'Invoices', link: '/sales/invoice' },
+        { label: 'Delivery', link: '/sales/delivery' },
       ]
     },
     {
