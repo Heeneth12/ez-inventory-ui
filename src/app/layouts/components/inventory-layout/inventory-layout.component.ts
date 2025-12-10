@@ -156,7 +156,11 @@ export class InventoryLayoutComponent implements OnInit {
   }
 
   toggleUserMenu() {
-    this.drawerService.open(this.userProfileTemplate, "User Profile");
+    this.drawerService.openTemplate(
+      this.userProfileTemplate,
+      'User Profile',
+      'sm'
+    );
   }
 
   toggleMenu() {

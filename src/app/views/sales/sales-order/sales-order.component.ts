@@ -11,6 +11,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
 import { ArrowRight, View } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
+import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -103,7 +104,11 @@ export class SalesOrderComponent implements OnInit {
 
   viewSalesOrderDetail(id: number | string) {
     this.getSalesOrderById(id);
-    this.drawerService.open(this.soDetails);
+    this.drawerService.openComponent(
+      OrderTrackerComponent,
+      'Order Details',
+      'xl',
+    );
   }
 
   updateSalesOrder(id: number | string) {
