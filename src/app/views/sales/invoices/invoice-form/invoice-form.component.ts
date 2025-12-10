@@ -12,15 +12,19 @@ import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
+import { LucideAngularModule, PenIcon } from "lucide-angular";
 
 @Component({
   selector: 'app-invoice-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './invoice-form.component.html',
   styleUrls: ['./invoice-form.component.css']
 })
 export class InvoiceFormComponent implements OnInit {
+
+  //icons
+  readonly PenIcon  = PenIcon;
 
 
   invoiceForm: FormGroup;
@@ -169,7 +173,6 @@ export class InvoiceFormComponent implements OnInit {
   // NEW: Autofill Logic
   applySalesOrder(order: SalesOrderModal) {
     if (!confirm(`Autofill invoice from Order #${order.id}? This will replace current items.`)) return;
-
     // 1. Patch Header Details
     this.invoiceForm.patchValue({
       salesOrderId: order.id,
@@ -187,6 +190,7 @@ export class InvoiceFormComponent implements OnInit {
     if (order.items) {
       order.items.forEach((item: any) => {
         // Map SO Item ItemModel for form
+        console.log('Adding item from SO to Invoice:', item);
         itemArray.push(this.createItemControl({
           soItemId: item.id,
           id: item.itemId, // Note: SO item usually has itemId inside
@@ -285,6 +289,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   private createItemControl(data: any): FormGroup {
+    console.log('Creating item control for:', data);
     return this.fb.group({
       soItemId: [data.soItemId],
       itemId: [data.id],
@@ -368,6 +373,11 @@ export class InvoiceFormComponent implements OnInit {
       remarks: formVal.remarks,
       discountAmount: formVal.discountAmount,
       taxPercentage: formVal.taxPercentage,
+
+      scheduledDate: new Date(), //tomorrow date
+      shippingAddress: "test address",
+      deliveryType: "OWN_FLEET",
+
       items: formVal.items.map((item: any) => ({
         soItemId: item.soItemId,
         itemId: item.itemId,
@@ -377,6 +387,7 @@ export class InvoiceFormComponent implements OnInit {
         batchNumber: item.batchNumber
       }))
     };
+    console.log('Prepared Invoice Payload:', formVal.items);
     this.isLoading = true;
     this.loaderSvc.show();
     this.invoiceService.createInvoice(requestPayload,
@@ -392,4 +403,13 @@ export class InvoiceFormComponent implements OnInit {
       }
     );
   }
+
+
+  isDeliveryScheduled = false;
+
+  // Dummy data container
+  deliveryData = {
+    date: new Date().toISOString().split('T')[0], // Today
+    person: 'John Doe'
+  };
 }
