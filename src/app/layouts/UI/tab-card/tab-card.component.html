@@ -7,7 +7,7 @@
             <div class="flex items-center gap-1 border-b border-gray-200 -mb-px">
                 @for (tab of tabs; track tab.id) {
                 <button (click)="selectTab(tab.id)"
-                    [ngClass]="activeTabId === tab.id ? 'text-emerald-600 font-bold' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+                    [ngClass]="activeTabId === tab.id ? 'text-emerald-600 font-bold  bg-emerald-100' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
                     class="relative px-5 py-3 text-md font-semibold transition-all duration-200 focus:outline-none">
                     <div class="flex items-center gap-2">
                         <lucide-icon [img]="tab.icon" class="w-4 h-4">
@@ -23,7 +23,7 @@
                     }
                     <!-- Active Bottom Border -->
                     @if (activeTabId === tab.id) {
-                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500"></div>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-400"></div>
                     }
                 </button>
                 }

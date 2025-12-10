@@ -18,7 +18,7 @@ export class AddItemsComponent implements OnInit {
   isEditMode = false;
   itemId: string | null = null;
   categories = ['Electronics', 'Furniture', 'Stationery', 'Raw Material'];
-  units = ['pcs', 'kg', 'ltr', 'box', 'm'];
+  units = ['KG', 'GM', 'ML', 'LTR', 'PCS', 'BOX'];
   constructor(
     private fb: FormBuilder,
     private itemService: ItemService,

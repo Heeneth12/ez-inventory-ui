@@ -9,7 +9,6 @@ import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '.
 import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
-import { ArrowRight } from 'lucide-angular';
 
 @Component({
   selector: 'app-items',
@@ -34,8 +33,10 @@ export class ItemsComponent implements OnInit {
     { key: 'sku', label: 'SKU', width: '110px', type: 'text' },
     { key: 'itemType', label: 'Type', width: '100px', type: 'badge' },
     { key: 'unitOfMeasure', label: 'Unit', width: '90px', type: 'text' },
-    { key: 'sellingPrice', label: 'Price', align: 'right', width: '110px', type: 'currency' },
-    { key: 'hsnSacCode', label: 'HSN/SAC', width: '110px', type: 'text' },
+    { key: 'mrp', label: 'MRP', align: 'right', width: '110px', type: 'currency' },
+    { key: 'purchasePrice', label: 'PP', align: 'right', width: '130px', type: 'currency' },
+    { key: 'sellingPrice', label: 'SP', align: 'right', width: '110px', type: 'currency' },
+    { key: 'hsnSacCode', label: 'HSN/SAC',align:"center",  width: '110px', type: 'text' },
     { key: 'isActive', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
