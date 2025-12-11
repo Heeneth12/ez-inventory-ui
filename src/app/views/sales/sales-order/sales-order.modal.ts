@@ -12,6 +12,7 @@ export class SalesOrderModal {
     subTotal!: number;
     grandTotal!: number;
     totalDiscount!: number;
+    totalTax!: number;
     active!: boolean;
     status!: string;
     items!: SalesOrderItemsModal[];
