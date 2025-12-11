@@ -24,8 +24,9 @@ import { LucideAngularModule, PenIcon } from "lucide-angular";
 export class InvoiceFormComponent implements OnInit {
 
   //icons
-  readonly PenIcon  = PenIcon;
+  readonly PenIcon = PenIcon;
 
+  isDeliveryScheduled = false;
 
   invoiceForm: FormGroup;
   isEditMode = false;
@@ -116,9 +117,26 @@ export class InvoiceFormComponent implements OnInit {
           taxPercentage: order.subTotal > 0 ? ((order.totalTax / order.subTotal) * 100) : 0
         });
         // 2. Set Customer Display
-        const customer = this.allCustomers.find(c => c.id === order.customerId);
-        if (customer) this.selectCustomer(customer);
-        else this.selectedCustomer = { id: order.customerId, name: order.customerName } as ContactModel; // Fallback
+        // Instead of directly setting selectedCustomer
+        const trySetCustomer = () => {
+          const customer = this.allCustomers.find(c => c.id === order.customerId);
+          if (customer) {
+            this.selectCustomer(customer); // ✅ triggers pending order logic
+          } else {
+            this.selectedCustomer = { id: order.customerId, name: order.customerName } as ContactModel;
+          }
+        };
+
+        if (this.allCustomers.length) {
+          trySetCustomer();
+        } else {
+          const interval = setInterval(() => {
+            if (this.allCustomers.length) {
+              trySetCustomer();
+              clearInterval(interval);
+            }
+          }, 200);
+        }
 
         // 3. Patch Items
         const itemArray = this.invoiceForm.get('items') as FormArray;
@@ -221,6 +239,11 @@ export class InvoiceFormComponent implements OnInit {
         if (this.pendingOrders.length > 0) {
           this.toast.show(`Found ${this.pendingOrders.length} pending orders`, 'success');
         }
+
+        if (this.pendingOrders.length > 1) {
+          this.applySalesOrder(this.pendingOrders[0]);
+        }
+
         if (this.pendingOrders.length === 1) {
           this.applySalesOrder(this.pendingOrders[0]);
         }
@@ -403,9 +426,6 @@ export class InvoiceFormComponent implements OnInit {
       }
     );
   }
-
-
-  isDeliveryScheduled = false;
 
   // Dummy data container
   deliveryData = {

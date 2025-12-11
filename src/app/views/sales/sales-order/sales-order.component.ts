@@ -34,7 +34,9 @@ export class SalesOrderComponent implements OnInit {
     { key: 'customerName', label: 'Customer', width: '220px', type: 'text' },
     { key: 'orderDate', label: 'Order Date', width: '130px', type: 'date', align: 'center' },
     { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
-    { key: 'totalDiscount', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
+    { key: 'totalTax', label: 'Tax', width: '120px', type: 'currency', align: 'right' },
+    { key: 'totalDiscount', label: "Dis", width: '120px', type: 'currency', align: 'right' },
+    { key: 'totalDiscountPer', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
     { key: 'status', label: 'Status', width: '140px', type: 'badge' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
   ];
