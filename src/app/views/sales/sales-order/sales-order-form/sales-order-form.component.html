@@ -147,9 +147,9 @@
 
                         <!-- Table Headers -->
                         <div class="hidden md:grid grid-cols-12 gap-4 pb-3 border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            <div class="col-span-5">Product Details</div>
+                            <div class="col-span-4">Product Details</div> 
                             <div class="col-span-2 text-right">Price</div>
-                            <div class="col-span-2 text-center">Qty</div>
+                            <div class="col-span-1 text-right">Tax</div> <div class="col-span-2 text-center">Qty</div>
                             <div class="col-span-2 text-right">Total</div>
                             <div class="col-span-1"></div>
                         </div>
@@ -163,10 +163,9 @@
                             </div>
 
                             <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" 
-                                 class="grid grid-cols-1 md:grid-cols-12 gap-4 py-4 border-b border-gray-50 items-center hover:bg-gray-50/50 transition-colors group">
-                                
-                                <!-- Item Info -->
-                                <div class="col-span-5 flex items-center gap-3">
+                                class="grid grid-cols-1 md:grid-cols-12 gap-4 py-4 border-b border-gray-50 items-center hover:bg-gray-50/50 transition-colors group">
+
+                                <div class="col-span-4 flex items-center gap-3">
                                     <div class="w-10 h-10 bg-white border border-gray-100 rounded-lg p-0.5 shrink-0">
                                         <img [src]="item.get('imageUrl')?.value" class="w-full h-full object-cover rounded">
                                     </div>
@@ -175,19 +174,23 @@
                                         <div class="flex items-center gap-2 mt-0.5">
                                             <span class="text-xs text-gray-400">Disc:</span>
                                             <input type="number" formControlName="discount" placeholder="0"
-                                                   class="w-16 bg-transparent border-b border-gray-200 text-xs py-0 focus:border-blue-500 focus:ring-0 px-0">
+                                                class="w-16 bg-transparent border-b border-gray-200 text-xs py-0 focus:border-blue-500 focus:ring-0 px-0">
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Price -->
                                 <div class="col-span-2 md:text-right">
                                     <label class="md:hidden text-xs text-gray-400 block mb-1">Price</label>
                                     <input type="number" formControlName="unitPrice" 
-                                           class="w-full md:text-right bg-transparent border-0 p-0 text-sm font-medium text-gray-600 focus:ring-0">
+                                        class="w-full md:text-right bg-transparent border-0 p-0 text-sm font-medium text-gray-600 focus:ring-0">
                                 </div>
 
-                                <!-- Qty -->
+                                <div class="col-span-1 md:text-right">
+                                    <label class="md:hidden text-xs text-gray-400 block mb-1">Tax</label>
+                                    <input type="number" formControlName="tax" placeholder="0"
+                                        class="w-full md:text-right bg-transparent border-b border-gray-200 p-0 text-sm text-gray-500 focus:ring-0 focus:border-blue-500">
+                                </div>
+
                                 <div class="col-span-2 flex justify-start md:justify-center">
                                     <div class="flex items-center bg-white border border-gray-200 rounded-lg h-8 shadow-sm">
                                         <button type="button" (click)="adjustQuantity(i, -1)" class="w-8 h-full flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-gray-50 rounded-l-lg transition-colors">-</button>
@@ -196,13 +199,11 @@
                                     </div>
                                 </div>
 
-                                <!-- Total -->
                                 <div class="col-span-2 text-right">
                                     <label class="md:hidden text-xs text-gray-400 block mb-1">Total</label>
                                     <span class="text-sm font-bold text-gray-900">{{ getRowTotal(i) | currency:'INR' }}</span>
                                 </div>
 
-                                <!-- Remove -->
                                 <div class="col-span-1 text-right">
                                     <button type="button" (click)="removeItem(i)" class="text-gray-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -214,26 +215,40 @@
                         <!-- Summary Section -->
                         <div class="mt-8 border-t border-gray-100 pt-6">
                             <div class="flex flex-col gap-3 w-full md:w-1/2 ml-auto">
+                                
                                 <div class="flex justify-between text-sm text-gray-500">
                                     <span>Subtotal</span>
                                     <span>{{ subtotal | currency:'INR' }}</span>
                                 </div>
+
                                 <div class="flex justify-between text-sm text-gray-500">
-                                    <span>Item Discounts</span>
+                                    <span>Total Item Discounts</span>
                                     <span class="text-red-500">- {{ totalItemDiscounts | currency:'INR' }}</span>
                                 </div>
+                                
+                                <div class="flex justify-between text-sm text-gray-500">
+                                    <span>Total Item Tax</span>
+                                    <span>+ {{ totalItemTaxes | currency:'INR' }}</span>
+                                </div>
+
+                                <div class="h-px bg-gray-100 my-1"></div>
+
                                 <div class="flex justify-between items-center text-sm text-gray-500">
-                                    <span>Global Discount</span>
+                                    <span>Extra Order Discount</span>
                                     <div class="w-24">
-                                        <input type="number" formControlName="discount" class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500">
+                                        <input type="number" formControlName="totalDiscount" 
+                                            class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                 </div>
+
                                 <div class="flex justify-between items-center text-sm text-gray-500">
-                                    <span>Tax Rate (%)</span>
+                                    <span>Shipping / Extra Tax</span>
                                     <div class="w-24">
-                                        <input type="number" formControlName="taxPercentage" class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500">
+                                        <input type="number" formControlName="totalTax" 
+                                            class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                 </div>
+
                                 <div class="flex justify-between items-center pt-4 border-t border-gray-100">
                                     <span class="text-base font-bold text-gray-900">Grand Total</span>
                                     <span class="text-xl font-bold text-gray-900">{{ grandTotal | currency:'INR' }}</span>

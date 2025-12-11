@@ -61,8 +61,8 @@ export class SalesOrderFormComponent implements OnInit {
       remarks: [''],
       items: this.fb.array([], Validators.required),
       // Financials (Global)
-      discount: [0], // Global Discount Amount
-      taxPercentage: [0] // Global Tax % to apply to rows
+      totalDiscount: [0], // Global Discount Amount
+      totalTax: [0] // Global Tax % to apply
     });
   }
 
@@ -97,9 +97,8 @@ export class SalesOrderFormComponent implements OnInit {
           warehouseId: order.warehouseId,
           orderDate: order.orderDate,
           remarks: order.remarks,
-          discount: order.totalDiscount,
-          // Calculate tax % based on total for display, or default to 0
-          taxPercentage: order.subTotal > 0 ? ((order.totalTax / order.subTotal) * 100) : 0
+          totalDiscount: order.totalDiscount, // Map Flat Discount
+          totalTax: order.totalTax          // Map Flat Tax
         });
         // 2. Set Customer Display
         const customer = this.allCustomers.find(c => c.id === order.customerId);
@@ -117,7 +116,8 @@ export class SalesOrderFormComponent implements OnInit {
             sellingPrice: item.unitPrice,
             // Map existing line data
             orderedQty: item.orderedQty,
-            discount: item.discount
+            discount: item.discount,
+            tax: item.tax
           }));
         });
 
@@ -176,6 +176,29 @@ export class SalesOrderFormComponent implements OnInit {
     }, 0);
   }
 
+  get totalItemTaxes(): number {
+    return this.items.controls.reduce((sum, ctrl) => {
+      return sum + (ctrl.get('tax')?.value || 0);
+    }, 0);
+  }
+
+  get headerDiscount(): number {
+    return this.orderForm.get('totalDiscount')?.value || 0;
+  }
+
+  get headerTax(): number {
+    return this.orderForm.get('totalTax')?.value || 0;
+  }
+
+  // CHANGE 4: Updated Grand Total Formula
+  // (Price * Qty) - (Item Disc) + (Item Tax) - (Header Disc) + (Header Tax)
+  get grandTotal(): number {
+    const itemsNet = this.subtotal - this.totalItemDiscounts + this.totalItemTaxes;
+    const headerAdjustments = this.headerTax - this.headerDiscount;
+
+    return Math.max(0, itemsNet + headerAdjustments);
+  }
+
   get globalDiscount(): number {
     return this.orderForm.get('discount')?.value || 0;
   }
@@ -187,16 +210,13 @@ export class SalesOrderFormComponent implements OnInit {
     return (taxable * taxPercent) / 100;
   }
 
-  get grandTotal(): number {
-    return (this.subtotal - this.totalItemDiscounts - this.globalDiscount) + this.calculatedTax;
-  }
-
   getRowTotal(index: number): number {
     const ctrl = this.items.at(index);
     const qty = ctrl.get('orderedQty')?.value || 0;
     const price = ctrl.get('unitPrice')?.value || 0;
     const disc = ctrl.get('discount')?.value || 0;
-    return Math.max(0, (qty * price) - disc);
+    const tax = ctrl.get('tax')?.value || 0; // Include item tax
+    return Math.max(0, (qty * price) - disc + tax);
   }
 
   // --- Item Management ---
@@ -220,7 +240,8 @@ export class SalesOrderFormComponent implements OnInit {
       imageUrl: [data.imageUrl || 'assets/placeholder.png'],
       unitPrice: [data.sellingPrice || 0, [Validators.required, Validators.min(0)]],
       orderedQty: [data.orderedQty || 1, [Validators.required, Validators.min(1)]],
-      discount: [data.discount || 0, Validators.min(0)]
+      discount: [data.discount || 0, Validators.min(0)],
+      tax: [data.tax || 0, [Validators.min(0)]]
     });
   }
 
@@ -289,12 +310,14 @@ export class SalesOrderFormComponent implements OnInit {
       warehouseId: formVal.warehouseId,
       orderDate: formVal.orderDate,
       remarks: formVal.remarks,
+      totalDiscount: formVal.totalDiscount,
+      totalTax: formVal.totalTax,
       items: formVal.items.map((i: any) => ({
         itemId: i.itemId,
         orderedQty: i.orderedQty,
         unitPrice: i.unitPrice,
         discount: i.discount,
-        tax: Number(taxPerItem.toFixed(2)) // Distributing global tax to items if backend requires per-item tax
+        tax: i.tax // Send the specific item tax
       }))
     };
 
