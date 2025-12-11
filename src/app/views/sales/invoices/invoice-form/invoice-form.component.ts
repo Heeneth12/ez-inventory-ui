@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
-import { debounceTime, distinctUntilChanged, Subject, switchMap, of, identity } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
 import { AddressType, ContactModel } from '../../../contacts/contacts.model';
 import { SalesOrderService } from '../../sales-order/sales-order.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
@@ -13,6 +13,7 @@ import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 import { LucideAngularModule, PenIcon } from "lucide-angular";
+import { InvoiceModal, InvoiceItemModal, InvoiceRequest } from '../invoice.modal'; 
 
 @Component({
   selector: 'app-invoice-form',
@@ -22,11 +23,6 @@ import { LucideAngularModule, PenIcon } from "lucide-angular";
   styleUrls: ['./invoice-form.component.css']
 })
 export class InvoiceFormComponent implements OnInit {
-
-  //icons
-  readonly PenIcon = PenIcon;
-
-  isDeliveryScheduled = false;
 
   invoiceForm: FormGroup;
   isEditMode = false;
@@ -40,7 +36,7 @@ export class InvoiceFormComponent implements OnInit {
   allCustomers: ContactModel[] = [];
   showCustomerResults = false;
 
-  // Pending Orders (PO/SO)
+  // Pending Orders
   pendingOrders: SalesOrderModal[] = [];
   isLoadingOrders = false;
 
@@ -50,12 +46,9 @@ export class InvoiceFormComponent implements OnInit {
   showItemResults = false;
   private searchSubject = new Subject<string>();
 
-  // Options
-  warehouseOptions = [
-    { label: 'Main Warehouse (Chennai)', value: 1 },
-    { label: 'Bangalore DC', value: 2 },
-    { label: 'Mumbai Hub', value: 3 }
-  ];
+  //config
+  isDeliveryScheduled = false;
+  activeHistoryTab: 'invoices' | 'payments' = 'invoices';
 
   constructor(
     private fb: FormBuilder,
@@ -76,8 +69,8 @@ export class InvoiceFormComponent implements OnInit {
       warehouseId: [1, Validators.required],
       remarks: [''],
       items: this.fb.array([], Validators.required),
-      discountAmount: [0], // Global Discount Amount
-      taxPercentage: [0] // Global Tax % to apply to rows
+      totalDiscount: [0],
+      totalTax: [0]
     });
   }
 
@@ -88,83 +81,114 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   private checkEditMode() {
+    // 1. Check for Invoice ID (True Edit Mode)
+    this.route.queryParamMap.subscribe(params => {
+      const invoiceId = params.get('invoiceId');
+      if (invoiceId) {
+        this.isEditMode = true;
+        this.orderId = +invoiceId;
+        this.loadInvoiceForEdit(this.orderId);
+      }
+    });
+
+    // 2. Check for Sales Order ID (Create Mode - Autofill)
     this.route.queryParamMap.subscribe(params => {
       const salesOrderId = params.get('salesOrderId');
-      console.log('Query Params:', params.keys, params, salesOrderId);
       if (salesOrderId) {
-        console.log('Edit mode for Sales Order ID:', salesOrderId);
-        this.isEditMode = true;
-        this.orderId = +salesOrderId;
-        this.loadOrderDetails(this.orderId);
+        this.isEditMode = false;
+        this.loadOrderDetails(+salesOrderId);
       }
     });
   }
 
   private loadOrderDetails(id: number) {
     this.loaderSvc.show();
+    // Strictly typing response data
     this.salesOrderService.getSalesOrderById(id,
-      (response: any) => {
+      (response: { data: SalesOrderModal }) => {
         const order = response.data;
-        // 1. Patch Header
+        
+        //Patch Header
         this.invoiceForm.patchValue({
-          id: order.id,
+          id: null, // New Invoice, so ID is null
+          salesOrderId: order.id,
           customerId: order.customerId,
           warehouseId: order.warehouseId,
           orderDate: order.orderDate,
           remarks: order.remarks,
-          discount: order.totalDiscount,
-          // Calculate tax % based on total for display, or default to 0
-          taxPercentage: order.subTotal > 0 ? ((order.totalTax / order.subTotal) * 100) : 0
+          totalDiscount: 0,
+          totalTax: 0
         });
-        // 2. Set Customer Display
-        // Instead of directly setting selectedCustomer
-        const trySetCustomer = () => {
-          const customer = this.allCustomers.find(c => c.id === order.customerId);
-          if (customer) {
-            this.selectCustomer(customer); // ✅ triggers pending order logic
-          } else {
-            this.selectedCustomer = { id: order.customerId, name: order.customerName } as ContactModel;
-          }
-        };
 
-        if (this.allCustomers.length) {
-          trySetCustomer();
-        } else {
-          const interval = setInterval(() => {
-            if (this.allCustomers.length) {
-              trySetCustomer();
-              clearInterval(interval);
-            }
-          }, 200);
-        }
+        //Set Customer
+        this.setCustomerById(order.customerId, order.customerName);
 
-        // 3. Patch Items
-        const itemArray = this.invoiceForm.get('items') as FormArray;
-        itemArray.clear();
-
-        order.items.forEach((item: any) => {
-          itemArray.push(this.createItemControl({
-            id: item.itemId,
-            name: item.itemName,
-            sellingPrice: item.unitPrice,
-            // Map existing line data
-            orderedQty: item.orderedQty,
-            discount: item.discount
-          }));
-        });
+        //Apply Items (Reuse logic)
+        this.applySalesOrder(order);
 
         this.loaderSvc.hide();
       },
       (err: any) => {
-        console.error(err);
         this.loaderSvc.hide();
         this.toast.show('Failed to load order details', 'error');
-        this.isLoading = false;
       }
     );
   }
 
-  private setupItemSearch() {
+  private loadInvoiceForEdit(id: number) {
+    this.loaderSvc.show();
+    // Strictly typing response data
+    this.invoiceService.getInvoiceById(id,
+      (res: { data: InvoiceModal }) => {
+        const invoice = res.data;
+
+        //Patch Header
+        this.invoiceForm.patchValue({
+          id: invoice.id,
+          salesOrderId: invoice.salesOrderId,
+          customerId: invoice.customerId,
+          warehouseId: invoice.warehouseId,
+          invoiceDate: invoice.invoiceDate,
+          remarks: invoice.remarks,
+          totalDiscount: invoice.totalDiscount,
+          totalTax: invoice.totalTax
+        });
+
+        //Set Customer
+        this.setCustomerById(invoice.customerId, "Loading...");
+
+        //Patch Items
+        const itemArray = this.items;
+        itemArray.clear();
+
+        if (invoice.items) {
+          invoice.items.forEach((item: InvoiceItemModal) => {
+            itemArray.push(this.createItemControl(item, 'INVOICE'));
+          });
+        }
+
+        this.loaderSvc.hide();
+      },
+      (err: any) => {
+        this.loaderSvc.hide();
+        this.toast.show('Failed to load invoice', 'error');
+      }
+    );
+  }
+
+  private setCustomerById(customerId: number, fallbackName: string) {
+    this.contactService.getContactById(customerId,
+      (res: { data: ContactModel }) => {
+        this.selectedCustomer = res.data;
+      },
+      (err: any) => {
+        // Fallback if fetch fails
+        this.selectedCustomer = { id: customerId, name: fallbackName } as ContactModel;
+      }
+    );
+  }
+
+  private   setupItemSearch() {
     this.searchSubject.pipe(
       debounceTime(400),
       distinctUntilChanged(),
@@ -173,10 +197,9 @@ export class InvoiceFormComponent implements OnInit {
         const filter = new ItemSearchFilter();
         filter.searchQuery = query;
         filter.active = true;
-
         return new Promise(resolve => {
           this.itemService.searchItems(filter,
-            (res: any) => resolve(res.data || res.data.content || []),
+            (res: { data: { content: ItemModel[] } }) => resolve(res.data || []),
             () => resolve([])
           );
         });
@@ -187,74 +210,117 @@ export class InvoiceFormComponent implements OnInit {
     });
   }
 
+  selectItemFromSearch(item: ItemModel) {
+    // When adding from Search, we must map ItemModel -> Form Structure
+    // Source Type is 'PRODUCT'
+    this.items.push(this.createItemControl(item, 'PRODUCT'));
+    this.itemSearchQuery = "";
+    this.showItemResults = false;
+  }
 
-  // NEW: Autofill Logic
+  // CORE METHOD: Handles mapping from 3 different sources
+  private createItemControl(data: any, sourceType: 'INVOICE' | 'SO' | 'PRODUCT'): FormGroup {
+    
+    // Default Values
+    let id = null;
+    let soItemId = null;
+    let itemId = null;
+    let name = '';
+    let unitPrice = 0;
+    let quantity = 1;
+    let discountAmount = 0;
+    let taxAmount = 0;
+
+    // Map based on source to ensure correct IDs
+    if (sourceType === 'INVOICE') {
+      // Data is InvoiceItemModal
+      id = data.id;                // Existing Invoice Line ID
+      soItemId = data.soItemId;
+      itemId = data.itemId;
+      name = data.itemName;
+      unitPrice = data.unitPrice;
+      quantity = data.quantity;
+      discountAmount = data.discountAmount;
+      taxAmount = data.taxAmount;
+    } 
+    else if (sourceType === 'SO') {
+      // Data is SalesOrderItem (from SalesOrderModal)
+      id = null;                   // New Invoice Line
+      soItemId = data.id;          // The ID of the SO Line
+      itemId = data.itemId;
+      name = data.itemName;
+      unitPrice = data.unitPrice;
+      quantity = data.orderedQty;  // Default to ordered amount
+      discountAmount = data.discount; // SO usually calls it 'discount'
+      taxAmount = data.tax;           // SO usually calls it 'tax'
+    } 
+    else if (sourceType === 'PRODUCT') {
+      // Data is ItemModel (Search Result)
+      id = null;                   // New Invoice Line
+      soItemId = null;             // Direct item, no SO link
+      itemId = data.id;            // Product Master ID
+      name = data.name;
+      unitPrice = data.sellingPrice;
+      quantity = 1;
+      discountAmount = 0;
+      taxAmount = 0; // Backend can recalculate or default 0
+    }
+
+    return this.fb.group({
+      id: [id], // Crucial: Null for new, Number for edit
+      soItemId: [soItemId],
+      itemId: [itemId, Validators.required],
+      name: [name],
+      imageUrl: ['assets/placeholder.png'], // Placeholder for now
+      unitPrice: [unitPrice || 0, [Validators.required, Validators.min(0)]],
+      orderedQty: [quantity, [Validators.required, Validators.min(1)]],
+      discountAmount: [discountAmount || 0, Validators.min(0)],
+      taxAmount: [taxAmount || 0, Validators.min(0)],
+      batchNumber: [data.batchNumber || '']
+    });
+  }
+
+
   applySalesOrder(order: SalesOrderModal) {
-    if (!confirm(`Autofill invoice from Order #${order.id}? This will replace current items.`)) return;
-    // 1. Patch Header Details
+    if (this.items.length > 0 && !confirm(`Autofill invoice from Order #${order.id}? This will replace current items.`)) return;
+
+    // 1. Calculate Extra Header Math
+    let sumItemDiscounts = 0;
+    let sumItemTaxes = 0;
+
+    if (order.items) {
+      order.items.forEach((item: any) => {
+        sumItemDiscounts += (item.discount || 0);
+        sumItemTaxes += (item.tax || 0);
+      });
+    }
+
+    const extraDiscount = (order.totalDiscount || 0) - sumItemDiscounts;
+    const extraTax = (order.totalTax || 0) - sumItemTaxes;
+
+    // 2. Patch Header
     this.invoiceForm.patchValue({
       salesOrderId: order.id,
       warehouseId: order.warehouseId,
       remarks: order.remarks,
-      discountAmount: order.totalDiscount || 0,
-      // Calculate tax % approximately
-      taxPercentage: order.subTotal > 0 ? ((order.tax / order.subTotal) * 100) : 0
+      customerId: order.customerId,
+      totalDiscount: Math.max(0, extraDiscount),
+      totalTax: Math.max(0, extraTax)
     });
 
-    // 2. Patch Items
+    // 3. Patch Items
     const itemArray = this.items;
-    itemArray.clear(); // Clear existing rows
+    itemArray.clear();
 
     if (order.items) {
       order.items.forEach((item: any) => {
-        // Map SO Item ItemModel for form
-        console.log('Adding item from SO to Invoice:', item);
-        itemArray.push(this.createItemControl({
-          soItemId: item.id,
-          id: item.itemId, // Note: SO item usually has itemId inside
-          name: item.itemName || item.name,
-          imageUrl: item.imageUrl,
-          sellingPrice: item.unitPrice, // Map unitPrice -> sellingPrice
-          quantity: item.orderedQty,   // Map orderedQty -> quantity
-          discount: item.discount
-        }));
+        // Source is 'SO'
+        itemArray.push(this.createItemControl(item, 'SO'));
       });
     }
-
-    this.toast.show('Invoice autofilled from Order #' + order.id, 'success');
   }
 
-
-  // NEW: Fetch Orders API Call
-  fetchPendingOrders(customerId: number) {
-    this.isLoadingOrders = true;
-    this.pendingOrders = [];
-    const filter = { customerId: customerId, status: 'CREATED' }; // Or 'PENDING' based on your logic
-
-    this.salesOrderService.searchSalesOrders(filter,
-      (res: any) => {
-        this.pendingOrders = res.data.content || res.data || [];
-        this.isLoadingOrders = false;
-
-        if (this.pendingOrders.length > 0) {
-          this.toast.show(`Found ${this.pendingOrders.length} pending orders`, 'success');
-        }
-
-        if (this.pendingOrders.length > 1) {
-          this.applySalesOrder(this.pendingOrders[0]);
-        }
-
-        if (this.pendingOrders.length === 1) {
-          this.applySalesOrder(this.pendingOrders[0]);
-        }
-      },
-      (err: any) => {
-        console.error(err);
-        this.isLoadingOrders = false;
-      }
-    );
-  }
-
+  // --- FORM HELPERS ---
 
   get items(): FormArray {
     return this.invoiceForm.get('items') as FormArray;
@@ -269,61 +335,27 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get totalItemDiscounts(): number {
-    // Sum of individual item discounts
-    return this.items.controls.reduce((sum, ctrl) => {
-      return sum + (ctrl.get('discount')?.value || 0);
-    }, 0);
+    return this.items.controls.reduce((sum, ctrl) => sum + (ctrl.get('discountAmount')?.value || 0), 0);
   }
 
-  get globalDiscount(): number {
-    return this.invoiceForm.get('discount')?.value || 0;
-  }
-
-  get calculatedTax(): number {
-    const taxPercent = this.invoiceForm.get('taxPercentage')?.value || 0;
-    // Taxable = Subtotal - Total Discounts
-    const taxable = Math.max(0, this.subtotal - this.totalItemDiscounts - this.globalDiscount);
-    return (taxable * taxPercent) / 100;
+  get totalItemTaxes(): number {
+    return this.items.controls.reduce((sum, ctrl) => sum + (ctrl.get('taxAmount')?.value || 0), 0);
   }
 
   get grandTotal(): number {
-    return (this.subtotal - this.totalItemDiscounts - this.globalDiscount) + this.calculatedTax;
+    const headerDisc = this.invoiceForm.get('totalDiscount')?.value || 0;
+    const headerTax = this.invoiceForm.get('totalTax')?.value || 0;
+    const itemNet = this.subtotal - this.totalItemDiscounts + this.totalItemTaxes;
+    return Math.max(0, itemNet - headerDisc + headerTax);
   }
 
   getRowTotal(index: number): number {
     const ctrl = this.items.at(index);
     const qty = ctrl.get('orderedQty')?.value || 0;
     const price = ctrl.get('unitPrice')?.value || 0;
-    const disc = ctrl.get('discount')?.value || 0;
-    return Math.max(0, (qty * price) - disc);
-  }
-
-  //Item Management ---
-  onItemSearchInput(event: any) {
-    const query = event.target.value;
-    this.itemSearchQuery = query;
-    this.searchSubject.next(query);
-  }
-
-  selectItemFromSearch(item: ItemModel) {
-    this.items.push(this.createItemControl(item));
-    this.itemSearchQuery = "";
-    this.showItemResults = false;
-  }
-
-  private createItemControl(data: any): FormGroup {
-    console.log('Creating item control for:', data);
-    return this.fb.group({
-      soItemId: [data.soItemId],
-      itemId: [data.id],
-      name: [data.name],
-      imageUrl: [data.imageUrl || 'assets/placeholder.png'],
-      unitPrice: [data.sellingPrice || 0, [Validators.required, Validators.min(0)]],
-      orderedQty: [data.quantity || data.orderedQty || 1, Validators.required],
-      quantity: [data.orderedQty || 1, [Validators.required, Validators.min(1)]],
-      discount: [data.discount || 0, Validators.min(0)],
-      batchNumber: [data.batchNumber || ''],
-    });
+    const disc = ctrl.get('discountAmount')?.value || 0;
+    const tax = ctrl.get('taxAmount')?.value || 0;
+    return Math.max(0, (qty * price) - disc + tax);
   }
 
   removeItem(index: number) {
@@ -338,8 +370,85 @@ export class InvoiceFormComponent implements OnInit {
     }
   }
 
-  // --- Customer Management ---
+  //Item Management ---
+  onItemSearchInput(event: any) {
+    const query = event.target.value;
+    this.itemSearchQuery = query;
+    this.searchSubject.next(query);
+  }
 
+  //SAVE LOGIC
+  saveOrder() {
+    // if (this.invoiceForm.invalid) {
+    //   this.invoiceForm.markAllAsTouched();
+    //   console.log('Form Invalid:', this.invoiceForm.value);
+    //   this.toast.show('Please fill required fields', 'warning');
+    //   return;
+    // }
+
+    const formVal = this.invoiceForm.getRawValue();
+
+    // MAP FORM TO STRICT TYPED REQUEST
+    const requestPayload: InvoiceRequest = {
+      salesOrderId: formVal.salesOrderId || null,
+      customerId: formVal.customerId,
+      warehouseId: 1,
+      invoiceDate: formVal.invoiceDate,
+      remarks: formVal.remarks,
+      totalDiscount: formVal.totalDiscount,
+      totalTax: formVal.totalTax,
+      scheduledDate: new Date().toISOString(),
+      shippingAddress: "test address",
+      deliveryType: "OWN_FLEET",
+
+      items: formVal.items.map((item: any) => ({
+        id: item.id,                  // NULL for New, ID for Edit
+        soItemId: item.soItemId,       // NULL for Direct, ID for Linked
+        itemId: item.itemId,           // Required
+        quantity: item.orderedQty,
+        unitPrice: item.unitPrice,
+        discountAmount: item.discountAmount,
+        taxAmount: item.taxAmount,
+        batchNumber: item.batchNumber
+      }))
+    };
+
+    console.log('Sending Payload:', requestPayload);
+    this.isLoading = true;
+    this.loaderSvc.show();
+
+    if (this.isEditMode && this.orderId) {
+      this.invoiceService.updateInvoice(this.orderId, requestPayload,
+        (res: any) => {
+          this.handleSuccess(res, 'Invoice updated successfully');
+        },
+        (err: any) => this.handleError(err)
+      );
+    } else {
+      this.invoiceService.createInvoice(requestPayload,
+        (res: any) => {
+          this.handleSuccess(res, 'Invoice created successfully');
+        },
+        (err: any) => this.handleError(err)
+      );
+    }
+  }
+
+  private handleSuccess(res: any, msg: string) {
+    this.loaderSvc.hide();
+    this.toast.show(msg, 'success');
+    // Navigate to view/edit page using the ID from response
+    const id = res.data?.id || this.orderId; 
+    this.router.navigate(['/sales/invoices', id]);
+  }
+
+  private handleError(err: any) {
+    this.loaderSvc.hide();
+    this.isLoading = false;
+    this.toast.show(err.error?.message || 'Operation failed', 'error');
+  }
+
+  // --- CUSTOMER UTILS ---
   loadContacts() {
     this.contactService.getContacts(0, 100, {}, (res: any) => {
       this.allCustomers = res.data.content;
@@ -360,10 +469,7 @@ export class InvoiceFormComponent implements OnInit {
     this.invoiceForm.patchValue({ customerId: cust.id });
     this.showCustomerResults = false;
     this.customerSearchInput = "";
-
-    // FETCH PENDING ORDERS
     this.fetchPendingOrders(cust.id);
-
   }
 
   clearCustomer() {
@@ -379,57 +485,27 @@ export class InvoiceFormComponent implements OnInit {
     return `${addr.city}, ${addr.state}`;
   }
 
+  fetchPendingOrders(customerId: number) {
+    this.isLoadingOrders = true;
+    this.pendingOrders = [];
+    // Strict typing for filter if you have an interface
+    const filter = { customerId: customerId, status: 'CREATED' }; 
 
-  saveOrder() {
-    if (this.invoiceForm.invalid) {
-      this.invoiceForm.markAllAsTouched();
-      this.toast.show('Please fill required fields', 'warning');
-      return;
-    }
-    const formVal = this.invoiceForm.getRawValue();
-    const taxPerItem = this.calculatedTax / formVal.items.length; // Simple distribution for DTO
-    // Map to Backend DTO
-    const requestPayload = {
-      salesOrderId: formVal.salesOrderId,
-      customerId: formVal.customerId,
-      invoiceDate: formVal.invoiceDate,
-      remarks: formVal.remarks,
-      discountAmount: formVal.discountAmount,
-      taxPercentage: formVal.taxPercentage,
-
-      scheduledDate: new Date(), //tomorrow date
-      shippingAddress: "test address",
-      deliveryType: "OWN_FLEET",
-
-      items: formVal.items.map((item: any) => ({
-        soItemId: item.soItemId,
-        itemId: item.itemId,
-        quantity: item.orderedQty,
-        unitPrice: item.unitPrice,
-        discount: item.discount,
-        batchNumber: item.batchNumber
-      }))
-    };
-    console.log('Prepared Invoice Payload:', formVal.items);
-    this.isLoading = true;
-    this.loaderSvc.show();
-    this.invoiceService.createInvoice(requestPayload,
-      (res: any) => {
-        this.toast.show('Invoice created successfully', 'success');
-        this.loaderSvc.hide();
-        this.router.navigate(['/sales/invoices', res.data.id]);
-      }
-      , (err: any) => {
+    this.salesOrderService.searchSalesOrders(filter,
+      (res: { data: { content: SalesOrderModal[] } }) => { // Assuming paginated response
+        this.pendingOrders = res.data.content || [];
+        this.isLoadingOrders = false;
+        if (this.pendingOrders.length > 0) {
+          this.toast.show(`Found ${this.pendingOrders.length} pending orders`, 'success');
+        }
+        if (this.pendingOrders.length === 1) {
+          this.applySalesOrder(this.pendingOrders[0]);
+        }
+      },
+      (err: any) => {
         console.error(err);
-        this.toast.show('Failed to create invoice', 'error');
-        this.loaderSvc.hide();
+        this.isLoadingOrders = false;
       }
     );
   }
-
-  // Dummy data container
-  deliveryData = {
-    date: new Date().toISOString().split('T')[0], // Today
-    person: 'John Doe'
-  };
 }

@@ -18,7 +18,7 @@ export class InvoiceService {
     }
 
     updateInvoice(id: number, data: any, successfn: any, errorfn: any) {
-        return this.httpService.putHttp(`${InvoiceService.INVOICE_BASE_URL}/${id}`, data, successfn, errorfn)
+        return this.httpService.postHttp(`${InvoiceService.INVOICE_BASE_URL}/${id}/update`, data, successfn, errorfn)
     }
 
     getInvoices(page: number, size: number, filter: any, successfn: any, errorfn: any) {

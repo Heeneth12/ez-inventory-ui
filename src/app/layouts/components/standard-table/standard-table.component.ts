@@ -145,7 +145,7 @@ export class StandardTableComponent implements OnChanges {
     const s = String(status).toLowerCase();
     if (s.includes('active') || s.includes('success') || s.includes('paid') || s.includes('product') || s.includes('customer') || s.includes('in') || s.includes('completed')) return 'bg-green-100 text-green-800 border-green-200';
     if (s.includes('inactive') || s.includes('error') || s.includes('fail') || s.includes('out')) return 'bg-red-100 text-red-800 border-red-200';
-    if (s.includes('warning') || s.includes('pending') || s.includes('hold') || s.includes('issued')) return 'bg-amber-100 text-amber-800 border-amber-200';
+    if (s.includes('warning') || s.includes('pending') || s.includes('hold') || s.includes('issued') || s.includes('partially_invoiced')) return 'bg-amber-100 text-amber-800 border-amber-200';
     if (s.includes('engineer') || s.includes('dev') || s.includes('partially_received')) return 'bg-purple-100 text-purple-800 border-purple-200';
     if (s.includes('manager') || s.includes('lead') || s.includes('service') || s.includes('supplier')) return 'bg-blue-100 text-blue-800 border-blue-200';
     return 'bg-gray-100 text-gray-800 border-gray-200';

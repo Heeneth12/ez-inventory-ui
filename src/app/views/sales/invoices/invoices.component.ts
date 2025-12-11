@@ -96,6 +96,12 @@ export class InvoicesComponent {
     }
   }
 
+  editInvoice(invoiceId: any) {
+    this.router.navigate(['/sales/invoice/edit'], {
+        queryParams: { invoiceId: invoiceId }
+    });
+  }
+
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
 
@@ -104,6 +110,8 @@ export class InvoicesComponent {
         console.log("View:", row.id);
         break;
       case 'edit':
+        this.editInvoice(row.id);
+        console.log("Edit:", row.id);
         break;
       case 'delete':
         console.log("Delete:", row.id);
