@@ -5,6 +5,7 @@ import { PaginationConfig, TableColumn, TableAction } from '../../../layouts/com
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { StockService } from '../stock.service';
 import { StockLedger } from '../models/stock-ledger.model';
+import { LoaderService } from '../../../layouts/components/loader/loaderService';
 
 
 @Component({
@@ -19,21 +20,20 @@ export class StockLedgerComponent {
 
   stockLedgerList: StockLedger[] = [];
 
-  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
+  pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
-  { key: 'id', label: 'ID', width: '60px', type: 'text' },
-  { key: 'itemId', label: 'Item ID', width: '100px', type: 'text' },
-  { key: 'itemName', label: 'Item Name', width: '200px', type: 'text' },
-  { key: 'warehouseId', label: 'Warehouse ID', width: '120px', type: 'text' },
-  { key: 'transactionType', label: 'Txn Type', width: '120px', type: 'badge' },   // IN / OUT
-  { key: 'quantity', label: 'Qty', align: 'right', width: '90px', type: 'number' },
-  { key: 'beforeQty', label: 'Before Qty', align: 'right', width: '110px', type: 'number' },
-  { key: 'afterQty', label: 'After Qty', align: 'right', width: '110px', type: 'number' },
-  { key: 'referenceType', label: 'Ref Type', width: '120px', type: 'text' },      // GRN / SALE / RETURN / TRANSFER
-  { key: 'referenceId', label: 'Ref ID', width: '110px', type: 'text' },
-  { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
-];
+    { key: 'id', label: 'ID', width: '60px', type: 'text' },
+    { key: 'itemId', label: 'Item ID', width: '100px', type: 'text' },
+    { key: 'itemName', label: 'Item Name', width: '200px', type: 'text' },
+    { key: 'warehouseId', label: 'Warehouse ID', width: '120px', type: 'text' },
+    { key: 'transactionType', label: 'Txn Type', width: '120px', type: 'badge' },   // IN / OUT
+    { key: 'quantity', label: 'Qty', align: 'right', width: '90px', type: 'number' },
+    { key: 'beforeQty', label: 'Before Qty', align: 'right', width: '110px', type: 'number' },
+    { key: 'afterQty', label: 'After Qty', align: 'right', width: '110px', type: 'number' },
+    { key: 'referenceType', label: 'Ref Type', width: '120px', type: 'text' },      // GRN / SALE / RETURN / TRANSFER
+    { key: 'referenceId', label: 'Ref ID', width: '110px', type: 'text' },
+  ];
 
 
 
@@ -44,7 +44,8 @@ export class StockLedgerComponent {
   constructor(
     private stockService: StockService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private loaderSvc: LoaderService
   ) { }
 
 
@@ -53,17 +54,32 @@ export class StockLedgerComponent {
   }
 
   getCurrentStock() {
-    this.stockService.getStockTransactions(this.page, this.size, {},
+    this.loaderSvc.show();
+    const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
+    this.stockService.getStockTransactions(
+      apiPage,
+      this.pagination.pageSize,
+      {},
       (response: any) => {
         this.stockLedgerList = response.data.content;
+        this.pagination = {
+          currentPage: this.pagination.currentPage,
+          totalItems: response.data.totalElements,
+          pageSize: response.data.size
+        };
+        this.loaderSvc.hide();
+
       }, (error: any) => {
+        this.loaderSvc.hide();
         this.toastService.show('Error fetching stock data', 'error');
       });
   }
 
-  onPageChange($event: number) {
-    console.log('Page changed to:', $event);
+  onPageChange(newPage: number) {
+    this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getCurrentStock();
   }
+
   onLoadMore() {
     console.log('Load more triggered');
   }
