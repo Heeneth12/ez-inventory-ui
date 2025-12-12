@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, effect, ElementRef, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, ElementRef, HostListener } from '@angular/core';
 import { CommonModule, DecimalPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig } from './standard-table.model';
@@ -141,14 +141,46 @@ export class StandardTableComponent implements OnChanges {
     }
   }
 
-  getBadgeClass(status: string): string {
-    const s = String(status).toLowerCase();
-    if (s.includes('active') || s.includes('success') || s.includes('paid') || s.includes('product') || s.includes('customer') || s.includes('in') || s.includes('completed')) return 'bg-green-100 text-green-800 border-green-200';
-    if (s.includes('inactive') || s.includes('error') || s.includes('fail') || s.includes('out')) return 'bg-red-100 text-red-800 border-red-200';
-    if (s.includes('warning') || s.includes('pending') || s.includes('hold') || s.includes('issued') || s.includes('partially_invoiced')) return 'bg-amber-100 text-amber-800 border-amber-200';
-    if (s.includes('engineer') || s.includes('dev') || s.includes('partially_received')) return 'bg-purple-100 text-purple-800 border-purple-200';
-    if (s.includes('manager') || s.includes('lead') || s.includes('service') || s.includes('supplier')) return 'bg-blue-100 text-blue-800 border-blue-200';
-    return 'bg-gray-100 text-gray-800 border-gray-200';
+  getBadgeClass(status: any): string {
+    if (!status) return 'bg-gray-100 text-gray-800 border-gray-200';
+    const s = String(status).toLowerCase().trim();
+
+    // 1. Define your base styles
+    const styles = {
+      success: 'bg-green-100 text-green-800 border-green-200',
+      danger: 'bg-red-100 text-red-800 border-red-200',
+      warning: 'bg-amber-100 text-amber-800 border-amber-200',
+      info: 'bg-blue-100 text-blue-800 border-blue-200',
+      purple: 'bg-purple-100 text-purple-800 border-purple-200',
+      neutral: 'bg-gray-100 text-gray-800 border-gray-200'
+    };
+
+    // SUCCESS
+    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product'].includes(s)) {
+      return styles.success;
+    }
+
+    // DANGER
+    if (['inactive', 'out', 'error', 'failed', 'rejected', 'out of stock', 'closed'].includes(s)) {
+      return styles.danger;
+    }
+
+    // WARNING
+    if (['pending', 'processing', 'hold', 'warning', 'partially invoiced', 'issued'].includes(s)) {
+      return styles.warning;
+    }
+
+    // INFO / ROLES
+    if (['manager', 'lead', 'supplier', 'service', 'created'].includes(s)) {
+      return styles.info;
+    }
+
+    // PURPLE / TECH
+    if (['engineer', 'developer', 'dev', 'partially_paid', 'partially_received'].includes(s)) {
+      return styles.purple;
+    }
+
+    return styles.neutral;
   }
 
   getStartItem() {

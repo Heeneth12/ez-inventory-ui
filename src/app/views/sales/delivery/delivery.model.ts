@@ -5,7 +5,7 @@ export interface DeliveryModel {
     invoiceId: number;
     customerId: number;
     customerName: string;
-    type: 'PICKUP' | 'COURIER' | 'OWN_FLEET';   // ShipmentType
+    type: 'CUSTOMER_PICKUP' | 'THIRD_PARTY_COURIER' | 'IN_HOUSE_DELIVERY';   // ShipmentType
     status: 'PENDING' | 'SCHEDULED' | 'SHIPPED' | 'DELIVERED'; // ShipmentStatus
     deliveryPersonId: number;
     scheduledDate: Date;
@@ -21,7 +21,7 @@ export class DeliveryFilterModel {
     deliveryNumber?: string;
     invoiceId?: number;
     customerId?: number;
-    type?: 'PICKUP' | 'COURIER' | 'OWN_FLEET';   // ShipmentType
+    type?: 'CUSTOMER_PICKUP' | 'THIRD_PARTY_COURIER' | 'IN_HOUSE_DELIVERY';   // ShipmentType
     status?: 'PENDING' | 'SCHEDULED' | 'SHIPPED' | 'DELIVERED'
     scheduledDateFrom?: Date;
     scheduledDateTo?: Date;
