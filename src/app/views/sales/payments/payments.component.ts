@@ -1,0 +1,123 @@
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { ModalService } from '../../../layouts/components/modal/modalService';
+import { PaymentModal } from './payment.modal';
+import { Router } from '@angular/router';
+import { LoaderService } from '../../../layouts/components/loader/loaderService';
+import { PaginationConfig, TableColumn, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
+import { ToastService } from '../../../layouts/components/toast/toastService';
+import { PaymentService } from './payment.service';
+import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
+import { ScrollText} from 'lucide-angular';
+
+@Component({
+  selector: 'app-payments',
+  standalone: true,
+  imports: [CommonModule, StandardTableComponent],
+  templateUrl: './payments.component.html',
+  styleUrl: './payments.component.css'
+})
+export class PaymentsComponent {
+
+  paymentList: PaymentModal[] = [];
+
+  pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
+  isLoading = false;
+  selectedItemIds: (string | number)[] = [];
+
+  columns: TableColumn[] = [
+    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
+    { key: 'paymentNumber', label: 'Payment Number', width: '200px', type: 'link' },
+    { key: 'customerId', label: 'Customer ID', width: '110px', type: 'text' },
+    { key: 'customerName', label: 'Customer Name', width: '110px', type: 'text' },
+    { key: 'paymentDate', label: 'Payment Date', width: '100px', type: 'date' },
+    { key: 'amount', label: 'Amount', width: '90px', type: 'text' },
+    { key: 'status', label: 'Status', align: 'right', width: '110px', type: 'badge' },
+    { key: 'paymentMethod', label: 'Payment Method', align: 'right', width: '130px', type: 'text' },
+    { key: 'allocatedAmount', label: 'Allocated Amount', align: 'right', width: '110px', type: 'currency' },
+    { key: 'unallocatedAmount', label: 'Unallocated Amount', align: "center", width: '110px', type: 'currency' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+  ];
+
+  soActions: TableActionConfig[] = [
+    {
+      key: 'payment_details',
+      label: 'Payment details',
+      icon: ScrollText,
+      color: 'primary',
+      // Only show if status is Approved
+      condition: (row) => row['status'] === 'COMPLETED'
+    }
+  ];
+
+  constructor(
+    private paymentService: PaymentService,
+    private router: Router,
+    private toastService: ToastService,
+    private loaderSvc: LoaderService,
+    private modalService: ModalService
+  ) {
+  }
+
+  ngOnInit(): void {
+    this.getAllPayments();
+  }
+
+  getAllPayments() {
+    this.loaderSvc.show();
+    const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
+    this.paymentService.getAllPayments(
+      apiPage,
+      this.pagination.pageSize,
+      {},
+      (response: any) => {
+        this.paymentList = response.data.content;
+        this.pagination = {
+          currentPage: this.pagination.currentPage,
+          totalItems: response.data.totalElements,
+          pageSize: response.data.size
+        };
+        this.loaderSvc.hide();
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastService.show('Failed to load Payments', 'error');
+        console.error('Error fetching payments:', error);
+      }
+    );
+  }
+
+
+
+  onSelectionChange(selectedIds: (string | number)[]) {
+    this.selectedItemIds = selectedIds;
+    console.log("Current Selection:", this.selectedItemIds);
+  }
+
+
+  onTableAction(event: TableAction) {
+    const { type, row, key } = event;
+
+    switch (type) {
+      case 'view':
+        console.log("View:", row.id);
+        break;
+      case 'edit':
+        break;
+      case 'delete':
+        console.log("Delete:", row.id);
+        break;
+      case 'toggle':
+        break;
+    }
+  }
+
+  onPageChange(newPage: number) {
+    this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getAllPayments();
+  }
+
+  onLoadMore() {
+  }
+
+}
