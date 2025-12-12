@@ -156,7 +156,7 @@ export class StandardTableComponent implements OnChanges {
     };
 
     // SUCCESS
-    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product'].includes(s)) {
+    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product', 'fully_invoiced'].includes(s)) {
       return styles.success;
     }
 

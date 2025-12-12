@@ -25,4 +25,8 @@ export class DeliveryService {
     searchDeliveryDetails(searchFilter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/search`, searchFilter, successfn, errorfn);
     }
+
+    markAsDelivered(deliveryId: string | number, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/delivered`, { deliveryId }, successfn, errorfn);
+    }
 }

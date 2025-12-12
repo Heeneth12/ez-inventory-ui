@@ -27,4 +27,8 @@ export class StockService {
     getStockAdjustment(page: number, size: number, filter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${StockService.STOCK_BASE_URL}/adjustment/all?page=${page}&size=${size}`, filter, successfn, errorfn)
     }
+
+    searchItems(term: string, warehouseId: string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${StockService.STOCK_BASE_URL}/search/?query=${term}&warehouseId=${warehouseId}`, successfn, errorfn);
+    }
 }

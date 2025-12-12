@@ -100,7 +100,7 @@ export class InvoicesComponent {
     if (event.type === 'custom' && event.key === 'move_to_invoice') {
       console.log(':', event.row);
     }
-    if (event.type === 'edit') {  
+    if (event.type === 'edit') {
       // Standard edit logic
     }
   }
@@ -133,6 +133,26 @@ export class InvoicesComponent {
     );
   }
 
+  downloadInvoicePdf(invoiceId: any) {
+    this.loaderSvc.show();
+    this.invoiceService.downloadInvoicePdf(invoiceId,
+      (response: any) => {
+        this.loaderSvc.hide();
+        const blob = new Blob([response.body], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(
+          url,
+          'invoicePopup',
+          'width=900,height=800,top=50,left=100,toolbar=no,menubar=no,scrollbars=yes,resizable=yes'
+        );
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Failed to download PDF', 'error');
+        console.error('Error downloading PDF:', error);
+      }
+    );
+  }
 
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
@@ -147,6 +167,7 @@ export class InvoicesComponent {
         console.log("Edit:", row.id);
         break;
       case 'delete':
+        this.downloadInvoicePdf(row.id);
         console.log("Delete:", row.id);
         break;
       case 'toggle':

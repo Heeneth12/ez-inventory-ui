@@ -28,4 +28,8 @@ export class InvoiceService {
     getInvoiceById(id: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${InvoiceService.INVOICE_BASE_URL}/${id}`, successfn, errorfn);
     }
+
+    downloadInvoicePdf(id: number, successfn: any, errorfn: any) {
+        return this.httpService.getFile(`${InvoiceService.INVOICE_BASE_URL}/${id}/pdf`, successfn, errorfn);
+    }
 }

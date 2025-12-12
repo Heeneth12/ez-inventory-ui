@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { DeliveryFilterModel, DeliveryModel } from './delivery.model';
-import { PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DeliveryService } from './delivery.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
+import { Truck } from 'lucide-angular';
 
 @Component({
   selector: 'app-delivery',
@@ -37,6 +38,17 @@ export class DeliveryComponent implements OnInit {
     { key: 'deliveredDate', label: 'Delivered Date', align: 'right', width: '110px', type: 'date' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
+
+    deliveryActions: TableActionConfig[] = [
+      {
+        key: 'delivered',
+        label: 'Mark as Delivered',
+        icon: Truck,
+        color: 'primary',
+        // Only show if status is Approved
+        condition: (row) => row['status'] === 'PENDING'
+      }
+    ];
 
   constructor(
     private deliveryService: DeliveryService,
@@ -77,6 +89,29 @@ export class DeliveryComponent implements OnInit {
   onSelectionChange(selectedIds: (string | number)[]) {
     this.selectedItemIds = selectedIds;
     console.log("Current Selection:", this.selectedItemIds);
+  }
+
+  deliveriedInvoice(deliveryIds: string | number) {
+    this.deliveryService.markAsDelivered(deliveryIds,
+      (response: any) => {
+        this.toastService.show('Delivery marked as delivered', 'success');
+        this.getAllDeliveries();
+      },
+      (error: any) => {
+        this.toastService.show('Failed to mark as delivered', 'error');
+        console.error('Error marking as delivered:', error);
+      }
+    );
+  }
+
+    handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'delivered') {
+        console.log(':', event.row);
+        this.deliveriedInvoice(event.row.id);
+    }
+    if (event.type === 'edit') {  
+      // Standard edit logic
+    }
   }
 
   onTableAction(event: TableAction) {
