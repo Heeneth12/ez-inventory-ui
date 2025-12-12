@@ -316,7 +316,7 @@
                         Save Draft
                     </button>
                     <button type="submit"
-                        class="col-span-1 py-2.5 px-3 bg-linear-to-r from-orange-500 to-orange-600 text-white text-xs font-bold uppercase tracking-wide rounded-lg shadow-sm hover:from-orange-600 hover:to-orange-700 hover:shadow-md transition-all active:scale-[0.98]">
+                        class="col-span-1 py-2.5 px-3 bg-linear-to-r from-orange-500 to-orange-500 text-white text-xs font-bold uppercase tracking-wide rounded-lg shadow-sm hover:from-orange-600 hover:to-orange-700 hover:shadow-md transition-all">
                         Save & Preview
                     </button>
                 </div>
@@ -324,15 +324,8 @@
                 <div class="grid grid-cols-2 gap-3">
                     <button type="button"
                         class="relative group flex flex-col items-center justify-center gap-1.5 py-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-all active:scale-[0.98]">
-
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-blue-500" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                            </path>
-                        </svg>
+                        <lucide-icon [img]="ReceiptIndianRupeeIcon" class="w-5 h-5"></lucide-icon>
                         <span class="text-xs font-semibold">Record Payment</span>
-
                         <div
                             class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-slate-800 text-white text-[10px] font-medium leading-tight rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-center pointer-events-none transform translate-y-1 group-hover:translate-y-0">
                             Saves order, generates bill & prompts for payment.
@@ -344,15 +337,8 @@
 
                     <button type="button"
                         class="relative group flex flex-col items-center justify-center gap-1.5 py-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-100 transition-all active:scale-[0.98]">
-
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-500" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4">
-                            </path>
-                        </svg>
+                        <lucide-icon [img]="TruckIcon" class="w-5 h-5"></lucide-icon>
                         <span class="text-xs font-semibold">Move to Delivery</span>
-
                         <div
                             class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-36 p-2 bg-slate-800 text-white text-[10px] font-medium leading-tight rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-center pointer-events-none transform translate-y-1 group-hover:translate-y-0">
                             Saves order, generates invoice & moves to delivery queue.
@@ -406,35 +392,43 @@
 
                         <div class="border-t border-slate-100"></div>
 
-                        <div>
+                        <div class="space-y-3">
+
+                            <!-- Toggle -->
                             <div class="flex items-center justify-between cursor-pointer group"
-                                (click)="isDeliveryScheduled = !isDeliveryScheduled">
-                                <div class="flex items-center gap-2">
-                                    <span
-                                        class="text-sm font-bold text-slate-800 group-hover:text-orange-600 transition-colors">Schedule
-                                        Delivery</span>
-                                </div>
-                                <div class="relative inline-block w-8 align-middle select-none">
-                                    <div class="block w-8 h-4 rounded-full transition-colors duration-200 ease-in-out"
-                                        [class.bg-orange-500]="isDeliveryScheduled"
-                                        [class.bg-slate-200]="!isDeliveryScheduled"></div>
-                                    <div class="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform duration-200 ease-in-out"
-                                        [class.translate-x-4]="isDeliveryScheduled"
-                                        [class.translate-x-0]="!isDeliveryScheduled"></div>
+                                (click)="enableScheduledDelivery = !enableScheduledDelivery">
+
+                                <span class="text-sm font-bold text-slate-800 group-hover:text-orange-600 transition">
+                                    Schedule Delivery
+                                </span>
+
+                                <div class="relative inline-block w-10 select-none">
+                                    <div class="block w-10 h-5 rounded-full transition-all duration-200"
+                                        [class.bg-orange-500]="enableScheduledDelivery"
+                                        [class.bg-slate-300]="!enableScheduledDelivery"></div>
+                                    <div class="absolute top-[3px] left-[3px] w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"
+                                        [class.translate-x-5]="enableScheduledDelivery"
+                                        [class.translate-x-0]="!enableScheduledDelivery"></div>
                                 </div>
                             </div>
 
-                            <div *ngIf="isDeliveryScheduled" class="mt-3 grid grid-cols-2 gap-3 animate-fade-in-down">
-                                <div class="col-span-1">
-                                    <label
-                                        class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Date</label>
-                                    <input type="date"
-                                        class="w-full text-xs bg-slate-50 border border-slate-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-slate-700">
-                                </div>
-                                <div class="col-span-1">
-                                    <label
-                                        class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Driver</label>
+                            <!-- Slide-down card -->
+                            <div *ngIf="enableScheduledDelivery"
+                                class="p-3 bg-orange-50 border border-orange-200 rounded-md animate-fade-in-down">
 
+                                <!-- Small note -->
+                                <p class="text-[10px] text-orange-600 font-medium mb-2">
+                                    Scheduled date is automatically set to <strong>tomorrow</strong>.
+                                </p>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <!-- Date -->
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Date</label>
+                                        <input type="date" [(ngModel)]="scheduledDate"
+                                            class="w-full text-xs bg-white border border-orange-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-slate-700">
+                                    </div>
                                 </div>
                             </div>
                         </div>

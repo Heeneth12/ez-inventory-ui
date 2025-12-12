@@ -12,7 +12,7 @@ import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
-import { LucideAngularModule, PenIcon } from "lucide-angular";
+import { LucideAngularModule, PenIcon, ReceiptIndianRupee, Truck } from "lucide-angular";
 import { InvoiceModal, InvoiceItemModal, InvoiceRequest } from '../invoice.modal'; 
 
 @Component({
@@ -23,6 +23,10 @@ import { InvoiceModal, InvoiceItemModal, InvoiceRequest } from '../invoice.modal
   styleUrls: ['./invoice-form.component.css']
 })
 export class InvoiceFormComponent implements OnInit {
+
+  //icons
+  readonly TruckIcon = Truck;
+  readonly ReceiptIndianRupeeIcon = ReceiptIndianRupee;
 
   invoiceForm: FormGroup;
   isEditMode = false;
@@ -46,9 +50,18 @@ export class InvoiceFormComponent implements OnInit {
   showItemResults = false;
   private searchSubject = new Subject<string>();
 
+  //delivery config
+  deliveryTypes : 'IN_HOUSE_DELIVERY' | 'THIRD_PARTY_COURIER' | 'CUSTOMER_PICKUP' = 'IN_HOUSE_DELIVERY';
+  enableScheduledDelivery = true;
+  scheduledDate: string = new Date().toISOString().split('T')[0];
+
   //config
   isDeliveryScheduled = false;
   activeHistoryTab: 'invoices' | 'payments' = 'invoices';
+
+  //gst config
+  isGstEnabled = false;
+  gstNumber: string = "";
 
   constructor(
     private fb: FormBuilder,
@@ -399,7 +412,7 @@ export class InvoiceFormComponent implements OnInit {
       totalTax: formVal.totalTax,
       scheduledDate: new Date().toISOString(),
       shippingAddress: "test address",
-      deliveryType: "OWN_FLEET",
+      deliveryType: "IN_HOUSE_DELIVERY",
 
       items: formVal.items.map((item: any) => ({
         id: item.id,                  // NULL for New, ID for Edit

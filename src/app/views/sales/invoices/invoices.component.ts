@@ -10,6 +10,10 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InvoiceModal } from './invoice.modal';
+import { PaymentService } from '../payments/payment.service';
+import { InvoicePaymentSummaryModal } from '../payments/payment.modal';
+import { ModalService } from '../../../layouts/components/modal/modalService';
+import { PaymentSymmaryComponent } from '../payments/payment-symmary/payment-symmary.component';
 
 @Component({
   selector: 'app-invoices',
@@ -21,6 +25,7 @@ import { InvoiceModal } from './invoice.modal';
 export class InvoicesComponent {
 
   invoicesList: InvoiceModal[] = [];
+  paymentSummary: InvoicePaymentSummaryModal[] = [];
 
   readonly Truck = Truck;
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
@@ -52,10 +57,12 @@ export class InvoicesComponent {
 
   constructor(
     private invoiceService: InvoiceService,
+    private paymentService: PaymentService,
     public drawerService: DrawerService,
     private toastSvc: ToastService,
     private router: Router,
-    private loaderSvc: LoaderService
+    private loaderSvc: LoaderService,
+    private modalService: ModalService
   ) {
   }
 
@@ -87,26 +94,52 @@ export class InvoicesComponent {
     );
   }
 
+
+
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'move_to_invoice') {
-      console.log('Moving PO to Invoice:', event.row);
+      console.log(':', event.row);
     }
-    if (event.type === 'edit') {
+    if (event.type === 'edit') {  
       // Standard edit logic
     }
   }
 
   editInvoice(invoiceId: any) {
     this.router.navigate(['/sales/invoice/edit'], {
-        queryParams: { invoiceId: invoiceId }
+      queryParams: { invoiceId: invoiceId }
     });
   }
+
+  getPaymentsByInvoiceId(invoiceId: any) {
+    this.paymentService.getPaymentSummary(
+      invoiceId,
+      (response: any) => {
+        this.paymentSummary = response.data;
+        console.log('Payments for invoice:', response);
+      },
+      (error: any) => {
+        this.toastSvc.show('Failed to load Payments', 'error');
+        console.error('Error fetching payments:', error);
+      }
+    );
+  }
+
+  openPaymentSummary(invoiceId: any) {
+    this.modalService.openComponent(
+      PaymentSymmaryComponent,
+      { invoiceId },
+      'lg'
+    );
+  }
+
 
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
 
     switch (type) {
       case 'view':
+        this.openPaymentSummary(row.id);
         console.log("View:", row.id);
         break;
       case 'edit':
