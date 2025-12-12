@@ -1,0 +1,162 @@
+<div class="flex flex-col h-full bg-gray-50 font-sans">
+    
+    <div class="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between sticky top-0 z-10">
+        <div class="flex items-center gap-4">
+            <button (click)="cancel()" class="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors">
+                <lucide-icon [img]="ArrowLeft" class="w-5 h-5"></lucide-icon>
+            </button>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">New Sales Return</h1>
+                <p class="text-sm text-gray-500">Search for an invoice to begin return process</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-auto p-6 max-w-5xl mx-auto w-full space-y-6">
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Find Invoice</label>
+            <div class="flex gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <lucide-icon [img]="SearchIcon" class="h-4 w-4 text-gray-400"></lucide-icon>
+                    </div>
+                    <input type="number" 
+                        [(ngModel)]="searchInvoiceId" 
+                        (keyup.enter)="searchInvoice()"
+                        class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all"
+                        placeholder="Enter Invoice ID (e.g. 1024)">
+                </div>
+                <button (click)="searchInvoice()"
+                    class="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium text-sm transition-colors shadow-sm">
+                    Fetch Details
+                </button>
+            </div>
+        </div>
+
+        <div *ngIf="invoiceData" class="animate-in fade-in slide-in-from-bottom-4 duration-300 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-gray-200">
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Customer</span>
+                    <div class="mt-1 font-medium text-gray-900">
+                        {{ contactDetails?.name || invoiceData.customer?.name || 'Unknown' }}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        {{ contactDetails?.email || invoiceData.customer?.email }}
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200">
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Invoice Info</span>
+                    <div class="mt-1 font-medium text-gray-900">#{{ invoiceData.invoiceNumber }}</div>
+                    <div class="text-sm text-gray-500">{{ invoiceData.invoiceDate | date:'mediumDate' }}</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200">
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Original Total</span>
+                    <div class="mt-1 font-medium text-gray-900">{{ invoiceData.totalAmount | currency }}</div>
+                    <div class="text-sm text-green-600 bg-green-50 inline-block px-2 py-0.5 rounded-full mt-1">Paid</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <h3 class="font-semibold text-gray-900">Select Items to Return</h3>
+                    <span class="text-xs text-gray-500">Check the box to enable return</span>
+                </div>
+                
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50 text-gray-500 uppercase text-xs font-medium">
+                        <tr>
+                            <th class="px-6 py-3 w-10">Select</th>
+                            <th class="px-6 py-3">Product / Item</th>
+                            <th class="px-6 py-3 text-right">Sold Price</th>
+                            <th class="px-6 py-3 text-center">Sold Qty</th>
+                            <th class="px-6 py-3 w-32 text-center">Return Qty</th>
+                            <th class="px-6 py-3 text-right">Refund Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr *ngFor="let item of uiItems()" 
+                            [class.bg-indigo-50]="item.isSelected"
+                            class="hover:bg-gray-50 transition-colors">
+                            
+                            <td class="px-6 py-4">
+                                <input type="checkbox" 
+                                    [checked]="item.isSelected" 
+                                    (change)="toggleItem(item)"
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                            </td>
+
+                            <td class="px-6 py-4 font-medium text-gray-900">
+                                {{ item.item?.name || 'Item #' + item.itemId }}
+                                <div class="text-xs text-gray-400" *ngIf="item.batchNumber">Batch: {{item.batchNumber}}</div>
+                            </td>
+
+                            <td class="px-6 py-4 text-right text-gray-600">
+                                {{ item.unitPrice | currency }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center text-gray-600">
+                                {{ item.maxQty }}
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <input type="number" 
+                                    [(ngModel)]="item.returnQty" 
+                                    (ngModelChange)="validateQty(item)"
+                                    [disabled]="!item.isSelected"
+                                    min="0" [max]="item.maxQty"
+                                    class="w-full text-center px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 transition-all">
+                            </td>
+
+                            <td class="px-6 py-4 text-right font-medium" [class.text-indigo-600]="item.isSelected && item.returnQty > 0">
+                                {{ (item.unitPrice * item.returnQty) | currency }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                
+                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Return Reason <span class="text-red-500">*</span></label>
+                    <textarea 
+                        [(ngModel)]="returnReason"
+                        rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                        placeholder="e.g. Damaged during shipping, Wrong item sent..."></textarea>
+                </div>
+
+                <div class="bg-gray-900 p-6 rounded-xl text-white shadow-lg">
+                    <h3 class="text-lg font-medium mb-4">Refund Summary</h3>
+                    
+                    <div class="flex justify-between items-center text-gray-300 text-sm mb-2">
+                        <span>Items Selected</span>
+                        <span>{{ selectedItemCount() }}</span>
+                    </div>
+                    
+                    <div class="h-px bg-gray-700 my-4"></div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-base font-medium">Total Refund</span>
+                        <span class="text-2xl font-bold text-white">{{ totalRefundAmount() | currency }}</span>
+                    </div>
+
+                    <button (click)="createSalesReturn()"
+                        [disabled]="totalRefundAmount() === 0 || !returnReason"
+                        class="w-full mt-6 flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-400 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-3 rounded-lg font-medium transition-colors">
+                        <lucide-icon [img]="CheckCircle2" class="w-5 h-5"></lucide-icon>
+                        Process Return
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div *ngIf="!invoiceData" class="py-12 flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
+            <lucide-icon [img]="SearchIcon" class="w-12 h-12 mb-3 text-gray-300"></lucide-icon>
+            <p>Enter an Invoice ID above to fetch items</p>
+        </div>
+
+    </div>
+</div>
