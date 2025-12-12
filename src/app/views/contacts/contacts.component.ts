@@ -1,11 +1,10 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { ContactService } from './contacts.service';
 import { ContactFilter, ContactModel } from './contacts.model';
-import { TableToolbarComponent } from "../../layouts/components/table-toolbar/table-toolbar.component";
 import { Router } from '@angular/router';
 import { PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
@@ -13,7 +12,7 @@ import { StandardTableComponent } from "../../layouts/components/standard-table/
 @Component({
   selector: 'app-contacts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, TableToolbarComponent, StandardTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent],
   templateUrl: './contacts.component.html',
   styleUrls: ['./contacts.component.css']
 })
@@ -146,8 +145,13 @@ export class ContactsComponent implements OnInit {
   onPageChange($event: number) {
     console.log('Page changed to:', $event);
   }
+
   onLoadMore() {
     console.log('Load more triggered');
+  }
+
+  openContactProfile(contactId: any) {
+    this.router.navigate(['/contacts/profile', contactId]);
   }
 
   onTableAction(event: TableAction) {
@@ -157,6 +161,7 @@ export class ContactsComponent implements OnInit {
     switch (type) {
 
       case 'view':
+        this.openContactProfile(row.id);
         console.log("View action for item:", row.id);
         break;
 

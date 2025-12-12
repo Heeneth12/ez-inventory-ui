@@ -1,0 +1,78 @@
+
+<div *ngIf="contactDetails" class="min-h-screen bg-gray-50 font-sans">
+  <div class="bg-white  border border-gray-200 p-6 mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div class="flex items-start gap-5">
+        <div class="relative">
+          <div class="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-md border-4 border-white"
+               [ngClass]="theme.bg">
+            {{ contactDetails.name.slice(0,2).toUpperCase() }}
+          </div>
+          
+          <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white shadow-sm"
+                [ngClass]="theme.badge">
+            {{ contactDetails.type }}
+          </span>
+        </div>
+        
+        <div>
+          <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-bold text-gray-900">{{ contactDetails.name }}</h1>
+            
+            <span *ngIf="contactDetails.active" class="px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+              Active
+            </span>
+            <span *ngIf="!contactDetails.active" class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+              Inactive
+            </span>
+          </div>
+
+          <p class="text-sm text-gray-500 font-medium mb-2 mt-1">
+             Code: <span class="text-gray-900 font-mono">{{ contactDetails.contactCode }}</span>
+             <span *ngIf="contactDetails.gstNumber"> • GST: {{ contactDetails.gstNumber }}</span>
+          </p>
+          
+          <div class="flex flex-wrap gap-4 text-xs text-gray-500 mt-2">
+            <div class="flex items-center gap-1.5">
+              <span class="bg-gray-100 p-1 rounded text-gray-600">📍</span> 
+              {{ locationDisplay }}
+            </div>
+            <div class="flex items-center gap-1.5 hover:text-blue-600 cursor-pointer transition-colors" *ngIf="contactDetails.email">
+              <span class="bg-gray-100 p-1 rounded text-gray-600">📧</span> 
+              {{ contactDetails.email }}
+            </div>
+            <div class="flex items-center gap-1.5" *ngIf="contactDetails.phone">
+              <span class="bg-gray-100 p-1 rounded text-gray-600">📞</span> 
+              {{ contactDetails.phone }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+        <button class="flex-1 md:flex-none px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-all">
+           Edit Profile
+        </button>
+        <button class="flex-1 md:flex-none px-5 py-2 text-sm font-bold text-white rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                [ngClass]="theme.bg">
+          <span class="text-lg">+</span> {{ actionLabel }}
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-8 border-b border-gray-100 flex gap-8 overflow-x-auto">
+      <button *ngFor="let tab of ['Overview', 'Invoices', 'Payments', 'Settings']"
+              (click)="activeTab = tab.toLowerCase()"
+              class="pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap"
+              [ngClass]="activeTab === tab.toLowerCase() ? theme.text + ' border-current' : 'border-transparent text-gray-500 hover:text-gray-700'">
+        {{ tab }}
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+
+
+  </div>
+
+</div>
