@@ -422,7 +422,7 @@ export class InvoiceFormComponent implements OnInit {
         unitPrice: item.unitPrice,
         discountAmount: item.discountAmount,
         taxAmount: item.taxAmount,
-        batchNumber: item.batchNumber
+        batchNumber: null
       }))
     };
 

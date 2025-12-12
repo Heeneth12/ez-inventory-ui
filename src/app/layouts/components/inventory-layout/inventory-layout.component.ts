@@ -85,6 +85,7 @@ export class InventoryLayoutComponent implements OnInit {
         { label: 'Invoices', link: '/sales/invoice' },
         { label: 'Delivery', link: '/sales/delivery' },
         { label: 'Payments', link: '/sales/payments' },
+        { label: 'Sales Return', link: '/sales/return' },
       ]
     },
     {
