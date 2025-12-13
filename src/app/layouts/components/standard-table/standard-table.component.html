@@ -160,7 +160,7 @@
                             </a>
 
                             <span *ngSwitchCase="'currency'" class="font-medium text-gray-700">
-                                {{ row[col.key] | currency }}
+                                {{ row[col.key] |  currency:'INR' }}
                             </span>
 
                             <span *ngSwitchCase="'number'" [class.text-red-600]="row[col.key] < 0">

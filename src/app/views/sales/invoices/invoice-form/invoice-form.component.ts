@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
@@ -13,7 +13,7 @@ import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 import { LucideAngularModule, PenIcon, ReceiptIndianRupee, Truck } from "lucide-angular";
-import { InvoiceModal, InvoiceItemModal, InvoiceRequest } from '../invoice.modal'; 
+import { InvoiceModal, InvoiceItemModal, InvoiceRequest, DeliveryOption } from '../invoice.modal';
 
 @Component({
   selector: 'app-invoice-form',
@@ -51,9 +51,11 @@ export class InvoiceFormComponent implements OnInit {
   private searchSubject = new Subject<string>();
 
   //delivery config
-  deliveryTypes : 'IN_HOUSE_DELIVERY' | 'THIRD_PARTY_COURIER' | 'CUSTOMER_PICKUP' = 'IN_HOUSE_DELIVERY';
-  enableScheduledDelivery = true;
-  scheduledDate: string = new Date().toISOString().split('T')[0];
+  currentDeliveryType = signal<DeliveryOption>('IN_HOUSE_DELIVERY');
+  deliveryTypes: DeliveryOption[] = ['IN_HOUSE_DELIVERY', 'THIRD_PARTY_COURIER', 'CUSTOMER_PICKUP'];
+  enableScheduledDelivery = signal(true);
+  scheduledDate = signal(getTomorrowString());
+  isPickup = computed(() => this.currentDeliveryType() === 'CUSTOMER_PICKUP');
 
   //config
   isDeliveryScheduled = false;
@@ -120,7 +122,7 @@ export class InvoiceFormComponent implements OnInit {
     this.salesOrderService.getSalesOrderById(id,
       (response: { data: SalesOrderModal }) => {
         const order = response.data;
-        
+
         //Patch Header
         this.invoiceForm.patchValue({
           id: null, // New Invoice, so ID is null
@@ -201,7 +203,7 @@ export class InvoiceFormComponent implements OnInit {
     );
   }
 
-  private   setupItemSearch() {
+  private setupItemSearch() {
     this.searchSubject.pipe(
       debounceTime(400),
       distinctUntilChanged(),
@@ -233,7 +235,7 @@ export class InvoiceFormComponent implements OnInit {
 
   // CORE METHOD: Handles mapping from 3 different sources
   private createItemControl(data: any, sourceType: 'INVOICE' | 'SO' | 'PRODUCT'): FormGroup {
-    
+
     // Default Values
     let id = null;
     let soItemId = null;
@@ -255,7 +257,7 @@ export class InvoiceFormComponent implements OnInit {
       quantity = data.quantity;
       discountAmount = data.discountAmount;
       taxAmount = data.taxAmount;
-    } 
+    }
     else if (sourceType === 'SO') {
       // Data is SalesOrderItem (from SalesOrderModal)
       id = null;                   // New Invoice Line
@@ -266,7 +268,7 @@ export class InvoiceFormComponent implements OnInit {
       quantity = data.orderedQty;  // Default to ordered amount
       discountAmount = data.discount; // SO usually calls it 'discount'
       taxAmount = data.tax;           // SO usually calls it 'tax'
-    } 
+    }
     else if (sourceType === 'PRODUCT') {
       // Data is ItemModel (Search Result)
       id = null;                   // New Invoice Line
@@ -412,7 +414,7 @@ export class InvoiceFormComponent implements OnInit {
       totalTax: formVal.totalTax,
       scheduledDate: new Date().toISOString(),
       shippingAddress: "test address",
-      deliveryType: "IN_HOUSE_DELIVERY",
+      deliveryType: this.currentDeliveryType(),
 
       items: formVal.items.map((item: any) => ({
         id: item.id,                  // NULL for New, ID for Edit
@@ -451,7 +453,7 @@ export class InvoiceFormComponent implements OnInit {
     this.loaderSvc.hide();
     this.toast.show(msg, 'success');
     // Navigate to view/edit page using the ID from response
-    const id = res.data?.id || this.orderId; 
+    const id = res.data?.id || this.orderId;
     this.router.navigate(['/sales/invoices', id]);
   }
 
@@ -498,11 +500,20 @@ export class InvoiceFormComponent implements OnInit {
     return `${addr.city}, ${addr.state}`;
   }
 
+  onDeliveryChange(type: DeliveryOption) {
+    this.currentDeliveryType.set(type);
+  }
+
+  toggleScheduledDelivery() {
+    // Use .update() here to flip the value
+    this.enableScheduledDelivery.update(value => !value);
+  }
+
   fetchPendingOrders(customerId: number) {
     this.isLoadingOrders = true;
     this.pendingOrders = [];
     // Strict typing for filter if you have an interface
-    const filter = { customerId: customerId, status: 'CREATED' }; 
+    const filter = { customerId: customerId, status: 'CREATED' };
 
     this.salesOrderService.searchSalesOrders(filter,
       (res: { data: { content: SalesOrderModal[] } }) => { // Assuming paginated response
@@ -521,4 +532,11 @@ export class InvoiceFormComponent implements OnInit {
       }
     );
   }
+}
+
+function getTomorrowString(): string {
+  const date = new Date();
+  date.setDate(date.getDate() + 1); // Add 1 day
+  // 'en-CA' locale consistently outputs YYYY-MM-DD
+  return date.toLocaleDateString('en-CA'); 
 }
