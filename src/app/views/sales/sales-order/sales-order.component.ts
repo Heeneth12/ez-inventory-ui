@@ -11,6 +11,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
 import { ArrowRight, View } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
+import { SalesFlowTrackerComponent } from '../../../layouts/components/sales-flow-tracker/sales-flow-tracker.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -47,7 +48,7 @@ export class SalesOrderComponent implements OnInit {
       icon: ArrowRight,
       color: 'primary',
       // Only show if status is Approved
-      condition: (row) => row['status'] !== 'FULLY_INVOICED'
+      condition: (row) => row['status'] === 'CREATED'
     }
   ];
 
@@ -103,14 +104,15 @@ export class SalesOrderComponent implements OnInit {
     );
   }
 
-  // viewSalesOrderDetail(id: number | string) {
-  //   this.getSalesOrderById(id);
-  //   this.drawerService.openComponent(
-  //     OrderTrackerComponent,
-  //     'Order Details',
-  //     'xl',
-  //   );
-  // }
+  viewSalesOrderDetail(id: number | string) {
+    this.getSalesOrderById(id);
+    this.drawerService.openComponent(
+      SalesFlowTrackerComponent,
+      { salesOrderId: id },
+      'Order Details',
+      'xl',
+    );
+  }
 
   updateSalesOrder(id: number | string) {
     this.router.navigate(['/sales/order/edit', id]);
@@ -134,13 +136,14 @@ export class SalesOrderComponent implements OnInit {
     switch (type) {
       case 'view':
         console.log("View:", row.id);
-        //this.viewSalesOrderDetail(row.id);
+        this.viewSalesOrderDetail(row.id);
         break;
       case 'edit':
         this.updateSalesOrder(row.id);
         break;
       case 'delete':
         console.log("Delete:", row.id);
+
         break;
       case 'toggle':
         break;

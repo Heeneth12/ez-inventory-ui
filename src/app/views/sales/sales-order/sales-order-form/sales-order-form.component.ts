@@ -9,15 +9,20 @@ import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
+import { ClipboardPenLine, SearchCheckIcon, LucideAngularModule, Search, QrCode } from 'lucide-angular';
 
 @Component({
   selector: 'app-sales-order-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './sales-order-form.component.html',
   styleUrls: ['./sales-order-form.component.css']
 })
 export class SalesOrderFormComponent implements OnInit {
+
+  // icons
+  readonly SearchIcon = Search;
+  readonly BarCode = QrCode;
 
   orderForm: FormGroup;
   isEditMode = false;
