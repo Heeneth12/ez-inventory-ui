@@ -77,5 +77,15 @@ export class InvoiceFilterModal {
 
 }
 
+export enum InvoiceStatus {
+  PENDING = 'PENDING',            // Invoice created but not delivered and not paid
+  MOVED_TO_DELIVERY = 'MOVED_TO_DELIVERY',  // Invoice moved to delivery
+  DELIVERED = 'DELIVERED',          // Delivery completed
+  WAITING_PAYMENT = 'WAITING_PAYMENT',    // Waiting for payment after delivery
+  PARTIALLY_PAID = 'PARTIALLY_PAID',     // Some payment received
+  PAID = 'PAID',               // Fully paid
+  CANCELLED = 'CANCELLED'           // Invoice cancelled
+}
+
 
 export type DeliveryOption = 'IN_HOUSE_DELIVERY' | 'THIRD_PARTY_COURIER' | 'CUSTOMER_PICKUP';

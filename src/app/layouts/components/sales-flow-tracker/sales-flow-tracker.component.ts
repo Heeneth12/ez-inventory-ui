@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges, signal, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { LucideAngularModule, FileText, CheckCircle2, Truck, CreditCard, ChevronRight, Download, User, Calendar, AlertCircle, Building2, Mail, MapPin, Phone, Receipt } from 'lucide-angular';
+import { LucideAngularModule, FileText, CheckCircle2, Truck, CreditCard, ChevronRight, Download, User, Calendar, AlertCircle, Building2, Mail, MapPin, Phone, Receipt, Check } from 'lucide-angular';
 import { SalesOrderService } from '../../../views/sales/sales-order/sales-order.service';
 import { InvoiceService } from '../../../views/sales/invoices/invoice.service';
 import { LoaderService } from '../loader/loaderService';
@@ -43,7 +43,7 @@ export class SalesFlowTrackerComponent implements OnChanges {
     { id: 4, label: 'Payment', icon: CreditCard }
   ];
 
-  readonly Icons = { FileText, CheckCircle2, Truck, CreditCard, ChevronRight, Download, User, Calendar, AlertCircle, Mail, Phone, MapPin, Building2, Receipt };
+  readonly Icons = { FileText, CheckCircle2, Truck, CreditCard, ChevronRight, Download, User, Calendar, AlertCircle, Mail, Phone, MapPin, Building2, Receipt, Check };
 
   constructor(
     private salesOrderService: SalesOrderService,
