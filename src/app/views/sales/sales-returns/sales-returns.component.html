@@ -1,1 +1,13 @@
-<p>sales-returns works!</p>
+<div class="space-y-6">
+    <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
+        <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="salesReturns" [pagination]="pagination"
+            (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)"
+            (action)="handleTableAction($event)">
+        </app-standard-table>
+    </div>
+</div>
+
+<!-- DRAWER FORM TEMPLATE -->
+<ng-template #srDetails>
+    <h1>sales order</h1>
+</ng-template>

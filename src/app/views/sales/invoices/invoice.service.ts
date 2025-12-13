@@ -29,6 +29,10 @@ export class InvoiceService {
         return this.httpService.getHttp(`${InvoiceService.INVOICE_BASE_URL}/${id}`, successfn, errorfn);
     }
 
+    updateInvoiceStatus(request: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${InvoiceService.INVOICE_BASE_URL}/update-status`, request, successfn, errorfn);
+    }
+
     searchInvoices(filter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${InvoiceService.INVOICE_BASE_URL}/search`, filter, successfn, errorfn);
     }

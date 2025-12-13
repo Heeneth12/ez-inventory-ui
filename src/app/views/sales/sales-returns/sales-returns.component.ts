@@ -3,155 +3,117 @@ import { Router } from '@angular/router';
 import { ArrowRight } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { PaginationConfig, TableColumn, TableActionConfig, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableColumn, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from '../sales-order/sales-order.service';
 import { SalesReturnService } from './sales-return.service';
 import { SalesReturnModal } from './sales-return.modal';
+import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 
 @Component({
   selector: 'app-sales-returns',
   standalone: true,
-  imports: [],
+  imports: [StandardTableComponent],
   templateUrl: './sales-returns.component.html',
   styleUrl: './sales-returns.component.css'
 })
 export class SalesReturnsComponent {
 
 
-    readonly ArrowRight = ArrowRight;
-    salesReturns: SalesReturnModal[] = [];
-    salesReturnDetail: any = null;
+  readonly ArrowRight = ArrowRight;
 
-    pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
-  
-    columns: TableColumn[] = [
-      { key: 'orderNumber', label: 'Order No', width: '130px', type: 'link' },
-      { key: 'customerId', label: 'Customer ID', width: '100px', type: 'text' },
-      { key: 'customerName', label: 'Customer', width: '220px', type: 'text' },
-      { key: 'orderDate', label: 'Order Date', width: '130px', type: 'date', align: 'center' },
-      { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
-      { key: 'totalTax', label: 'Tax', width: '120px', type: 'currency', align: 'right' },
-      { key: 'totalDiscount', label: "Dis", width: '120px', type: 'currency', align: 'right' },
-      { key: 'totalDiscountPer', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
-      { key: 'status', label: 'Status', width: '140px', type: 'badge' },
-      { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
-    ];
-  
-    soActions: TableActionConfig[] = [
-      {
-        key: 'move_to_invoice',
-        label: 'Move to Invoice',
-        icon: ArrowRight,
-        color: 'primary',
-        // Only show if status is Approved
-        condition: (row) => row['status'] !== 'FULLY_INVOICED'
+  salesReturns: SalesReturnModal[] = [];
+  salesReturnDetail: SalesReturnModal | null = null;
+
+  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
+
+  columns: TableColumn[] = [
+    { key: 'returnNumber', label: 'Return No', width: '130px', type: 'link' },
+    { key: 'returnDate', label: 'Customer ID', width: '100px', type: 'text' },
+    { key: 'totalAmount', label: 'total Amount', width: '220px', type: 'text' },
+    { key: 'totalAmount', label: 'Order Date', width: '130px', type: 'date', align: 'center' },
+    { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
+    { key: 'totalTax', label: 'Tax', width: '120px', type: 'currency', align: 'right' },
+    { key: 'status', label: 'Status', width: '140px', type: 'badge' },
+    { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
+  ];
+
+
+  constructor(
+    private salesOrderService: SalesOrderService,
+    private salesReturnService: SalesReturnService,
+    public drawerService: DrawerService,
+    private toastSvc: ToastService,
+    private router: Router,
+    private loaderSvc: LoaderService
+  ) {
+  }
+
+  ngOnInit(): void {
+    this.getAllSalesReturns();
+  }
+
+  getAllSalesReturns() {
+    this.loaderSvc.show();
+    const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
+    this.salesReturnService.getAllSalesReturns(
+      apiPage,
+      this.pagination.pageSize,
+      {},
+      (response: any) => {
+        this.salesReturns = response.data.content;
+        this.pagination = {
+          currentPage: this.pagination.currentPage,
+          totalItems: response.data.totalElements,
+          pageSize: response.data.size
+        };
+        this.loaderSvc.hide();
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Failed to load Items', 'error');
+        console.error('Error fetching items:', error);
       }
-    ];
-  
-    constructor(
-      private salesOrderService: SalesOrderService,
-      private salesReturnService: SalesReturnService,
-      public drawerService: DrawerService,
-      private toastSvc: ToastService,
-      private router: Router,
-      private loaderSvc: LoaderService
-    ) {
+    );
+  }
+
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'move_to_invoice') {
+      console.log('Moving PO to Invoice:', event.row.id);
+      this.router.navigate(['/sales/invoice/create'], {
+        queryParams: { salesOrderId: event.row.id }
+      });
     }
-  
-    ngOnInit(): void {
-      this.getAllSalesReturns();
+    if (event.type === 'edit') {
+      // Standard edit logic
     }
-  
-    getAllSalesReturns() {
-      this.loaderSvc.show();
-      const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
-      this.salesReturnService.getAllSalesReturns(
-        apiPage,
-        this.pagination.pageSize,
-        {},
-        (response: any) => {
-          this.salesReturns = response.data.content;
-          this.pagination = {
-            currentPage: this.pagination.currentPage,
-            totalItems: response.data.totalElements,
-            pageSize: response.data.size
-          };
-          this.loaderSvc.hide();
-        },
-        (error: any) => {
-          this.loaderSvc.hide();
-          this.toastSvc.show('Failed to load Items', 'error');
-          console.error('Error fetching items:', error);
-        }
-      );
+  }
+
+  onTableAction(event: TableAction) {
+    const { type, row, key } = event;
+
+    switch (type) {
+      case 'view':
+        console.log("View:", row.id);
+        //this.viewSalesOrderDetail(row.id);
+        break;
+      case 'edit':
+        break;
+      case 'delete':
+        console.log("Delete:", row.id);
+        break;
+      case 'toggle':
+        break;
     }
-  
-    getSalesOrderById(id: number | string) {
-      this.salesOrderService.getSalesOrderById(
-        Number(id),
-        (response: any) => {
-          console.log('Sales Return Details:', response.data);
-        }
-        ,
-        (error: any) => {
-          this.toastSvc.show('Failed to load Sales Order details', 'error');
-          console.error('Error fetching Sales Order details:', error);
-        }
-      );
-    }
-  
-    // viewSalesOrderDetail(id: number | string) {
-    //   this.getSalesOrderById(id);
-    //   this.drawerService.openComponent(
-    //     OrderTrackerComponent,
-    //     'Order Details',
-    //     'xl',
-    //   );
-    // }
-  
-    updateSalesOrder(id: number | string) {
-      this.router.navigate(['/sales/order/edit', id]);
-    }
-  
-    handleTableAction(event: TableAction) {
-      if (event.type === 'custom' && event.key === 'move_to_invoice') {
-        console.log('Moving PO to Invoice:', event.row.id);
-        this.router.navigate(['/sales/invoice/create'], {
-          queryParams: { salesOrderId: event.row.id }
-        });
-      }
-      if (event.type === 'edit') {
-        // Standard edit logic
-      }
-    }
-  
-    onTableAction(event: TableAction) {
-      const { type, row, key } = event;
-  
-      switch (type) {
-        case 'view':
-          console.log("View:", row.id);
-          //this.viewSalesOrderDetail(row.id);
-          break;
-        case 'edit':
-          this.updateSalesOrder(row.id);
-          break;
-        case 'delete':
-          console.log("Delete:", row.id);
-          break;
-        case 'toggle':
-          break;
-      }
-    }
-  
-    onPageChange(newPage: number) {
-      this.pagination = { ...this.pagination, currentPage: newPage };
-      this.getAllSalesReturns();
-    }
-  
-    onLoadMore() {
-      console.log('Load more triggered');
-    }
+  }
+
+  onPageChange(newPage: number) {
+    this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getAllSalesReturns();
+  }
+
+  onLoadMore() {
+    console.log('Load more triggered');
+  }
 
 }

@@ -104,12 +104,12 @@ export class DeliveryComponent implements OnInit {
     );
   }
 
-    handleTableAction(event: TableAction) {
+  handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'delivered') {
-        console.log(':', event.row);
-        this.deliveriedInvoice(event.row.id);
+      console.log(':', event.row);
+      this.deliveriedInvoice(event.row.id);
     }
-    if (event.type === 'edit') {  
+    if (event.type === 'edit') {
       // Standard edit logic
     }
   }

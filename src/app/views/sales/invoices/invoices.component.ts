@@ -4,12 +4,12 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { ArrowRight, Truck } from 'lucide-angular';
+import { ArrowRight, ScrollText, Truck } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { InvoiceModal } from './invoice.modal';
+import { InvoiceModal, InvoiceStatus } from './invoice.modal';
 import { PaymentService } from '../payments/payment.service';
 import { InvoicePaymentSummaryModal } from '../payments/payment.modal';
 import { ModalService } from '../../../layouts/components/modal/modalService';
@@ -44,14 +44,14 @@ export class InvoicesComponent {
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
   ];
 
-  soActions: TableActionConfig[] = [
+  paymentDetailsActions: TableActionConfig[] = [
     {
-      key: 'move_to_delivery',
-      label: 'Move to Delivery',
-      icon: Truck,
-      color: 'primary',
+      key: 'payment_details',
+      label: 'Payment details',
+      icon: ScrollText,
+      color: 'success',
       // Only show if status is Approved
-      condition: (row) => row['status'] !== 'FULLY_INVOICED'
+      condition: (row) => row['status'] === 'PARTIALLY_PAID' || row['status'] === 'PAID'
     }
   ];
 
@@ -97,8 +97,9 @@ export class InvoicesComponent {
 
 
   handleTableAction(event: TableAction) {
-    if (event.type === 'custom' && event.key === 'move_to_invoice') {
-      console.log(':', event.row);
+    if (event.type === 'custom' && event.key === 'move_to_delivery') {
+      console.log(':ddfdfd', event.row);
+      this.openPaymentSummary(event.row.id);
     }
     if (event.type === 'edit') {
       // Standard edit logic
@@ -154,12 +155,30 @@ export class InvoicesComponent {
     );
   }
 
+  updateInvoiceStatus(invoiceId: any, status: InvoiceStatus) {
+    this.loaderSvc.show();
+    this.invoiceService.updateInvoiceStatus(
+      {
+        "invoiceId": invoiceId,
+        "status": status
+      },
+      (response: any) => {
+        this.loaderSvc.hide();
+        this.getAllInvoices();
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Failed to update invoice status', 'error');
+        console.error('Error updating invoice status:', error);
+      }
+    );
+  }
+
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
 
     switch (type) {
       case 'view':
-        this.openPaymentSummary(row.id);
         console.log("View:", row.id);
         break;
       case 'edit':

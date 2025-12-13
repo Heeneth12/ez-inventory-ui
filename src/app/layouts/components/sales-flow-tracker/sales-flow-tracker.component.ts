@@ -16,11 +16,7 @@ import { ModalService } from '../modal/modalService';
   standalone: true,
   imports: [CommonModule, LucideAngularModule, CurrencyPipe, DatePipe],
   templateUrl: './sales-flow-tracker.component.html',
-  styles: [`
-    .step-line { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  `]
+  styleUrl: './sales-flow-tracker.component.css'
 })
 export class SalesFlowTrackerComponent implements OnChanges {
 
