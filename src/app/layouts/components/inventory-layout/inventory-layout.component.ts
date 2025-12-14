@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { RouterModule, ɵEmptyOutletComponent } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { DrawerComponent } from "../drawer/drawer.component";
 import { ToastComponent } from "../toast/toast.component";
 import { ModalComponent } from "../modal/modal.component";
@@ -19,7 +19,9 @@ import {
   CircleUser,
   FileChartColumn,
   Folder,
-  Settings
+  Settings,
+  Calendar,
+  ChevronDown
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -36,6 +38,10 @@ export class InventoryLayoutComponent implements OnInit {
   isMobileMenuOpen = false;
   openDropdownIndex: number | null = null;
   @ViewChild('userProfileTemplate') userProfileTemplate!: TemplateRef<any>;
+
+  //icons
+  readonly Calendar = Calendar
+  readonly ChevronDown = ChevronDown
 
   user: UserProfile = {
     name: 'Adam Driver',

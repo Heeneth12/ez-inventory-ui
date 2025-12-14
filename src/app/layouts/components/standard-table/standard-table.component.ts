@@ -156,27 +156,27 @@ export class StandardTableComponent implements OnChanges {
     };
 
     // SUCCESS
-    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product', 'fully_invoiced', 'customer', 'delivered'].includes(s)) {
+    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product', 'fully_invoiced', 'customer', 'delivered', 'sales_team'].includes(s)) {
       return styles.success;
     }
 
     // DANGER
-    if (['inactive', 'out', 'error', 'failed', 'rejected', 'out of stock', 'closed'].includes(s)) {
+    if (['inactive', 'out', 'error', 'failed', 'rejected', 'out of stock', 'closed', 'unpaid'].includes(s)) {
       return styles.danger;
     }
 
     // WARNING
-    if (['pending', 'processing', 'hold', 'warning', 'partially invoiced', 'issued'].includes(s)) {
+    if (['pending', 'processing', 'hold', 'warning', 'partially invoiced',  'customer_pickup'].includes(s)) {
       return styles.warning;
     }
 
     // INFO / ROLES
-    if (['manager', 'lead', 'supplier', 'service', 'created'].includes(s)) {
+    if (['manager', 'lead', 'supplier', 'service', 'created', 'moved_to_delivery', 'in_house_delivery', 'issued'].includes(s)) {
       return styles.info;
     }
 
     // PURPLE / TECH
-    if (['engineer', 'developer', 'dev', 'partially_paid', 'partially_received'].includes(s)) {
+    if (['engineer', 'developer', 'dev', 'partially_paid', 'partially_received', 'scheduled', 'direct_sales'].includes(s)) {
       return styles.purple;
     }
 
