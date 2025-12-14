@@ -32,6 +32,11 @@ export class ContactFilter {
     type?: ContactType;
     active?: boolean;
 }
+export class ContactMiniModel {
+    id?: number;
+    contactCode?: string;
+    name?: string;
+}
 
 export enum ContactType {
     CUSTOMER = 'CUSTOMER',

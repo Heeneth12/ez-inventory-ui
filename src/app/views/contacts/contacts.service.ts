@@ -25,7 +25,7 @@ export class ContactService {
         return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
-    getContactById(id: number, successfn: any, errorfn: any) {
+    getContactById(id: number | string, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${ContactService.CONTACTS_BASE_URL}/${id}`, successfn, errorfn);
     }
 
