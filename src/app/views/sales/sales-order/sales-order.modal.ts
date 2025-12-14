@@ -1,8 +1,11 @@
+import { ContactMiniModel } from "../../contacts/contacts.model";
+
 export class SalesOrderModal {
     id!: number;
     warehouseId!: number;
     orderNumber!: string;
     orderDate!: string;
+    contactMini!: ContactMiniModel
     customerId!: number;
     customerName!: string;
     paymentTerms!: string;
@@ -15,6 +18,7 @@ export class SalesOrderModal {
     totalTax!: number;
     active!: boolean;
     status!: string;
+    source!: string;
     items!: SalesOrderItemsModal[];
     remarks!: string;
 }

@@ -26,9 +26,8 @@ export class PaymentsComponent {
   selectedItemIds: (string | number)[] = [];
 
   columns: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
     { key: 'paymentNumber', label: 'Payment Number', width: '200px', type: 'link' },
-    { key: 'customerId', label: 'Customer ID', width: '110px', type: 'text' },
+    { key: 'customerId', label: 'Cust-ID', width: '110px', type: 'text' },
     { key: 'customerName', label: 'Customer Name', width: '110px', type: 'text' },
     { key: 'paymentDate', label: 'Payment Date', width: '100px', type: 'date' },
     { key: 'amount', label: 'Amount', width: '90px', type: 'text' },

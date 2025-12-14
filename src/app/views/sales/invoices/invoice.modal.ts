@@ -1,10 +1,15 @@
+import { ContactMiniModel } from "../../contacts/contacts.model";
+
 export interface InvoiceModal {
   id: number;
   invoiceNumber: string;
   salesOrderId: number;
+  contactMini: ContactMiniModel;
   customerId: number;
   warehouseId: number;
   status: string;
+  paymentStatus: string;
+  deliveryStatus: string;
   invoiceDate: Date;
   items: InvoiceItemModal[];
   subTotal: number;

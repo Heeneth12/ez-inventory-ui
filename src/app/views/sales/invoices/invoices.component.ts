@@ -4,7 +4,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { ArrowRight, ScrollText, Truck } from 'lucide-angular';
+import { ArrowRight, ReceiptIndianRupee, ScrollText, Truck } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';
@@ -28,19 +28,20 @@ export class InvoicesComponent {
   paymentSummary: InvoicePaymentSummaryModal[] = [];
 
   readonly Truck = Truck;
+
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
+    { key: 'contactMini', label: 'Customer', width: '100px', type: 'fullProfile', align: 'left' },
     { key: 'invoiceNumber', label: 'Invoice No', width: '130px', type: 'link' },
-    { key: 'salesOrderId', label: 'SO ID', width: '100px', type: 'text' },
-    { key: 'customerName', label: 'Customer', width: '220px', type: 'text' },
-    { key: 'invoiceDate', label: 'Invoice Date', width: '130px', type: 'date', align: 'center' },
+    { key: 'invoiceDate', label: 'Inv-Date', width: '130px', type: 'date', align: 'center' },
     { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
     { key: 'totalDiscount', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
     { key: 'status', label: 'Status', width: '140px', type: 'badge' },
-    { key: 'amountPaid', label: 'Paid Amount', width: '130px', type: 'currency', align: 'right' },
+    { key: 'paymentStatus', label: 'Pay-Status', width: '140px', type: 'badge' },
+    { key: 'amountPaid', label: 'Paid Amt', width: '130px', type: 'currency', align: 'right' },
     { key: 'balance', label: 'Balance', width: '130px', type: 'currency', align: 'right' },
-    { key: 'grandTotal', label: 'Total Amount', width: '130px', type: 'currency', align: 'right' },
+    { key: 'grandTotal', label: 'Total Amt', width: '130px', type: 'currency', align: 'right' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
   ];
 
@@ -51,7 +52,15 @@ export class InvoicesComponent {
       icon: ScrollText,
       color: 'success',
       // Only show if status is Approved
-      condition: (row) => row['status'] === 'PARTIALLY_PAID' || row['status'] === 'PAID'
+      condition: (row) => row['paymentStatus'] === 'PAID' || row['paymentStatus'] === 'PARTIALLY_PAID'
+    },
+    {
+      key: 'receive_payment',
+      label: 'Receive Payment',
+      icon: ReceiptIndianRupee,
+      color: 'primary',
+      // Only show if status is Approved
+      condition: (row) => row['paymentStatus'] === 'UNPAID'
     }
   ];
 
@@ -97,9 +106,12 @@ export class InvoicesComponent {
 
 
   handleTableAction(event: TableAction) {
-    if (event.type === 'custom' && event.key === 'move_to_delivery') {
-      console.log(':ddfdfd', event.row);
+    if (event.type === 'custom' && event.key === 'payment_details') {
       this.openPaymentSummary(event.row.id);
+    }
+    if (event.type === 'custom' && event.key === 'receive_payment') {
+      this.openPaymentSummary(event.row.id);
+      this.getAllInvoices();
     }
     if (event.type === 'edit') {
       // Standard edit logic
@@ -117,6 +129,7 @@ export class InvoicesComponent {
       invoiceId,
       (response: any) => {
         this.paymentSummary = response.data;
+
         console.log('Payments for invoice:', response);
       },
       (error: any) => {

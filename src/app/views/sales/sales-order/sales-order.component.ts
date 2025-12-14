@@ -29,9 +29,9 @@ export class SalesOrderComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
+    { key: 'contactMini', label: 'Customer', width: '100px', type: 'fullProfile', align: 'left' },
     { key: 'orderNumber', label: 'Order No', width: '130px', type: 'link' },
-    { key: 'customerId', label: 'Customer ID', width: '100px', type: 'text' },
-    { key: 'customerName', label: 'Customer', width: '220px', type: 'text' },
+    { key: 'source', label: 'Source', width: '100px', type: 'badge' },
     { key: 'orderDate', label: 'Order Date', width: '130px', type: 'date', align: 'center' },
     { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
     { key: 'totalTax', label: 'Tax', width: '120px', type: 'currency', align: 'right' },
