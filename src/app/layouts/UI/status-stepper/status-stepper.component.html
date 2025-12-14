@@ -1,0 +1,28 @@
+<div class="flex items-center w-full max-w-40 min-w-[140px] select-none" title="Progress: {{ completedStepCount }}/4">
+
+  <ng-container *ngFor="let step of steps; let i = index; let last = last">
+
+    <div
+      class="group relative z-10 flex items-center justify-center w-7 h-7 rounded-full border transition-all duration-300 ease-out cursor-default"
+      [ngClass]="
+        i < completedStepCount
+          ? 'bg-green-100 text-green-700 border-green-200 shadow-md scale-100' 
+          : 'bg-white border-gray-300 text-gray-400 scale-95'
+      ">
+      <lucide-icon [img]="step.icon" class="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110"
+        [strokeWidth]="2.5"></lucide-icon>
+
+      <span
+        class="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 shadow-lg">
+        {{ step.label }}
+      </span>
+    </div>
+
+    <div *ngIf="!last" class="flex-1 h-0.5 -mx-1 relative z-0 transition-colors duration-500 delay-70" [ngClass]="{
+           'bg-green-600': i + 1 < completedStepCount,
+           'bg-green-400 animate-pulse': i + 1 === completedStepCount,
+           'bg-gray-100': i + 1 > completedStepCount
+         }"></div>
+
+  </ng-container>
+</div>

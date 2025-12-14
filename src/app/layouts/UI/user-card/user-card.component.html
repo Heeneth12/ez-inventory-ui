@@ -1,0 +1,140 @@
+<div class="relative inline-block">
+    <div (click)="toggleDropdown($event)"
+        class="group flex items-center gap-3 cursor-pointer border border-transparent transition-all duration-200 max-w-xs w-full select-none">
+
+        <div class="relative shrink-0">
+            @if(data.avatarUrl){
+            <img [src]="data.avatarUrl"
+                class="w-10 h-10 rounded-full object-cover border border-gray-200 group-hover:border-blue-300 transition-colors">
+            }
+            @else {
+            <div
+                class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 group-hover:border-blue-300 transition-colors">
+                <span class="text-sm font-bold text-gray-600">
+                    {{ data.name.charAt(0).toUpperCase() }}
+                </span>
+            </div>
+            }
+
+            <div *ngIf="data.isVerified"
+                class="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full p-0.5 border-2 border-white">
+                <lucide-icon [img]="BadgeIcon" class="w-2.5 h-2.5"></lucide-icon>
+            </div>
+        </div>
+
+        <div class="flex flex-col min-w-0">
+            <h4 class="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                {{ data.name }}
+            </h4>
+            <span class="text-xs text-blue-600 hover:underline cursor-pointer">view profile</span>
+        </div>
+    </div>
+
+    <div *ngIf="isOpen" (click)="$event.stopPropagation()"
+        class="absolute left-0 top-full mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-left">
+
+        <div class="p-4 border-b border-gray-100 flex justify-between items-start bg-gray-50/80 rounded-t-xl">
+            <div class="flex items-center gap-3">
+                <img [src]="data.avatarUrl" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
+                <div>
+                    <h3 class="font-bold text-gray-900 leading-tight">{{ data.name }}</h3>
+                    <span
+                        class="text-[10px] font-semibold text-blue-700 uppercase tracking-wide bg-blue-50 px-2 py-0.5 rounded-full">
+                        {{ contactDetails?.type || 'Loading...' }}
+                    </span>
+                </div>
+            </div>
+            <button (click)="closeDropdown()"
+                class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">
+                <lucide-icon [img]="CloseIcon" class="w-4 h-4"></lucide-icon>
+            </button>
+        </div>
+
+        <div class="p-4 space-y-4">
+
+            <ng-container *ngIf="isLoading">
+                <div class="space-y-4 animate-pulse">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gray-200 rounded-md"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="h-2 bg-gray-200 rounded w-10"></div>
+                            <div class="h-3 bg-gray-200 rounded w-3/4"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gray-200 rounded-md"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="h-2 bg-gray-200 rounded w-10"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="!isLoading && contactDetails">
+
+                <div class="flex items-start gap-3 text-sm">
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
+                        <lucide-icon [img]="MailIcon" class="w-4 h-4"></lucide-icon>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase text-gray-400 font-bold tracking-wider">Email</span>
+                        <a [href]="'mailto:' + contactDetails.email"
+                            class="font-medium text-gray-800 hover:text-blue-600 truncate break-all">
+                            {{ contactDetails.email || 'N/A' }}
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 text-sm">
+                    <div class="p-2 bg-green-50 text-green-600 rounded-lg shrink-0">
+                        <lucide-icon [img]="PhoneIcon" class="w-4 h-4"></lucide-icon>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase text-gray-400 font-bold tracking-wider">Phone</span>
+                        <a [href]="'tel:' + contactDetails.phone" class="font-medium text-gray-800 hover:text-blue-600">
+                            {{ contactDetails.phone || 'N/A' }}
+                        </a>
+                    </div>
+                </div>
+
+                <div *ngIf="contactDetails.gstNumber" class="flex items-start gap-3 text-sm">
+                    <div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0">
+                        <lucide-icon [img]="FileIcon" class="w-4 h-4"></lucide-icon>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase text-gray-400 font-bold tracking-wider">GST Number</span>
+                        <span class="font-medium text-gray-800 font-mono tracking-wide">{{ contactDetails.gstNumber
+                            }}</span>
+                    </div>
+                </div>
+
+                <div *ngIf="primaryAddress" class="flex items-start gap-3 text-sm">
+                    <div class="p-2 bg-orange-50 text-orange-600 rounded-lg shrink-0">
+                        <lucide-icon [img]="MapIcon" class="w-4 h-4"></lucide-icon>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase text-gray-400 font-bold tracking-wider">Location</span>
+                        <span class="font-medium text-gray-800">
+                            {{ primaryAddress.city }}, {{ primaryAddress.state }}
+                        </span>
+                    </div>
+                </div>
+
+            </ng-container>
+
+            <div *ngIf="!isLoading && !contactDetails" class="text-center py-4 text-gray-400 text-sm">
+                Failed to load contact details.
+            </div>
+
+        </div>
+
+        <div class="p-3 bg-gray-50 border-t border-gray-100 rounded-b-xl">
+            <button (click)="onViewFullProfile()"
+                class="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold py-2.5 rounded-lg transition-all shadow-sm active:scale-95">
+                <span>View Full Profile</span>
+                <lucide-icon [img]="LinkIcon" class="w-3.5 h-3.5"></lucide-icon>
+            </button>
+        </div>
+    </div>
+</div>
