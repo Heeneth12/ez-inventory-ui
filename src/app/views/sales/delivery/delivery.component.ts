@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { DeliveryFilterModel, DeliveryModel } from './delivery.model';
+import { DeliveryFilterModel, DeliveryModel, ShipmentStatus } from './delivery.model';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
@@ -8,7 +8,7 @@ import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DeliveryService } from './delivery.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { Truck } from 'lucide-angular';
+import { Truck, TruckElectric } from 'lucide-angular';
 
 @Component({
   selector: 'app-delivery',
@@ -27,10 +27,8 @@ export class DeliveryComponent implements OnInit {
   selectedItemIds: (string | number)[] = [];
 
   columns: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
-    { key: 'deliveryNumber', label: 'Delivery Number', width: '230px', type: 'text' },
-    { key: 'itemCode', label: 'Code', width: '110px', type: 'text' },
-    { key: 'customerName', label: 'Customer Name', width: '110px', type: 'text' },
+    { key: 'deliveryNumber', label: 'Delivery Number', width: '200px', type: 'link' },
+    { key: 'customerName', label: 'Customer Name', width: '220px', type: 'text' },
     { key: 'type', label: 'Type', width: '100px', type: 'badge' },
     { key: 'status', label: 'Status', width: '90px', type: 'badge' },
     { key: 'scheduledDate', label: 'Scheduled Date', align: 'right', width: '110px', type: 'date' },
@@ -39,16 +37,24 @@ export class DeliveryComponent implements OnInit {
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
 
-    deliveryActions: TableActionConfig[] = [
-      {
-        key: 'delivered',
-        label: 'Mark as Delivered',
-        icon: Truck,
-        color: 'primary',
-        // Only show if status is Approved
-        condition: (row) => row['status'] === 'PENDING'
-      }
-    ];
+  deliveryActions: TableActionConfig[] = [
+    {
+      key: 'make_as_delivered',
+      label: 'Mark as Delivered',
+      icon: Truck,
+      color: 'primary',
+      // Only show if status is Approved
+      condition: (row) => row['status'] === 'SHIPPED'
+    },
+    {
+      key: 'move_to_delivery',
+      label: 'Move to delivary',
+      icon: TruckElectric,
+      color: 'danger',
+      // Only show if status is Approved
+      condition: (row) => row['status'] === 'SCHEDULED'
+    }
+  ];
 
   constructor(
     private deliveryService: DeliveryService,
@@ -91,6 +97,22 @@ export class DeliveryComponent implements OnInit {
     console.log("Current Selection:", this.selectedItemIds);
   }
 
+  updateDelivaryStatus(id: any, status: ShipmentStatus) {
+    this.deliveryService.updateDeliveryStatus(
+      {
+        id: id,
+        status: status
+      },
+      (response: any) => {
+        this.toastService.show("Delivery updated successfully", 'success');
+        this.getAllDeliveries();
+      },
+      (error: any) => {
+        this.toastService.show("Failed to update delivery", 'error');
+      }
+    );
+  }
+
   deliveriedInvoice(deliveryIds: string | number) {
     this.deliveryService.markAsDelivered(deliveryIds,
       (response: any) => {
@@ -105,9 +127,12 @@ export class DeliveryComponent implements OnInit {
   }
 
   handleTableAction(event: TableAction) {
-    if (event.type === 'custom' && event.key === 'delivered') {
+    if (event.type === 'custom' && event.key === 'make_as_delivered') {
       console.log(':', event.row);
-      this.deliveriedInvoice(event.row.id);
+      this.updateDelivaryStatus(event.row.id, ShipmentStatus.DELIVERED);
+    }
+    if (event.type === 'custom' && event.key === 'move_to_delivery') {
+      this.updateDelivaryStatus(event.row.id, ShipmentStatus.SHIPPED)
     }
     if (event.type === 'edit') {
       // Standard edit logic

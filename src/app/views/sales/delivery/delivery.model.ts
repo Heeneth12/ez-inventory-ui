@@ -30,3 +30,11 @@ export class DeliveryFilterModel {
     deliveredDateFrom?: Date;
     deliveredDateTo?: Date;
 }
+
+export enum ShipmentStatus{
+    PENDING = 'PENDING',
+    SCHEDULED = 'SCHEDULED',
+    SHIPPED = 'SHIPPED',
+    DELIVERED = 'DELIVERED',
+    CANCELLED = 'CANCELLED'
+}

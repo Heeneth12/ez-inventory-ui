@@ -26,6 +26,10 @@ export class DeliveryService {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/search`, searchFilter, successfn, errorfn);
     }
 
+    updateDeliveryStatus(request:any, successfn: any, errorfn: any){
+         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/update-status`, request, successfn, errorfn);
+    }
+
     markAsDelivered(deliveryId: string | number, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/delivered`, { deliveryId }, successfn, errorfn);
     }
