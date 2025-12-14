@@ -1,37 +1,41 @@
-<div class="w-full">
-    <!-- Card Container with Title -->
-    <div class="bg-white  border border-gray-200">
-        <!-- Header Section with Title and Actions -->
-        <div class="border-b border-gray-100">
-            <!-- Tab Navigation -->
-            <div class="flex items-center gap-1 border-b border-gray-200 -mb-px">
-                @for (tab of tabs; track tab.id) {
-                <button (click)="selectTab(tab.id)"
-                    [ngClass]="activeTabId === tab.id ? 'text-emerald-800 font-bold  bg-emerald-100' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
-                    class="relative px-5 py-3 text-md font-semibold transition-all duration-200 focus:outline-none">
-                    <div class="flex items-center gap-2">
-                        <lucide-icon [img]="tab.icon" class="w-5 h-5">
-                        </lucide-icon>
+<div class="w-full flex flex-col h-full">
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-full">
+        <div class="border-b border-gray-100 bg-white px-6">
+            <div class="flex items-center gap-8 overflow-x-auto no-scrollbar">
+                
+                <button 
+                    *ngFor="let tab of tabs"
+                    (click)="selectTab(tab.id)"
+                    class="group relative py-4 text-sm font-medium transition-all duration-300 ease-in-out whitespace-nowrap flex items-center gap-2 focus:outline-none"
+                    [ngClass]="activeTabId === tab.id ? 'text-slate-900' : 'text-gray-500 hover:text-gray-700'"
+                >
+                    <lucide-icon 
+                        *ngIf="tab.icon" 
+                        [img]="tab.icon" 
+                        class="w-4 h-4 transition-colors duration-300"
+                        [ngClass]="activeTabId === tab.id ? 'stroke-indigo-600' : 'stroke-gray-400 group-hover:stroke-gray-500'"
+                    ></lucide-icon>
 
-                        <span class="relative z-10">{{ tab.label }}</span>
-                    </div>
-                    <!-- Counter Badge (if exists) -->
-                    @if (tab.count !== undefined) {
-                    <span class="ml-2 px-2 py-0.5 text-xs font-bold rounded-full bg-gray-100 text-gray-600">
+                    <span>{{ tab.label }}</span>
+
+                    <span *ngIf="tab.count !== undefined"
+                          class="ml-1 px-2 py-0.5 text-[10px] font-bold rounded-full transition-colors duration-300"
+                          [ngClass]="activeTabId === tab.id 
+                            ? 'bg-indigo-50 text-indigo-600' 
+                            : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'"
+                    >
                         {{ tab.count }}
                     </span>
-                    }
-                    <!-- Active Bottom Border -->
-                    @if (activeTabId === tab.id) {
-                    <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-400"></div>
-                    }
+                    <div class="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full transition-all duration-300 ease-out transform origin-center"
+                         [ngClass]="activeTabId === tab.id ? 'bg-indigo-600 scale-x-100' : 'bg-transparent scale-x-0'"
+                    ></div>
                 </button>
-                }
             </div>
         </div>
-        <!-- Main Content Area -->
-        <div class="bg-white">
+
+        <div class="flex-1 bg-white overflow-auto">
             <ng-content></ng-content>
         </div>
+        
     </div>
 </div>
