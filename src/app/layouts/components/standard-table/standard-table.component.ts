@@ -3,11 +3,13 @@ import { CommonModule, DecimalPipe, CurrencyPipe, DatePipe } from '@angular/comm
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig } from './standard-table.model';
 import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight } from 'lucide-angular';
+import { StatusStepperComponent } from '../../UI/status-stepper/status-stepper.component';
+import { UserCardComponent } from "../../UI/user-card/user-card.component";
 
 @Component({
   selector: 'app-standard-table',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, StatusStepperComponent, UserCardComponent],
   templateUrl: './standard-table.component.html',
   styleUrls: ['./standard-table.component.css'],
 })

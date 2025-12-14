@@ -139,6 +139,17 @@
                                 </div>
                             </div>
 
+                            <!-- <div *ngSwitchCase="'stepper'" class="flex items-center">
+                                <app-status-stepper [completedStepCount]="row[col.key]"
+                                    (click)="$event.stopPropagation()">
+                                </app-status-stepper>
+                            </div> -->
+
+                            <div *ngSwitchCase="'fullProfile'" class="flex items-center">
+                                <app-user-card [data]="row[col.key]">
+                                </app-user-card>
+                            </div>
+
                             <span *ngSwitchCase="'badge'"
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
                                 [ngClass]="getBadgeClass(row[col.key])">
@@ -160,7 +171,7 @@
                             </a>
 
                             <span *ngSwitchCase="'currency'" class="font-medium text-gray-700">
-                                {{ row[col.key] |  currency:'INR' }}
+                                {{ row[col.key] | currency:'INR' }}
                             </span>
 
                             <span *ngSwitchCase="'number'" [class.text-red-600]="row[col.key] < 0">

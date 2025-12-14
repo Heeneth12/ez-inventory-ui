@@ -1,6 +1,6 @@
 export type LoadMode = 'pagination' | 'infinite';
 export type Density = 'compact' | 'normal' | 'comfortable';
-export type ColumnType = 'text' | 'number' | 'currency' | 'link' | 'toggle' | 'badge' | 'profile' | 'action' | 'date';
+export type ColumnType = 'text' | 'number' | 'currency' | 'link' | 'toggle' | 'badge' | 'profile' | 'action' | 'date' | 'stepper' | 'fullProfile';
 
 export interface TableColumn {
     key: string;
