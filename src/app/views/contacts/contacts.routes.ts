@@ -13,8 +13,9 @@ export const contactsRoutes: Routes = [
             { path: '', component: ContactsComponent },
             { path: 'create', component: ContactFormComponent },
             { path: 'edit/:id', component: ContactFormComponent },
-            { path: 'profile/:id', component: ContactProfileComponent },
             { path: '', redirectTo: 'employee', pathMatch: 'full' },
         ]
-    }
+        
+    },
+    { path: 'profile/:id', component: ContactProfileComponent },
 ]
