@@ -12,6 +12,7 @@ import { SalesOrderService } from './sales-order.service';
 import { ArrowRight, View } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { SalesFlowTrackerComponent } from '../../../layouts/components/sales-flow-tracker/sales-flow-tracker.component';
+import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
 
 @Component({
   selector: 'app-sales-order',
@@ -28,18 +29,7 @@ export class SalesOrderComponent implements OnInit {
   salesOrderDetail: SalesOrderModal | null = null;
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
-  columns: TableColumn[] = [
-    { key: 'contactMini', label: 'Customer', width: '100px', type: 'fullProfile', align: 'left' },
-    { key: 'orderNumber', label: 'Order No', width: '130px', type: 'link' },
-    { key: 'source', label: 'Source', width: '100px', type: 'badge' },
-    { key: 'orderDate', label: 'Order Date', width: '130px', type: 'date', align: 'center' },
-    { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
-    { key: 'totalTax', label: 'Tax', width: '120px', type: 'currency', align: 'right' },
-    { key: 'totalDiscount', label: "Dis", width: '120px', type: 'currency', align: 'right' },
-    { key: 'totalDiscountPer', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
-    { key: 'status', label: 'Status', width: '140px', type: 'badge' },
-    { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
-  ];
+  soColumn: any = SALES_ORDER_COLUMNS;
 
   soActions: TableActionConfig[] = [
     {

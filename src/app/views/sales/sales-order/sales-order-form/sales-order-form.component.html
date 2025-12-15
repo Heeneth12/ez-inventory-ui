@@ -193,20 +193,21 @@
 
                         <!-- Table Headers -->
                         <div
-                            class="hidden md:grid grid-cols-12 gap-4 pb-3 border-b border-gray-100 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            <div class="col-span-4">Product Details</div>
-                            <div class="col-span-2 text-right">Price</div>
-                            <div class="col-span-1 text-right">Tax</div>
+                            class="hidden md:grid grid-cols-12 gap-0 pb-3 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            <div class="col-span-3 pl-2">Product Details</div>
+                            <div class="col-span-1 text-center">HNC</div>
+                            <div class="col-span-2 text-center">Price</div>
+                            <div class="col-span-1 text-center">Disc %</div>
+                            <div class="col-span-1 text-center">Tax %</div>
                             <div class="col-span-2 text-center">Qty</div>
-                            <div class="col-span-2 text-right">Total</div>
+                            <div class="col-span-1 text-right pr-2">Total</div>
                             <div class="col-span-1"></div>
                         </div>
 
-                        <!-- Items List -->
                         <div class="flex-1" formArrayName="items">
 
                             <div *ngIf="items.controls.length === 0"
-                                class="flex flex-col items-center justify-center h-40 text-gray-400  bg-gray-100 border-2 border-dashed border-gray-200 rounded-xl mt-4">
+                                class="flex flex-col items-center justify-center h-40 text-gray-400 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl mt-4">
                                 <svg class="w-10 h-10 mb-2 opacity-20" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -216,37 +217,49 @@
                             </div>
 
                             <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
-                                class="grid grid-cols-1 md:grid-cols-12 gap-4 py-4 border-b border-gray-50 items-center hover:bg-gray-50/50 transition-colors group">
+                                class="grid grid-cols-1 md:grid-cols-12 gap-0 py-4 border-b border-gray-100 items-center hover:bg-gray-50/50 transition-colors group">
 
-                                <div class="col-span-4 flex items-center gap-3">
+                                <div class="col-span-3 flex items-center gap-3 md:border-r border-gray-100 pr-2 pl-2">
                                     <div class="w-10 h-10 bg-white border border-gray-100 rounded-lg p-0.5 shrink-0">
-                                        <img [src]="item.get('imageUrl')?.value"
+                                        <img [src]="item.get('imageUrl')?.value || 'assets/placeholder.png'"
                                             class="w-full h-full object-cover rounded">
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-sm font-semibold text-gray-900 truncate">{{
-                                            item.get('name')?.value }}</p>
-                                        <div class="flex items-center gap-2 mt-0.5">
-                                            <span class="text-xs text-gray-400">Disc:</span>
-                                            <input type="number" formControlName="discount" placeholder="0"
-                                                class="w-16 bg-transparent border-b border-gray-200 text-xs py-0 focus:border-blue-500 focus:ring-0 px-0">
-                                        </div>
+                                        <p class="text-sm font-semibold text-gray-900 truncate"
+                                            title="{{ item.get('name')?.value }}">
+                                            {{ item.get('name')?.value }}
+                                        </p>
+                                        <p class="text-xs text-gray-400 truncate">SKU: {{ item.get('sku')?.value ||
+                                            'N/A' }}</p>
                                     </div>
                                 </div>
 
-                                <div class="col-span-2 md:text-right">
+                                <div class="col-span-1 md:text-center md:border-r border-gray-100 px-2 mt-2 md:mt-0">
+                                    <label class="md:hidden text-xs text-gray-400 block mb-1">HNC</label>
+                                    <input type="text" formControlName="hnc" placeholder="HNC"
+                                        class="w-full md:text-center bg-transparent border-b md:border-none border-gray-200 p-0 text-sm text-gray-600 focus:ring-0 placeholder-gray-300">
+                                </div>
+
+                                <div class="col-span-2 md:text-center md:border-r border-gray-100 px-2 mt-2 md:mt-0">
                                     <label class="md:hidden text-xs text-gray-400 block mb-1">Price</label>
                                     <input type="number" formControlName="unitPrice"
-                                        class="w-full md:text-right bg-transparent border-0 p-0 text-sm font-medium text-gray-600 focus:ring-0">
+                                        class="w-full md:text-center bg-transparent border-0 p-0 text-sm font-medium text-gray-600 focus:ring-0">
                                 </div>
 
-                                <div class="col-span-1 md:text-right">
+                                <div class="col-span-1 md:text-center md:border-r border-gray-100 px-2 mt-2 md:mt-0">
+                                    <label class="md:hidden text-xs text-gray-400 block mb-1">Disc</label>
+                                    <input type="number" formControlName="discount" placeholder="0"
+                                        class="w-full md:text-center bg-transparent border-b md:border-none border-gray-200 p-0 text-sm text-gray-600 focus:ring-0 focus:text-blue-600">
+                                </div>
+
+                                <div class="col-span-1 md:text-center md:border-r border-gray-100 px-2 mt-2 md:mt-0">
                                     <label class="md:hidden text-xs text-gray-400 block mb-1">Tax</label>
                                     <input type="number" formControlName="tax" placeholder="0"
-                                        class="w-full md:text-right bg-transparent border-b border-gray-200 p-0 text-sm text-gray-500 focus:ring-0 focus:border-blue-500">
+                                        class="w-full md:text-center bg-transparent border-b md:border-none border-gray-200 p-0 text-sm text-gray-500 focus:ring-0">
                                 </div>
 
-                                <div class="col-span-2 flex justify-start md:justify-center">
+                                <div
+                                    class="col-span-2 flex justify-start md:justify-center md:border-r border-gray-100 px-2 mt-2 md:mt-0">
                                     <div
                                         class="flex items-center bg-white border border-gray-200 rounded-lg h-8 shadow-sm">
                                         <button type="button" (click)="adjustQuantity(i, -1)"
@@ -258,13 +271,13 @@
                                     </div>
                                 </div>
 
-                                <div class="col-span-2 text-right">
+                                <div class="col-span-1 text-right pr-2 mt-2 md:mt-0">
                                     <label class="md:hidden text-xs text-gray-400 block mb-1">Total</label>
                                     <span class="text-sm font-bold text-gray-900">{{ getRowTotal(i) | currency:'INR'
                                         }}</span>
                                 </div>
 
-                                <div class="col-span-1 text-right">
+                                <div class="col-span-1 text-right mt-2 md:mt-0">
                                     <button type="button" (click)="removeItem(i)"
                                         class="text-gray-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,7 +369,6 @@
 
                     <!-- DATES CARD -->
                     <div class="bg-white border-gray-200 p-6">
-                        <h3 class="font-bold text-gray-900 text-lg mb-6">Dates</h3>
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm text-gray-500 mb-2">Order Date <span

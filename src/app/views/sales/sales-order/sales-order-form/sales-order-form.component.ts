@@ -4,7 +4,7 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap, of, identity } from 'rxjs';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
-import { ContactModel, AddressType } from '../../../contacts/contacts.model';
+import { ContactModel, AddressType, ContactFilter, ContactType } from '../../../contacts/contacts.model';
 import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
@@ -32,6 +32,7 @@ export class SalesOrderFormComponent implements OnInit {
   // Customer Search
   selectedCustomer: ContactModel | null = null;
   customerSearchInput = "";
+  contactFilter: ContactFilter = new ContactFilter();
   filteredCustomers: ContactModel[] = [];
   allCustomers: ContactModel[] = [];
   showCustomerResults = false;
@@ -58,6 +59,7 @@ export class SalesOrderFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    this.contactFilter.type = ContactType.SUPPLIER;
     this.orderForm = this.fb.group({
       id: [null],
       customerId: [1, Validators.required],
@@ -265,10 +267,13 @@ export class SalesOrderFormComponent implements OnInit {
   // --- Customer Management ---
 
   loadContacts() {
-    this.contactService.getContacts(0, 100, {}, (res: any) => {
-      this.allCustomers = res.data.content;
-      this.filteredCustomers = this.allCustomers;
-    }, (err: any) => console.error(err));
+    this.contactService.searchContacts(
+      this.contactFilter,
+      (res: any) => {
+        this.allCustomers = res.data.content;
+        this.filteredCustomers = this.allCustomers;
+      }, 
+      (err: any) => console.error(err));
   }
 
   filterCustomers() {

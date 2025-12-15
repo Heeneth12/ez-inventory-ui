@@ -27,7 +27,7 @@ export class DeliveryAdapterComponent {
 
     navigationTabs: TabItem[] = [
         { id: 'delivery', label: 'All Deliveries', icon: Receipt },
-        { id: 'todo', label: 'Create Delivery', icon: FilePlus },
+        { id: 'todo', label: 'toDay Delivery', icon: FilePlus },
     ];
 
     constructor(
@@ -36,10 +36,10 @@ export class DeliveryAdapterComponent {
     ) {
         this.router.events.subscribe(() => {
             const currentUrl = this.router.url;
-            if (currentUrl.includes('/invoice/edit')) {
+            if (currentUrl.includes('/delivery/edit')) {
                 this.activeTab.set('edit');
-            } else if (currentUrl.includes('/invoice/create')) {
-                this.activeTab.set('create');
+            } else if (currentUrl.includes('/delivery/todo')) {
+                this.activeTab.set('todo');
             } else {
                 this.activeTab.set('invoice');
             }

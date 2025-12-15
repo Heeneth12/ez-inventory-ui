@@ -52,7 +52,7 @@ export class InvoicesComponent {
       icon: ScrollText,
       color: 'success',
       // Only show if status is Approved
-      condition: (row) => row['paymentStatus'] === 'PAID' || row['paymentStatus'] === 'PARTIALLY_PAID'
+      condition: (row) => row['paymentStatus'] === 'PAID'
     },
     {
       key: 'receive_payment',
@@ -60,7 +60,7 @@ export class InvoicesComponent {
       icon: ReceiptIndianRupee,
       color: 'primary',
       // Only show if status is Approved
-      condition: (row) => row['paymentStatus'] === 'UNPAID'
+      condition: (row) => row['paymentStatus'] === 'UNPAID' || row['paymentStatus'] === 'PARTIALLY_PAID'
     }
   ];
 
@@ -125,7 +125,7 @@ export class InvoicesComponent {
   }
 
   getPaymentsByInvoiceId(invoiceId: any) {
-    this.paymentService.getPaymentSummary(
+    this.paymentService.getPaymentSummaryByInvoiceId(
       invoiceId,
       (response: any) => {
         this.paymentSummary = response.data;
