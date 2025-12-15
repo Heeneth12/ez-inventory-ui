@@ -2,19 +2,20 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject, switchMap, of, identity } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
 import { ContactModel, AddressType, ContactFilter, ContactType } from '../../../contacts/contacts.model';
 import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
-import { ClipboardPenLine, SearchCheckIcon, LucideAngularModule, Search, QrCode } from 'lucide-angular';
+import { LucideAngularModule, Search, QrCode, Loader2 } from 'lucide-angular';
+import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 
 @Component({
   selector: 'app-sales-order-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, LucideAngularModule, InvoiceHeaderComponent],
   templateUrl: './sales-order-form.component.html',
   styleUrls: ['./sales-order-form.component.css']
 })
@@ -23,6 +24,7 @@ export class SalesOrderFormComponent implements OnInit {
   // icons
   readonly SearchIcon = Search;
   readonly BarCode = QrCode;
+  readonly LoaderIcon = Loader2;
 
   orderForm: FormGroup;
   isEditMode = false;
@@ -31,11 +33,7 @@ export class SalesOrderFormComponent implements OnInit {
 
   // Customer Search
   selectedCustomer: ContactModel | null = null;
-  customerSearchInput = "";
   contactFilter: ContactFilter = new ContactFilter();
-  filteredCustomers: ContactModel[] = [];
-  allCustomers: ContactModel[] = [];
-  showCustomerResults = false;
 
   // Item Search
   itemSearchResults: ItemModel[] = [];
@@ -74,7 +72,6 @@ export class SalesOrderFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadContacts();
     this.setupItemSearch();
     this.checkEditMode();
   }
@@ -108,9 +105,7 @@ export class SalesOrderFormComponent implements OnInit {
           totalTax: order.totalTax          // Map Flat Tax
         });
         // 2. Set Customer Display
-        const customer = this.allCustomers.find(c => c.id === order.customerId);
-        if (customer) this.selectCustomer(customer);
-        else this.selectedCustomer = { id: order.customerId, name: order.customerName } as ContactModel; // Fallback
+        this.getCustomerById(order.customerId);
 
         // 3. Patch Items
         const itemArray = this.orderForm.get('items') as FormArray;
@@ -121,7 +116,6 @@ export class SalesOrderFormComponent implements OnInit {
             id: item.itemId,
             name: item.itemName,
             sellingPrice: item.unitPrice,
-            // Map existing line data
             orderedQty: item.orderedQty,
             discount: item.discount,
             tax: item.tax
@@ -244,6 +238,7 @@ export class SalesOrderFormComponent implements OnInit {
     return this.fb.group({
       itemId: [data.id],
       name: [data.name],
+      hsn: [data.hsnSacCode],
       imageUrl: [data.imageUrl || 'assets/placeholder.png'],
       unitPrice: [data.sellingPrice || 0, [Validators.required, Validators.min(0)]],
       orderedQty: [data.orderedQty || 1, [Validators.required, Validators.min(1)]],
@@ -264,34 +259,25 @@ export class SalesOrderFormComponent implements OnInit {
     }
   }
 
-  // --- Customer Management ---
-
-  loadContacts() {
-    this.contactService.searchContacts(
-      this.contactFilter,
-      (res: any) => {
-        this.allCustomers = res.data.content;
-        this.filteredCustomers = this.allCustomers;
-      }, 
-      (err: any) => console.error(err));
+  //Customer Management
+  getCustomerById(customerId:any){
+    this.contactService.getContactById(
+      customerId,
+      (response:any) => {
+        this.selectedCustomer = response.data;
+      },
+      (err:any) => {
+        console.log(err);
+      }
+    )
   }
 
-  filterCustomers() {
-    const term = this.customerSearchInput.toLowerCase();
-    this.filteredCustomers = this.allCustomers.filter(c =>
-      c.name.toLowerCase().includes(term) || c.phone?.includes(term)
-    );
-    this.showCustomerResults = true;
+  onCustomerSelected(customer: ContactModel) {
+    this.selectedCustomer = customer;
+    this.orderForm.patchValue({ customerId: customer.id });
   }
 
-  selectCustomer(cust: ContactModel) {
-    this.selectedCustomer = cust;
-    this.orderForm.patchValue({ customerId: cust.id });
-    this.showCustomerResults = false;
-    this.customerSearchInput = "";
-  }
-
-  clearCustomer() {
+  onCustomerCleared() {
     this.selectedCustomer = null;
     this.orderForm.patchValue({ customerId: null });
   }

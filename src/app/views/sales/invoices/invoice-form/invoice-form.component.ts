@@ -14,11 +14,12 @@ import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 import { LucideAngularModule, PenIcon, ReceiptIndianRupee, Truck } from "lucide-angular";
 import { InvoiceModal, InvoiceItemModal, InvoiceRequest, DeliveryOption } from '../invoice.modal';
+import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 
 @Component({
   selector: 'app-invoice-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, LucideAngularModule, InvoiceHeaderComponent],
   templateUrl: './invoice-form.component.html',
   styleUrls: ['./invoice-form.component.css']
 })
@@ -35,10 +36,6 @@ export class InvoiceFormComponent implements OnInit {
 
   // Customer Search
   selectedCustomer: ContactModel | null = null;
-  customerSearchInput = "";
-  filteredCustomers: ContactModel[] = [];
-  allCustomers: ContactModel[] = [];
-  showCustomerResults = false;
 
   // Pending Orders
   pendingOrders: SalesOrderModal[] = [];
@@ -90,7 +87,6 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadContacts();
     this.setupItemSearch();
     this.checkEditMode();
   }
@@ -463,34 +459,27 @@ export class InvoiceFormComponent implements OnInit {
     this.toast.show(err.error?.message || 'Operation failed', 'error');
   }
 
-  // --- CUSTOMER UTILS ---
-  loadContacts() {
-    this.contactService.getContacts(0, 100, {}, (res: any) => {
-      this.allCustomers = res.data.content;
-      this.filteredCustomers = this.allCustomers;
-    }, (err: any) => console.error(err));
+  //CUSTOMER UTILS
+  getCustomerById(customerId:any){
+    this.contactService.getContactById(
+      customerId,
+      (response:any) => {
+        this.selectedCustomer = response.data;
+      },
+      (err:any) => {
+        console.log(err);
+      }
+    )
   }
 
-  filterCustomers() {
-    const term = this.customerSearchInput.toLowerCase();
-    this.filteredCustomers = this.allCustomers.filter(c =>
-      c.name.toLowerCase().includes(term) || c.phone?.includes(term)
-    );
-    this.showCustomerResults = true;
+  onCustomerSelected(customer: ContactModel) {
+    this.selectedCustomer = customer;
+    this.invoiceForm.patchValue({ customerId: customer.id });
   }
 
-  selectCustomer(cust: ContactModel) {
-    this.selectedCustomer = cust;
-    this.invoiceForm.patchValue({ customerId: cust.id });
-    this.showCustomerResults = false;
-    this.customerSearchInput = "";
-    this.fetchPendingOrders(cust.id);
-  }
-
-  clearCustomer() {
+  onCustomerCleared() {
     this.selectedCustomer = null;
     this.invoiceForm.patchValue({ customerId: null });
-    this.pendingOrders = [];
   }
 
   getFormattedAddress(): string {

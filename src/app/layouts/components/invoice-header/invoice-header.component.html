@@ -1,0 +1,106 @@
+<div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 border border-gray-200 rounded-lg">
+    <div class="flex flex-col gap-3">
+        <span class="text-xs font-semibold text-slate-600">Invoice To</span>
+        <div>
+            <div *ngIf="selectedContact" class="relative group">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-md shrink-0">
+                        {{ selectedContact.name.substring(0,2).toUpperCase() }}
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-900 text-lg">{{ selectedContact.name }}</h4>
+                        <div class="mt-1 space-y-1 text-sm text-slate-500">
+                            
+                            <p class="flex items-center gap-2" *ngIf="selectedContact.phone">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                </svg>
+                                {{ selectedContact.phone }}
+                            </p>
+
+                            <p class="flex items-center gap-2" *ngIf="selectedContact.email">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                {{ selectedContact.email }}
+                            </p>
+
+                            <p class="flex items-start gap-2 pt-1" *ngIf="getFormattedAddress()">
+                                <svg class="w-3.5 h-3.5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                {{ getFormattedAddress() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" (click)="clearContact()" class="absolute top-0 right-0 text-xs text-slate-400 hover:text-red-600 font-medium underline">
+                    Change
+                </button>
+            </div>
+
+            <div *ngIf="!selectedContact" class="relative">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Search Customer</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg *ngIf="isSearching" class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <svg *ngIf="!isSearching" class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    
+                    <input type="text" 
+                        [ngModel]="searchTerm"
+                        (ngModelChange)="onSearchInput($event)"
+                        (blur)="closeDropdown()"
+                        placeholder="Name, Phone or Email..." 
+                        class="w-full bg-white border border-slate-300 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-slate-900 focus:border-slate-900 shadow-sm transition-all">
+                </div>
+
+                <div *ngIf="showResults && searchResults.length > 0" class="absolute left-0 right-0 z-50 mt-1 w-full bg-white rounded-lg shadow-2xl border border-slate-100 max-h-60 overflow-y-auto ring-1 ring-black ring-opacity-5">
+                    <ul class="py-1">
+                        <li *ngFor="let cust of searchResults" 
+                            (mousedown)="selectContact(cust)" 
+                            class="px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-center justify-between group">
+                            <div>
+                                <div class="font-medium text-slate-900 text-sm group-hover:text-blue-700">{{ cust.name }}</div>
+                                <div class="text-xs text-slate-500">{{ cust.phone }}</div>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">
+                                {{ cust.name.charAt(0) }}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div *ngIf="showResults && !isSearching && searchResults.length === 0 && searchTerm.length >= 2" class="absolute left-0 right-0 z-50 mt-1 w-full bg-white rounded-lg shadow-md border border-slate-100 p-3 text-center text-sm text-slate-500">
+                    No customers found.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <span class="text-xs font-semibold text-slate-600">Invoice From</span>
+        <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
+            <div class="flex items-start gap-3">
+                <div class="p-2 bg-white rounded-md border border-slate-100 text-slate-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-slate-900">Shipping From</h4>
+                    <p class="text-xs text-slate-500 mt-1 leading-snug">
+                        Select a warehouse to view shipping address. Stock will be deducted from this location.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
