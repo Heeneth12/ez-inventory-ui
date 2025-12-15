@@ -1,173 +1,216 @@
-<div class="flex flex-col h-full bg-gray-50">
+<div class="flex flex-col h-full bg-gray-50/50 font-sans">
 
-    <div class="px-6 py-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
-        <div>
-            <h2 class="text-xl font-bold text-gray-800">New Stock Adjustment</h2>
-            <p class="text-xs text-gray-500 mt-1">Adjust inventory levels for damage, expiry, or audit corrections.</p>
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between  mx-auto">
+                <div class="flex items-center gap-4">
+                    <button class="group p-2 hover:bg-slate-100 rounded-lg transition-all duration-200 active:scale-95">
+                        <svg class="w-5 h-5 text-slate-600 group-hover:text-slate-900 transform group-hover:-translate-x-0.5 transition-transform"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">New Stock Adjustment</h1>
+                        <p class="text-sm text-slate-500 mt-0.5">Create inventory movement record</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button type="button"
+                        class="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white rounded-lg hover:bg-slate-50 hover:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-100 transition-all active:scale-95 shadow-sm">
+                        Save as Draft
+                    </button>
+
+                    <button type="button"
+                        class="px-6 py-2.5 text-sm font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:from-blue-300 disabled:to-blue-400 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2">
+                        <span>Create Adjustment</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
-        <button (click)="drawerService.close()"
-            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
     </div>
 
-    <form [formGroup]="stockAdjustmentForm" (ngSubmit)="onSubmit()" class="flex-1 overflow-y-auto p-6">
 
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
-                General Information</h3>
+    <form [formGroup]="stockAdjustmentForm" class="flex-1 overflow-y-auto p-4 md:p-8">
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="max-w-5xl mx-auto space-y-6">
 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Warehouse <span
-                            class="text-red-500">*</span></label>
-                    <select formControlName="warehouseId"
-                        class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 bg-gray-50 transition-colors">
-                        <option [ngValue]="null" disabled>Select Warehouse</option>
-                        <option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</option>
-                    </select>
+            <div class="bg-white p-6 rounded-xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] border border-gray-100">
+                <div class="flex items-center gap-2 mb-6 pb-2 border-b border-gray-50">
+                    <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide">General Information</h3>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Reason <span
-                            class="text-red-500">*</span></label>
-                    <select formControlName="reasonType"
-                        class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 bg-white">
-                        <option *ngFor="let r of reasons" [value]="r">{{ r.replace('_', ' ') }}</option>
-                    </select>
-                    <p class="text-[10px] text-gray-400 mt-1">Determines if stock is added, removed, or replaced.</p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Reference No.</label>
-                    <input type="text" formControlName="reference" placeholder="e.g. ADJ-2025-001"
-                        class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5">
-                </div>
-
-                <div class="md:col-span-3">
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Remarks</label>
-                    <input type="text" formControlName="remarks" placeholder="Optional notes about this adjustment..."
-                        class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5">
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible">
-            <div class="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center rounded-t-xl">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Adjustment Items</h3>
-                <button type="button" (click)="addItem()"
-                    class="text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Add Item
-                </button>
-            </div>
-
-            <div class="p-4" formArrayName="items">
-                <div class="hidden md:grid grid-cols-12 gap-3 mb-2 px-2 text-xs font-semibold text-gray-500 uppercase">
-                    <div class="col-span-5">Item Search</div>
-                    <div class="col-span-3">Batch</div>
-                    <div class="col-span-3">Quantity</div>
-                    <div class="col-span-1 text-center">Action</div>
-                </div>
-
-                <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
-                    class="group relative grid grid-cols-1 md:grid-cols-12 gap-3 items-start mb-4 md:mb-2 bg-white p-3 md:p-2 rounded-lg border border-gray-200 md:border-transparent md:hover:border-blue-200 md:hover:bg-blue-50/30 transition-all shadow-sm md:shadow-none">
-
-                    <div class="col-span-1 md:col-span-5 relative">
-                        <label class="md:hidden text-xs text-gray-500 mb-1 block">Item</label>
-
-                        <div *ngIf="item.get('itemId')?.value"
-                            class="flex items-center justify-between p-2.5 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800 font-medium">
-                            <span class="truncate mr-2">{{ item.get('itemName')?.value || 'Item Selected' }}</span>
-                            <button type="button"
-                                (click)="item.patchValue({itemId: null, itemName: '', batchNumber: ''})"
-                                class="text-blue-400 hover:text-red-500 flex-shrink-0">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </div>
-
-                        <input *ngIf="!item.get('itemId')?.value" type="text" (input)="onSearch($event, i)"
-                            placeholder="Search item name or code..."
-                            class="w-full text-sm border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500 p-2.5">
-
-                        <div *ngIf="!item.get('itemId')?.value && activeSearchRowIndex === i && searchResults.length > 0"
-                            class="absolute z-[100] mt-1 w-full bg-white border border-gray-200 rounded-md shadow-xl max-h-60 overflow-y-auto ring-1 ring-black ring-opacity-5">
-                            <div *ngFor="let result of searchResults" (click)="onItemSelected(result, i)"
-                                class="p-2.5 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors">
-                                <p class="text-sm font-medium text-gray-900">{{ result.name }}</p>
-                                <div class="flex gap-2 mt-0.5">
-                                    <span class="text-xs text-gray-500 bg-gray-100 px-1.5 rounded">Code: {{ result.code
-                                        }}</span>
-                                    <span class="text-xs text-gray-500">Qty: {{ result.batches }}</span>
-                                </div>
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="group">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 ml-0.5">Warehouse <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <select formControlName="warehouseId"
+                                class="block w-full rounded-lg border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-transparent transition-all">
+                                <option [ngValue]="null" disabled>Select location...</option>
+                                <option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="col-span-1 md:col-span-3">
-                        <label class="md:hidden text-xs text-gray-500 mb-1 block">Batch</label>
-                        <select formControlName="batchNumber"
-                            class="w-full text-sm border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500 p-2.5 disabled:bg-gray-100 disabled:text-gray-400">
-                            <option value="">No Batch / Auto</option>
-                            <option *ngFor="let batch of getBatchesForItem(i)" [value]="batch.batchNumber">
-                                {{ batch.batchNumber }} (Rem: {{ batch.remainingQty }})
-                            </option>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 ml-0.5">Reason Type <span
+                                class="text-red-500">*</span></label>
+                        <select formControlName="reasonType"
+                            class="block w-full rounded-lg border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-transparent transition-all">
+                            <option *ngFor="let r of reasons" [value]="r">{{ r.replace('_', ' ') }}</option>
                         </select>
                     </div>
 
-                    <div class="col-span-1 md:col-span-3">
-                        <label class="md:hidden text-xs text-gray-500 mb-1 block">Quantity</label>
-                        <input type="number" formControlName="quantity" min="1" placeholder="Qty"
-                            class="w-full text-sm border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500 p-2.5 font-medium">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 ml-0.5">Reference No.</label>
+                        <input type="text" formControlName="reference" placeholder="Auto-generated if empty"
+                            class="block w-full rounded-lg border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-all">
                     </div>
 
-                    <div class="col-span-1 md:col-span-1 flex justify-end md:justify-center mt-2 md:mt-2">
-                        <button type="button" (click)="removeItem(i)"
-                            class="text-gray-400 hover:text-red-600 transition-colors p-1.5 rounded-md hover:bg-red-50"
-                            title="Remove Item">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                </path>
-                            </svg>
-                        </button>
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 ml-0.5">Remarks</label>
+                        <textarea formControlName="remarks" rows="2"
+                            placeholder="Add any additional notes regarding this adjustment..."
+                            class="block w-full rounded-lg border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-all resize-none"></textarea>
                     </div>
                 </div>
+            </div>
 
-                <div *ngIf="items.length === 0"
-                    class="flex flex-col items-center justify-center py-10 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
-                    <svg class="w-10 h-10 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                    <span class="text-sm">No items added. Click "Add Item" to start.</span>
+            <div
+                class="bg-white rounded-xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Items</h3>
+                    </div>
+                    <button type="button" (click)="addItem()"
+                        class="group flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-all active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                        <span>Add Line</span>
+                    </button>
+                </div>
+
+                <div class="p-6" formArrayName="items">
+                    <div
+                        class="hidden md:grid grid-cols-12 gap-4 mb-3 px-3 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        <div class="col-span-5">Product Details</div>
+                        <div class="col-span-3">Batch Number</div>
+                        <div class="col-span-3">Quantity</div>
+                        <div class="col-span-1 text-right">Action</div>
+                    </div>
+
+                    <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
+                        class="group relative grid grid-cols-1 md:grid-cols-12 gap-4 items-start mb-4 md:mb-0 md:p-3 rounded-lg md:hover:bg-gray-50 border border-gray-200 md:border-transparent transition-all duration-200">
+
+                        <div class="col-span-1 md:col-span-5 relative">
+                            <label class="md:hidden text-xs font-bold text-gray-500 mb-1 block">Item</label>
+
+                            <div *ngIf="item.get('itemId')?.value"
+                                class="flex items-center justify-between p-2 pl-3 bg-white ring-1 ring-gray-200 rounded-lg shadow-sm">
+                                <span class="text-sm font-medium text-gray-700 truncate">{{ item.get('itemName')?.value
+                                    }}</span>
+                                <button type="button"
+                                    (click)="item.patchValue({itemId: null, itemName: '', batchNumber: ''})"
+                                    class="p-1 text-gray-400 hover:text-red-500 rounded-md transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <input *ngIf="!item.get('itemId')?.value" type="text" (input)="onSearch($event, i)"
+                                placeholder="Search product name or SKU..."
+                                class="block w-full rounded-lg border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+
+                            <div *ngIf="!item.get('itemId')?.value && activeSearchRowIndex === i && searchResults.length > 0"
+                                class="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 max-h-60 overflow-y-auto">
+                                <div *ngFor="let result of searchResults" (click)="onItemSelected(result, i)"
+                                    class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-0 group/item transition-colors">
+                                    <p class="text-sm font-medium text-gray-900 group-hover/item:text-blue-700">{{
+                                        result.name }}</p>
+                                    <div class="flex gap-2 mt-1">
+                                        <span
+                                            class="text-[10px] uppercase tracking-wide font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">Code:
+                                            {{ result.code }}</span>
+                                        <span class="text-[10px] text-gray-400 py-0.5">Avail: {{ result.batches || 0
+                                            }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-span-1 md:col-span-3">
+                            <label class="md:hidden text-xs font-bold text-gray-500 mb-1 block">Batch</label>
+                            <select formControlName="batchNumber"
+                                class="block w-full rounded-lg border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 disabled:bg-gray-100 disabled:text-gray-400">
+                                <option value="">Auto / No Batch</option>
+                                <option *ngFor="let batch of getBatchesForItem(i)" [value]="batch.batchNumber">
+                                    {{ batch.batchNumber }} ({{ batch.remainingQty }})
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-span-1 md:col-span-3">
+                            <label class="md:hidden text-xs font-bold text-gray-500 mb-1 block">Quantity</label>
+                            <div class="relative">
+                                <input type="number" formControlName="quantity" min="1" placeholder="0"
+                                    class="block w-full rounded-lg border-0 py-2 pr-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 font-semibold">
+                            </div>
+                        </div>
+
+                        <div class="col-span-1 md:col-span-1 flex justify-end md:justify-end pt-1">
+                            <button type="button" (click)="removeItem(i)"
+                                class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                title="Remove Line">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div *ngIf="items.length === 0"
+                        class="flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-semibold text-gray-900">No items added yet</h3>
+                        <p class="text-xs text-gray-500 mt-1 mb-4">Search and add products to adjust their stock.</p>
+                        <button type="button" (click)="addItem()"
+                            class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">Add your first
+                            item</button>
+                    </div>
                 </div>
             </div>
         </div>
 
     </form>
-
-    <div
-        class="p-4 bg-white border-t border-gray-200 flex justify-end gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
-        <button type="button" (click)="drawerService.close()"
-            class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-200 transition-all">
-            Cancel
-        </button>
-        <button type="button" (click)="onSubmit()" [disabled]="stockAdjustmentForm.invalid"
-            class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 disabled:bg-blue-300 disabled:cursor-not-allowed shadow-md transition-all flex items-center gap-2">
-            <span>Save Adjustment</span>
-            <svg *ngIf="stockAdjustmentForm.valid" class="w-4 h-4" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-        </button>
-    </div>
 </div>

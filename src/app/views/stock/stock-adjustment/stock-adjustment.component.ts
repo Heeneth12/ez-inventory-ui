@@ -1,50 +1,61 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { StockAdjustmentModel } from '../models/stock-adjustment.model';
-import { PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'; // Added TemplateRef, ViewChild
+import { StockAdjustmentDetailModel, StockAdjustmentModel } from '../models/stock-adjustment.model';
+import { HeaderAction, PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { ArrowRight } from 'lucide-angular';
+import { ArrowRight, Eye, FilePlusCorner, Printer, Receipt } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { SalesFlowTrackerComponent } from '../../../layouts/components/sales-flow-tracker/sales-flow-tracker.component';
 import { ToastService } from '../../../layouts/components/toast/toastService';
-import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
-import { SalesOrderService } from '../../sales/sales-order/sales-order.service';
+import { STOCK_ADJUSTMENT_COLUMNS } from '../../../layouts/config/tableConfig';
+import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
+import { StockService } from '../stock.service';
 
 @Component({
   selector: 'app-stock-adjustment',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StandardTableComponent],
   templateUrl: './stock-adjustment.component.html',
   styleUrl: './stock-adjustment.component.css'
 })
-export class StockAdjustmentComponent {
+export class StockAdjustmentComponent implements OnInit {
+
+  // Get reference to the HTML template
+  @ViewChild('stockAdjestemnt') stockAdjTemplate!: TemplateRef<any>;
 
   stockAdjustmentDetails: StockAdjustmentModel[] = [];
+  stockAdjustmentSummary: StockAdjustmentDetailModel | null = null;
+  stockAdjColumn: any = STOCK_ADJUSTMENT_COLUMNS;
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
-  soColumn: any = SALES_ORDER_COLUMNS;
-
   soActions: TableActionConfig[] = [
     {
-      key: 'move_to_invoice',
-      label: 'Move to Invoice',
+      key: 'view_stockadj_details',
+      label: 'View Details',
       icon: ArrowRight,
       color: 'primary',
-      // Only show if status is Approved
-      condition: (row) => row['status'] === 'CREATED'
+      condition: (row) => true // Show for all or filter based on status
     }
   ];
 
+
+  myHeaderActions: HeaderAction[] = [
+    {
+      label: 'Create',
+      icon: FilePlusCorner, // Pass the Lucide icon object directly file-plus-corner
+      variant: 'primary',
+      action: () => this.moveToCreateStockAdj() // Direct callback
+    },
+  ];
+
   constructor(
-    private salesOrderService: SalesOrderService,
+    private stockService: StockService,
     public drawerService: DrawerService,
     private toastSvc: ToastService,
     private router: Router,
     private loaderSvc: LoaderService
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
     this.getAllSalesAdjustments();
@@ -53,7 +64,7 @@ export class StockAdjustmentComponent {
   getAllSalesAdjustments() {
     this.loaderSvc.show();
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
-    this.salesOrderService.getAllSalesOrders(
+    this.stockService.getStockAdjustments(
       apiPage,
       this.pagination.pageSize,
       {},
@@ -69,45 +80,44 @@ export class StockAdjustmentComponent {
       (error: any) => {
         this.loaderSvc.hide();
         this.toastSvc.show('Failed to load Stock Adjustments', 'error');
-        console.error('Error fetching Stock Adjustments:', error);
       }
     );
   }
 
-  getSalesOrderById(id: number | string) {
-    this.salesOrderService.getSalesOrderById(
-      Number(id),
-      (response: any) => {
-        console.log('Sales Order Details:', response.data);
-      }
-      ,
-      (error: any) => {
-        this.toastSvc.show('Failed to load Sales Order details', 'error');
-        console.error('Error fetching Sales Order details:', error);
-      }
-    );
+  moveToCreateStockAdj(){
+    this.router.navigate(['/stock/adjustment/create']);
   }
 
-  viewSalesOrderDetail(id: number | string) {
-    this.getSalesOrderById(id);
-    this.drawerService.openComponent(
-      SalesFlowTrackerComponent,
-      { salesOrderId: id },
-      'Order Details',
+  // Updated to use the ViewChild
+  viewStockAdjustmentDetails(id: number | string) {
+    this.stockAdjustmentSummary = null; // Reset previous data
+    this.drawerService.openTemplate(
+      this.stockAdjTemplate, // Pass the actual template reference
+      'Adjustment Details',
       'xl',
     );
+    this.getStockAdjustmentDetails(id);
   }
 
-  updateSalesOrder(id: number | string) {
-    this.router.navigate(['/sales/order/edit', id]);
+  getStockAdjustmentDetails(id: number | string) {
+    this.loaderSvc.show();
+    this.stockService.getStockAdjustmentById(
+      id,
+      (response: any) => {
+        this.stockAdjustmentSummary = response.data;
+        this.loaderSvc.hide();
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show("Failed to load details", "error");
+      }
+    );
   }
 
   handleTableAction(event: TableAction) {
-    if (event.type === 'custom' && event.key === 'move_to_invoice') {
-      console.log('Moving PO to Invoice:', event.row.id);
-      this.router.navigate(['/sales/invoice/create'], {
-        queryParams: { salesOrderId: event.row.id }
-      });
+    if (event.type === 'custom' && event.key === 'view_stockadj_details') {
+      console.log('View stock adj details:', event.row.id);
+      this.viewStockAdjustmentDetails(event.row.id);
     }
     if (event.type === 'edit') {
       // Standard edit logic
@@ -120,10 +130,8 @@ export class StockAdjustmentComponent {
     switch (type) {
       case 'view':
         console.log("View:", row.id);
-        this.viewSalesOrderDetail(row.id);
         break;
       case 'edit':
-        this.updateSalesOrder(row.id);
         break;
       case 'delete':
         console.log("Delete:", row.id);
@@ -136,10 +144,10 @@ export class StockAdjustmentComponent {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getAllSalesAdjustments();
   }
 
   onLoadMore() {
     console.log('Load more triggered');
   }
-
 }

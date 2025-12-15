@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
@@ -7,6 +7,7 @@ import { LoaderService } from '../../../layouts/components/loader/loaderService'
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { StockService } from '../stock.service';
 import { ItemStockSearchModel, BatchDetailModel } from '../models/stock.model';
+import { Router } from '@angular/router';
 
 // Matches Backend Enum exactly
 enum AdjustmentReason {
@@ -47,6 +48,8 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
     private stockService: StockService,
     public drawerService: DrawerService,
     private toastSvc: ToastService,
+    private router: Router,
+    private location: Location,
     private loaderSvc: LoaderService
   ) {
     this.stockAdjustmentForm = this.fb.group({
@@ -199,7 +202,7 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
       (response: any) => {
         this.loaderSvc.hide();
         this.toastSvc.show('Stock Adjustment created successfully', 'success');
-        this.drawerService.close();
+        this.back();
       },
       (error: any) => {
         this.loaderSvc.hide();
@@ -211,4 +214,9 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
   getBatchesForItem(index: number): BatchDetailModel[] {
     return this.selectedItemBatches.get(index) || [];
   }
+
+  // need to naviage back 
+ back() {
+  this.location.back();   // ⬅ navigates to previous page
+}
 }
