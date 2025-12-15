@@ -5,14 +5,42 @@ import { ContactService } from '../contacts.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ContactModel } from '../contacts.model';
 import { LucideAngularModule, Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-angular';
+import { SalesOrderModal } from '../../sales/sales-order/sales-order.modal';
+import { InvoiceModal } from '../../sales/invoices/invoice.modal';
+import { PaymentModal } from '../../sales/payments/payment.modal';
+import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
+import { PaginationConfig, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
+import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
 
 @Component({
   selector: 'app-contact-profile',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, CurrencyPipe, DatePipe, DecimalPipe],
+  imports: [CommonModule, LucideAngularModule, CurrencyPipe, DatePipe, DecimalPipe, StandardTableComponent],
   templateUrl: './contact-profile.component.html',
 })
 export class ContactProfileComponent implements OnInit {
+
+
+  //salesOrder
+  soColumn:any = SALES_ORDER_COLUMNS;
+  salesOrderDetails: SalesOrderModal[] = [];
+  salesOrderDetail: SalesOrderModal | null = null;
+
+
+  //Invoice
+  invoiceDetails: InvoiceModal | null = null;
+
+
+  //payment
+  paymentDetails: PaymentModal | null = null
+
+
+
+
+   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
+    selectedItemIds: (string | number)[] = [];
+
+
 
   contactDetails: ContactModel | null = null;
   activeTab: string = 'overview';
@@ -27,8 +55,8 @@ export class ContactProfileComponent implements OnInit {
   readonly ShoppingCart = ShoppingCart;
   readonly CreditCard = CreditCard;
   readonly StickyNote = StickyNote;
-  readonly ArrowUpRight = ArrowUpRight; // For Money In
-  readonly ArrowDownLeft = ArrowDownLeft; // For Money Out
+  readonly ArrowUpRight = ArrowUpRight;
+  readonly ArrowDownLeft = ArrowDownLeft;
   readonly Clock = Clock;
 
   // Mock Financial Data (Replace with real API data later)
@@ -62,7 +90,6 @@ export class ContactProfileComponent implements OnInit {
     this.contactService.getContactById(id,
       (response: any) => {
         this.contactDetails = response.data;
-        // Logic to switch default tab based on type if needed
         this.isLoading = false;
       },
       (error: any) => {
@@ -72,7 +99,6 @@ export class ContactProfileComponent implements OnInit {
     );
   }
 
-  // --- Computed Properties ---
 
   get isCustomer(): boolean {
     return this.contactDetails?.type === 'CUSTOMER';
@@ -80,21 +106,21 @@ export class ContactProfileComponent implements OnInit {
 
   get theme() {
     // Blue/Indigo for Customer (Receivable), Orange/Amber for Vendor (Payable)
-    return this.isCustomer 
-      ? { 
-          bg: 'bg-indigo-600', 
-          light: 'bg-indigo-50', 
-          text: 'text-indigo-600', 
-          border: 'border-indigo-200', 
-          badge: 'bg-indigo-100 text-indigo-700' 
-        } 
-      : { 
-          bg: 'bg-orange-500', 
-          light: 'bg-orange-50', 
-          text: 'text-orange-600', 
-          border: 'border-orange-200', 
-          badge: 'bg-orange-100 text-orange-700' 
-        };
+    return this.isCustomer
+      ? {
+        bg: 'bg-indigo-600',
+        light: 'bg-indigo-50',
+        text: 'text-indigo-600',
+        border: 'border-indigo-200',
+        badge: 'bg-indigo-100 text-indigo-700'
+      }
+      : {
+        bg: 'bg-orange-500',
+        light: 'bg-orange-50',
+        text: 'text-orange-600',
+        border: 'border-orange-200',
+        badge: 'bg-orange-100 text-orange-700'
+      };
   }
 
   get tabs() {
@@ -126,4 +152,49 @@ export class ContactProfileComponent implements OnInit {
     const addr = this.contactDetails.addresses[0];
     return `${addr.city}, ${addr.state}`;
   }
+
+
+
+
+    createItem() {
+      this.router.navigate(['/items/add']);
+    }
+  
+    updateItem(itemId: string | number) {
+      this.router.navigate(['/items/edit', itemId]);
+    }
+  
+    onSelectionChange(selectedIds: (string | number)[]) {
+      this.selectedItemIds = selectedIds;
+      console.log("Current Selection:", this.selectedItemIds);
+    }
+  
+    bulkUploadItems() {
+    }
+  
+    onTableAction(event: TableAction) {
+      const { type, row, key } = event;
+  
+      switch (type) {
+        case 'view':
+          console.log("View:", row.id);
+          this.bulkUploadItems()
+          break;
+        case 'edit':
+          this.updateItem(row.id);
+          break;
+        case 'delete':
+          console.log("Delete:", row.id);
+          break;
+        case 'toggle':
+          break;
+      }
+    }
+  
+    onPageChange(newPage: number) {
+      this.pagination = { ...this.pagination, currentPage: newPage };
+    }
+    
+    onLoadMore() {
+    }
 }
