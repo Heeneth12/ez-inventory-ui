@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, ElementRef, HostListener } from '@angular/core';
 import { CommonModule, DecimalPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig } from './standard-table.model';
+import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig, HeaderAction } from './standard-table.model';
 import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight } from 'lucide-angular';
 import { StatusStepperComponent } from '../../UI/status-stepper/status-stepper.component';
 import { UserCardComponent } from "../../UI/user-card/user-card.component";
@@ -25,6 +25,10 @@ export class StandardTableComponent implements OnChanges {
 
   // NEW: Input for your custom buttons
   @Input() customActions: TableActionConfig[] = [];
+
+  // NEW: Input for Header Buttons
+  @Input() headerActions: HeaderAction[] = [];
+  @Output() headerAction = new EventEmitter<HeaderAction>();
 
   @Output() pageChange = new EventEmitter<number>();
   @Output() loadMore = new EventEmitter<void>();
@@ -183,6 +187,32 @@ export class StandardTableComponent implements OnChanges {
     }
 
     return styles.neutral;
+  }
+
+
+  handleHeaderAction(btn: HeaderAction) {
+    if (btn.action) {
+      btn.action();
+    }
+    // 2. Emit the event so the parent can listen via (headerAction)="onHeaderAction($event)"
+    // We emit the entire object so the parent can check event.key
+    this.headerAction.emit(btn);
+  }
+
+  getBtnClasses(variant: string = 'secondary'): string {
+    const base = "flex items-center gap-2 px-4 py-2.5 rounded-full transition-colors text-sm font-medium focus:outline-none shadow-sm";
+    
+    switch (variant) {
+      case 'primary':
+        return `${base} bg-[#E86426] hover:bg-[#d5561b] text-white`;
+      case 'outline':
+        return `${base} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50`;
+      case 'danger':
+        return `${base} bg-red-50 text-red-600 hover:bg-red-100`;
+      case 'secondary':
+      default:
+        return `${base} bg-gray-100 hover:bg-gray-200 text-gray-600`;
+    }
   }
 
   getStartItem() {

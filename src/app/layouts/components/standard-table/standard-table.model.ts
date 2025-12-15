@@ -38,3 +38,12 @@ export interface TableAction {
     row: TableRow;
     key?: string;
 }
+
+export interface HeaderAction {
+  label: string;
+  icon?: any; // The Lucide icon component
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
+  key?: string; // Useful if you want to identify the button in a switch case
+  action?: () => void; // Direct callback function
+  hidden?: boolean; // Optional: to conditionally hide buttons
+}

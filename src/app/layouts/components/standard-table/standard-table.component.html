@@ -34,11 +34,14 @@
                 <span>Display</span>
             </button>
 
-            <button
-                class="flex items-center gap-2 px-6 py-2.5 bg-[#E86426] hover:bg-[#d5561b] text-white rounded-full transition-colors text-sm font-medium shadow-sm focus:outline-none ml-auto sm:ml-0">
-                <lucide-icon [img]="Download" class="w-4 h-4"></lucide-icon>
-                <span>Export</span>
-            </button>
+            <ng-container *ngFor="let btn of headerActions">
+                <button *ngIf="!btn.hidden"
+                    [class]="getBtnClasses(btn.variant)"
+                    (click)="handleHeaderAction(btn)">
+                    <lucide-icon *ngIf="btn.icon" [img]="btn.icon" class="w-4 h-4 font-bold"></lucide-icon>
+                    <span>{{ btn.label }}</span>
+                </button>
+            </ng-container>
         </div>
     </div>
 
