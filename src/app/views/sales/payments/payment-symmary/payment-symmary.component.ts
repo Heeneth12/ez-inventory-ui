@@ -47,7 +47,7 @@ export class PaymentSymmaryComponent {
   }
 
   loadPaymentSummary() {
-    this.paymentService.getPaymentSummary(this.invoiceId,
+    this.paymentService.getPaymentSummaryByInvoiceId(this.invoiceId,
       (res: any) => {
         this.paymentSummary = res.data;
         

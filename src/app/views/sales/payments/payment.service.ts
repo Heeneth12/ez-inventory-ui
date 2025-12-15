@@ -26,15 +26,19 @@ export class PaymentService {
         return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
-    getPaymentSummary(id: number, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/${id}/summary`, successfn, errorfn);
+    getPaymentSummaryByInvoiceId(id: string|  number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/invoice/${id}/summary`, successfn, errorfn);
+    }
+
+    getPagetPaymentSummaryById(id: string|  number, successfn: any, errorfn: any){
+         return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}?paymentId=${id}`, successfn, errorfn);
     }
 
     getPayments(page: number, size: number, filter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
-    getPaymentById(id: number, successfn: any, errorfn: any) {
+    getPaymentById(id: string| number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/${id}`, successfn, errorfn);
     }
 }

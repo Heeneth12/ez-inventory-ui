@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ModalService } from '../../../layouts/components/modal/modalService';
-import { PaymentModal } from './payment.modal';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { PaginationConfig, TableColumn, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
@@ -9,6 +8,8 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PaymentService } from './payment.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { ScrollText} from 'lucide-angular';
+import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { PaymentModal } from './payment.modal';
 
 @Component({
   selector: 'app-payments',
@@ -20,6 +21,7 @@ import { ScrollText} from 'lucide-angular';
 export class PaymentsComponent {
 
   paymentList: PaymentModal[] = [];
+  paymentDetails:PaymentModal |null = null;
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
@@ -45,7 +47,7 @@ export class PaymentsComponent {
       icon: ScrollText,
       color: 'primary',
       // Only show if status is Approved
-      condition: (row) => row['status'] === 'COMPLETED'
+      condition: (row) => row['status'] === 'COMPLETED' || row['status'] === 'RECEIVED'
     }
   ];
 
@@ -54,6 +56,7 @@ export class PaymentsComponent {
     private router: Router,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
+    private drawerService:DrawerService,
     private modalService: ModalService
   ) {
   }
@@ -86,11 +89,32 @@ export class PaymentsComponent {
     );
   }
 
+  getPaymentDetailsById(paymentId : string | number){
+    this.paymentService.getPagetPaymentSummaryById(paymentId,
+      (response:any) => {
+        this.paymentDetails = response.data;
+      },
+      (error:any)=>{
+        this.toastService.show("" , 'error')
+      }
+    );
+  }
 
 
   onSelectionChange(selectedIds: (string | number)[]) {
     this.selectedItemIds = selectedIds;
     console.log("Current Selection:", this.selectedItemIds);
+  }
+
+
+    handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'payment_details') {
+      this.getPaymentDetailsById(event.row.id);
+
+    }
+    if (event.type === 'edit') {
+      // Standard edit logic
+    }
   }
 
 
