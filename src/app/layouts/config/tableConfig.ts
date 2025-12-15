@@ -13,3 +13,13 @@ export const SALES_ORDER_COLUMNS: TableColumn[] = [
     { key: 'status', label: 'Status', width: '140px', type: 'badge' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
 ];
+
+//stock Adjustment
+export const STOCK_ADJUSTMENT_COLUMNS: TableColumn[] = [
+    { key: 'adjustmentNumber', label: 'Adjustment Id', width: '140px', type: 'link' },
+    { key: 'adjustmentDate', label: 'Date', width: '100px', type: 'date' },
+    { key: 'status', label: 'Status', width: '130px', type: 'badge', align: 'center' },
+    { key: 'reference', label: 'Referance ID', width: '120px', type: 'text', align: 'right' },
+    { key: 'totalItems', label: 'Total items', width: '120px', type: 'text', align: 'right' },
+    { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
+];
