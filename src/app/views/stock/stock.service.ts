@@ -29,6 +29,14 @@ export class StockService {
     }
 
     searchItems(term: string, warehouseId: string, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${StockService.STOCK_BASE_URL}/search/?query=${term}&warehouseId=${warehouseId}`, successfn, errorfn);
+        return this.httpService.getHttp(`${StockService.STOCK_BASE_URL}/search?query=${term}&warehouseId=${warehouseId}`, successfn, errorfn);
+    }
+
+    getStockAdjustments(page: number, size: number, filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${StockService.STOCK_BASE_URL}/adjustment/all?page=${page}&size=${size}`, filter, successfn, errorfn)
+    }
+
+    getStockAdjustmentById(id: string | number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${StockService.STOCK_BASE_URL}/adjustment/${id}`, successfn, errorfn)
     }
 }
