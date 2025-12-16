@@ -26,7 +26,6 @@ export class ApprovalConsoleService {
         return this.httpService.postHttp(`${ApprovalConsoleService.APPROVAL_BASE_URL}/process`, payload, successfn, errorfn)
     }
 
-
     saveApprovalConfig(payload: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${ApprovalConsoleService.APPROVAL_BASE_URL}/config`, payload, successfn, errorfn);
     }
