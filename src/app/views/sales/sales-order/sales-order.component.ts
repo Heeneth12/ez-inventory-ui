@@ -13,7 +13,6 @@ import { ArrowRight, View } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { SalesFlowTrackerComponent } from '../../../layouts/components/sales-flow-tracker/sales-flow-tracker.component';
 import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
-import { ApprovalConsoleService } from '../../approval-console/approval-console.service';
 
 @Component({
   selector: 'app-sales-order',

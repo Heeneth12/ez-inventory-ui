@@ -7,9 +7,9 @@ import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { StatCardComponent, StatCardData } from "../../layouts/UI/stat-card/stat-card.component";
-import { Truck, Package, ClipboardList, Calendar, Settings2Icon } from 'lucide-angular';
+import { Truck, Package, ClipboardList, Calendar, Settings2Icon, ArrowRight, CircleX, CircleCheckBig } from 'lucide-angular';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
-import { HeaderAction, PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
+import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ApprovalConfigModel, ApprovalRequestModel, ApprovalType } from './approval-console.model';
 
@@ -30,7 +30,7 @@ export class ApprovalConsoleComponent implements OnInit {
   isCreatingNew = false;
   newConfig: ApprovalConfigModel = this.getEmptyConfig();
   approvalTypeOptions = Object.values(ApprovalType);
-  
+
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
 
@@ -43,13 +43,34 @@ export class ApprovalConsoleComponent implements OnInit {
     },
   ];
 
+
+  approvalActions: TableActionConfig[] = [
+    {
+      key: 'approve',
+      label: 'Approve',
+      icon: CircleCheckBig,
+      color: 'success',
+      // Only show if status is PENDING
+      condition: (row) => row['status'] === 'PENDING'
+    },
+    {
+      key: 'reject',
+      label: 'Reject',
+      icon: CircleX,
+      color: 'danger',
+      // Only show if status is PENDING
+      condition: (row) => row['status'] === 'PENDING'
+    }
+  ];
+
+
   columns: TableColumn[] = [
     { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
     { key: 'approvalType', label: 'Approval Type', width: '230px', type: 'text' },
     { key: 'referenceCode', label: 'Ref', width: '110px', type: 'text' },
     { key: 'createdAt', label: 'Date', align: 'right', width: '130px', type: 'date' },
     { key: 'valueAmount', label: 'Value', align: 'right', width: '110px', type: 'currency' },
-    { key: 'status', label: 'Status', align: 'center', width: '100px', type: 'badge' }, 
+    { key: 'status', label: 'Status', align: 'center', width: '100px', type: 'badge' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
 
@@ -67,7 +88,7 @@ export class ApprovalConsoleComponent implements OnInit {
     private loaderSvc: LoaderService,
     private drawerService: DrawerService,
     private modalService: ModalService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getAllApprovals();
@@ -76,7 +97,7 @@ export class ApprovalConsoleComponent implements OnInit {
   getAllApprovals() {
     this.loaderSvc.show();
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
-    
+
     this.approvalConsoleService.getAllApprovals(
       apiPage,
       this.pagination.pageSize,
@@ -115,6 +136,22 @@ export class ApprovalConsoleComponent implements OnInit {
     );
   }
 
+  processApproval(requestId: number | string, approvalStatus: 'APPROVED' | 'REJECTED') {
+    this.approvalConsoleService.approvalProcess(
+      {
+        requestId: requestId,
+        status: approvalStatus,
+        remarks: 'test'
+      },
+      (response: any) => {
+        this.toastService.show('Approval processed successfully', 'success');
+      },
+      (error: any) => {
+        this.toastService.show('Failed to process approval', 'error');
+      }
+    );
+  }
+
   toggleCreateNew() {
     this.isCreatingNew = !this.isCreatingNew;
     this.newConfig = this.getEmptyConfig(); // Reset form
@@ -122,7 +159,7 @@ export class ApprovalConsoleComponent implements OnInit {
 
   // Save (Works for both Create New and Edit Existing)
   saveConfig(config: ApprovalConfigModel) {
-    if(!config.approvalType) {
+    if (!config.approvalType) {
       this.toastService.show('Please select an Approval Type', 'error');
       return;
     }
@@ -133,11 +170,11 @@ export class ApprovalConsoleComponent implements OnInit {
       (response: any) => {
         this.loaderSvc.hide();
         this.toastService.show('Configuration saved successfully', 'success');
-        
+
         // If we just created a new one, refresh the list and close the create form
         if (this.isCreatingNew) {
-            this.isCreatingNew = false;
-            this.openApprovalConfig(); // Refresh list
+          this.isCreatingNew = false;
+          this.openApprovalConfig(); // Refresh list
         }
       },
       (error: any) => {
@@ -152,18 +189,34 @@ export class ApprovalConsoleComponent implements OnInit {
   getEmptyConfig(): ApprovalConfigModel {
     return {
       approvalType: null as any, // User must select this
-      isEnabled: true,
+      enabled: true,
       thresholdAmount: undefined,
       thresholdPercentage: undefined,
       approverRole: 'MANAGER'
     };
   }
 
+
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'approve') {
+      this.processApproval(event.row.id, 'APPROVED');
+      this.getAllApprovals();
+
+    }
+    if (event.type === 'custom' && event.key === 'reject') {
+      this.processApproval(event.row.id, 'REJECTED');
+      this.getAllApprovals();
+    }
+    if (event.type === 'edit') {
+      // Standard edit logic
+    }
+  }
+
   onTableAction(event: TableAction) {
     const { type, row } = event;
     if (type === 'view') {
-       console.log('View Request:', row.id);
-       // Navigate to details page if needed
+      console.log('View Request:', row.id);
+      // Navigate to details page if needed
     }
   }
 
@@ -176,5 +229,5 @@ export class ApprovalConsoleComponent implements OnInit {
     console.log('Card Clicked:', card.title);
   }
 
-  onLoadMore() {}
+  onLoadMore() { }
 }
