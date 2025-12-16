@@ -9,8 +9,11 @@ import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
-import { LucideAngularModule, Search, QrCode, Loader2 } from 'lucide-angular';
+import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
+import { ApprovalConsoleComponent } from '../../../approval-console/approval-console.component';
+import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/approval-console.model';
+import { ApprovalConsoleService } from '../../../approval-console/approval-console.service';
 
 @Component({
   selector: 'app-sales-order-form',
@@ -25,6 +28,7 @@ export class SalesOrderFormComponent implements OnInit {
   readonly SearchIcon = Search;
   readonly BarCode = QrCode;
   readonly LoaderIcon = Loader2;
+  readonly WarningIcon = AlertTriangle;
 
   orderForm: FormGroup;
   isEditMode = false;
@@ -41,6 +45,8 @@ export class SalesOrderFormComponent implements OnInit {
   showItemResults = false;
   private searchSubject = new Subject<string>();
 
+  approvalConfigDetails:ApprovalConfigModel | null = null;
+
   // Options
   warehouseOptions = [
     { label: 'Main Warehouse (Chennai)', value: 1 },
@@ -51,6 +57,7 @@ export class SalesOrderFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private salesOrderService: SalesOrderService,
+    private approvalConsoleService:ApprovalConsoleService,
     private contactService: ContactService,
     private itemService: ItemService,
     private toast: ToastService,
@@ -74,6 +81,7 @@ export class SalesOrderFormComponent implements OnInit {
   ngOnInit(): void {
     this.setupItemSearch();
     this.checkEditMode();
+    this.getSalesOrderApprovalConfig();
   }
 
   // --- Initialization Logic ---
@@ -335,4 +343,51 @@ export class SalesOrderFormComponent implements OnInit {
       );
     }
   }
+
+
+  getSalesOrderApprovalConfig() {
+    this.approvalConsoleService.getApprovalConfigByApprovalType(
+      ApprovalType.SALES_ORDER_DISCOUNT,
+      (response: any) => {
+        this.approvalConfigDetails = response.data;
+      },
+      (err: any) => {
+        this.toast.show("", 'error')
+      }
+    )
+  }
+
+  get isApprovalRequired(): boolean {
+    // 1. Safety checks
+    // FIX: Change .isEnabled to .enabled to match your API JSON
+    if (!this.approvalConfigDetails || !this.approvalConfigDetails.enabled) {
+      return false;
+    }
+
+    // 2. Calculate Total Discount Amount (Line items + Global header discount)
+    const totalDiscountAmount = this.totalItemDiscounts + this.headerDiscount;
+
+    // 3. Avoid division by zero
+    if (this.subtotal === 0) return false;
+
+    // 4. Calculate Percentage
+    const currentDiscPercent = (totalDiscountAmount / this.subtotal) * 100;
+
+    // 5. Compare with Threshold
+    // Use optional chaining just in case
+    return currentDiscPercent > (this.approvalConfigDetails.thresholdPercentage || 100);
+  }
+
+//   {
+//     "code": 200,
+//     "data": {
+//         "id": 1,
+//         "approvalType": "SALES_ORDER_DISCOUNT",
+//         "thresholdAmount": null,
+//         "thresholdPercentage": 8.0,
+//         "approverRole": "MANAGER",
+//         "enabled": true
+//     },
+//     "message": "Approval config fetched successfully"
+// }
 }

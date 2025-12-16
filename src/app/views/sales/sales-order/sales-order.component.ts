@@ -13,6 +13,7 @@ import { ArrowRight, View } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { SalesFlowTrackerComponent } from '../../../layouts/components/sales-flow-tracker/sales-flow-tracker.component';
 import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
+import { ApprovalConsoleService } from '../../approval-console/approval-console.service';
 
 @Component({
   selector: 'app-sales-order',
@@ -28,9 +29,7 @@ export class SalesOrderComponent implements OnInit {
   salesOrders: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
-
   soColumn: any = SALES_ORDER_COLUMNS;
-
   soActions: TableActionConfig[] = [
     {
       key: 'move_to_invoice',
@@ -38,7 +37,7 @@ export class SalesOrderComponent implements OnInit {
       icon: ArrowRight,
       color: 'primary',
       // Only show if status is Approved
-      condition: (row) => row['status'] === 'CREATED'
+      condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
     }
   ];
 

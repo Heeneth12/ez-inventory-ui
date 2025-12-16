@@ -172,7 +172,7 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // WARNING
-    if (['pending', 'processing', 'hold', 'warning', 'partially invoiced',  'customer_pickup'].includes(s)) {
+    if (['pending', 'processing', 'hold', 'warning', 'partially invoiced',  'customer_pickup', 'pending_approval'].includes(s)) {
       return styles.warning;
     }
 
