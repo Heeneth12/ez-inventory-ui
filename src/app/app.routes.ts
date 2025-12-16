@@ -85,6 +85,16 @@ export const routes: Routes = [
         data: { moduleKey: 'EZH_INV_DOCUMENTS' }
     },
 
+    // 10. DOCUMENTS
+    {
+        path: 'approval',
+        loadChildren: () => import('./views/approval-console/approval-console.routes')
+            .then(m => m.ApprovalConsoleRoutes),
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_DOCUMENTS' }
+    },
+
+
     // 10. SETTINGS
     {
         path: 'settings',

@@ -21,7 +21,8 @@ import {
   Folder,
   Settings,
   Calendar,
-  ChevronDown
+  ChevronDown,
+  ListChecks
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -104,6 +105,12 @@ export class InventoryLayoutComponent implements OnInit {
       label: 'Employees',
       link: '/employee',
       icon: CircleUser,
+      moduleKey: 'EZH_INV_EMPLOYEE'
+    },
+    {
+      label: 'Approval',
+      link: '/approval',
+      icon: ListChecks,
       moduleKey: 'EZH_INV_EMPLOYEE'
     },
     {
