@@ -9,6 +9,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DeliveryService } from './delivery.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { Truck, TruckElectric } from 'lucide-angular';
+import { DELIVERY_COLUMNS } from '../../../layouts/config/tableConfig';
 
 @Component({
   selector: 'app-delivery',
@@ -26,17 +27,7 @@ export class DeliveryComponent implements OnInit {
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
 
-  columns: TableColumn[] = [
-    { key: 'deliveryNumber', label: 'Delivery Number', width: '200px', type: 'link' },
-    { key: 'customerName', label: 'Customer Name', width: '220px', type: 'text' },
-    { key: 'type', label: 'Type', width: '100px', type: 'badge' },
-    { key: 'status', label: 'Status', width: '90px', type: 'badge' },
-    { key: 'scheduledDate', label: 'Scheduled Date', align: 'right', width: '110px', type: 'date' },
-    { key: 'shippedDate', label: 'Shipped Date', align: 'right', width: '110px', type: 'date' },
-    { key: 'deliveredDate', label: 'Delivered Date', align: 'right', width: '110px', type: 'date' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
-  ];
-
+  columns: TableColumn[] = DELIVERY_COLUMNS;
   deliveryActions: TableActionConfig[] = [
     {
       key: 'make_as_delivered',

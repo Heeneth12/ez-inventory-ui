@@ -7,9 +7,10 @@ import { PaginationConfig, TableColumn, TableAction, TableActionConfig } from '.
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PaymentService } from './payment.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { ScrollText} from 'lucide-angular';
+import { ScrollText } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { PaymentModal } from './payment.modal';
+import { PAYMENTS_COLUMNS } from '../../../layouts/config/tableConfig';
 
 @Component({
   selector: 'app-payments',
@@ -21,24 +22,13 @@ import { PaymentModal } from './payment.modal';
 export class PaymentsComponent {
 
   paymentList: PaymentModal[] = [];
-  paymentDetails:PaymentModal |null = null;
+  paymentDetails: PaymentModal | null = null;
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
 
-  columns: TableColumn[] = [
-    { key: 'paymentNumber', label: 'Payment Number', width: '200px', type: 'link' },
-    { key: 'customerId', label: 'Cust-ID', width: '110px', type: 'text' },
-    { key: 'customerName', label: 'Customer Name', width: '110px', type: 'text' },
-    { key: 'paymentDate', label: 'Payment Date', width: '100px', type: 'date' },
-    { key: 'amount', label: 'Amount', width: '90px', type: 'text' },
-    { key: 'status', label: 'Status', align: 'right', width: '110px', type: 'badge' },
-    { key: 'paymentMethod', label: 'Payment Method', align: 'right', width: '130px', type: 'text' },
-    { key: 'allocatedAmount', label: 'Allocated Amount', align: 'right', width: '110px', type: 'currency' },
-    { key: 'unallocatedAmount', label: 'Unallocated Amount', align: "center", width: '110px', type: 'currency' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
-  ];
+  columns: TableColumn[] = PAYMENTS_COLUMNS;
 
   soActions: TableActionConfig[] = [
     {
@@ -56,7 +46,7 @@ export class PaymentsComponent {
     private router: Router,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
-    private drawerService:DrawerService,
+    private drawerService: DrawerService,
     private modalService: ModalService
   ) {
   }
@@ -89,13 +79,13 @@ export class PaymentsComponent {
     );
   }
 
-  getPaymentDetailsById(paymentId : string | number){
+  getPaymentDetailsById(paymentId: string | number) {
     this.paymentService.getPagetPaymentSummaryById(paymentId,
-      (response:any) => {
+      (response: any) => {
         this.paymentDetails = response.data;
       },
-      (error:any)=>{
-        this.toastService.show("" , 'error')
+      (error: any) => {
+        this.toastService.show("", 'error')
       }
     );
   }
@@ -107,7 +97,7 @@ export class PaymentsComponent {
   }
 
 
-    handleTableAction(event: TableAction) {
+  handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'payment_details') {
       this.getPaymentDetailsById(event.row.id);
 

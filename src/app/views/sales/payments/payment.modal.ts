@@ -1,3 +1,5 @@
+import { ContactMiniModel } from "../../contacts/contacts.model";
+
 export interface InvoicePaymentSummaryModal {
     id: number;
     invoiceId: number;
@@ -40,6 +42,7 @@ export interface PaymentAllocationModal {
 export interface PaymentModal{
     id: number;
     paymentNumber: string;
+    contactMini:ContactMiniModel;
     customerId: number;
     customerName: string;
     paymentDate: Date;

@@ -1,8 +1,11 @@
+import { ContactMiniModel } from "../../contacts/contacts.model";
+
 export interface DeliveryModel {
     id: number;
     tenantId: number;  
     deliveryNumber: string;  // DEV-2025-001
     invoiceId: number;
+    contactMini:ContactMiniModel;
     customerId: number;
     customerName: string;
     type: 'CUSTOMER_PICKUP' | 'THIRD_PARTY_COURIER' | 'IN_HOUSE_DELIVERY';   // ShipmentType
