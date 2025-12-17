@@ -13,6 +13,7 @@ import { ArrowRight, View } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { SalesFlowTrackerComponent } from '../../../layouts/components/sales-flow-tracker/sales-flow-tracker.component';
 import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -27,6 +28,7 @@ export class SalesOrderComponent implements OnInit {
   readonly ArrowRight = ArrowRight;
   salesOrders: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
+
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
   soColumn: any = SALES_ORDER_COLUMNS;
   soActions: TableActionConfig[] = [
@@ -39,6 +41,12 @@ export class SalesOrderComponent implements OnInit {
       condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
     }
   ];
+
+  dateConfig: DatePickerConfig = {
+    type: 'both', // or 'single'
+    // label: 'Filter Dates',
+    placeholder: 'Start - End'
+  };
 
   constructor(
     private salesOrderService: SalesOrderService,
@@ -141,6 +149,11 @@ export class SalesOrderComponent implements OnInit {
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
     this.getAllSalesOrders();
+  }
+
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    // Call your API or filter local data array here
   }
 
   onLoadMore() {

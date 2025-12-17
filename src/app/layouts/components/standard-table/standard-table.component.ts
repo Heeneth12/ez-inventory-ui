@@ -5,11 +5,12 @@ import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density
 import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight } from 'lucide-angular';
 import { StatusStepperComponent } from '../../UI/status-stepper/status-stepper.component';
 import { UserCardComponent } from "../../UI/user-card/user-card.component";
+import { DatePickerConfig, DateRangeEmit, DatePickerComponent } from '../../UI/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-standard-table',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, StatusStepperComponent, UserCardComponent],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, StatusStepperComponent, UserCardComponent, DatePickerComponent],
   templateUrl: './standard-table.component.html',
   styleUrls: ['./standard-table.component.css'],
 })
@@ -22,6 +23,9 @@ export class StandardTableComponent implements OnChanges {
   @Input() isLoading: boolean = false;
   @Input() enableSelection: boolean = true; // New: Toggle selection column
   @Input() isServerSide: boolean = false;
+
+  @Input() datePickerConfig: DatePickerConfig | null = null;
+  @Output() dateChange = new EventEmitter<DateRangeEmit>();
 
   // NEW: Input for your custom buttons
   @Input() customActions: TableActionConfig[] = [];
@@ -325,5 +329,16 @@ export class StandardTableComponent implements OnChanges {
     }
     this.action.emit({ type, row, key });
     this.activeMenuRowId.set(null); // Close menu after action
+  }
+
+
+  handleDateSelect(range: DateRangeEmit) {
+    // Emit the event to the parent component (to filter API or local data)
+    this.dateChange.emit(range);
+    
+    // Optional: If you want to reset pagination on filter change
+    if (this.pagination) {
+       this.pageChange.emit(1); 
+    }
   }
 }
