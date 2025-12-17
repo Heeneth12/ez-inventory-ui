@@ -237,9 +237,25 @@ export class SalesOrderFormComponent implements OnInit {
   }
 
   selectItemFromSearch(item: ItemModel) {
-    this.items.push(this.createItemControl(item));
+    // 1. Check if item already exists in the array
+    const existingIndex = this.items.controls.findIndex(
+      (control) => control.get('itemId')?.value === item.id
+    );
+
+    if (existingIndex !== -1) {
+      // 2. If exists, just increment the quantity
+      this.adjustQuantity(existingIndex, 1);
+      
+      this.toast.show(`${item.name} quantity updated`, 'success'); // Optional feedback
+    } else {
+      // 3. If new, push to array
+      this.items.push(this.createItemControl(item));
+    }
+
+    // 4. Reset search
     this.itemSearchQuery = "";
     this.showItemResults = false;
+    this.itemSearchResults = [];
   }
 
   private createItemControl(data: any): FormGroup {
@@ -360,7 +376,7 @@ export class SalesOrderFormComponent implements OnInit {
   get isApprovalRequired(): boolean {
     // 1. Safety checks
     // FIX: Change .isEnabled to .enabled to match your API JSON
-    if (!this.approvalConfigDetails || !this.approvalConfigDetails.enabled) {
+    if (!this.approvalConfigDetails || !this.approvalConfigDetails.isEnabled) {
       return false;
     }
 
@@ -377,17 +393,4 @@ export class SalesOrderFormComponent implements OnInit {
     // Use optional chaining just in case
     return currentDiscPercent > (this.approvalConfigDetails.thresholdPercentage || 100);
   }
-
-//   {
-//     "code": 200,
-//     "data": {
-//         "id": 1,
-//         "approvalType": "SALES_ORDER_DISCOUNT",
-//         "thresholdAmount": null,
-//         "thresholdPercentage": 8.0,
-//         "approverRole": "MANAGER",
-//         "enabled": true
-//     },
-//     "message": "Approval config fetched successfully"
-// }
 }

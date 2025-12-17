@@ -187,16 +187,28 @@
 
                                 <div class="flex justify-between text-sm text-gray-500">
                                     <span>Subtotal</span>
-                                    <span>{{ subtotal | currency:'INR' }}</span>
+                                    <span class="font-medium text-gray-700">{{ subtotal | currency:'INR' }}</span>
                                 </div>
 
                                 <div class="flex justify-between text-sm text-gray-500">
-                                    <span>Total Item Discounts</span>
+                                    <div class="flex items-center gap-2">
+                                        <span>Total Item Discounts</span>
+                                        <span *ngIf="subtotal > 0 && totalItemDiscounts > 0" 
+                                            class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-600">
+                                            {{ (totalItemDiscounts / subtotal) * 100 | number:'1.1-1' }}%
+                                        </span>
+                                    </div>
                                     <span class="text-red-500">- {{ totalItemDiscounts | currency:'INR' }}</span>
                                 </div>
 
                                 <div class="flex justify-between text-sm text-gray-500">
-                                    <span>Total Item Tax</span>
+                                    <div class="flex items-center gap-2">
+                                        <span>Total Item Tax</span>
+                                        <span *ngIf="subtotal > 0 && totalItemTaxes > 0" 
+                                            class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-600">
+                                            {{ (totalItemTaxes / (subtotal - totalItemDiscounts)) * 100 | number:'1.1-1' }}%
+                                        </span>
+                                    </div>
                                     <span>+ {{ totalItemTaxes | currency:'INR' }}</span>
                                 </div>
 
@@ -206,22 +218,26 @@
                                     <span>Extra Order Discount</span>
                                     <div class="w-24">
                                         <input type="number" formControlName="totalDiscount"
-                                            class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500">
+                                            class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500 transition-all">
                                     </div>
                                 </div>
 
                                 <div class="flex justify-between items-center text-sm text-gray-500">
-                                    <span>Shipping / Extra Tax</span>
+                                    <span>Shipping / Adjustment</span>
                                     <div class="w-24">
                                         <input type="number" formControlName="totalTax"
-                                            class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500">
+                                            class="w-full text-right bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs focus:ring-blue-500 focus:border-blue-500 transition-all">
                                     </div>
                                 </div>
 
                                 <div class="flex justify-between items-center pt-4 border-t border-gray-100">
                                     <span class="text-base font-bold text-gray-900">Grand Total</span>
-                                    <span class="text-xl font-bold text-gray-900">{{ grandTotal | currency:'INR'
-                                        }}</span>
+                                    <div class="text-right">
+                                        <span class="block text-xl font-bold text-gray-900">{{ grandTotal | currency:'INR' }}</span>
+                                        <span class="text-xs text-gray-400 font-normal">
+                                        Net items: {{ items.length }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
