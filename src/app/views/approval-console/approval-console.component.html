@@ -59,15 +59,15 @@
                 <h3 class="font-bold text-gray-700">{{ config.approvalType }}</h3>
                 <div class="flex items-center">
                     <label class="mr-2 text-xs text-gray-500 font-medium uppercase tracking-wide">Enabled</label>
-                    <input type="checkbox" [(ngModel)]="config.enabled" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                    <input type="checkbox" [(ngModel)]="config.isEnabled" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-3" [class.opacity-50]="!config.enabled">
+            <div class="grid grid-cols-1 gap-3" [class.opacity-50]="!config.isEnabled">
                 <ng-container *ngTemplateOutlet="configInputs; context: { $implicit: config }"></ng-container>
 
                 <div class="flex justify-end mt-2">
-                    <button (click)="saveConfig(config)" [disabled]="!config.enabled"
+                    <button (click)="saveConfig(config)" [disabled]="!config.isEnabled"
                             class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 disabled:bg-gray-400">
                         Update
                     </button>

@@ -4,7 +4,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { ArrowRight, ReceiptIndianRupee, ScrollText, Truck } from 'lucide-angular';
+import { ArrowRight, FileDown, ReceiptIndianRupee, ScrollText, Truck } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';
@@ -61,6 +61,14 @@ export class InvoicesComponent {
       color: 'primary',
       // Only show if status is Approved
       condition: (row) => row['paymentStatus'] === 'UNPAID' || row['paymentStatus'] === 'PARTIALLY_PAID'
+    },
+    {
+      key: 'download_invoice',
+      label: 'Download',
+      icon: FileDown,
+      color: 'neutral',
+      // Only show if status is Approved
+      condition: (row) => true
     }
   ];
 
@@ -112,6 +120,9 @@ export class InvoicesComponent {
     if (event.type === 'custom' && event.key === 'receive_payment') {
       this.openPaymentSummary(event.row.id);
       this.getAllInvoices();
+    }
+    if (event.type === 'custom' && event.key === 'download_invoice') {
+      this.downloadInvoicePdf(event.row.id);
     }
     if (event.type === 'edit') {
       // Standard edit logic
@@ -199,7 +210,6 @@ export class InvoicesComponent {
         console.log("Edit:", row.id);
         break;
       case 'delete':
-        this.downloadInvoicePdf(row.id);
         console.log("Delete:", row.id);
         break;
       case 'toggle':

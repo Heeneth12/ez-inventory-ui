@@ -189,7 +189,7 @@ export class ApprovalConsoleComponent implements OnInit {
   getEmptyConfig(): ApprovalConfigModel {
     return {
       approvalType: null as any, // User must select this
-      enabled: true,
+      isEnabled: true,
       thresholdAmount: undefined,
       thresholdPercentage: undefined,
       approverRole: 'MANAGER'

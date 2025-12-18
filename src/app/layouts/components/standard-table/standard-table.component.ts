@@ -176,12 +176,12 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // WARNING
-    if (['pending', 'processing', 'hold', 'warning', 'partially invoiced',  'customer_pickup', 'pending_approval'].includes(s)) {
+    if (['pending', 'processing', 'hold', 'warning', 'partially_invoiced',  'customer_pickup', 'pending_approval',].includes(s)) {
       return styles.warning;
     }
 
     // INFO / ROLES
-    if (['manager', 'lead', 'supplier', 'service', 'created', 'moved_to_delivery', 'received', 'in_house_delivery', 'issued'].includes(s)) {
+    if (['manager', 'lead', 'supplier', 'service', 'created', 'confirmed', 'moved_to_delivery', 'received', 'in_house_delivery', 'issued'].includes(s)) {
       return styles.info;
     }
 

@@ -15,7 +15,7 @@ export interface ApprovalRequestModel {
 export interface ApprovalConfigModel {
   id?: number;
   approvalType: ApprovalType;
-  enabled: boolean;
+  isEnabled: boolean;
   thresholdAmount?: number;
   thresholdPercentage?: number;
   approverRole?: string;
