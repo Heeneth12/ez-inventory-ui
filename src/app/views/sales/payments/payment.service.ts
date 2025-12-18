@@ -26,19 +26,51 @@ export class PaymentService {
         return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
-    getPaymentSummaryByInvoiceId(id: string|  number, successfn: any, errorfn: any) {
+    getPaymentSummaryByInvoiceId(id: string | number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/invoice/${id}/summary`, successfn, errorfn);
     }
 
-    getPagetPaymentSummaryById(id: string|  number, successfn: any, errorfn: any){
-         return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}?paymentId=${id}`, successfn, errorfn);
+    getPagetPaymentSummaryById(id: string | number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}?paymentId=${id}`, successfn, errorfn);
     }
 
     getPayments(page: number, size: number, filter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
-    getPaymentById(id: string| number, successfn: any, errorfn: any) {
+    getPaymentById(id: string | number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/${id}`, successfn, errorfn);
+    }
+
+    /**
+     * Get summary of customer's total due and wallet (unallocated) balance
+     */
+    getCustomerSummary(customerId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/summary/customer/${customerId}`, successfn, errorfn);
+    }
+
+    /**
+     * Apply existing wallet/credit balance to a specific invoice
+     * data should match WalletApplyDto { paymentId, invoiceId, amount }
+     */
+    applyWalletToInvoice(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/wallet/apply`, data, successfn, errorfn);
+    }
+
+    /**
+     * Refund an unallocated amount back to the customer
+     */
+    refundWalletAmount(paymentId: number | string, amount: number, successfn: any, errorfn: any) {
+        // Since the backend uses @RequestParam, we append the amount to the URL
+        return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/wallet/refund/${paymentId}?amount=${amount}`, {}, successfn, errorfn);
+    }
+
+    /**
+     * Download Payment Receipt PDF
+     * Note: For PDFs, you usually need to handle the blob response.
+     * If your httpService.getHttp doesn't support blobs, you might need a native HttpClient call.
+     */
+    downloadPaymentPdf(paymentId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/${paymentId}/pdf`, successfn, errorfn);
     }
 }

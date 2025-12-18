@@ -39,10 +39,10 @@ export interface PaymentAllocationModal {
     amountToPay: number;
 }
 
-export interface PaymentModal{
+export interface PaymentModal {
     id: number;
     paymentNumber: string;
-    contactMini:ContactMiniModel;
+    contactMini: ContactMiniModel;
     customerId: number;
     customerName: string;
     paymentDate: Date;
@@ -54,4 +54,16 @@ export interface PaymentModal{
     remarks: string;
     allocatedAmount: number;
     unallocatedAmount: number;
+}
+export interface CustomerFinancialSummaryModal {
+    customerId: number;
+    customerName: string;
+    totalOutstandingAmount: number;
+    walletBalance: number;
+}
+
+export interface WalletApplyModal {
+    paymentId: number;
+    invoiceId: number;
+    amount: number;
 }

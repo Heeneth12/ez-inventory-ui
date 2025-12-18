@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule, CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ContactService } from '../contacts.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ContactModel } from '../contacts.model';
@@ -11,18 +11,19 @@ import { PaymentModal } from '../../sales/payments/payment.modal';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { PaginationConfig, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
 import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
+import { PaymentService } from '../../sales/payments/payment.service';
 
 @Component({
   selector: 'app-contact-profile',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, CurrencyPipe, DatePipe, DecimalPipe, StandardTableComponent],
+  imports: [CommonModule, LucideAngularModule, CurrencyPipe, StandardTableComponent],
   templateUrl: './contact-profile.component.html',
 })
 export class ContactProfileComponent implements OnInit {
 
 
   //salesOrder
-  soColumn:any = SALES_ORDER_COLUMNS;
+  soColumn: any = SALES_ORDER_COLUMNS;
   salesOrderDetails: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
 
@@ -35,10 +36,14 @@ export class ContactProfileComponent implements OnInit {
   paymentDetails: PaymentModal | null = null
 
 
+  financialSummary: any = {
+    totalOutstandingAmount: 0,
+    walletBalance: 0
+  };
 
 
-   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
-    selectedItemIds: (string | number)[] = [];
+  pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
+  selectedItemIds: (string | number)[] = [];
 
 
 
@@ -71,6 +76,7 @@ export class ContactProfileComponent implements OnInit {
 
   constructor(
     private contactService: ContactService,
+    private paymentService: PaymentService,
     private toast: ToastService,
     private router: Router,
     private route: ActivatedRoute
@@ -79,7 +85,9 @@ export class ContactProfileComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.getContactDetails(Number(id));
+      const contactId = Number(id);
+      this.getContactDetails(contactId);
+      this.getFinancialSummary(contactId); // Fetch live stats
     } else {
       this.router.navigate(['/contacts']);
     }
@@ -97,6 +105,25 @@ export class ContactProfileComponent implements OnInit {
         this.isLoading = false;
       }
     );
+  }
+
+  getFinancialSummary(id: number) {
+    this.paymentService.getCustomerSummary(id,
+      (res: any) => {
+        this.financialSummary = res.data;
+      },
+      (err: any) => console.error("Could not load summary", err)
+    );
+  }
+
+  // Method to handle PDF Receipt download
+  downloadReceipt(paymentId: number) {
+    this.paymentService.downloadPaymentPdf(paymentId, (res: any) => {
+      // Logic to open blob as PDF
+      const blob = new Blob([res], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url);
+    }, (err: any) => this.toast.show("Error generating PDF", "error"));
   }
 
 
@@ -156,45 +183,45 @@ export class ContactProfileComponent implements OnInit {
 
 
 
-    createItem() {
-      this.router.navigate(['/items/add']);
+  createItem() {
+    this.router.navigate(['/items/add']);
+  }
+
+  updateItem(itemId: string | number) {
+    this.router.navigate(['/items/edit', itemId]);
+  }
+
+  onSelectionChange(selectedIds: (string | number)[]) {
+    this.selectedItemIds = selectedIds;
+    console.log("Current Selection:", this.selectedItemIds);
+  }
+
+  bulkUploadItems() {
+  }
+
+  onTableAction(event: TableAction) {
+    const { type, row, key } = event;
+
+    switch (type) {
+      case 'view':
+        console.log("View:", row.id);
+        this.bulkUploadItems()
+        break;
+      case 'edit':
+        this.updateItem(row.id);
+        break;
+      case 'delete':
+        console.log("Delete:", row.id);
+        break;
+      case 'toggle':
+        break;
     }
-  
-    updateItem(itemId: string | number) {
-      this.router.navigate(['/items/edit', itemId]);
-    }
-  
-    onSelectionChange(selectedIds: (string | number)[]) {
-      this.selectedItemIds = selectedIds;
-      console.log("Current Selection:", this.selectedItemIds);
-    }
-  
-    bulkUploadItems() {
-    }
-  
-    onTableAction(event: TableAction) {
-      const { type, row, key } = event;
-  
-      switch (type) {
-        case 'view':
-          console.log("View:", row.id);
-          this.bulkUploadItems()
-          break;
-        case 'edit':
-          this.updateItem(row.id);
-          break;
-        case 'delete':
-          console.log("Delete:", row.id);
-          break;
-        case 'toggle':
-          break;
-      }
-    }
-  
-    onPageChange(newPage: number) {
-      this.pagination = { ...this.pagination, currentPage: newPage };
-    }
-    
-    onLoadMore() {
-    }
+  }
+
+  onPageChange(newPage: number) {
+    this.pagination = { ...this.pagination, currentPage: newPage };
+  }
+
+  onLoadMore() {
+  }
 }
