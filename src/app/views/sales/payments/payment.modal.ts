@@ -67,3 +67,13 @@ export interface WalletApplyModal {
     invoiceId: number;
     amount: number;
 }
+
+export class PaymentFilterModal {
+    id!: number;
+    tenantId!: number;
+    customerId!: number;
+    paymentDateFrom!: Date;
+    paymentDateTo!: Date;
+    status!: string;
+    paymentMethod!: string;
+}

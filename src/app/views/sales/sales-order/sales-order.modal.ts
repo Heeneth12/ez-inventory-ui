@@ -36,4 +36,8 @@ export class SalesOrderItemsModal {
 }
 
 export class SalesOrderFilterModal {
+    id!:number;
+    status!:string;
+    customerId!:number;
+    warehouseId!:number
 }

@@ -14,6 +14,7 @@ import { PaymentService } from '../payments/payment.service';
 import { InvoicePaymentSummaryModal } from '../payments/payment.modal';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PaymentSymmaryComponent } from '../payments/payment-symmary/payment-symmary.component';
+import { INVOICE_COLUMNS } from '../../../layouts/config/tableConfig';
 
 @Component({
   selector: 'app-invoices',
@@ -31,19 +32,7 @@ export class InvoicesComponent {
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
-  columns: TableColumn[] = [
-    { key: 'contactMini', label: 'Customer', width: '100px', type: 'fullProfile', align: 'left' },
-    { key: 'invoiceNumber', label: 'Invoice No', width: '130px', type: 'link' },
-    { key: 'invoiceDate', label: 'Inv-Date', width: '130px', type: 'date', align: 'center' },
-    { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
-    { key: 'totalDiscount', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
-    { key: 'status', label: 'Status', width: '140px', type: 'badge' },
-    { key: 'paymentStatus', label: 'Pay-Status', width: '140px', type: 'badge' },
-    { key: 'amountPaid', label: 'Paid Amt', width: '130px', type: 'currency', align: 'right' },
-    { key: 'balance', label: 'Balance', width: '130px', type: 'currency', align: 'right' },
-    { key: 'grandTotal', label: 'Total Amt', width: '130px', type: 'currency', align: 'right' },
-    { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
-  ];
+  columns: TableColumn[] = INVOICE_COLUMNS;
 
   paymentDetailsActions: TableActionConfig[] = [
     {

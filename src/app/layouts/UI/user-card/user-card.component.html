@@ -3,17 +3,15 @@
         class="group flex items-center gap-3 cursor-pointer border border-transparent transition-all duration-200 max-w-xs w-full select-none">
 
         <div class="relative shrink-0">
-            @if(data.avatarUrl){
+            @if(data.avatarUrl) {
             <img [src]="data.avatarUrl"
-                class="w-10 h-10 rounded-full object-cover border border-gray-200 group-hover:border-blue-300 transition-colors">
+                class="w-8 h-8 rounded-full object-cover border border-gray-200 group-hover:border-blue-300 transition-colors"
+                alt="Profile">
             }
             @else {
-            <div
-                class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 group-hover:border-blue-300 transition-colors">
-                <span class="text-sm font-bold text-gray-600">
-                    {{ data.name.charAt(0).toUpperCase() }}
-                </span>
-            </div>
+            <img [src]="'https://ui-avatars.com/api/?name=' + data.name + '&background=eff6ff&color=3b82f6&bold=true'"
+                class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-blue-300 transition-colors"
+                alt="Avatar Placeholder">
             }
 
             <div *ngIf="data.isVerified"
@@ -35,7 +33,9 @@
 
         <div class="p-4 border-b border-gray-100 flex justify-between items-start bg-gray-50/80 rounded-t-xl">
             <div class="flex items-center gap-3">
-                <img [src]="data.avatarUrl" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
+                <img [src]="'https://ui-avatars.com/api/?name=' + data.name + '&background=eff6ff&color=3b82f6&bold=true'"
+                    class="w-9 h-9 rounded-full object-cover border border-gray-200 group-hover:border-blue-300 transition-colors"
+                    alt="Avatar Placeholder">
                 <div>
                     <h3 class="font-bold text-gray-900 leading-tight">{{ data.name }}</h3>
                     <span

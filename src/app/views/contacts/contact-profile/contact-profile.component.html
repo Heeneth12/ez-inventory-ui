@@ -1,4 +1,4 @@
-<div *ngIf="contactDetails" class="min-h-screen bg-gray-50 pb-20">
+<div *ngIf="contactDetails" class="bg-white pb-20">
 
     <div class="bg-white border-b border-slate-100 px-8 py-6 flex flex-col lg:flex-row items-center gap-8">
 
@@ -72,11 +72,11 @@
 
         </div>
     </div>
-    <div class=" bg-white border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+    <div class=" bg-white overflow-hidden flex flex-col">
 
         <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex bg-gray-100 p-1 rounded-xl self-start sm:self-auto">
-                <button *ngFor="let tab of tabs" (click)="activeTab = tab.id"
+                <button *ngFor="let tab of tabs" (click)="onTabChange(tab.id)"
                     class="px-4 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2" [ngClass]="activeTab === tab.id 
                                ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'">
                     <lucide-icon [img]="tab.icon" class="w-3.5 h-3.5"></lucide-icon>
@@ -85,18 +85,133 @@
             </div>
         </div>
 
-        <div class="p-0 min-h-[400px] bg-white animate-in fade-in duration-300">
+        <div class="p-0 bg-white animate-in fade-in duration-300">
             @if(activeTab === 'overview') {
-            <div class="w-full h-full">
+            <div class="p-6 border-t border-gray-100  space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-blue-100 border border-slate-100 p-4 rounded-2xl shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Lifetime Sales
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-slate-800">₹4,25,000</h3>
+                            <span
+                                class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+12%</span>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Open Invoices</p>
+                        <h3 class="text-xl font-bold text-slate-800">04</h3>
+                    </div>
+                    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Wallet Balance
+                        </p>
+                        <h3 class="text-xl font-bold text-emerald-600">₹{{ financialSummary.walletBalance |
+                            number:'1.2-2' }}</h3>
+                    </div>
+                    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Due</p>
+                        <h3 class="text-xl font-bold text-rose-600">₹{{ financialSummary.totalOutstandingAmount |
+                            number:'1.2-2' }}</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    <div class="bg-white p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">Revenue & Collections</h4>
+                                <p class="text-[11px] text-slate-400">Monthly performance overview</p>
+                            </div>
+                            <select
+                                class="text-[10px] font-bold bg-slate-50 border-none rounded-lg px-2 py-1 outline-none">
+                                <option>Last 6 Months</option>
+                            </select>
+                        </div>
+                        <div id="revenueChart" style="width: 100%; height: 350px;"></div>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+
+                        <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm flex-1">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-sm font-bold text-slate-800">Pending Transactions</h4>
+                                <button (click)="onTabChange('invoices')"
+                                    class="text-[10px] font-bold text-indigo-600 hover:underline">View All</button>
+                            </div>
+                            <div class="overflow-hidden rounded-xl border border-slate-50">
+                                <table class="w-full text-left text-[11px]">
+                                    <thead class="bg-slate-50 text-slate-400 uppercase font-bold tracking-tighter">
+                                        <tr>
+                                            <th class="px-3 py-2.5">Ref No.</th>
+                                            <th class="px-3 py-2.5">Due Date</th>
+                                            <th class="px-3 py-2.5 text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50">
+                                        <tr class="hover:bg-slate-50/50 transition-colors cursor-pointer">
+                                            <td class="px-3 py-3 font-bold text-[#2D4495]">INV-2023-112</td>
+                                            <td class="px-3 py-3 text-slate-500">12 Dec 2023</td>
+                                            <td class="px-3 py-3 text-right font-black text-rose-600">₹14,200</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors cursor-pointer">
+                                            <td class="px-3 py-3 font-bold text-[#2D4495]">SO-2023-892</td>
+                                            <td class="px-3 py-3 text-slate-500">15 Dec 2023</td>
+                                            <td class="px-3 py-3 text-right font-black text-slate-800">₹8,500</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors cursor-pointer">
+                                            <td class="px-3 py-3 font-bold text-[#2D4495]">SO-2023-892</td>
+                                            <td class="px-3 py-3 text-slate-500">15 Dec 2023</td>
+                                            <td class="px-3 py-3 text-right font-black text-slate-800">₹8,500</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm flex-1">
+                            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-6">
+                                <lucide-icon [img]="Clock" class="w-4 h-4 text-slate-400"></lucide-icon>
+                                Recent Timeline
+                            </h4>
+                            <div
+                                class="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-50">
+                                <div class="relative">
+                                    <span
+                                        class="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-[#2D4495] ring-4 ring-white"></span>
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-800">Invoice Created</p>
+                                            <p class="text-[10px] text-slate-500">INV-2023-004 • By System</p>
+                                        </div>
+                                        <span class="text-[9px] font-bold text-slate-400">10:30 AM</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }@else if (activeTab === 'sales_orders') {
+            <div>
                 <app-standard-table [title]="'Transactions'" [columns]="soColumn" [data]="salesOrderDetails"
                     [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
                     (action)="onTableAction($event)">
                 </app-standard-table>
             </div>
-            }
-            @else if (activeTab === 'ds') {
-            <div class="flex items-center justify-center h-40 text-gray-400">
-                <p>Data Source content goes here...</p>
+            }@else if (activeTab === 'invoices') {
+            <div>
+                <app-standard-table [title]="'Transactions'" [columns]="invoiceColumn" [data]="invoiceDetails"
+                    [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
+                    (action)="onTableAction($event)">
+                </app-standard-table>
+            </div>
+            }@else if (activeTab === 'payments') {
+            <div>
+                <app-standard-table [title]="'Transactions'" [columns]="paymentColumn" [data]="paymentDetails"
+                    [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
+                    (action)="onTableAction($event)">
+                </app-standard-table>
             </div>
             }
         </div>
