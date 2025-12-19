@@ -4,7 +4,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ContactService } from '../contacts.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ContactModel } from '../contacts.model';
-import { LucideAngularModule, Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-angular';
+import { LucideAngularModule, Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Bell, Calendar, ChevronDown, Fingerprint, HelpCircle, Pencil, User, Users, UserSquare, LocateIcon, MapPinCheckIcon } from 'lucide-angular';
 import { SalesOrderModal } from '../../sales/sales-order/sales-order.modal';
 import { InvoiceModal } from '../../sales/invoices/invoice.modal';
 import { PaymentModal } from '../../sales/payments/payment.modal';
@@ -16,7 +16,7 @@ import { PaymentService } from '../../sales/payments/payment.service';
 @Component({
   selector: 'app-contact-profile',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, CurrencyPipe, StandardTableComponent],
+  imports: [CommonModule, LucideAngularModule, StandardTableComponent],
   templateUrl: './contact-profile.component.html',
 })
 export class ContactProfileComponent implements OnInit {
@@ -26,6 +26,8 @@ export class ContactProfileComponent implements OnInit {
   soColumn: any = SALES_ORDER_COLUMNS;
   salesOrderDetails: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
+
+  isQuickCreateOpen: boolean = true;
 
 
   //Invoice
@@ -63,6 +65,16 @@ export class ContactProfileComponent implements OnInit {
   readonly ArrowUpRight = ArrowUpRight;
   readonly ArrowDownLeft = ArrowDownLeft;
   readonly Clock = Clock;
+  readonly Home = Home;
+  readonly Users = Users;
+  readonly Location = MapPinCheckIcon
+  readonly ChevronDown = ChevronDown;
+  readonly UserSquare = UserSquare;
+  readonly Pencil = Pencil;
+  readonly User = User;
+  readonly Fingerprint = Fingerprint;
+  readonly Calendar = Calendar;
+
 
   // Mock Financial Data (Replace with real API data later)
   financialStats = {
