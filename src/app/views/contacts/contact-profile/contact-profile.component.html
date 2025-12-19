@@ -1,5 +1,6 @@
-<div *ngIf="contactDetails" class="min-h-screen bg-slate-50/50 pb-20">
-    <div class="bg-white border-b border-slate-200 px-8 py-6 flex flex-col lg:flex-row items-center gap-8">
+<div *ngIf="contactDetails" class="min-h-screen bg-gray-50 pb-20">
+
+    <div class="bg-white border-b border-slate-100 px-8 py-6 flex flex-col lg:flex-row items-center gap-8">
 
         <div class="relative group">
             <div
@@ -28,59 +29,76 @@
                         class="w-3.5 h-3.5"></lucide-icon> {{ contactDetails.contactCode }}</span>
             </div>
             <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-slate-500 font-medium">
-                <span class="flex items-center gap-2"><lucide-icon [img]="User" class="w-3.5 h-3.5"></lucide-icon> {{
+                <span class="flex items-center gap-2"><lucide-icon [img]="Mail" class="w-3.5 h-3.5"></lucide-icon> {{
                     contactDetails.email }}</span>
-                <span class="flex items-center gap-2"><lucide-icon [img]="User" class="w-3.5 h-3.5"></lucide-icon> {{
+                <span class="flex items-center gap-2"><lucide-icon [img]="Hash" class="w-3.5 h-3.5"></lucide-icon> {{
                     contactDetails.gstNumber }}</span>
             </div>
 
-            <p class="text-xs text-slate-400 max-w-sm leading-relaxed mt-2 italic">
-                <lucide-icon [img]="Location" class="w-3.5 h-3.5"></lucide-icon> {{ locationDisplay || 'Address not
-                updated in system' }}
+            <p class="text-xs text-slate-400 max-w-sm leading-relaxed mt-2 italic flex items-center gap-1">
+                <lucide-icon [img]="MapPin" class="w-3.5 h-3.5"></lucide-icon> {{ locationDisplay || 'Address not insystem' }}
             </p>
         </div>
 
-        <div class="flex gap-4">
-            <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4 w-40">
-                <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Total Advance</p>
-                <p class="text-lg font-bold text-emerald-700">₹{{ financialSummary.walletBalance | number:'1.2-2' }}</p>
-            </div>
-            <div class="bg-rose-50/50 border border-rose-100 rounded-xl p-4 w-40">
-                <p class="text-[10px] text-rose-600 font-bold uppercase tracking-wider mb-1">Due Amount</p>
-                <p class="text-lg font-bold text-rose-700">₹{{ financialSummary.totalOutstandingAmount | number:'1.2-2'
-                    }}</p>
-            </div>
-        </div>
+        <div class="flex flex-col gap-4 min-w-[330px]">
 
-        <div class="flex flex-col gap-2 min-w-[200px]">
-            <button
-                class="w-full flex items-center justify-center gap-2 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg border border-slate-200 hover:bg-slate-200">
-                <lucide-icon [img]="Calendar" class="w-3.5 h-3.5"></lucide-icon>
-                Book an appointment
-            </button>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="flex gap-2">
+                <div class="flex-1 bg-emerald-50/50 border border-emerald-100 rounded-xl p-3">
+                    <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Total Advance</p>
+                    <p class="text-lg font-bold text-emerald-700">₹{{ financialSummary.walletBalance | number:'1.2-2' }}
+                    </p>
+                </div>
+                <div class="flex-1 bg-rose-50/50 border border-rose-100 rounded-xl p-3">
+                    <p class="text-[10px] text-rose-600 font-bold uppercase tracking-wider mb-1">Due Amount</p>
+                    <p class="text-lg font-bold text-rose-700">₹{{ financialSummary.totalOutstandingAmount |
+                        number:'1.2-2' }}</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
                 <button
-                    class="flex flex-col items-center justify-center gap-1 py-3 bg-[#2D4495] text-white rounded-lg hover:bg-opacity-90 transition-all">
-                    <lucide-icon [img]="FileText" class="w-4 h-4"></lucide-icon>
-                    <span class="text-[10px] font-bold text-center leading-tight">Generate Service Bill</span>
+                    class="w-full flex items-center justify-center gap-2 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg border border-slate-200 hover:bg-slate-200">
+                    <lucide-icon [img]="Plus" class="w-3.5 h-3.5"></lucide-icon>
+                    Collect Advance
+                </button>
+                <div class="grid grid-cols-1 gap-2">
+                    <button
+                        class="flex items-center justify-center gap-2 py-3 bg-[#2D4495] text-white rounded-lg hover:bg-opacity-90 transition-all">
+                        <lucide-icon [img]="FileText" class="w-4 h-4"></lucide-icon>
+                        <span class="text-[10px] font-bold text-center leading-tight">Generate Service Bill</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class=" bg-white border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+
+        <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex bg-gray-100 p-1 rounded-xl self-start sm:self-auto">
+                <button *ngFor="let tab of tabs" (click)="activeTab = tab.id"
+                    class="px-4 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2" [ngClass]="activeTab === tab.id 
+                               ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'">
+                    <lucide-icon [img]="tab.icon" class="w-3.5 h-3.5"></lucide-icon>
+                    {{ tab.label }}
                 </button>
             </div>
         </div>
-    </div>
 
-    <div class="bg-slate-100 px-4 flex gap-1 overflow-x-auto no-scrollbar border-b border-slate-200">
-        <button *ngFor="let tab of tabs" (click)="activeTab = tab.id"
-            class="px-5 py-3 text-[11px] font-bold uppercase tracking-tight transition-all border-b-4"
-            [ngClass]="activeTab === tab.id ? 'bg-white border-[#2D4495] text-[#2D4495]' : 'border-transparent text-slate-500 hover:text-slate-700'">
-            {{ tab.label }}
-            <span *ngIf="tab.id === 'pending'"
-                class="ml-1 bg-amber-400 text-white px-1.5 py-0.5 rounded-full text-[9px]">3</span>
-        </button>
-    </div>
-
-    <div class="">
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200">
-            <app-standard-table [data]="salesOrderDetails" [columns]="soColumn"></app-standard-table>
+        <div class="p-0 min-h-[400px] bg-white animate-in fade-in duration-300">
+            @if(activeTab === 'overview') {
+            <div class="w-full h-full">
+                <app-standard-table [title]="'Transactions'" [columns]="soColumn" [data]="salesOrderDetails"
+                    [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
+                    (action)="onTableAction($event)">
+                </app-standard-table>
+            </div>
+            }
+            @else if (activeTab === 'ds') {
+            <div class="flex items-center justify-center h-40 text-gray-400">
+                <p>Data Source content goes here...</p>
+            </div>
+            }
         </div>
     </div>
 </div>

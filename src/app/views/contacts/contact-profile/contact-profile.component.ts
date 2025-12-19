@@ -4,7 +4,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ContactService } from '../contacts.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ContactModel } from '../contacts.model';
-import { LucideAngularModule, Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Bell, Calendar, ChevronDown, Fingerprint, HelpCircle, Pencil, User, Users, UserSquare, LocateIcon, MapPinCheckIcon } from 'lucide-angular';
+import { LucideAngularModule, Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Bell, Calendar, ChevronDown, Fingerprint, HelpCircle, Pencil, User, Users, UserSquare, LocateIcon, MapPinCheckIcon, Hash, Plus } from 'lucide-angular';
 import { SalesOrderModal } from '../../sales/sales-order/sales-order.modal';
 import { InvoiceModal } from '../../sales/invoices/invoice.modal';
 import { PaymentModal } from '../../sales/payments/payment.modal';
@@ -74,6 +74,8 @@ export class ContactProfileComponent implements OnInit {
   readonly User = User;
   readonly Fingerprint = Fingerprint;
   readonly Calendar = Calendar;
+  readonly Hash = Hash;
+  readonly Plus = Plus;
 
 
   // Mock Financial Data (Replace with real API data later)
