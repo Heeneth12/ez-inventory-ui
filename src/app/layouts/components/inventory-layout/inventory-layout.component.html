@@ -135,6 +135,38 @@
                     <lucide-icon [img]="ChevronDown" class="w-4 h-4 ml-1 text-slate-400"></lucide-icon>
                 </button>
 
+                <div class="relative">
+                    <button (click)="isQuickCreateOpen = !isQuickCreateOpen"
+                        class="relative p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-all">
+                        <lucide-icon [img]="Zap" class="w-5 h-5 fill-current"></lucide-icon>
+
+                        <span
+                            class="absolute top-1.5 right-1.5 block w-2 h-2 bg-indigo-500 rounded-full ring-2 ring-white"></span>
+                    </button>
+
+                    <div *ngIf="isQuickCreateOpen && quickCreateItems"
+                        class="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl z-50 py-2 animate-in fade-in zoom-in duration-200">
+
+                        <div class="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            Quick Create
+                        </div>
+                        @for(quickCreateItem of quickCreateItems; track quickCreateItem.label){
+                        <button (click)="quickCreateItem.action()"
+                            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                            <lucide-icon [img]="quickCreateItem.icon" class="w-4 h-4 text-slate-400"></lucide-icon>
+                            <span>{{quickCreateItem.label}}</span>
+                        </button>
+                        }
+                        <div class="border-t border-slate-100 my-1"></div>
+                        <button
+                            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-indigo-600 font-medium hover:bg-indigo-50 transition-colors">
+                            <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon>
+                            <span>View All Tasks</span>
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="isQuickCreateOpen" (click)="isQuickCreateOpen = false" class="fixed inset-0 z-40"></div>
+
                 <button class="relative p-1 text-gray-400 hover:text-gray-600 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

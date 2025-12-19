@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { RouterModule } from "@angular/router";
+import { Route, Router, RouterModule } from "@angular/router";
 import { DrawerComponent } from "../drawer/drawer.component";
 import { ToastComponent } from "../toast/toast.component";
 import { ModalComponent } from "../modal/modal.component";
@@ -22,7 +22,11 @@ import {
   Settings,
   Calendar,
   ChevronDown,
-  ListChecks
+  ListChecks,
+  FileText,
+  Zap,
+  CreditCard,
+  Plus
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -43,6 +47,33 @@ export class InventoryLayoutComponent implements OnInit {
   //icons
   readonly Calendar = Calendar
   readonly ChevronDown = ChevronDown
+  readonly Zap = Zap;
+  readonly FileText = FileText;
+  readonly ShoppingCart = ShoppingCart;
+  readonly CreditCard = CreditCard;
+  readonly Plus = Plus;
+
+  isQuickCreateOpen = false;
+  quickCreateItems = [
+    {
+      label: 'New Invoice',
+      icon: FileText,
+      action: () => {
+        this.router.navigate(['sales/invoice/create']);
+        this.isQuickCreateOpen = false;
+      }
+    },
+    {
+      label: 'Sales Order',
+      icon: ShoppingCart,
+      action: () => this.router.navigate(['sales/ invoice/create'])
+    },
+    {
+      label: 'Record Payment',
+      icon: CreditCard,
+      action: () => this.router.navigate(['sales/invoice/create'])
+    }
+  ];
 
   user: UserProfile = {
     name: 'Adam Driver',
@@ -136,7 +167,8 @@ export class InventoryLayoutComponent implements OnInit {
   constructor(
     private drawerService: DrawerService,
     private searchService: SearchService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router,
   ) { }
 
   ngOnInit() {
