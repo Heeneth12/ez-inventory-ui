@@ -1,1 +1,93 @@
-<p>documents works!</p>
+<div class="min-h-screen bg-slate-50/50 p-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Document Repository</h1>
+            <p class="text-sm text-slate-500 font-medium">Manage and track all inventory-related records</p>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <lucide-icon [img]="Search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></lucide-icon>
+                <input type="text" placeholder="Search documents..." 
+                    class="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 w-64">
+            </div>
+            <button class="flex items-center gap-2 px-4 py-2 bg-[#2D4495] text-white text-sm font-bold rounded-xl hover:bg-opacity-90 transition-all shadow-md">
+                <lucide-icon [img]="Upload" class="w-4 h-4"></lucide-icon>
+                Upload File
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div class="lg:col-span-1 space-y-2">
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Folders</h3>
+                <nav class="space-y-1">
+                    <button *ngFor="let folder of folders" (click)="activeFolder = folder.id"
+                        [ngClass]="activeFolder === folder.id ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'"
+                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group">
+                        <div class="flex items-center gap-3">
+                            <lucide-icon [img]="folder.icon" class="w-4 h-4" [ngClass]="activeFolder === folder.id ? 'text-indigo-600' : 'text-slate-400'"></lucide-icon>
+                            <span class="text-sm font-semibold">{{ folder.label }}</span>
+                        </div>
+                        <span class="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded-full text-slate-500 group-hover:bg-white">{{ folder.count }}</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="bg-[#2D4495] p-5 rounded-2xl text-white shadow-lg">
+                <p class="text-[10px] font-bold opacity-70 uppercase tracking-wider mb-3">Storage Capacity</p>
+                <div class="flex items-baseline gap-1 mb-2">
+                    <h4 class="text-xl font-black">1.2 GB</h4>
+                    <span class="text-[10px] opacity-60">of 5 GB used</span>
+                </div>
+                <div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-white h-full w-[24%]"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-3 space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">File Name</th>
+                            <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Reference</th>
+                            <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr *ngFor="let doc of documents" class="hover:bg-slate-50/50 transition-colors group">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-white transition-colors">
+                                        <lucide-icon [img]="FileText" class="w-4 h-4"></lucide-icon>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-bold text-slate-700 truncate">{{ doc.name }}</p>
+                                        <p class="text-[10px] text-slate-400">{{ doc.size }} • {{ doc.type }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-mono text-xs text-slate-500">{{ doc.ref }}</td>
+                            <td class="px-6 py-4 text-xs text-slate-500">{{ doc.date }}</td>
+                            <td class="px-6 py-4">
+                                <span [ngClass]="doc.statusClass" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border">
+                                    {{ doc.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button class="p-2 text-slate-400 hover:text-[#2D4495] hover:bg-white rounded-lg transition-all">
+                                    <lucide-icon [img]="MoreVertical" class="w-4 h-4"></lucide-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
