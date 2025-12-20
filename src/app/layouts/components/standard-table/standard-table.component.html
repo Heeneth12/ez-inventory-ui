@@ -88,7 +88,7 @@
 
     <div class="flex-1 overflow-auto relative custom-scrollbar bg-white" (scroll)="onScroll($event)">
         <table class="w-full text-left border-collapse">
-            <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
+            <thead class="bg-gray-50 sticky top-0 shadow-sm">
                 <tr>
                     <th *ngIf="enableSelection" class="w-10 px-4 border-b border-gray-200 bg-gray-50">
                         <div class="flex items-center justify-center">
@@ -168,7 +168,7 @@
 
                             <button *ngSwitchCase="'toggle'"
                                 (click)="emitAction('toggle', row, col.key); $event.stopPropagation()"
-                                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out"
                                 [class.bg-indigo-600]="row[col.key]" [class.bg-gray-200]="!row[col.key]">
                                 <span
                                     class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"

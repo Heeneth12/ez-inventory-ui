@@ -207,7 +207,7 @@ export class InventoryLayoutComponent implements OnInit {
     this.drawerService.openTemplate(
       this.userProfileTemplate,
       'User Profile',
-      'sm'
+      'md'
     );
   }
 

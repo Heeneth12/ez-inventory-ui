@@ -5,10 +5,12 @@ import { ItemService } from './item.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
-import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
+import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
+import { ITEMS_COLUMNS } from '../../layouts/config/tableConfig';
+import { CloudUpload } from 'lucide-angular';
 
 @Component({
   selector: 'app-items',
@@ -26,19 +28,15 @@ export class ItemsComponent implements OnInit {
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
 
-  columns: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
-    { key: 'name', label: 'Item Name', width: '230px', type: 'text' },
-    { key: 'itemCode', label: 'Code', width: '110px', type: 'text' },
-    { key: 'sku', label: 'SKU', width: '110px', type: 'text' },
-    { key: 'itemType', label: 'Type', width: '100px', type: 'badge' },
-    { key: 'unitOfMeasure', label: 'Unit', width: '90px', type: 'text' },
-    { key: 'mrp', label: 'MRP', align: 'right', width: '110px', type: 'currency' },
-    { key: 'purchasePrice', label: 'PP', align: 'right', width: '130px', type: 'currency' },
-    { key: 'sellingPrice', label: 'SP', align: 'right', width: '110px', type: 'currency' },
-    { key: 'hsnSacCode', label: 'HSN/SAC',align:"center",  width: '110px', type: 'text' },
-    { key: 'isActive', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+  //tabel config
+  columns: TableColumn[] = ITEMS_COLUMNS;
+  headerActions: HeaderAction[] = [
+    {
+      label: 'Bulk Process',
+      icon: CloudUpload,
+      variant: 'primary',
+      key: 'create_route',
+    }
   ];
 
   constructor(
@@ -129,11 +127,17 @@ export class ItemsComponent implements OnInit {
     }
   }
 
+  handleHeaderAction(event: HeaderAction) {
+    if (event.key === 'create_route') {
+    }
+  }
+
+
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
     this.getAllItems();
   }
-  
+
   onLoadMore() {
   }
 }
