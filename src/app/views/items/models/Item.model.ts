@@ -1,5 +1,5 @@
 export class ItemModel {
-    id!: string;
+    id!: number;
     name!: string;
     itemCode!: string;
     sku?: string;

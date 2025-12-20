@@ -64,3 +64,15 @@ export const STOCK_ADJUSTMENT_COLUMNS: TableColumn[] = [
     { key: 'totalItems', label: 'Total items', width: '120px', type: 'text', align: 'right' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
 ];
+
+//contact
+export const CONTACT_COLUMNS: TableColumn[] = [
+    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
+    { key: 'name', label: 'Contact Profile', width: '280px', type: 'profile' },
+    { key: 'contactCode', label: 'Contact Code', type: 'text' },
+    { key: 'type', label: 'Type', type: 'badge' },
+    { key: 'phone', label: 'Contact Number', type: 'text' },
+    { key: 'email', label: 'Email', type: 'text' },
+    { key: 'active', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];

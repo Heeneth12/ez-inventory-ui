@@ -29,7 +29,7 @@ export class ItemService {
         return this.httpService.postHttp(`${ItemService.ITEMS_BASE_URL}/${id}/update`, item, successfn, errorfn);
     }
 
-    toggleItemActiveStatus(id: string, active: boolean, successfn: any, errorfn: any) {
+    toggleItemActiveStatus(id: number | string, active: boolean, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${ItemService.ITEMS_BASE_URL}/${id}/status?active=${active}`, null, successfn, errorfn);
     }
 

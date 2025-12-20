@@ -224,9 +224,28 @@ export class InvoiceFormComponent implements OnInit {
   selectItemFromSearch(item: ItemModel) {
     // When adding from Search, we must map ItemModel -> Form Structure
     // Source Type is 'PRODUCT'
-    this.items.push(this.createItemControl(item, 'PRODUCT'));
+
+    const itemsArray = this.items;
+    
+    // 1. Check if the item already exists in the FormArray
+    const existingItemIndex = this.findItemIndexById(item.id);
+
+    if (existingItemIndex > -1) {
+      // 2. Item exists: Increase the count
+      this.adjustQuantity(existingItemIndex, 1);
+      this.toast.show(`${item.name} quantity updated`, 'success');
+    } else {
+      // 3. Item does not exist: Add new row
+      // Source Type is 'PRODUCT' for items coming from search
+      itemsArray.push(this.createItemControl(item, 'PRODUCT'));
+    }
+    
     this.itemSearchQuery = "";
     this.showItemResults = false;
+  }
+
+  private findItemIndexById(itemId: number): number {
+    return this.items.controls.findIndex(ctrl => ctrl.get('itemId')?.value === itemId);
   }
 
   // CORE METHOD: Handles mapping from 3 different sources
