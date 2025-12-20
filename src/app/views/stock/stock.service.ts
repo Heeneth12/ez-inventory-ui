@@ -39,4 +39,8 @@ export class StockService {
     getStockAdjustmentById(id: string | number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${StockService.STOCK_BASE_URL}/adjustment/${id}`, successfn, errorfn)
     }
+
+    getStockDashboardSummary(warehouseId : string | number,successfn: any, errorfn: any ){
+        return this.httpService.getHttp(`${StockService.STOCK_BASE_URL}/summary/${warehouseId}`, successfn, errorfn)
+    }
 }

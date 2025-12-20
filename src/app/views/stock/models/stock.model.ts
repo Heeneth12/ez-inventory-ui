@@ -24,3 +24,11 @@ export interface BatchDetailModel {
     remainingQty: number;     // corresponds to Integer remainingQty
     expiryDate: number;       // corresponds to Long expiryDate (timestamp)
 }
+export interface StockDashboardModel {
+  totalStockValue: number;
+  totalItemsOutOfStock: number;
+  totalInQty: number;
+  totalOutQty: number;
+  netMovementQty: number;
+  fastMovingItems: StockModel[];
+}
