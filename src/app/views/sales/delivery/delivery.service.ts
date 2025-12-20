@@ -26,11 +26,34 @@ export class DeliveryService {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/search`, searchFilter, successfn, errorfn);
     }
 
-    updateDeliveryStatus(request:any, successfn: any, errorfn: any){
-         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/update-status`, request, successfn, errorfn);
+    updateDeliveryStatus(request: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/update-status`, request, successfn, errorfn);
     }
 
     markAsDelivered(deliveryId: string | number, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/delivered`, { deliveryId }, successfn, errorfn);
+    }
+
+    getAllRoutes(page: number, size: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/all?page=${page}&size=${size}`, successfn, errorfn);
+    }
+
+
+    createRoute(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route`, data, successfn, errorfn);
+    }
+
+    getRouteDetails(routeId: string | number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/${routeId}`, successfn, errorfn);
+
+    }
+
+    startRoute(routeId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/start/${routeId}`, {}, successfn, errorfn);
+    }
+
+
+    completeRoute(routeId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/complete/${routeId}`, {}, successfn, errorfn);
     }
 }

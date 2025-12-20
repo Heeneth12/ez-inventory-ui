@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, UsersRound, UserPlus, UserPen, Receipt, FilePlus, FilePen } from 'lucide-angular';
+import { LucideAngularModule, Split, Truck } from 'lucide-angular';
 import { TabCardComponent, TabItem } from '../../../layouts/UI/tab-card/tab-card.component';
 
 
@@ -26,9 +26,9 @@ export class DeliveryAdapterComponent {
     isLoading = signal<boolean>(false);
 
     navigationTabs: TabItem[] = [
-        { id: 'delivery', label: 'All Deliveries', icon: Receipt },
-        { id: 'todo', label: 'toDay Delivery', icon: FilePlus },
-    ];
+        { id: 'delivery', label: 'All Deliveries', icon: Truck },
+        { id: 'routes', label: 'Route Manifests', icon: Split },
+    ];;
 
     constructor(
         private router: Router,
@@ -36,25 +36,20 @@ export class DeliveryAdapterComponent {
     ) {
         this.router.events.subscribe(() => {
             const currentUrl = this.router.url;
-            if (currentUrl.includes('/delivery/edit')) {
-                this.activeTab.set('edit');
-            } else if (currentUrl.includes('/delivery/todo')) {
-                this.activeTab.set('todo');
+            if (currentUrl.includes('/delivery/routes')) {
+                this.activeTab.set('routes');
             } else {
-                this.activeTab.set('invoice');
+                this.activeTab.set('delivery');
             }
         });
     }
 
     onTabChange(newTabId: string) {
-        // Simulate API network delay for better UX feel
         this.isLoading.set(true);
-        if (newTabId === 'invoice') {
+        if (newTabId === 'delivery') {
             this.router.navigate(['./'], { relativeTo: this.route });
-        } else if (newTabId === 'create') {
-            this.router.navigate(['create'], { relativeTo: this.route });
-        } else if (newTabId === 'edit') {
-            this.router.navigate(['edit'], { relativeTo: this.route });
+        } else if (newTabId === 'routes') {
+            this.router.navigate(['routes'], { relativeTo: this.route });
         }
     }
 }

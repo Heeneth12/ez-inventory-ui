@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { DeliveryFilterModel, DeliveryModel, ShipmentStatus } from './delivery.model';
-import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
+import { DeliveryFilterModel, DeliveryModel, RouteCreateRequest, ShipmentStatus } from './delivery.model';
+import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
@@ -46,6 +46,16 @@ export class DeliveryComponent implements OnInit {
       condition: (row) => row['status'] === 'SCHEDULED'
     }
   ];
+
+  headerActions: HeaderAction[] = [
+    {
+      label: 'Create Route Manifest',
+      icon: Truck,
+      variant: 'primary',
+      key: 'create_route',
+    }
+  ];
+
 
   constructor(
     private deliveryService: DeliveryService,
@@ -104,6 +114,29 @@ export class DeliveryComponent implements OnInit {
     );
   }
 
+
+  processBatchAssignment() {
+    if (this.selectedItemIds.length === 0) {
+      this.toastService.show("select atlease one", 'info');
+      return;
+    }
+    const request: RouteCreateRequest = {
+      areaName: 'Downtown Area', // This could come from a small popup input
+      driverId: 1,             // Selected from an employee dropdown
+      vehicleNumber: 'TRUCK-01',
+      deliveryIds: this.selectedItemIds.map(id => Number(id))
+    };
+
+    this.deliveryService.createRoute(request,
+      (res: any) => {
+        this.toastService.show('Route Batch created successfully', 'success');
+        this.selectedItemIds = [];
+        this.getAllDeliveries();
+      },
+      (err: any) => this.toastService.show('Failed to create batch', 'error')
+    );
+  }
+
   deliveriedInvoice(deliveryIds: string | number) {
     this.deliveryService.markAsDelivered(deliveryIds,
       (response: any) => {
@@ -119,7 +152,6 @@ export class DeliveryComponent implements OnInit {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'make_as_delivered') {
-      console.log(':', event.row);
       this.updateDelivaryStatus(event.row.id, ShipmentStatus.DELIVERED);
     }
     if (event.type === 'custom' && event.key === 'move_to_delivery') {
@@ -130,20 +162,9 @@ export class DeliveryComponent implements OnInit {
     }
   }
 
-  onTableAction(event: TableAction) {
-    const { type, row, key } = event;
-
-    switch (type) {
-      case 'view':
-        console.log("View:", row.id);
-        break;
-      case 'edit':
-        break;
-      case 'delete':
-        console.log("Delete:", row.id);
-        break;
-      case 'toggle':
-        break;
+  handleHeaderAction(event: HeaderAction) {
+    if (event.key === 'create_route') {
+      this.processBatchAssignment();
     }
   }
 

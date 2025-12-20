@@ -2,10 +2,10 @@ import { ContactMiniModel } from "../../contacts/contacts.model";
 
 export interface DeliveryModel {
     id: number;
-    tenantId: number;  
+    tenantId: number;
     deliveryNumber: string;  // DEV-2025-001
     invoiceId: number;
-    contactMini:ContactMiniModel;
+    contactMini: ContactMiniModel;
     customerId: number;
     customerName: string;
     type: 'CUSTOMER_PICKUP' | 'THIRD_PARTY_COURIER' | 'IN_HOUSE_DELIVERY';   // ShipmentType
@@ -34,10 +34,29 @@ export class DeliveryFilterModel {
     deliveredDateTo?: Date;
 }
 
-export enum ShipmentStatus{
+export enum ShipmentStatus {
     PENDING = 'PENDING',
     SCHEDULED = 'SCHEDULED',
     SHIPPED = 'SHIPPED',
     DELIVERED = 'DELIVERED',
     CANCELLED = 'CANCELLED'
+}
+
+export interface RouteModel {
+    id: number;
+    routeNumber: string;
+    areaName: string;
+    driverId: number;
+    driverName: string;
+    vehicleNumber: string;
+    status: 'CREATED' | 'IN_TRANSIT' | 'COMPLETED';
+    startDate: Date;
+    deliveries: DeliveryModel[]; // The batch of deliveries inside this route
+}
+
+export interface RouteCreateRequest {
+    areaName?: string;
+    driverId: number;
+    vehicleNumber?: string;
+    deliveryIds: number[];
 }
