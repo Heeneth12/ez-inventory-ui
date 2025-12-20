@@ -8,6 +8,7 @@ import { ContactFilter, ContactModel } from './contacts.model';
 import { Router } from '@angular/router';
 import { PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
+import { CONTACT_COLUMNS } from '../../layouts/config/tableConfig';
 
 @Component({
   selector: 'app-contacts',
@@ -36,17 +37,7 @@ export class ContactsComponent implements OnInit {
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
-  columns: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
-    { key: 'name', label: 'Contact Profile', width: '280px', type: 'profile' },
-    { key: 'contactCode', label: 'Contact Code', type: 'text' },
-    { key: 'type', label: 'Type', type: 'badge' },
-    { key: 'phone', label: 'Contact Number', type: 'text' },
-    { key: 'email', label: 'Email', type: 'text' },
-    { key: 'active', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
-  ];
-
+  columns: TableColumn[] = CONTACT_COLUMNS;
 
   constructor(
     private contactService: ContactService,
