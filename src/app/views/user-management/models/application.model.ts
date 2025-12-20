@@ -27,4 +27,6 @@ export class PrivilegeModel {
 export class RoleModel {
     id!: number;
     roleName!: string;
+    roleKey!: string;
+    description!: string;
 }

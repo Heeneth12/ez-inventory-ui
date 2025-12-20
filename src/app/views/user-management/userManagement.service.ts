@@ -10,21 +10,21 @@ export class UserManagementService {
 
     private static BASE_URL = "http://localhost:8080";
 
-    private static ITEMS_BASE_URL = UserManagementService.BASE_URL + '/api/v1/common';
+    private static USER_MANAG_BASE_URL = UserManagementService.BASE_URL + '/api/v1/common';
     private static USER_BASE_URL = UserManagementService.BASE_URL + '/api/v1/user';
 
     constructor(private httpService: HttpService) { }
 
     getAllApplications(successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${UserManagementService.ITEMS_BASE_URL}/app/all`, successfn, errorfn);
+        return this.httpService.getHttp(`${UserManagementService.USER_MANAG_BASE_URL}/app/all`, successfn, errorfn);
     }
 
     getAllRoles(successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${UserManagementService.ITEMS_BASE_URL}/role/all`, successfn, errorfn);
+        return this.httpService.getHttp(`${UserManagementService.USER_MANAG_BASE_URL}/role/all`, successfn, errorfn);
     }
 
     createRole(requestBody: any, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${UserManagementService.ITEMS_BASE_URL}/role/create`, requestBody, successfn, errorfn);
+        return this.httpService.postHttp(`${UserManagementService.USER_MANAG_BASE_URL}/role/create`, requestBody, successfn, errorfn);
     }
 
     getUserById(id: number, successfn: any, errorfn: any) {
@@ -32,11 +32,11 @@ export class UserManagementService {
     }
 
     getModulesByApplication(appId: number, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${UserManagementService.ITEMS_BASE_URL}/apps/${appId}/modules`, successfn, errorfn);
+        return this.httpService.getHttp(`${UserManagementService.USER_MANAG_BASE_URL}/apps/${appId}/modules`, successfn, errorfn);
     }
 
     getPrivilegesByModule(moduleId: number, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${UserManagementService.ITEMS_BASE_URL}/modules/${moduleId}/privileges`, successfn, errorfn);
+        return this.httpService.getHttp(`${UserManagementService.USER_MANAG_BASE_URL}/modules/${moduleId}/privileges`, successfn, errorfn);
     }
 
     getAllUsers(successfn: any, errorfn: any) {

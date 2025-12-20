@@ -50,24 +50,24 @@ export class PaymentSymmaryComponent {
     this.paymentService.getPaymentSummaryByInvoiceId(this.invoiceId,
       (res: any) => {
         this.paymentSummary = res.data;
-        
+
         // Auto-fill amount with balance due (User can edit)
         if (this.paymentSummary && this.paymentSummary.balanceDue > 0) {
           this.paymentForm.patchValue({ amount: this.paymentSummary.balanceDue });
-          
+
           // Add dynamic validator for Max Balance
           this.paymentForm.get('amount')?.setValidators([
-            Validators.required, 
-            Validators.min(1), 
+            Validators.required,
+            Validators.min(1),
             Validators.max(this.paymentSummary.balanceDue)
           ]);
           this.paymentForm.get('amount')?.updateValueAndValidity();
         }
       },
-      (err:any) =>{
-         this.toastSvc.show('Failed to load payments', 'error')
+      (err: any) => {
+        this.toastSvc.show('Failed to load payments', 'error')
       }
-    );  
+    );
   }
 
   submitPayment() {
@@ -86,23 +86,45 @@ export class PaymentSymmaryComponent {
       customerId: this.paymentSummary?.customerId, // You might need to fetch this or add to Summary DTO
       totalAmount: formVal.amount,
       allocations: [
-          { invoiceId: this.invoiceId, amountToPay: formVal.amount }
+        { invoiceId: this.invoiceId, amountToPay: formVal.amount }
       ]
     };
 
     this.paymentService.recordPayment(payload,
-      (response :any) => {
+      (response: any) => {
         this.toastSvc.show('Payment Recorded Successfully', 'success');
         this.isSubmitting = false;
         this.paymentForm.reset({ paymentMethod: 'CASH' });
         this.loadPaymentSummary();
         this.paymentSuccess.emit();
+        this.downloadInvoicePdf(response.data.id);
       },
-      (err:any) => {
+      (err: any) => {
         this.isSubmitting = false;
         this.toastSvc.show(err.error?.message || 'Payment Failed', 'error');
       }
     )
+  }
+
+  downloadInvoicePdf(paymentId: any) {
+    this.loaderSvc.show();
+    this.paymentService.downloadPaymentPdf(paymentId,
+      (response: any) => {
+        this.loaderSvc.hide();
+        const blob = new Blob([response.body], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(
+          url,
+          'paymentPopup',
+          'width=900,height=800,top=50,left=100,toolbar=no,menubar=no,scrollbars=yes,resizable=yes'
+        );
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Failed to download PDF', 'error');
+        console.error('Error downloading PDF:', error);
+      }
+    );
   }
 
   closeModal() {
