@@ -6,11 +6,8 @@
                     <!-- ORDER INFO CARD -->
                     <div class="bg-white p-4">
                         <div class="mx-auto">
-                            <app-invoice-header 
-                                [selectedContact]="selectedCustomer"
-                                [searchType]="'BOTH'"
-                                (contactSelected)="onCustomerSelected($event)" 
-                                (contactCleared)="onCustomerCleared()">
+                            <app-invoice-header [selectedContact]="selectedCustomer" [searchType]="'BOTH'"
+                                (contactSelected)="onCustomerSelected($event)" (contactCleared)="onCustomerCleared()">
                             </app-invoice-header>
                         </div>
                     </div>
@@ -193,7 +190,7 @@
                                 <div class="flex justify-between text-sm text-gray-500">
                                     <div class="flex items-center gap-2">
                                         <span>Total Item Discounts</span>
-                                        <span *ngIf="subtotal > 0 && totalItemDiscounts > 0" 
+                                        <span *ngIf="subtotal > 0 && totalItemDiscounts > 0"
                                             class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-600">
                                             {{ (totalItemDiscounts / subtotal) * 100 | number:'1.1-1' }}%
                                         </span>
@@ -204,9 +201,10 @@
                                 <div class="flex justify-between text-sm text-gray-500">
                                     <div class="flex items-center gap-2">
                                         <span>Total Item Tax</span>
-                                        <span *ngIf="subtotal > 0 && totalItemTaxes > 0" 
+                                        <span *ngIf="subtotal > 0 && totalItemTaxes > 0"
                                             class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-600">
-                                            {{ (totalItemTaxes / (subtotal - totalItemDiscounts)) * 100 | number:'1.1-1' }}%
+                                            {{ (totalItemTaxes / (subtotal - totalItemDiscounts)) * 100 | number:'1.1-1'
+                                            }}%
                                         </span>
                                     </div>
                                     <span>+ {{ totalItemTaxes | currency:'INR' }}</span>
@@ -233,9 +231,10 @@
                                 <div class="flex justify-between items-center pt-4 border-t border-gray-100">
                                     <span class="text-base font-bold text-gray-900">Grand Total</span>
                                     <div class="text-right">
-                                        <span class="block text-xl font-bold text-gray-900">{{ grandTotal | currency:'INR' }}</span>
+                                        <span class="block text-xl font-bold text-gray-900">{{ grandTotal |
+                                            currency:'INR' }}</span>
                                         <span class="text-xs text-gray-400 font-normal">
-                                        Net items: {{ items.length }}
+                                            Net items: {{ items.length }}
                                         </span>
                                     </div>
                                 </div>
@@ -250,9 +249,7 @@
                     <div class="space-y-3">
                         <div *ngIf="isApprovalRequired"
                             class="mx-4 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3">
-                            <lucide-icon
-                                [img]="WarningIcon"
-                                class="w-5 h-5 text-amber-600 shrink-0">
+                            <lucide-icon [img]="WarningIcon" class="w-5 h-5 text-amber-600 shrink-0">
                             </lucide-icon>
                             <div>
                                 <h4 class="text-sm font-bold text-amber-800">Approval Required</h4>
@@ -263,33 +260,38 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-2 p-4 gap-3">
-                            <button type="submit" 
-                                [disabled]="isLoading"
+                            <button type="submit" [disabled]="isLoading"
                                 [ngClass]="isApprovalRequired ? 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500' : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'"
                                 class="w-full py-2.5 px-4 text-white font-medium rounded-lg shadow-sm 
                                     transition-all duration-200 flex items-center justify-center gap-2 
                                     focus:outline-none focus:ring-2 focus:ring-offset-1
                                     disabled:opacity-50 disabled:cursor-not-allowed">
-                                
-                                <span *ngIf="isLoading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                                
-                                <svg *ngIf="!isLoading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+
+                                <span *ngIf="isLoading"
+                                    class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+
+                                <svg *ngIf="!isLoading" class="w-4 h-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
                                 </svg>
 
                                 <span>
-                                    {{ isEditMode ? 'Update Order' : (isApprovalRequired ? 'Submit for Approval' : 'Create Sales Order') }}
+                                    {{ isEditMode ? 'Update Order' : (isApprovalRequired ? 'Submit for Approval' :
+                                    'Create Sales Order') }}
                                 </span>
                             </button>
 
-                            <button type="button"
-                                class="w-full py-2.5 px-4 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm 
+                            <button type="button" class="w-full py-2.5 px-4 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm 
                                     hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400
                                     transition-all duration-200 flex items-center justify-center gap-2
                                     focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1">
-                                
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
+                                    </path>
                                 </svg>
                                 Save Draft
                             </button>

@@ -6,17 +6,18 @@ import { FormsModule } from '@angular/forms'; // Import FormsModule for the draw
 import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { ToastService } from '../../layouts/components/toast/toastService';
-import { StatCardComponent, StatCardData } from "../../layouts/UI/stat-card/stat-card.component";
-import { Truck, Package, ClipboardList, Calendar, Settings2Icon, ArrowRight, CircleX, CircleCheckBig } from 'lucide-angular';
+import { StatCardData, StatCardComponent } from "../../layouts/UI/stat-card/stat-card.component";
+import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap } from 'lucide-angular';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ApprovalConfigModel, ApprovalRequestModel, ApprovalType } from './approval-console.model';
+import { APPROVAL_COLUMN } from '../../layouts/config/tableConfig';
 
 @Component({
   selector: 'app-approval-console',
   standalone: true,
-  imports: [CommonModule, StatCardComponent, StandardTableComponent, FormsModule],
+  imports: [CommonModule, StandardTableComponent, FormsModule, StatCardComponent],
   templateUrl: './approval-console.component.html',
   styleUrl: './approval-console.component.css'
 })
@@ -34,6 +35,9 @@ export class ApprovalConsoleComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
 
+  //table config
+  columns: TableColumn[] = APPROVAL_COLUMN;
+
   myHeaderActions: HeaderAction[] = [
     {
       label: 'Config',
@@ -42,7 +46,6 @@ export class ApprovalConsoleComponent implements OnInit {
       action: () => this.openApprovalConfig() // Calls the function properly
     },
   ];
-
 
   approvalActions: TableActionConfig[] = [
     {
@@ -61,24 +64,6 @@ export class ApprovalConsoleComponent implements OnInit {
       // Only show if status is PENDING
       condition: (row) => row['status'] === 'PENDING'
     }
-  ];
-
-
-  columns: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
-    { key: 'approvalType', label: 'Approval Type', width: '230px', type: 'text' },
-    { key: 'referenceCode', label: 'Ref', width: '110px', type: 'text' },
-    { key: 'createdAt', label: 'Date', align: 'right', width: '130px', type: 'date' },
-    { key: 'valueAmount', label: 'Value', align: 'right', width: '110px', type: 'currency' },
-    { key: 'status', label: 'Status', align: 'center', width: '100px', type: 'badge' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
-  ];
-
-  stats: StatCardData[] = [
-    { id: 1, title: 'Discount Approvals', value: '5 Pending', trendText: 'Awaiting admin action', trendDirection: 'up', icon: ClipboardList, iconColorClass: 'text-blue-600 bg-blue-100' },
-    { id: 2, title: 'Sales Refund', value: '2 Pending', trendText: 'Customer refunds', trendDirection: 'up', icon: Package, iconColorClass: 'text-purple-600 bg-purple-100' },
-    { id: 3, title: 'Advance Refund', value: '1 Pending', trendText: 'Advance payments', trendDirection: 'up', icon: Calendar, iconColorClass: 'text-orange-600 bg-orange-100' },
-    { id: 4, title: 'Advance Refund', value: '1 Pending', trendText: 'Advance payments', trendDirection: 'up', icon: Calendar, iconColorClass: 'text-orange-600 bg-orange-100' },
   ];
 
   constructor(
@@ -230,4 +215,54 @@ export class ApprovalConsoleComponent implements OnInit {
   }
 
   onLoadMore() { }
-}
+
+
+  selectedCardId: string | number = '1';
+  handleCardSelection(card: StatCardData) {
+    this.selectedCardId = card.id;
+    // Perform other actions (filter lists, show charts, etc.)
+  }
+
+  stats: StatCardData[] = [
+    {
+      id: '1',
+      title: 'Total Approve',
+      value: '₹12,48,750',
+      trendText: '6% vs last month',
+      trendDirection: 'up',
+      icon: Package,
+      themeColor: 'blue'
+    },
+    
+    {
+      id: '2',
+      title: 'Net Stock Movement',
+      value: '+320 Units',
+      trendText: 'Increased this month',
+      trendDirection: 'up',
+      icon: TrendingUp,
+      themeColor: 'emerald'
+    },
+
+    {
+      id: '3',
+      title: 'Out of Stock Items',
+      value: '14 Items',
+      trendText: '3 items added this week',
+      trendDirection: 'down',
+      icon: AlertCircle,
+      themeColor: 'purple'
+    },
+
+    {
+      id: '4',
+      title: 'Fast-Moving Items',
+      value: '9 Products',
+      trendText: 'Top sellers this month',
+      trendDirection: 'up',
+      icon: Zap,
+      themeColor: 'purple'
+    }
+  ];
+
+} 

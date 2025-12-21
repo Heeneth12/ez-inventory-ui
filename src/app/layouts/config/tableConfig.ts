@@ -1,5 +1,36 @@
 import { TableColumn } from "../components/standard-table/standard-table.model";
 
+//Items
+export const ITEMS_COLUMNS: TableColumn[] = [
+    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
+    { key: 'name', label: 'Item Name', width: '230px', type: 'text' },
+    { key: 'itemCode', label: 'Code', width: '110px', type: 'text' },
+    { key: 'sku', label: 'SKU', width: '110px', type: 'text' },
+    { key: 'itemType', label: 'Type', width: '100px', type: 'badge' },
+    { key: 'unitOfMeasure', label: 'Unit', width: '90px', type: 'text' },
+    { key: 'mrp', label: 'MRP', align: 'right', width: '110px', type: 'currency' },
+    { key: 'purchasePrice', label: 'PP', align: 'right', width: '130px', type: 'currency' },
+    { key: 'sellingPrice', label: 'SP', align: 'right', width: '110px', type: 'currency' },
+    { key: 'hsnSacCode', label: 'HSN/SAC', align: "center", width: '110px', type: 'text' },
+    { key: 'isActive', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];
+
+//stock
+export const STOCK_COLUMNS: TableColumn[] = [
+    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
+    { key: 'itemId', label: 'Item ID', width: '100px', type: 'text' },
+    { key: 'itemName', label: 'Item Name', width: '200px', type: 'text' },
+    { key: 'warehouseId', label: 'Warehouse', width: '110px', type: 'text' },
+    { key: 'openingQty', label: 'Opening Qty', align: 'right', width: '120px', type: 'number' },
+    { key: 'inQty', label: 'In Qty', align: 'right', width: '100px', type: 'number' },
+    { key: 'outQty', label: 'Out Qty', align: 'right', width: '100px', type: 'number' },
+    { key: 'closingQty', label: 'Closing Qty', align: 'right', width: '120px', type: 'number' },
+    { key: 'averageCost', label: 'Avg Cost', align: 'right', width: '120px', type: 'currency' },
+    { key: 'stockValue', label: 'Stock Value', align: 'right', width: '140px', type: 'currency' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];
+
 //sales order
 export const SALES_ORDER_COLUMNS: TableColumn[] = [
     { key: 'contactMini', label: 'Customer', width: '140px', type: 'fullProfile', align: 'left' },
@@ -74,5 +105,16 @@ export const CONTACT_COLUMNS: TableColumn[] = [
     { key: 'phone', label: 'Contact Number', type: 'text' },
     { key: 'email', label: 'Email', type: 'text' },
     { key: 'active', label: 'Active', align: 'center', width: '80px', type: 'toggle' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];
+
+//approvel
+export const APPROVAL_COLUMN: TableColumn[] = [
+    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
+    { key: 'approvalType', label: 'Approval Type', width: '230px', type: 'text' },
+    { key: 'referenceCode', label: 'Ref', width: '110px', type: 'text' },
+    { key: 'createdAt', label: 'Date', align: 'right', width: '130px', type: 'date' },
+    { key: 'valueAmount', label: 'Value', align: 'right', width: '110px', type: 'currency' },
+    { key: 'status', label: 'Status', align: 'center', width: '100px', type: 'badge' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
 ];

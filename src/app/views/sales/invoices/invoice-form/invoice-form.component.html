@@ -1,17 +1,14 @@
-<div class="min-h-screen bg-slate-50 pt-4">
+<div class="min-h-screen bg-slate-50 pt-2">
     <form [formGroup]="invoiceForm" (ngSubmit)="saveOrder()" class="mx-auto sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-8 space-y-6">
                 <div class="bg-white rounded-lg">
-                        <div class="mx-auto">
-                            <app-invoice-header 
-                                [selectedContact]="selectedCustomer"
-                                [searchType]="'BOTH'"
-                                (contactSelected)="onCustomerSelected($event)" 
-                                (contactCleared)="onCustomerCleared()">
-                            </app-invoice-header>
-                        </div>
+                    <div class="mx-auto">
+                        <app-invoice-header [selectedContact]="selectedCustomer" [searchType]="'BOTH'"
+                            (contactSelected)="onCustomerSelected($event)" (contactCleared)="onCustomerCleared()">
+                        </app-invoice-header>
                     </div>
+                </div>
                 <div class="bg-white border border-gray-100 rounded-lg  flex flex-col min-h-[500px]">
                     <div class="p-6 flex-1">
                         <div class="flex flex-col md:flex-row gap-3 mb-6 relative z-20">
@@ -335,7 +332,7 @@
                                         <input type="date" [ngModel]="scheduledDate()"
                                             [ngModelOptions]="{standalone: true}"
                                             (ngModelChange)="scheduledDate.set($event)"
-                                        class="w-full text-xs bg-white border border-orange-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-slate-700">
+                                            class="w-full text-xs bg-white border border-orange-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-slate-700">
                                     </div>
                                 </div>
                             </div>

@@ -1,24 +1,27 @@
-<div class="p-2">
+<div class="p-4 bg-white">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <app-stat-card *ngFor="let card of stats" [data]="card" (cardClick)="handleCardAction($event)"></app-stat-card>
+        <app-stat-card *ngFor="let card of stats" [data]="card" [isSelected]="selectedCardId === card.id"
+            (cardClick)="handleCardSelection($event)">
+        </app-stat-card>
     </div>
 </div>
 
-<div class="space-y-6 p-2 rounded-lg">
-    <div class="flex-1 h-[calc(100vh-225px)] overflow-y-auto">
+<div class="space-y-6 rounded-lg">
+    <div class="flex-1 h-[calc(100vh-190px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="approvals" [pagination]="pagination"
-            [isServerSide]="true" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" [customActions]="approvalActions"
-            (action)="onTableAction($event)"  [headerActions]="myHeaderActions" (action)="handleTableAction($event)">
+            [isServerSide]="true" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
+            [customActions]="approvalActions" (action)="onTableAction($event)" [headerActions]="myHeaderActions"
+            (action)="handleTableAction($event)">
         </app-standard-table>
     </div>
 </div>
 
 <ng-template #configDrawer>
     <div class="flex flex-col h-full bg-white p-4 space-y-4 overflow-y-auto relative">
-        
+
         <div class="flex justify-end">
-            <button (click)="toggleCreateNew()" 
-                    class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition">
+            <button (click)="toggleCreateNew()"
+                class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition">
                 <span *ngIf="!isCreatingNew">+ Create New Rule</span>
                 <span *ngIf="isCreatingNew">Cancel</span>
             </button>
@@ -26,12 +29,12 @@
 
         <div *ngIf="isCreatingNew" class="border-2 border-blue-100 bg-blue-50 p-4 rounded-lg shadow-sm animate-fade-in">
             <h3 class="font-bold text-blue-800 mb-3">New Configuration</h3>
-            
+
             <div class="grid grid-cols-1 gap-3">
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">Approval Type</label>
-                    <select [(ngModel)]="newConfig.approvalType" 
-                            class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    <select [(ngModel)]="newConfig.approvalType"
+                        class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white">
                         <option [ngValue]="null" disabled>Select Type</option>
                         <option *ngFor="let type of approvalTypeOptions" [value]="type">{{ type }}</option>
                     </select>
@@ -40,8 +43,8 @@
                 <ng-container *ngTemplateOutlet="configInputs; context: { $implicit: newConfig }"></ng-container>
 
                 <div class="flex justify-end mt-2">
-                    <button (click)="saveConfig(newConfig)" 
-                            class="bg-green-600 text-white text-xs px-4 py-2 rounded hover:bg-green-700 font-medium">
+                    <button (click)="saveConfig(newConfig)"
+                        class="bg-green-600 text-white text-xs px-4 py-2 rounded hover:bg-green-700 font-medium">
                         Create Rule
                     </button>
                 </div>
@@ -54,12 +57,14 @@
             No configurations found.
         </div>
 
-        <div *ngFor="let config of configs" class="border p-4 rounded-lg shadow-sm bg-gray-50 hover:border-gray-300 transition">
+        <div *ngFor="let config of configs"
+            class="border p-4 rounded-lg shadow-sm bg-gray-50 hover:border-gray-300 transition">
             <div class="flex justify-between items-center mb-2">
                 <h3 class="font-bold text-gray-700">{{ config.approvalType }}</h3>
                 <div class="flex items-center">
                     <label class="mr-2 text-xs text-gray-500 font-medium uppercase tracking-wide">Enabled</label>
-                    <input type="checkbox" [(ngModel)]="config.isEnabled" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                    <input type="checkbox" [(ngModel)]="config.isEnabled"
+                        class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
                 </div>
             </div>
 
@@ -68,7 +73,7 @@
 
                 <div class="flex justify-end mt-2">
                     <button (click)="saveConfig(config)" [disabled]="!config.isEnabled"
-                            class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 disabled:bg-gray-400">
+                        class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 disabled:bg-gray-400">
                         Update
                     </button>
                 </div>
@@ -79,23 +84,25 @@
 </ng-template>
 
 <ng-template #configInputs let-item>
-    
-    <div *ngIf="item.approvalType === 'INVOICE_DISCOUNT' || item.approvalType === 'TAX_VARIANCE' || item.approvalType === 'SALES_ORDER_DISCOUNT' ">
+
+    <div
+        *ngIf="item.approvalType === 'INVOICE_DISCOUNT' || item.approvalType === 'TAX_VARIANCE' || item.approvalType === 'SALES_ORDER_DISCOUNT' ">
         <label class="block text-xs font-medium text-gray-500">Threshold Percentage (%)</label>
         <input type="number" [(ngModel)]="item.thresholdPercentage" placeholder="e.g. 10.5"
-                class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+            class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
     </div>
 
-    <div *ngIf="item.approvalType === 'HIGH_VALUE_INVOICE' || item.approvalType === 'PO_APPROVAL' || item.approvalType === 'STOCK_ADJUSTMENT'">
+    <div
+        *ngIf="item.approvalType === 'HIGH_VALUE_INVOICE' || item.approvalType === 'PO_APPROVAL' || item.approvalType === 'STOCK_ADJUSTMENT'">
         <label class="block text-xs font-medium text-gray-500">Threshold Amount</label>
         <input type="number" [(ngModel)]="item.thresholdAmount" placeholder="e.g. 50000"
-                class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+            class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
     </div>
 
     <div>
         <label class="block text-xs font-medium text-gray-500">Approver Role</label>
         <input type="text" [(ngModel)]="item.approverRole" placeholder="e.g. MANAGER"
-                class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+            class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
     </div>
 
 </ng-template>

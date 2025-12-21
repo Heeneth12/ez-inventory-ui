@@ -2,6 +2,16 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
+export interface StatCardData {
+  id: string | number;
+  title: string;
+  value: string;
+  trendText: string;
+  trendDirection: 'up' | 'down';
+  icon: any;
+  themeColor: 'blue' | 'purple' | 'emerald' | 'orange';
+}
+
 @Component({
   selector: 'app-stat-card',
   standalone: true,
@@ -9,59 +19,95 @@ import { LucideAngularModule } from 'lucide-angular';
   template: `
     <div 
       (click)="onCardClick()"
+      [ngClass]="getCardClasses()"
       class="
-        group relative cursor-pointer
-        bg-white rounded-lg border border-gray-200 
-        p-4 
-        hover:border-blue-400 hover:shadow-md hover:-translate-y-0.5
-        transition-all duration-200 ease-out
+        group relative flex items-center justify-between
+        p-5 rounded-lg cursor-pointer
+        border border-gray-300 transition-all duration-200 ease-out
+        hover:shadow-lg hover:-translate-y-0.5
       ">
       
-      <div class="flex justify-between items-start mb-2">
-        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+      <div class="flex flex-col gap-1">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           {{ data.title }}
-        </h3>
-
-        <div [class]="'p-1.5 rounded-md transition-colors ' + data.iconColorClass">
-          <lucide-icon 
-            [img]="data.icon" 
-            class="w-4 h-4 opacity-80 group-hover:opacity-100">
-          </lucide-icon>
+        </span>
+        
+        <div class="flex items-end gap-3 mt-1">
+          <span class="text-2xl font-bold text-gray-900 leading-none">
+            {{ data.value }}
+          </span>
+          
+          <div 
+            [ngClass]="data.trendDirection === 'up' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'"
+            class="flex items-center px-1.5 py-0.5 rounded-md text-[11px] font-bold">
+            <span class="mr-1">
+                {{ data.trendDirection === 'up' ? '↗' : '↘' }}
+            </span>
+            {{ data.trendText }}
+          </div>
         </div>
       </div>
 
-      <div class="text-2xl font-bold text-gray-800 tracking-tight mb-2">
-        {{ data.value }}
+      <div 
+        [class]="getIconContainerClasses()"
+        class="
+          flex items-center justify-center w-12 h-12 rounded-lg
+          transition-colors duration-300
+        ">
+        <lucide-icon 
+          [img]="data.icon" 
+          [class]="getIconClasses()"
+          class="w-6 h-6 transition-transform duration-300 group-hover:scale-110">
+        </lucide-icon>
       </div>
-
-      <div class="flex items-center text-xs">
-        <span 
-          class="font-medium mr-1.5"
-          [ngClass]="data.trendDirection === 'up' ? 'text-green-600' : 'text-red-600'">
-          {{ data.trendDirection === 'up' ? '↑' : '↓' }} 
-        </span>
-        <span class="text-gray-400">
-          {{ data.trendText }}
-        </span>
-      </div>
-
     </div>
   `
 })
 export class StatCardComponent {
   @Input({ required: true }) data!: StatCardData;
+  @Input() isSelected: boolean = false;
   @Output() cardClick = new EventEmitter<StatCardData>();
 
   onCardClick() {
     this.cardClick.emit(this.data);
   }
-}
-export interface StatCardData {
-  id: string | number; // Unique ID for click tracking
-  title: string;
-  value: string;
-  trendText: string;
-  trendDirection: 'up' | 'down';
-  icon: any; // Holds the Lucide Icon object (e.g., Truck, Package)
-  iconColorClass: string; // Background/Text styling for the icon container
+
+  // logic to handle clean styling toggles
+  getCardClasses(): string {
+    if (this.isSelected) {
+      // Selected State: Active Border, Subtle Background
+      return 'bg-blue-50/40 border-blue-100 ring-1 ring-blue-200';
+    } else {
+      // Default State: White, Gray Border
+      return 'bg-white border-gray-100 hover:border-gray-200';
+    }
+  }
+
+  getIconContainerClasses(): string {
+    // If selected, we fill the icon background. If not, we keep it light.
+    if (this.isSelected) {
+      return `bg-blue-500 shadow-md shadow-blue-200`;
+    }
+
+    // Map theme colors to Tailwind classes dynamically
+    const colors: any = {
+      blue: 'bg-blue-50 group-hover:bg-blue-100',
+      purple: 'bg-purple-50 group-hover:bg-purple-100',
+      emerald: 'bg-emerald-50 group-hover:bg-emerald-100',
+      orange: 'bg-orange-50 group-hover:bg-orange-100'
+    };
+    return colors[this.data.themeColor] || colors.blue;
+  }
+
+  getIconClasses(): string {
+    if (this.isSelected) return 'text-white';
+
+    const colors: any = {
+      blue: 'text-blue-600',
+      purple: 'text-purple-600',
+      emerald: 'text-emerald-600',
+      orange: 'text-orange-600'
+    };
+    return colors[this.data.themeColor] || colors.blue;
+  }
 }
