@@ -56,4 +56,8 @@ export class DeliveryService {
     completeRoute(routeId: number | string, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/complete/${routeId}`, {}, successfn, errorfn);
     }
+
+    getRouteSummary(successfn: any, errorfn: any){
+        return this.httpService.getHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/summary`, successfn, errorfn)
+    }
 }

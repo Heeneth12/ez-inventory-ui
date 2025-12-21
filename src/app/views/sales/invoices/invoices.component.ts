@@ -4,7 +4,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { ArrowRight, FileDown, ReceiptIndianRupee, ScrollText, Truck } from 'lucide-angular';
+import { FileDown, ReceiptIndianRupee, ScrollText, Truck } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';

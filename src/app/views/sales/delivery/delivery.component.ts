@@ -8,13 +8,14 @@ import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DeliveryService } from './delivery.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { Truck, TruckElectric } from 'lucide-angular';
+import { CheckCircle, Clock, Truck, TruckElectric, XCircle } from 'lucide-angular';
 import { DELIVERY_COLUMNS } from '../../../layouts/config/tableConfig';
+import { StatCardData, StatCardComponent } from '../../../layouts/UI/stat-card/stat-card.component';
 
 @Component({
   selector: 'app-delivery',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent],
+  imports: [CommonModule, StandardTableComponent, StatCardComponent],
   templateUrl: './delivery.component.html',
   styleUrl: './delivery.component.css'
 })
@@ -26,6 +27,8 @@ export class DeliveryComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
+
+  stats: StatCardData[] = [];
 
   columns: TableColumn[] = DELIVERY_COLUMNS;
   deliveryActions: TableActionConfig[] = [
@@ -67,6 +70,7 @@ export class DeliveryComponent implements OnInit {
   }
   ngOnInit(): void {
     this.getAllDeliveries();
+    this.getSummaryStats(); 
   }
 
   getAllDeliveries() {
@@ -148,6 +152,57 @@ export class DeliveryComponent implements OnInit {
         console.error('Error marking as delivered:', error);
       }
     );
+  }
+  
+  selectedCardId: string | number = '1';
+  handleCardSelection(card: StatCardData) {
+    this.selectedCardId = card.id;
+    // Perform other actions (filter lists, show charts, etc.)
+  }
+
+  getSummaryStats() {
+    this.deliveryService.getRouteSummary((res: any) => {
+      const data = res.data;
+      this.stats = [
+        {
+          id: '1',
+          title: 'Active Manifests',
+          value: data.totalRoutes.toString(),
+          trendText: 'Live trips',
+          trendDirection: 'up',
+          icon: Truck,
+          themeColor: 'blue'
+        },
+        {
+          id: '2',
+          title: 'Pending Delivery',
+          value: data.pendingDeliveries.toString(),
+          trendText: 'Scheduled & Shipped',
+          trendDirection: 'up',
+          icon: Clock,
+          themeColor: 'orange'
+        },
+        {
+          id: '3',
+          title: 'Delivered',
+          value: data.completedDeliveries.toString(),
+          trendText: 'Successfully dropped',
+          trendDirection: 'up',
+          icon: CheckCircle,
+          themeColor: 'emerald'
+        },
+        {
+          id: '4',
+          title: 'Cancellations',
+          value: data.cancelledDeliveries.toString(),
+          trendText: 'Failed/Refused',
+          trendDirection: 'down',
+          icon: XCircle,
+          themeColor: 'emerald'
+        }
+      ];
+    }, 
+    (err: any) => this.toastService.show('Failed to load summary', 'error'));
   }
 
   handleTableAction(event: TableAction) {
