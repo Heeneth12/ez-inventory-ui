@@ -1,7 +1,7 @@
 export const environment = {
-    devUrl: "http://localhost:9098",
+    authUrl: "http://localhost:8080",
+    devUrl: "http://localhost:8085",
     appName: "Inventory",
-    appKey: "",
+    appKey: "EZ",
     bKey: ""
-
 };
