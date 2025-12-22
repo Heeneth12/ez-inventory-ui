@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './layouts/guards/auth.guard';
+import { ExampleComponent } from './views/example/example.component';
+import { AiChatComponent } from './views/ai-chat/ai-chat.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -104,6 +106,10 @@ export const routes: Routes = [
         data: { moduleKey: 'EZH_INV_SETTINGS' }
     },
 
+    {
+        path:'test',
+        component:ExampleComponent
+    },
 
     // 11. USER MANAGEMENT (Admin)
     {
