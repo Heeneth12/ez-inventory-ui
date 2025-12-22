@@ -1,0 +1,84 @@
+<div class="p-6">
+    @for(order of orders; track order){
+    <app-status-stepper [completedStepCount]="order.statusIndex"></app-status-stepper>
+    }
+
+</div>
+
+
+<div class="p-8 bg-gray-50 min-h-screen">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-1">Courier Payroll</h1>
+    <div class="text-sm text-gray-500 mb-8">Home &gt; Courier Payroll &gt; Payroll</div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+    </div>
+</div>
+
+
+<div class="p-8 bg-white min-h-screen">
+      
+      <div class=" rounded-xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse">
+          
+          <thead class="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
+            <tr>
+              <th class="px-6 py-4">User Profile</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4">Last Active</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-gray-100">
+            <tr *ngFor="let user of users" class="hover:bg-gray-50/50">
+              
+              <td class="px-4 py-2">
+                <app-user-card 
+             [data]="user" 
+             (viewProfile)="handleProfileApiCall($event)">
+          </app-user-card>
+              </td>
+
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Active
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">2 mins ago</td>
+              <td class="px-6 py-4 text-right text-sm font-medium text-blue-600 hover:text-blue-900 cursor-pointer">
+                Edit
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+
+
+    <div class="min-h-screen bg-gray-50 p-10 flex flex-col gap-10 items-center">
+      
+      <div class="w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Single Selection</h2>
+        <app-date-picker 
+          [config]="singleConfig" 
+          (dateSelect)="handleSingleSelect($event)">
+        </app-date-picker>
+      </div>
+
+      <div class="w-full max-w-md">
+         <h2 class="text-xl font-bold mb-4">Range Selection</h2>
+         <app-date-picker 
+           [config]="rangeConfig" 
+           (dateSelect)="handleRangeSelect($event)">
+         </app-date-picker>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow mt-4 w-full max-w-md">
+        <p><strong>Selected Range:</strong> {{ result | json }}</p>
+      </div>
+
+    </div>
