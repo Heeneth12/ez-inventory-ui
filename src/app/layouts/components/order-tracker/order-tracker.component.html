@@ -21,8 +21,7 @@
               </svg>
               <svg *ngIf="step.status === 'processing'" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
               </svg>
               <svg *ngIf="step.status === 'pending'" class="w-5 h-5" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24">
@@ -87,7 +86,8 @@
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price
+                </th>
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
               </tr>
             </thead>
@@ -100,7 +100,7 @@
               </tr> -->
               <tr class="font-bold bg-gray-50">
                 <td colspan="3" class="px-4 py-3 text-right text-base">Grand Total</td>
-                <td class="px-4 py-3 text-base text-right text-green-600">${{ salesOrderDetails?.grandTotal  }}</td>
+                <td class="px-4 py-3 text-base text-right text-green-600">${{ salesOrderDetails?.grandTotal }}</td>
               </tr>
             </tbody>
           </table>
@@ -145,7 +145,8 @@
             <p class="text-gray-800 font-semibold">Net 30</p>
           </div>
           <div class="col-span-2">
-            <button class="w-full bg-purple-600 text-white text-lg py-3 rounded-lg hover:bg-purple-700 transition-colors mt-4 shadow-lg">
+            <button
+              class="w-full bg-purple-600 text-white text-lg py-3 rounded-lg hover:bg-purple-700 transition-colors mt-4 shadow-lg">
               Proceed to Secure Payment
             </button>
           </div>
@@ -154,12 +155,15 @@
       }
 
       @else if (currentStepIndex === 4) {
-      <div class="flex flex-col items-center justify-center p-12 bg-green-50 rounded-xl border border-green-200 text-center shadow-lg">
+      <div
+        class="flex flex-col items-center justify-center p-12 bg-green-50 rounded-xl border border-green-200 text-center shadow-lg">
         <svg class="w-20 h-20 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
         <p class="text-4xl font-extrabold text-green-700 mt-4">ORDER COMPLETED!</p>
-        <p class="text-xl text-gray-600 mt-2">Thank you, {{ customerDetails?.name || 'Customer' }}. All steps are finalized.</p>
+        <p class="text-xl text-gray-600 mt-2">Thank you, {{ customerDetails?.name || 'Customer' }}. All steps are
+          finalized.</p>
       </div>
       }
     </div>
@@ -192,22 +196,23 @@
       <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 h-64 overflow-hidden relative">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">🗺️ Live Location</h2>
         <hr class="mb-6">
-        
-        <div class="absolute inset-0 pt-16 flex items-center justify-center text-gray-500 text-center text-sm bg-blue-50/50">
-          
 
-[Image of Order Tracking Map]
+        <div
+          class="absolute inset-0 pt-16 flex items-center justify-center text-gray-500 text-center text-sm bg-blue-50/50">
+
+
+          [Image of Order Tracking Map]
 
           <div class="absolute inset-0 bg-map-pattern opacity-10"></div>
-          
-          <div class="absolute w-6 h-6 rounded-full bg-blue-600 shadow-2xl ring-4 ring-blue-300 transition-all duration-1000 ease-in-out" 
-               [style.top]="currentMapPos.top" 
-               [style.left]="currentMapPos.left"
-               style="transform: translate(-50%, -50%);">
+
+          <div
+            class="absolute w-6 h-6 rounded-full bg-blue-600 shadow-2xl ring-4 ring-blue-300 transition-all duration-1000 ease-in-out"
+            [style.top]="currentMapPos.top" [style.left]="currentMapPos.left" style="transform: translate(-50%, -50%);">
             <div class="absolute inset-0 rounded-full bg-white animate-ping opacity-75"></div>
           </div>
-          
-          <div class="absolute bottom-4 left-0 right-0 p-2 text-center bg-white/80 backdrop-blur-sm border-t border-gray-100">
+
+          <div
+            class="absolute bottom-4 left-0 right-0 p-2 text-center bg-white/80 backdrop-blur-sm border-t border-gray-100">
             Current Location: <span class="font-bold text-blue-600">{{ steps[currentStepIndex].label }} Stage</span>
           </div>
         </div>

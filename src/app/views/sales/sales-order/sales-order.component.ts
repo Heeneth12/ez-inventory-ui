@@ -11,9 +11,9 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
 import { ArrowRight, View } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { SalesFlowTrackerComponent } from '../../../layouts/components/sales-flow-tracker/sales-flow-tracker.component';
 import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -103,7 +103,7 @@ export class SalesOrderComponent implements OnInit {
   viewSalesOrderDetail(id: number | string) {
     this.getSalesOrderById(id);
     this.drawerService.openComponent(
-      SalesFlowTrackerComponent,
+      OrderTrackerComponent,
       { salesOrderId: id },
       'Order Details',
       'xl',

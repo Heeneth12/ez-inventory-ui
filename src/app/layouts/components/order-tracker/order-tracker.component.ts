@@ -1,15 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { SalesOrderService } from '../../../views/sales/sales-order/sales-order.service';
 import { InvoiceService } from '../../../views/sales/invoices/invoice.service';
-import { SalesOrderModal, SalesOrderItemsModal } from '../../../views/sales/sales-order/sales-order.modal';
+import { SalesOrderModal, } from '../../../views/sales/sales-order/sales-order.modal';
 import { InvoiceModal, InvoiceItemModal } from '../../../views/sales/invoices/invoice.modal';
 import { ContactModel } from '../../../views/contacts/contacts.model';
 import { ContactService } from '../../../views/contacts/contacts.service';
 import { LoaderService } from '../loader/loaderService';
 import { ToastService } from '../toast/toastService';
 
-// --- Interfaces (Provided in prompt, defined here for completeness) ---
 interface Step {
   id: number;
   label: string;
@@ -26,72 +25,23 @@ interface TimelineEvent {
   isCurrent: boolean;
 }
 
-// --- Dummy Data Models (Mocking the imports for this example) ---
-// Note: In a real Angular app, these would come from the imported files.
-
-export class MockSalesOrderModal implements SalesOrderModal {
-    id: number = 1;
-    warehouseId: number = 101;
-    orderNumber: string = 'SO-75643290';
-    orderDate: string = '2025-06-09T08:00:00';
-    customerId: number = 201;
-    customerName: string = 'Alice Johnson';
-    paymentTerms: string = 'Net 30';
-    totalAmount: number = 330.00;
-    discount: number = 50.00;
-    tax: number = 10.00;
-    subTotal: number = 300.00;
-    grandTotal: number = 280.00;
-    totalDiscount: number = 50.00;
-    active: boolean = true;
-    status: string = 'INVOICED'; // Start status for demonstration
-    items: SalesOrderItemsModal[] = [{ id: 1, itemId: 1, itemName: 'Premium Widget X', orderedQty: 2, quantity: 2, unitPrice: 50.00, discount: 0, tax: 5, lineTotal: 100 }, { id: 2, itemId: 2, itemName: 'Service Plan A', orderedQty: 1, quantity: 1, unitPrice: 200.00, discount: 50.00, tax: 5, lineTotal: 180 }];
-    remarks: string = 'Urgent delivery requested.';
-}
-
-export class MockInvoiceModal implements InvoiceModal {
-    id: number = 1;
-    invoiceNumber: string = 'INV-001290';
-    salesOrderId: number = 1;
-    customerId: number = 201;
-    status: string = 'PAID_PENDING';
-    invoiceDate: Date = new Date('2025-06-10T10:30:00');
-    items: InvoiceItemModal[] = [{ id: 1, invoiceId: 1, itemId: 1, itemName: 'Premium Widget X', quantity: 2, batchNumber: 'B-001', sku: 'WGTX', unitPrice: 50.00, discountAmount: 0, taxAmount: 5, lineTotal: 100 }, { id: 2, invoiceId: 1, itemId: 2, itemName: 'Service Plan A', quantity: 1, batchNumber: 'B-002', sku: 'SRVCA', unitPrice: 200.00, discountAmount: 50.00, taxAmount: 5, lineTotal: 180 }];
-    subTotal: number = 300.00;
-    discountAmount: number = 50.00;
-    taxAmount: number = 10.00;
-    grandTotal: number = 280.00;
-    amountPaid: number = 0;
-    balance: number = 280.00;
-    remarks: string = 'Payment due in 30 days.';
-}
-
-export class MockContactModel implements ContactModel {
-    id: number = 201;
-    contactCode: string = 'CUST-001';
-    name: string = 'Alice Johnson';
-    email: string = 'alice@example.com';
-    phone: string = '+1 555-123-4567';
-    gstNumber: string = 'GSTIN12345';
-    type: any = 'CUSTOMER'; // Using 'any' to avoid defining the full enum here
-    active: boolean = true;
-    addresses: any[] = [{ addressLine1: '4517 Washington Ave.', city: 'Manchester', state: 'KY', pinCode: '41737', type: 'SHIPPING' }];
-}
-
 
 @Component({
   selector: 'app-order-tracking',
   standalone: true,
-  imports: [CommonModule, DatePipe], // Include DatePipe for formatting dates
+  imports: [CommonModule], // Include DatePipe for formatting dates
   templateUrl: './order-tracker.component.html',
   styleUrls: ['./order-tracker.component.css']
 })
 export class OrderTrackerComponent implements OnInit, OnDestroy {
 
-  // --- Data Properties ---
-  salesOrderDetails: SalesOrderModal = new MockSalesOrderModal();
-  invoiceDetails: InvoiceModal = new MockInvoiceModal();
-  customerDetails: ContactModel = new MockContactModel();
+  @Input() SalesOrderId: number | string | null = null;
+
+  salesOrderDetails: SalesOrderModal | null = null;
+  invoiceDetails: InvoiceModal | null = null;
+  customerDetails: ContactModel | null = null;
+
+
   currentStepIndex = 0;
 
   // --- Stepper Configuration ---
@@ -129,20 +79,16 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     private contactService: ContactService,
     private loaderService: LoaderService,
     private toastService: ToastService
-  ) { 
-    // Initialize component state for demo: set Invoice as current view
-    this.currentStepIndex = 1; 
+  ) {
+    this.currentStepIndex = 1;
   }
 
   ngOnInit() {
-    // In a real app, you would call getSalesOrderDetails(orderId) here
-    // this.getSalesOrderDetails(75643290); 
   }
 
   ngOnDestroy() {
   }
 
-  // --- Core Navigation Logic ---
 
   /**
    * Safely navigates the user to a clickable step.
@@ -150,7 +96,7 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
    */
   selectStep(index: number): void {
     const selectedStep = this.steps[index];
-    
+
     // Check if the step is disabled (i.e., not yet reached via business logic)
     if (selectedStep.disbale) {
       return;
@@ -191,7 +137,6 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Data Fetching Logic (Adjusted to use goToNextStep) ---
 
   getSalesOrderDetails(SoId: number) {
     this.loaderService.show()
@@ -199,16 +144,17 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
       (response: any) => {
         this.salesOrderDetails = response.date;
         this.loaderService.hide();
-        this.getCustomerDetails(this.salesOrderDetails.customerId);
 
-        // Logic to advance the stepper based on real SO status
-        if (this.salesOrderDetails.status === "CREATED") {
-          // Keep at step 1
-        } else if (this.salesOrderDetails.status === "INVOICED") {
-          this.goToNextStep(2); // Go to Invoice
-          this.getInvoiceDetails(SoId);
+        if (this.salesOrderDetails != null) {
+          this.getCustomerDetails(this.salesOrderDetails.customerId);
+          // Add more checks for DELIVERED, PAID, etc., to jump steps if needed
+          if (this.salesOrderDetails.status === "CREATED") {
+            // Keep at step 1
+          } else if (this.salesOrderDetails.status === "INVOICED") {
+            this.goToNextStep(2); // Go to Invoice
+            this.getInvoiceDetails(SoId);
+          }
         }
-        // Add more checks for DELIVERED, PAID, etc., to jump steps if needed
       },
       (error: any) => {
         this.loaderService.hide()
@@ -223,12 +169,6 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
       (response: any) => {
         this.invoiceDetails = response.date;
         this.loaderService.hide()
-        
-        // Logic to advance the stepper based on real Invoice status
-        if (this.invoiceDetails.status === "PAID_PENDING") {
-           // Assume Delivery (Step 3) starts after Invoice is created
-           this.goToNextStep(3); 
-        }
       },
       (error: any) => {
         this.loaderService.hide()
@@ -237,7 +177,61 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     )
   }
 
-  getCustomerDetails(ContactId: number) {
-    // ... (logic remains the same)
+  getCustomerDetails(contactId: number | string) {
+    this.contactService.getContactById(contactId,
+      (response:any) => {
+        
+      },
+      (error:any) => {
+
+      }
+    )
   }
 }
+
+// export class ContactModel {
+//     id!: number;
+//     contactCode!: string;
+//     name!: string;
+//     email!: string;
+//     phone!: string;
+//     gstNumber!: string;
+//     type!: ContactType;
+//     active!: boolean;
+//     addresses: AddressModel[] = [];
+// }
+
+// export class SalesOrderModal {
+//     id!: number;
+//     warehouseId!: number;
+//     orderNumber!: string;
+//     orderDate!: string;
+//     contactMini!: ContactMiniModel
+//     customerId!: number;
+//     customerName!: string;
+//     paymentTerms!: string;
+//     totalAmount!: number;
+//     discount!: number;
+//     tax!: number;
+//     subTotal!: number;
+//     grandTotal!: number;
+//     totalDiscount!: number;
+//     totalTax!: number;
+//     active!: boolean;
+//     status!: string;
+//     source!: string;
+//     items!: SalesOrderItemsModal[];
+//     remarks!: string;
+// }
+
+// export class SalesOrderItemsModal {
+//     id!: number;
+//     itemId!: number;
+//     itemName!: string;
+//     orderedQty!: number;
+//     quantity!: number;
+//     unitPrice!: number;
+//     discount!: number;
+//     tax!: number;
+//     lineTotal!: number;
+// }
