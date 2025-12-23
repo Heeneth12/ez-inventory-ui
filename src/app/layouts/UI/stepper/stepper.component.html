@@ -1,0 +1,43 @@
+<nav aria-label="Progress" class="w-full px-4 py-8">
+  <ol role="list" class="flex items-center w-full">
+    <li *ngFor="let step of steps; let i = index" 
+        [class]="getStepClasses(step, i)">
+      
+      <div *ngIf="i !== steps.length - 1" 
+           class="absolute left-0 top-5 w-full h-0.5 bg-slate-100" 
+           aria-hidden="true">
+        <div class="h-full transition-all duration-500"
+             [ngClass]="step.state === 'completed' ? activeColor : 'bg-transparent'"
+             [style.width]="step.state === 'completed' ? '100%' : '0%'">
+        </div>
+      </div>
+
+      <div class="relative flex flex-col items-center group" 
+           [class.cursor-pointer]="!step.disabled"
+           (click)="onStepClick(step)">
+        
+        <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300 shadow-sm"
+              [ngClass]="{
+                'bg-white border-slate-200 text-slate-400': step.state === 'pending',
+                'border-transparent text-white ring-4 ring-indigo-50': step.state === 'active',
+                'bg-white border-transparent text-indigo-600 ring-2 ring-indigo-600': step.state === 'completed'
+              }"
+              [class]="step.state === 'active' ? activeColor : ''">
+          
+          <lucide-icon *ngIf="step.state !== 'completed'" [name]="step.icon" [size]="18"></lucide-icon>
+          <lucide-icon *ngIf="step.state === 'completed'" name="check" [size]="20" strokeWidth="3"></lucide-icon>
+        </span>
+
+        <div class="absolute top-12 flex flex-col items-center min-w-[120px]">
+          <span class="text-xs font-bold uppercase tracking-wider transition-colors"
+                [ngClass]="step.state === 'active' ? 'text-indigo-600' : 'text-slate-500'">
+            {{ step.label }}
+          </span>
+          <span *ngIf="step.description" class="text-[10px] text-slate-400 font-medium truncate max-w-[100px]">
+            {{ step.description }}
+          </span>
+        </div>
+      </div>
+    </li>
+  </ol>
+</nav>
