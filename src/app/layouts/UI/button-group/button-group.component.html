@@ -1,0 +1,11 @@
+<div class="flex items-center gap-3">
+    @for(btn of buttons; track btn.label){
+    <button type="button" (click)="btn.action()" [disabled]="btn.disabled" [class]="getButtonClasses(btn)">
+        @if(btn.icon){
+        <lucide-icon [name]="btn.icon" [size]="getIconSize(btn.size)" class="shrink-0 transition-colors">
+        </lucide-icon>
+        }
+        <span>{{ btn.label }}</span>
+    </button>
+    }
+</div>
