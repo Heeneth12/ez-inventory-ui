@@ -7,7 +7,8 @@ import { ButtonGroupComponent, ButtonConfig } from '../button-group/button-group
 export interface FormField {
   key: string;
   label: string;
-  type: 'text' | 'number' | 'email' | 'password' | 'tel' | 'textarea';
+  type: 'text' | 'number' | 'email' | 'password' | 'tel' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date';
+  selectData?: { value: any; display: string }[]; // For select, radio
   placeholder?: string;
   required?: boolean;
   icon?: any;
@@ -29,7 +30,7 @@ export class DynamicFormComponent implements OnInit {
   @Input() description: string = '';
   @Input() size: 'sm' | 'md' | 'lg' | 'full' = 'md';
   @Input() submitLabel: string = 'Save Changes';
-  
+
   @Output() onSubmit = new EventEmitter<any>();
   @Output() onCancel = new EventEmitter<void>();
 
@@ -47,12 +48,23 @@ export class DynamicFormComponent implements OnInit {
     const group: any = {};
     this.fields.forEach(field => {
       const validators = [];
-      if (field.required) validators.push(Validators.required);
+
+      // Custom handling for checkbox required (must be true)
+      if (field.required) {
+        field.type === 'checkbox'
+          ? validators.push(Validators.requiredTrue)
+          : validators.push(Validators.required);
+      }
+
       if (field.minLength) validators.push(Validators.minLength(field.minLength));
       if (field.pattern) validators.push(Validators.pattern(field.pattern));
 
+      // Default value for checkbox is false if not provided
+      let val = field.initialValue;
+      if (field.type === 'checkbox' && val === undefined) val = false;
+
       group[field.key] = new FormControl(
-        { value: field.initialValue || '', disabled: field.disabled || false },
+        { value: val ?? '', disabled: field.disabled || false },
         validators
       );
     });
@@ -98,8 +110,8 @@ export class DynamicFormComponent implements OnInit {
 
 // In the template:
 // <div class="max-w-md mx-auto mt-10">
-//   <app-dynamic-form 
-//     [fields]="advancedFields" 
+//   <app-dynamic-form
+//     [fields]="advancedFields"
 //     submitLabel="Create Account"
 //     (onSubmit)="handleFormSubmit($event)"
 //     (onCancel)="closeModal()">
@@ -109,34 +121,34 @@ export class DynamicFormComponent implements OnInit {
 // In the component class:
 // Define Configuration
 // advancedFields: FormField[] = [
-//   { 
-//     key: 'username', 
-//     label: 'Username', 
-//     type: 'text', 
-//     icon: User, 
-//     required: true, 
-//     minLength: 4 
+//   {
+//     key: 'username',
+//     label: 'Username',
+//     type: 'text',
+//     icon: User,
+//     required: true,
+//     minLength: 4
 //   },
-//   { 
-//     key: 'email', 
-//     label: 'Business Email', 
-//     type: 'email', 
-//     icon: Mail, 
+//   {
+//     key: 'email',
+//     label: 'Business Email',
+//     type: 'email',
+//     icon: Mail,
 //     required: true,
 //     pattern: '^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'
 //   },
-//   { 
-//     key: 'bio', 
-//     label: 'Short Bio', 
-//     type: 'textarea', 
-//     placeholder: 'Tell us about yourself...' 
+//   {
+//     key: 'bio',
+//     label: 'Short Bio',
+//     type: 'textarea',
+//     placeholder: 'Tell us about yourself...'
 //   },
-//   { 
-//     key: 'id', 
-//     label: 'Internal ID', 
-//     type: 'text', 
-//     initialValue: 'USER-9901', 
-//     disabled: true 
+//   {
+//     key: 'id',
+//     label: 'Internal ID',
+//     type: 'text',
+//     initialValue: 'USER-9901',
+//     disabled: true
 //   }
 // ];
 
