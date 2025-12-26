@@ -1,14 +1,15 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
-import { AlertCircle, Check, LucideAngularModule, Send } from 'lucide-angular';
+import { FormGroup, FormControl, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { AlertCircle, Check, LucideAngularModule, Plus, Send, Trash2 } from 'lucide-angular';
 import { ButtonGroupComponent, ButtonConfig } from '../button-group/button-group.component';
 
 export interface FormField {
   key: string;
   label: string;
-  type: 'text' | 'number' | 'email' | 'password' | 'tel' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date';
+  type: 'text' | 'number' | 'email' | 'password' | 'tel' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'array';
   selectData?: { value: any; display: string }[]; // For select, radio
+  arrayFields?: FormField[];
   placeholder?: string;
   required?: boolean;
   icon?: any;
@@ -35,6 +36,8 @@ export class DynamicFormComponent implements OnInit {
   @Output() onCancel = new EventEmitter<void>();
 
   readonly alertIcon = AlertCircle;
+  readonly plusIcon = Plus;
+  readonly trashIcon = Trash2;
 
   form!: FormGroup;
   formButtons: ButtonConfig[] = [];
@@ -47,8 +50,14 @@ export class DynamicFormComponent implements OnInit {
   buildForm() {
     const group: any = {};
     this.fields.forEach(field => {
-      const validators = [];
 
+      if (field.type === 'array') {
+        // Initialize empty array or with initial data if you had any
+        group[field.key] = new FormArray([]);
+        return;
+      }
+
+      const validators = [];
       // Custom handling for checkbox required (must be true)
       if (field.required) {
         field.type === 'checkbox'
@@ -104,6 +113,43 @@ export class DynamicFormComponent implements OnInit {
     if (control?.hasError('pattern')) return `Invalid format for ${field.label}`;
     return '';
   }
+
+  // Helper to get the FormArray control safely in the template
+  getFormArray(key: string): FormArray {
+    return this.form.get(key) as FormArray;
+  }
+
+  // Add a new row to the array
+  addArrayItem(field: FormField) {
+    if (!field.arrayFields) return;
+
+    const group: any = {};
+
+    // Build the FormGroup for this specific row based on arrayFields config
+    field.arrayFields.forEach(subField => {
+      const validators = [];
+      if (subField.required) validators.push(Validators.required);
+      // ... add other validators logic here if needed for sub-fields
+
+      group[subField.key] = new FormControl(
+        subField.initialValue ?? '',
+        validators
+      );
+    });
+
+    this.getFormArray(field.key).push(new FormGroup(group));
+  }
+
+  // Remove a row
+  removeArrayItem(key: string, index: number) {
+    this.getFormArray(key).removeAt(index);
+  }
+
+  // Check validity of array (optional, for styling)
+  isArrayInvalid(key: string): boolean {
+    const control = this.form.get(key);
+    return control ? control.invalid && control.touched : false;
+  }
 }
 
 // Example usage:
@@ -149,6 +195,67 @@ export class DynamicFormComponent implements OnInit {
 //     type: 'text',
 //     initialValue: 'USER-9901',
 //     disabled: true
+//   }
+// ];
+
+//stockAdjustmentFields: FormField[] = [
+//   {
+//     key: 'warehouseId',
+//     label: 'Warehouse',
+//     type: 'select',
+//     required: true,
+//     selectData: [
+//       { value: 1, display: 'Main Warehouse' },
+//       { value: 2, display: 'Outlet North' }
+//     ]
+//   },
+//   {
+//     key: 'reasonType',
+//     label: 'Reason',
+//     type: 'select',
+//     required: true,
+//     initialValue: 'DAMAGE',
+//     selectData: [
+//       { value: 'DAMAGE', display: 'Damaged Goods' },
+//       { value: 'LOST', display: 'Lost Inventory' },
+//       { value: 'CORRECTION', display: 'Stock Correction' }
+//     ]
+//   },
+//   {
+//     key: 'reference',
+//     label: 'Reference No.',
+//     type: 'text',
+//     placeholder: 'REF-000'
+//   },
+//   {
+//     key: 'remarks',
+//     label: 'Remarks',
+//     type: 'textarea',
+//   },
+//   // HERE IS YOUR ARRAY CONFIGURATION
+//   {
+//     key: 'items',
+//     label: 'Adjustment Items',
+//     type: 'array', // Use the new type
+//     arrayFields: [ // Define what's inside a single row
+//       { 
+//         key: 'productId', 
+//         label: 'Product', 
+//         type: 'select', 
+//         required: true,
+//         selectData: [
+//             { value: 101, display: 'Wireless Mouse' }, 
+//             { value: 102, display: 'Keyboard' }
+//         ]
+//       },
+//       { 
+//         key: 'quantity', 
+//         label: 'Quantity', 
+//         type: 'number', 
+//         required: true,
+//         placeholder: '0' 
+//       }
+//     ]
 //   }
 // ];
 

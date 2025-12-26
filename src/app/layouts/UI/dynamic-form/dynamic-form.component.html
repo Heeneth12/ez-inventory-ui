@@ -1,5 +1,6 @@
-<div [class]="containerSize" class="bg-white overflow-hidden transition-all duration-300 shadow-xl border border-slate-200 rounded-3xl">
-  
+<div [class]="containerSize"
+  class="bg-white overflow-hidden transition-all duration-300 shadow-xl border border-slate-200 rounded-3xl">
+
   <header *ngIf="title || description" class="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
     <h2 class="text-xl font-bold text-slate-800 tracking-tight">{{ title }}</h2>
     <p class="text-sm text-slate-500 mt-1">{{ description }}</p>
@@ -7,27 +8,72 @@
 
   <form [formGroup]="form" class="p-8 space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-      <div *ngFor="let field of fields" 
-           [class.md:col-span-2]="field.type === 'textarea' || field.type === 'checkbox'"
-           class="flex flex-col gap-1.5">
-        
+
+      <div *ngFor="let field of fields"
+        [class.md:col-span-2]="field.type === 'textarea' || field.type === 'checkbox' || field.type === 'array'"
+        class="flex flex-col gap-1.5">
+
         <label [for]="field.key" class="text-sm font-semibold text-slate-700 ml-0.5">
-          {{ field.label }} 
+          {{ field.label }}
           <span *ngIf="field.required" class="text-rose-500">*</span>
         </label>
 
-        <div class="relative group">
-          <div *ngIf="field.icon && field.type !== 'checkbox' && field.type !== 'radio'" 
-               class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors z-10">
+        <div *ngIf="field.type === 'array'" class="space-y-3">
+
+          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-3">
+
+            <div *ngIf="getFormArray(field.key).controls.length === 0"
+              class="text-center py-6 text-slate-400 text-sm italic border-2 border-dashed border-slate-200 rounded-xl">
+              No items added yet. Click 'Add' to start.
+            </div>
+
+            <ng-container [formArrayName]="field.key">
+              <div *ngFor="let itemGroup of getFormArray(field.key).controls; let i = index" [formGroupName]="i"
+                class="relative bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap md:flex-nowrap gap-4 items-start group animate-in slide-in-from-left-2 duration-300">
+
+                <div *ngFor="let subField of field.arrayFields" class="w-full">
+                  <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">
+                    {{ subField.label }}
+                  </label>
+
+                  <select *ngIf="subField.type === 'select'" [formControlName]="subField.key"
+                    class="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm transition-all appearance-none cursor-pointer">
+                    <option value="" disabled selected>{{ subField.placeholder || 'Select' }}</option>
+                    <option *ngFor="let opt of subField.selectData" [value]="opt.value">{{ opt.display }}</option>
+                  </select>
+
+                  <input *ngIf="['text','number','date'].includes(subField.type)" [type]="subField.type"
+                    [formControlName]="subField.key" [placeholder]="subField.placeholder || ''"
+                    class="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm transition-all">
+                </div>
+
+                <button type="button" (click)="removeArrayItem(field.key, i)" title="Remove Item"
+                  class="md:mt-6 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex-shrink-0">
+                  <lucide-icon [name]="trashIcon" [size]="18"></lucide-icon>
+                </button>
+              </div>
+            </ng-container>
+          </div>
+
+          <button type="button" (click)="addArrayItem(field)"
+            class="flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 px-2 py-1 rounded-lg hover:bg-indigo-50 transition-colors">
+            <lucide-icon [name]="plusIcon" [size]="16"></lucide-icon>
+            Add {{ field.label }} Item
+          </button>
+        </div>
+
+        <div *ngIf="field.type !== 'array'" class="relative group">
+
+          <div *ngIf="field.icon && field.type !== 'checkbox' && field.type !== 'radio'"
+            class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors z-10">
             <lucide-icon [name]="field.icon" [size]="18"></lucide-icon>
           </div>
 
-          <textarea *ngIf="field.type === 'textarea'"
-            [id]="field.key" [formControlName]="field.key"
+          <textarea *ngIf="field.type === 'textarea'" [id]="field.key" [formControlName]="field.key"
+            [placeholder]="field.placeholder || ''"
             class="w-full min-h-[120px] p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all resize-none text-sm"></textarea>
 
-          <select *ngIf="field.type === 'select'"
-            [id]="field.key" [formControlName]="field.key"
+          <select *ngIf="field.type === 'select'" [id]="field.key" [formControlName]="field.key"
             [ngClass]="field.icon ? 'pl-11' : 'pl-4'"
             class="w-full h-12 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all text-sm appearance-none cursor-pointer">
             <option value="" disabled selected>{{ field.placeholder || 'Select an option' }}</option>
@@ -36,32 +82,31 @@
 
           <div *ngIf="field.type === 'radio'" class="flex flex-wrap gap-4 pt-1">
             <label *ngFor="let opt of field.selectData" class="flex items-center gap-2 cursor-pointer group">
-              <input type="radio" [formControlName]="field.key" [value]="opt.value" 
-                     class="w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500">
+              <input type="radio" [formControlName]="field.key" [value]="opt.value"
+                class="w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500">
               <span class="text-sm text-slate-600 group-hover:text-slate-900">{{ opt.display }}</span>
             </label>
           </div>
 
-          <label *ngIf="field.type === 'checkbox'" class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors">
-            <input type="checkbox" [formControlName]="field.key" 
-                   class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+          <label *ngIf="field.type === 'checkbox'"
+            class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors">
+            <input type="checkbox" [formControlName]="field.key"
+              class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
             <span class="text-sm text-slate-700 font-medium">{{ field.placeholder || 'I agree' }}</span>
           </label>
 
-          <input *ngIf="['text', 'number', 'email', 'password', 'tel', 'date'].includes(field.type)"
-            [id]="field.key" [type]="field.type" [formControlName]="field.key"
-            [placeholder]="field.placeholder || ''"
+          <input *ngIf="['text', 'number', 'email', 'password', 'tel', 'date'].includes(field.type)" [id]="field.key"
+            [type]="field.type" [formControlName]="field.key" [placeholder]="field.placeholder || ''"
             [ngClass]="field.icon ? 'pl-11' : 'pl-4'"
-            class="w-full h-12 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all text-sm disabled:bg-slate-50 disabled:text-slate-400"
-          />
+            class="w-full h-12 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all text-sm disabled:bg-slate-50 disabled:text-slate-400" />
         </div>
 
         <div class="h-5">
-            <p *ngIf="form.get(field.key)?.touched && form.get(field.key)?.invalid" 
-               class="text-[11px] text-rose-500 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
-              <lucide-icon [name]="alertIcon" [size]="12"></lucide-icon>
-              {{ getErrorMessage(field) }}
-            </p>
+          <p *ngIf="form.get(field.key)?.touched && form.get(field.key)?.invalid"
+            class="text-[11px] text-rose-500 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
+            <lucide-icon [name]="alertIcon" [size]="12"></lucide-icon>
+            {{ getErrorMessage(field) }}
+          </p>
         </div>
       </div>
     </div>
