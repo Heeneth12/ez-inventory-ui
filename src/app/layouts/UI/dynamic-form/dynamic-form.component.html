@@ -1,0 +1,73 @@
+<div [class]="containerSize" class="bg-white overflow-hidden transition-all duration-300 shadow-xl border border-slate-200 rounded-3xl">
+  
+  <header *ngIf="title || description" class="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
+    <h2 class="text-xl font-bold text-slate-800 tracking-tight">{{ title }}</h2>
+    <p class="text-sm text-slate-500 mt-1">{{ description }}</p>
+  </header>
+
+  <form [formGroup]="form" class="p-8 space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+      <div *ngFor="let field of fields" 
+           [class.md:col-span-2]="field.type === 'textarea' || field.type === 'checkbox'"
+           class="flex flex-col gap-1.5">
+        
+        <label [for]="field.key" class="text-sm font-semibold text-slate-700 ml-0.5">
+          {{ field.label }} 
+          <span *ngIf="field.required" class="text-rose-500">*</span>
+        </label>
+
+        <div class="relative group">
+          <div *ngIf="field.icon && field.type !== 'checkbox' && field.type !== 'radio'" 
+               class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors z-10">
+            <lucide-icon [name]="field.icon" [size]="18"></lucide-icon>
+          </div>
+
+          <textarea *ngIf="field.type === 'textarea'"
+            [id]="field.key" [formControlName]="field.key"
+            class="w-full min-h-[120px] p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all resize-none text-sm"></textarea>
+
+          <select *ngIf="field.type === 'select'"
+            [id]="field.key" [formControlName]="field.key"
+            [ngClass]="field.icon ? 'pl-11' : 'pl-4'"
+            class="w-full h-12 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all text-sm appearance-none cursor-pointer">
+            <option value="" disabled selected>{{ field.placeholder || 'Select an option' }}</option>
+            <option *ngFor="let opt of field.selectData" [value]="opt.value">{{ opt.display }}</option>
+          </select>
+
+          <div *ngIf="field.type === 'radio'" class="flex flex-wrap gap-4 pt-1">
+            <label *ngFor="let opt of field.selectData" class="flex items-center gap-2 cursor-pointer group">
+              <input type="radio" [formControlName]="field.key" [value]="opt.value" 
+                     class="w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500">
+              <span class="text-sm text-slate-600 group-hover:text-slate-900">{{ opt.display }}</span>
+            </label>
+          </div>
+
+          <label *ngIf="field.type === 'checkbox'" class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl cursor-pointer hover:bg-slate-100 transition-colors">
+            <input type="checkbox" [formControlName]="field.key" 
+                   class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+            <span class="text-sm text-slate-700 font-medium">{{ field.placeholder || 'I agree' }}</span>
+          </label>
+
+          <input *ngIf="['text', 'number', 'email', 'password', 'tel', 'date'].includes(field.type)"
+            [id]="field.key" [type]="field.type" [formControlName]="field.key"
+            [placeholder]="field.placeholder || ''"
+            [ngClass]="field.icon ? 'pl-11' : 'pl-4'"
+            class="w-full h-12 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all text-sm disabled:bg-slate-50 disabled:text-slate-400"
+          />
+        </div>
+
+        <div class="h-5">
+            <p *ngIf="form.get(field.key)?.touched && form.get(field.key)?.invalid" 
+               class="text-[11px] text-rose-500 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
+              <lucide-icon [name]="alertIcon" [size]="12"></lucide-icon>
+              {{ getErrorMessage(field) }}
+            </p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+      <app-button-group [buttons]="formButtons"></app-button-group>
+    </footer>
+  </form>
+</div>
