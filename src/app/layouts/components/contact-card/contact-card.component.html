@@ -1,0 +1,72 @@
+<div *ngIf="contactDetails" class="bg-white">
+    <div class="bg-white border-b border-slate-100 px-4 py-6 flex flex-col lg:flex-row items-center gap-8">
+        <div class="relative group">
+            <div
+                class="w-32 h-32 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden shadow-sm">
+                <lucide-icon [img]="User" class="w-16 h-16 text-slate-300"></lucide-icon>
+            </div>
+            <button
+                class="absolute -bottom-2 -right-2 p-2 bg-[#2D4495] text-white rounded-lg shadow-lg hover:bg-[#1e2e66] transition-all">
+                <lucide-icon [img]="Pencil" class="w-4 h-4"></lucide-icon>
+            </button>
+        </div>
+
+        <div class="flex-1 space-y-2">
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-slate-800">{{ contactDetails.name }}</h1>
+                <span
+                    class="px-3 py-0.5 bg-rose-50 text-rose-600 text-[11px] font-bold rounded-full border border-rose-100 uppercase">{{contactDetails.type}}</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-slate-500 font-medium">
+                <span class="flex items-center gap-2"><lucide-icon [img]="Phone" class="w-3.5 h-3.5"></lucide-icon> {{
+                    contactDetails.phone }}</span>
+                <span class="flex items-center gap-2"><lucide-icon [img]="User" class="w-3.5 h-3.5"></lucide-icon> {{
+                    contactDetails.type }}</span>
+                <span class="flex items-center gap-2 font-mono"><lucide-icon [img]="Fingerprint"
+                        class="w-3.5 h-3.5"></lucide-icon> {{ contactDetails.contactCode }}</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-slate-500 font-medium">
+                <span class="flex items-center gap-2"><lucide-icon [img]="Mail" class="w-3.5 h-3.5"></lucide-icon> {{
+                    contactDetails.email }}</span>
+                <span class="flex items-center gap-2"><lucide-icon [img]="Hash" class="w-3.5 h-3.5"></lucide-icon> {{
+                    contactDetails.gstNumber }}</span>
+            </div>
+
+            <p class="text-xs text-slate-400 max-w-sm leading-relaxed mt-2 italic flex items-center gap-1">
+                <lucide-icon [img]="MapPin" class="w-3.5 h-3.5"></lucide-icon> {{ locationDisplay || 'Address not insystem' }}
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-4 min-w-[330px]">
+
+            <div class="flex gap-2">
+                <div class="flex-1 bg-emerald-50/50 border border-emerald-100 rounded-xl p-3">
+                    <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Total Advance</p>
+                    <p class="text-lg font-bold text-emerald-700">₹{{ financialSummary.walletBalance | number:'1.2-2' }}
+                    </p>
+                </div>
+                <div class="flex-1 bg-rose-50/50 border border-rose-100 rounded-xl p-3">
+                    <p class="text-[10px] text-rose-600 font-bold uppercase tracking-wider mb-1">Due Amount</p>
+                    <p class="text-lg font-bold text-rose-700">₹{{ financialSummary.totalOutstandingAmount |
+                        number:'1.2-2' }}</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-2">
+                <button
+                    class="w-full flex items-center justify-center gap-2 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg border border-slate-200 hover:bg-slate-200">
+                    <lucide-icon [img]="Plus" class="w-3.5 h-3.5"></lucide-icon>
+                    Collect Advance
+                </button>
+                <div class="grid grid-cols-1 gap-2">
+                    <button
+                        class="flex items-center justify-center gap-2 py-3 bg-[#2D4495] text-white rounded-lg hover:bg-opacity-90 transition-all">
+                        <lucide-icon [img]="FileText" class="w-4 h-4"></lucide-icon>
+                        <span class="text-[10px] font-bold text-center leading-tight">Generate Service Bill</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
