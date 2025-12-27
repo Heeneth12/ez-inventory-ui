@@ -104,10 +104,11 @@ export class InvoicesComponent {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'payment_details') {
-      this.openPaymentSummary(event.row.id);
+      console.log(event)
+      this.openPaymentSummary(event.row.id, event.row['customerId']);
     }
     if (event.type === 'custom' && event.key === 'receive_payment') {
-      this.openPaymentSummary(event.row.id);
+      this.openPaymentSummary(event.row.id, event.row['customerId']);
       this.getAllInvoices();
     }
     if (event.type === 'custom' && event.key === 'download_invoice') {
@@ -139,10 +140,10 @@ export class InvoicesComponent {
     );
   }
 
-  openPaymentSummary(invoiceId: any) {
+  openPaymentSummary(invoiceId: any, customerId:any) {
     this.modalService.openComponent(
       PaymentSymmaryComponent,
-      { invoiceId },
+      { invoiceId , customerId},
       'lg'
     );
   }

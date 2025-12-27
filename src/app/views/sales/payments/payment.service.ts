@@ -65,6 +65,10 @@ export class PaymentService {
         return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/wallet/refund/${paymentId}?amount=${amount}`, {}, successfn, errorfn);
     }
 
+    addMoneyToWallet(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/wallet/add`, data, successfn, errorfn);
+    }
+
     /**
      * Download Payment Receipt PDF
      * Note: For PDFs, you usually need to handle the blob response.

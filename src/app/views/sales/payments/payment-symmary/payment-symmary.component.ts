@@ -18,12 +18,18 @@ import { ModalService } from '../../../../layouts/components/modal/modalService'
 export class PaymentSymmaryComponent {
 
   @Input() invoiceId!: number;
+  @Input() customerId!: number;
   @Output() close = new EventEmitter<void>(); // To close modal
   @Output() paymentSuccess = new EventEmitter<void>(); // To refresh parent list
 
   paymentSummary: InvoicePaymentSummaryModal | null = null;
   paymentForm: FormGroup;
   isSubmitting = false;
+  customerSummary: any = { walletBalance: 0 };
+
+  walletForm: FormGroup;
+  useWallet = false;
+  showWalletForm = false;
 
   constructor(
     private fb: FormBuilder,
@@ -38,12 +44,23 @@ export class PaymentSymmaryComponent {
       referenceNumber: [''],
       remarks: ['']
     });
+
+    // Add Money to Wallet Form
+    this.walletForm = this.fb.group({
+      amount: [null, [Validators.required, Validators.min(1)]],
+      paymentMethod: ['CASH', Validators.required],
+      referenceNumber: [''],
+      remarks: ['Advance Payment']
+    });
   }
 
   ngOnInit(): void {
-    if (this.invoiceId) {
-      this.loadPaymentSummary();
-    }
+    this.refreshAllData();
+  }
+
+  refreshAllData() {
+    if (this.invoiceId) this.loadPaymentSummary();
+    if (this.customerId) this.loadCustomerWallet();
   }
 
   loadPaymentSummary() {
@@ -68,6 +85,77 @@ export class PaymentSymmaryComponent {
         this.toastSvc.show('Failed to load payments', 'error')
       }
     );
+  }
+
+  loadCustomerWallet() {
+    this.paymentService.getCustomerSummary(this.customerId,
+      (res: any) => {
+        this.customerSummary = res.data;
+      },
+      (err: any) => console.error('Failed to load wallet', err)
+    );
+  }
+
+  // New Method: Apply Wallet to this Invoice
+  payWithWallet() {
+    if (this.customerSummary.walletBalance <= 0) return;
+
+    const amountToApply = Math.min(this.customerSummary.walletBalance, this.paymentSummary?.balanceDue || 0);
+    this.loaderSvc.show();
+    // We need a list of payments with unallocated funds to apply them
+    // For simplicity, your backend applyWalletToInvoice usually handles the logic
+    const payload = {
+      customerId: this.customerId,
+      invoiceId: this.invoiceId,
+      amount: amountToApply
+    };
+
+    this.paymentService.applyWalletToInvoice(payload,
+      (res: any) => {
+        this.toastSvc.show('Wallet Balance Applied Successfully', 'success');
+        this.loadPaymentSummary();
+        this.loadCustomerWallet();
+        this.paymentSuccess.emit();
+        this.loaderSvc.hide();
+      },
+      (err: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Failed to apply wallet', 'error');
+      }
+    );
+  }
+
+  /**
+   * ACTION 3: Add new money to the Wallet (Advance)
+   */
+  submitWalletAdd() {
+    if (this.walletForm.invalid) return;
+    this.isSubmitting = true;
+    const val = this.walletForm.value;
+
+    this.paymentService.addMoneyToWallet({
+      customerId: this.customerId,
+      amount: val.amount,
+      paymentMethod: val.paymentMethod,
+      referenceNumber: val.referenceNumber,
+      remarks: val.remarks
+    },
+      (response: any) => {
+        this.toastSvc.show('Money added to wallet', 'success');
+        this.isSubmitting = false;
+        this.loaderSvc.hide();
+        this.refreshAllData();
+        this.paymentSuccess.emit();
+        this.showWalletForm = false;
+      },
+      (error: any) => {
+
+        this.isSubmitting = false;
+        this.loaderSvc.hide();
+        this.toastSvc.show(error?.message || 'Transaction Failed', 'error');
+
+      }
+    )
   }
 
   submitPayment() {
