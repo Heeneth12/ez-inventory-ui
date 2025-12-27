@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { SalesOrderModal } from './sales-order.modal';
+import { SalesOrderFilterModal, SalesOrderModal } from './sales-order.modal';
 import { Router } from '@angular/router';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
@@ -28,6 +28,7 @@ export class SalesOrderComponent implements OnInit {
   readonly ArrowRight = ArrowRight;
   salesOrders: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
+  salesOrderFilter: SalesOrderFilterModal = new SalesOrderFilterModal();
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
   soColumn: any = SALES_ORDER_COLUMNS;
@@ -67,7 +68,7 @@ export class SalesOrderComponent implements OnInit {
     this.salesOrderService.getAllSalesOrders(
       apiPage,
       this.pagination.pageSize,
-      {},
+      this.salesOrderFilter,
       (response: any) => {
         this.salesOrders = response.data.content;
         this.pagination = {
@@ -153,7 +154,17 @@ export class SalesOrderComponent implements OnInit {
 
   onFilterDate(range: DateRangeEmit) {
     console.log('Filter table by:', range.from, range.to);
-    // Call your API or filter local data array here
+    this.salesOrderFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.salesOrderFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   onLoadMore() {

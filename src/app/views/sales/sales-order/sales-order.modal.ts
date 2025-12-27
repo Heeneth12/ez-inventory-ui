@@ -36,8 +36,12 @@ export class SalesOrderItemsModal {
 }
 
 export class SalesOrderFilterModal {
-    id!:number;
-    status!:string;
-    customerId!:number;
-    warehouseId!:number
+    id!: number;
+    status!: string;
+    searchQuery!: string;
+    customerId!: number;
+    warehouseId!: number;
+    fromDate!: string | null;
+    toDate!: string | null;
+
 }
