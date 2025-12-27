@@ -7,15 +7,16 @@ import { PaginationConfig, TableColumn, TableAction, TableActionConfig } from '.
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PaymentService } from './payment.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { ScrollText } from 'lucide-angular';
+import { Banknote, PieChart, ScrollText, ShoppingCart, Users } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { PaymentModal } from './payment.modal';
 import { PAYMENTS_COLUMNS } from '../../../layouts/config/tableConfig';
+import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
 
 @Component({
   selector: 'app-payments',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent],
+  imports: [CommonModule, StandardTableComponent, StatGroupComponent],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.css'
 })
@@ -133,4 +134,38 @@ export class PaymentsComponent {
   onLoadMore() {
   }
 
+  dashboardStats: StatCardConfig[] = [
+    {
+      key: 'revenue',
+      label: 'Revenue this month',
+      value: '$10,398',
+      color: 'emerald',
+      icon: Banknote,
+      trend: { value: '+$498', isUp: true }
+    },
+    {
+      key: 'profit',
+      label: 'Profit this month',
+      value: '$3,982',
+      icon: PieChart,
+      color: 'gray',
+      trend: { value: '+$198', isUp: true }
+    },
+    {
+      key: 'orders',
+      label: 'Total Orders',
+      value: '1,248',
+      icon: ShoppingCart,
+      color: 'gray',
+      trend: { value: '+86', isUp: true }
+    },
+    {
+      key: 'customers',
+      label: 'New Customers',
+      value: '342',
+      icon: Users,
+      color: 'gray',
+      trend: { value: '-12', isUp: false }
+    }
+  ];
 }

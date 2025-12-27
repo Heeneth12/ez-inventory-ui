@@ -1,0 +1,33 @@
+<div [ngClass]="gridClass" class="grid gap-px border border-slate-200 overflow-hidden shadow-sm">
+  @for(stat of stats; track stat.key; let i = $index){
+  <div
+    class="bg-white p-6 flex items-center gap-6 hover:bg-slate-50 transition-colors duration-300 border-r border-gray-200">
+
+    <div [class]="getIconTheme(stat.color)"
+      class="w-12 h-12 rounded-full flex items-center justify-center border shadow-sm transition-transform group-hover:scale-110">
+      <lucide-icon [name]="stat.icon" [size]="22"></lucide-icon>
+    </div>
+
+    <div class="flex flex-col gap-0.5">
+      <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">
+        {{ stat.label }}
+      </p>
+
+      <div class="flex items-center gap-3">
+        <h3 class="text-2xl font-black text-slate-900 tracking-tight">
+          {{ stat.value }}
+        </h3>
+
+        @if(stat.trend){
+        <div [ngClass]="stat.trend.isUp ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'"
+          class="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold">
+          <lucide-icon [img]="stat.trend.isUp ? trendingUpIcon : trendingDownIcon" [size]="12"></lucide-icon>
+          {{ stat.trend.value }}
+        </div>
+        }
+      </div>
+    </div>
+
+  </div>
+  }
+</div>

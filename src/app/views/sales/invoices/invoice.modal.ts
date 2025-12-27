@@ -75,11 +75,13 @@ export interface InvoiceItemRequest {
 
 export class InvoiceFilterModal {
   id?: number | null;
+  searchQuery!: string;
   salesOrderId?: number | null;
   status?: string | null;
   customerId?: number | null;
   warehouseId?: number | null;
-
+  fromDate!: string | null;
+  toDate!: string | null;
 }
 
 export enum InvoiceStatus {

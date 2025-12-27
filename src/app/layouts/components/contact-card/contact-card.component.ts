@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Users, MapPinCheckIcon, ChevronDown, UserSquare, Pencil, User, Fingerprint, Calendar, Hash, Plus, Star, LucideAngularModule } from 'lucide-angular';
+import { Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Users, MapPinCheckIcon, ChevronDown, UserSquare, Pencil, User, Fingerprint, Calendar, Hash, Plus, Star, LucideAngularModule, PlusIcon } from 'lucide-angular';
 import { ContactModel } from '../../../views/contacts/contacts.model';
 import { ContactService } from '../../../views/contacts/contacts.service';
 import { PaymentService } from '../../../views/sales/payments/payment.service';
@@ -45,6 +45,8 @@ export class ContactCardComponent {
   readonly Pencil = Pencil;
   readonly User = User;
   readonly Fingerprint = Fingerprint;
+  readonly Hash = Hash;
+  readonly Plus = PlusIcon;
 
   constructor(
     private contactService: ContactService,

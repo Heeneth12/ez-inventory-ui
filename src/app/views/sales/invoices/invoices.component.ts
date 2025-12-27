@@ -9,12 +9,13 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { InvoiceModal, InvoiceStatus } from './invoice.modal';
+import { InvoiceFilterModal, InvoiceModal, InvoiceStatus } from './invoice.modal';
 import { PaymentService } from '../payments/payment.service';
 import { InvoicePaymentSummaryModal } from '../payments/payment.modal';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PaymentSymmaryComponent } from '../payments/payment-symmary/payment-symmary.component';
 import { INVOICE_COLUMNS } from '../../../layouts/config/tableConfig';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-invoices',
@@ -26,6 +27,7 @@ import { INVOICE_COLUMNS } from '../../../layouts/config/tableConfig';
 export class InvoicesComponent {
 
   invoicesList: InvoiceModal[] = [];
+  invoicesFilter: InvoiceFilterModal = new InvoiceFilterModal();
   paymentSummary: InvoicePaymentSummaryModal[] = [];
 
   readonly Truck = Truck;
@@ -61,6 +63,12 @@ export class InvoicesComponent {
     }
   ];
 
+  dateConfig: DatePickerConfig = {
+    type: 'both', // or 'single'
+    // label: 'Filter Dates',
+    placeholder: 'Start - End'
+  };
+
   constructor(
     private invoiceService: InvoiceService,
     private paymentService: PaymentService,
@@ -82,7 +90,7 @@ export class InvoicesComponent {
     this.invoiceService.getInvoices(
       apiPage,
       this.pagination.pageSize,
-      {},
+      this.invoicesFilter,
       (response: any) => {
         this.invoicesList = response.data.content;
         this.pagination = {
@@ -140,10 +148,10 @@ export class InvoicesComponent {
     );
   }
 
-  openPaymentSummary(invoiceId: any, customerId:any) {
+  openPaymentSummary(invoiceId: any, customerId: any) {
     this.modalService.openComponent(
       PaymentSymmaryComponent,
-      { invoiceId , customerId},
+      { invoiceId, customerId },
       'lg'
     );
   }
@@ -214,5 +222,21 @@ export class InvoicesComponent {
 
   onLoadMore() {
     console.log('Load more triggered');
+  }
+
+
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    this.invoicesFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.invoicesFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 }
