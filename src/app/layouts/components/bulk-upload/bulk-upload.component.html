@@ -1,127 +1,189 @@
-<div class="flex flex-col h-full max-h-[80vh]">
-
-    <!-- Modal Header -->
-    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-        <div>
-            <!-- Used [context] input here -->
-            <h3 class="text-lg font-semibold text-slate-900">Import {{ context || 'Data' }}</h3>
-            <p class="text-sm text-slate-500">Upload a CSV to update.</p>
-        </div>
-        <button (click)="triggerClose()"
-            class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+<div class="flex flex-col h-full w-full max-w-4xl bg-white  overflow-hidden border border-gray-200">
+  <div class="bg-white border-b border-gray-100">
+    <div class="px-8 mt-6">
+      <div class="flex gap-8 border-b border-gray-200">
+        <button (click)="activeTab.set('upload')" 
+          class="pb-4 flex items-center gap-2 text-sm font-semibold border-b-2 transition-all"
+          [class.border-blue-600]="activeTab() === 'upload'" [class.text-blue-600]="activeTab() === 'upload'"
+          [class.border-transparent]="activeTab() !== 'upload'" [class.text-gray-400]="activeTab() !== 'upload'">
+          <lucide-icon [img]="UploadCloud" class="w-5 h-5"></lucide-icon>
+          Upload Data
         </button>
+        <button (click)="activeTab.set('download')" 
+          class="pb-4 flex items-center gap-2 text-sm font-semibold border-b-2 transition-all"
+          [class.border-blue-600]="activeTab() === 'download'" [class.text-blue-600]="activeTab() === 'download'"
+          [class.border-transparent]="activeTab() !== 'download'" [class.text-gray-400]="activeTab() !== 'download'">
+          <lucide-icon [img]="Download" class="w-5 h-5"></lucide-icon>
+          Download Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-y-auto bg-gray-50/50">
+    
+    <div *ngIf="activeTab() === 'upload'" class="p-8 max-w-2xl mx-auto">
+      <div class="flex gap-6 mb-12">
+        <div class="shrink-0 w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shadow-md">1</div>
+        <div class="flex-1">
+          <h3 class="text-base font-bold text-gray-900">Download Template</h3>
+          <p class="text-sm text-gray-600 mt-1 mb-4">Use our standardized format to ensure your data is processed correctly.</p>
+          <button class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all shadow-sm">
+            <lucide-icon [img]="FileText" class="w-4 h-4 text-blue-600"></lucide-icon>
+            Get Template (.xlsx)
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-6">
+        <div class="shrink-0 w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shadow-md">2</div>
+        <div class="flex-1">
+          <h3 class="text-base font-bold text-gray-900">Upload Data</h3>
+          <p class="text-sm text-gray-600 mt-1 mb-4">Upload your completed template file below.</p>
+
+          <div *ngIf="status() === 'idle' || status() === 'selected'"
+            (click)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+            class="group relative border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer"
+            [class.border-blue-400]="isDragging || file()" [class.bg-blue-50]="isDragging || file()" [class.border-gray-300]="!isDragging && !file()">
+            
+            <input #fileInput type="file" class="hidden" (change)="handleFile($any($event).target.files[0])" accept=".xlsx,.xls,.csv">
+            
+            <div *ngIf="!file()" class="flex flex-col items-center">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <lucide-icon [img]="UploadCloud" class="w-8 h-8 text-blue-600"></lucide-icon>
+              </div>
+              <p class="text-gray-900 font-semibold">Click to upload or drag and drop</p>
+              <p class="text-xs text-gray-500 mt-1">Excel or CSV files up to 10MB</p>
+            </div>
+
+            <div *ngIf="file()" class="flex flex-col items-center">
+              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <lucide-icon [img]="CheckCircle2" class="w-8 h-8 text-green-600"></lucide-icon>
+              </div>
+              <p class="text-gray-900 font-bold">{{ file()?.name }}</p>
+              <p class="text-xs text-gray-500">{{ formatBytes(file()?.size || 0) }}</p>
+              <button (click)="$event.stopPropagation(); removeFile()" class="mt-4 text-xs font-bold text-red-500 hover:text-red-700 flex items-center gap-1">
+                <lucide-icon [img]="Trash2" class="w-3 h-3"></lucide-icon> Remove
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="status() === 'uploading' || status() === 'processing'" class="bg-white border rounded-xl p-10 text-center shadow-sm">
+            <lucide-icon [img]="Loader2" class="w-10 h-10 text-blue-600 animate-spin mx-auto mb-4"></lucide-icon>
+            <h4 class="font-bold text-gray-900">{{ status() === 'uploading' ? 'Uploading...' : 'Processing Records...' }}</h4>
+            <div class="mt-4 w-full bg-gray-100 rounded-full h-2 max-w-xs mx-auto overflow-hidden">
+              <div class="bg-blue-600 h-full transition-all duration-300" [style.width.%]="progress()"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">{{ progress() }}% complete</p>
+          </div>
+
+          <div *ngIf="status() === 'success'" class="animate-in fade-in zoom-in duration-300">
+            <div class="bg-white border border-green-200 rounded-xl overflow-hidden shadow-sm">
+              <div class="p-6 bg-green-50 flex items-center gap-4 border-b border-green-100">
+                <lucide-icon [img]="CheckCircle2" class="w-6 h-6 text-green-600"></lucide-icon>
+                <div>
+                  <h4 class="font-bold text-green-900">Import Successful</h4>
+                  <p class="text-xs text-green-700">Records have been updated in your database</p>
+                </div>
+              </div>
+              <div class="p-6 grid grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-50 rounded-lg text-center">
+                  <span class="block text-2xl font-black text-gray-900">{{ result()?.success }}</span>
+                  <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Processed</span>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg text-center">
+                  <span class="block text-2xl font-black text-red-500">{{ result()?.failed }}</span>
+                  <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Errors Found</span>
+                </div>
+              </div>
+              <div *ngIf="result()?.errors?.length" class="px-6 pb-6">
+                <div class="text-xs font-bold text-gray-400 uppercase mb-2">Error Log</div>
+                <ul class="text-xs text-red-600 space-y-1 bg-red-50 p-3 rounded-md border border-red-100">
+                  <li *ngFor="let err of result()?.errors" class="flex gap-2">
+                    <lucide-icon [img]="AlertCircle" class="w-3 h-3 shrink-0 mt-0.5"></lucide-icon>
+                    {{ err }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Modal Body -->
-    <div class="p-6 overflow-y-auto">
-        <h1>Bulk Upload</h1>
-        <!-- STATE 1: IDLE / SELECTED -->
-        <div *ngIf="status() === 'idle' || status() === 'selected'" class="transition-all duration-300">
-            <div class="relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 group cursor-pointer"
-                [class.border-indigo-400]="isDragging" [class.bg-indigo-50]="isDragging"
-                [class.border-gray-300]="!isDragging" [class.bg-gray-50]="!isDragging" (dragover)="onDragOver($event)"
-                (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="fileInput.click()">
-
-                <input #fileInput type="file" class="hidden" (change)="onFileSelected($event)" accept=".csv,.xlsx,.xls">
-
-                <div
-                    class="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 group-hover:scale-110 transition-transform">
-                    <svg *ngIf="!file()" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    <svg *ngIf="file()" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
-
-                <div *ngIf="!file()">
-                    <p class="text-sm font-medium text-slate-700">Click to upload or drag and drop</p>
-                    <p class="text-xs text-slate-500 mt-1">CSV, Excel (max 10MB)</p>
-                </div>
-
-                <div *ngIf="file()" class="animate-in fade-in zoom-in duration-200">
-                    <p class="text-sm font-semibold text-indigo-600 truncate max-w-[200px] mx-auto">{{ file()?.name }}
-                    </p>
-                    <p class="text-xs text-slate-500 mt-1">{{ formatBytes(file()?.size || 0) }}</p>
-                    <button (click)="$event.stopPropagation(); removeFile()"
-                        class="mt-3 text-xs text-red-500 hover:text-red-700 hover:underline">Remove file</button>
-                </div>
-            </div>
-
-            <div class="mt-4 flex justify-between items-center text-xs">
-                <span class="text-slate-500">Need the format?</span>
-                <a href="#" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium">Download
-                    {{ context }} Template</a>
-            </div>
+    <div *ngIf="activeTab() === 'download'" class="p-8 max-w-2xl mx-auto">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="flex items-center gap-2 mb-6">
+          <lucide-icon [img]="Filter" class="w-5 h-5 text-gray-900"></lucide-icon>
+          <h3 class="font-bold text-gray-900">Export Filters</h3>
         </div>
 
-        <!-- STATE 2: UPLOADING / PROCESSING -->
-        <div *ngIf="status() === 'uploading' || status() === 'processing'" class="py-6 text-center">
-            <!-- Spinner -->
-            <div class="mb-6 relative w-16 h-16 mx-auto">
-                <svg class="animate-spin text-indigo-600 h-16 w-16" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                </svg>
-                <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-indigo-800">{{
-                    progress() }}%</div>
+        <div class="grid grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Brand</label>
+              <select [(ngModel)]="downloadFilters.brand" class="w-full bg-gray-50 border-gray-200 rounded-lg text-sm focus:ring-blue-500">
+                <option value="">All Brands</option>
+                <option *ngFor="let b of brands" [value]="b.id">{{ b.name }}</option>
+              </select>
             </div>
-            <h4 class="text-lg font-semibold text-slate-800 mb-1">{{ status() === 'uploading' ? 'Uploading...' :
-                'Processing...' }}</h4>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden mt-4">
-                <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300 ease-out"
-                    [style.width.%]="progress()"></div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
+              <select [(ngModel)]="downloadFilters.status" class="w-full bg-gray-50 border-gray-200 rounded-lg text-sm focus:ring-blue-500">
+                <option value="">Active & Inactive</option>
+                <option value="active">Active Only</option>
+              </select>
             </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Format</label>
+              <div class="flex gap-4 mt-2">
+                <label class="flex items-center gap-2 cursor-pointer text-sm">
+                  <input type="radio" name="format" value="xlsx" [(ngModel)]="downloadFilters.format" class="text-blue-600"> Excel
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-sm">
+                  <input type="radio" name="format" value="csv" [(ngModel)]="downloadFilters.format" class="text-blue-600"> CSV
+                </label>
+              </div>
+            </div>
+            <div>
+              <button (click)="clearFilters()" class="text-xs font-bold text-blue-600 hover:underline">Reset Filters</button>
+            </div>
+          </div>
         </div>
 
-        <!-- STATE 3: SUCCESS -->
-        <div *ngIf="status() === 'success'" class="animate-in slide-in-from-bottom-4 duration-300">
-            <div class="text-center mb-6">
-                <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h3 class="text-lg font-bold text-slate-900">Import Complete</h3>
-            </div>
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-green-50 p-4 rounded-lg border border-green-100 text-center">
-                    <div class="text-2xl font-bold text-green-700">{{ result()?.success }}</div>
-                    <div class="text-xs font-medium text-green-600 uppercase">Success</div>
-                </div>
-                <div class="bg-red-50 p-4 rounded-lg border border-red-100 text-center">
-                    <div class="text-2xl font-bold text-red-700">{{ result()?.failed }}</div>
-                    <div class="text-xs font-medium text-red-600 uppercase">Failed</div>
-                </div>
-            </div>
+        <div class="mt-8 p-4 bg-blue-50 rounded-lg flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <lucide-icon [img]="AlertCircle" class="w-5 h-5 text-blue-600"></lucide-icon>
+            <span class="text-sm text-blue-900 font-medium">Estimated Records: <span class="font-black">{{ estimatedRecords() }}</span></span>
+          </div>
+          <button  [disabled]="isDownloading()"
+            class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 disabled:bg-gray-300 transition-colors flex items-center gap-2">
+            <lucide-icon *ngIf="!isDownloading()" [img]="Download" class="w-4 h-4"></lucide-icon>
+            <lucide-icon *ngIf="isDownloading()" [img]="Loader2" class="w-4 h-4 animate-spin"></lucide-icon>
+            {{ isDownloading() ? 'Exporting...' : 'Start Export' }}
+          </button>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Footer -->
-    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 mt-auto">
-        <button *ngIf="status() !== 'uploading' && status() !== 'processing'" (click)="triggerClose()"
-            class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 rounded-lg transition-all">
-            {{ status() === 'success' ? 'Close' : 'Cancel' }}
-        </button>
-        <button *ngIf="status() === 'selected'" (click)="uploadFile()"
-            class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200 transition-all flex items-center gap-2">
-            Import Data
-        </button>
-        <button *ngIf="status() === 'success'" (click)="reset()"
-            class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all">
-            Upload Another
-        </button>
-    </div>
+  <div class="px-8 py-5 bg-white border-t border-gray-100 flex justify-end items-center gap-3">
+    <button (click)="triggerClose()" class="px-5 py-2 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors">
+      Cancel
+    </button>
+    
+    <button *ngIf="activeTab() === 'upload' && status() === 'selected'"
+      (click)="uploadFile()"
+      class="px-8 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">
+      Start Import
+    </button>
+
+    <button *ngIf="status() === 'success'"
+      (click)="reset()"
+      class="px-8 py-2.5 bg-gray-900 text-white rounded-lg font-bold text-sm hover:bg-black transition-all">
+      Upload Another
+    </button>
+  </div>
 </div>

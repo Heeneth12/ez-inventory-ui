@@ -11,6 +11,7 @@ import { ModalService } from '../../layouts/components/modal/modalService';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
 import { ITEMS_COLUMNS } from '../../layouts/config/tableConfig';
 import { CloudUpload } from 'lucide-angular';
+import { DrawerService } from '../../layouts/components/drawer/drawerService';
 
 @Component({
   selector: 'app-items',
@@ -36,6 +37,7 @@ export class ItemsComponent implements OnInit {
       icon: CloudUpload,
       variant: 'primary',
       key: 'create_route',
+      action: () => this.bulkUploadItems()
     }
   ];
 
@@ -44,6 +46,7 @@ export class ItemsComponent implements OnInit {
     private router: Router,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
+    private drawerSvc: DrawerService,
     private modalService: ModalService
   ) {
     this.itemFilter.active = true;
@@ -104,7 +107,11 @@ export class ItemsComponent implements OnInit {
   }
 
   bulkUploadItems() {
-    this.modalService.openComponent(BulkUploadComponent, 'full')
+    this.drawerSvc.openComponent(BulkUploadComponent,
+      {},
+      "Bulk Data Management",
+      'lg'
+    )
   }
 
   onTableAction(event: TableAction) {
