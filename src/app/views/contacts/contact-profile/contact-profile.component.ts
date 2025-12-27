@@ -16,6 +16,8 @@ import { LoaderService } from '../../../layouts/components/loader/loaderService'
 import { SalesOrderService } from '../../sales/sales-order/sales-order.service';
 import { InvoiceService } from '../../sales/invoices/invoice.service';
 import * as Highcharts from 'highcharts';
+import { ModalService } from '../../../layouts/components/modal/modalService';
+import { PaymentSymmaryComponent } from '../../sales/payments/payment-symmary/payment-symmary.component';
 
 @Component({
   selector: 'app-contact-profile',
@@ -117,6 +119,7 @@ export class ContactProfileComponent implements OnInit {
     private paymentService: PaymentService,
     private toast: ToastService,
     private router: Router,
+    private modalService :ModalService,
     private loaderSvc: LoaderService,
     private route: ActivatedRoute
   ) { }
@@ -331,6 +334,14 @@ export class ContactProfileComponent implements OnInit {
 
   bulkUploadItems() {
   }
+
+  openPaymentSummary(customerId:any) {
+      this.modalService.openComponent(
+        PaymentSymmaryComponent,
+        {customerId},
+        'lg'
+      );
+    }
 
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
