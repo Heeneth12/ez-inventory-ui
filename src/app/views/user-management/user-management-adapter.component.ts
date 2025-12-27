@@ -28,7 +28,8 @@ export class UserManagementAdapterComponent {
     navigationTabs: TabItem[] = [
         { id: 'userManagement', label: 'User Management', icon: UsersRound },
         { id: 'create', label: 'Create User', icon: UserPlus },
-        { id: 'edit', label: 'Edit User', icon: UserPen }
+        { id: 'edit', label: 'Edit User', icon: UserPen },
+        { id: 'tenants', label: 'Tenants', icon: UserPen }
     ];
 
     constructor(
@@ -41,7 +42,10 @@ export class UserManagementAdapterComponent {
                 this.activeTab.set('edit');
             } else if (currentUrl.includes('/user-management/create')) {
                 this.activeTab.set('create');
-            } else {
+            } else if(currentUrl.includes('user-management/tenants')){
+                this.activeTab.set('tenants')
+            }
+             else {
                 this.activeTab.set('userManagement');
             }
         });
@@ -56,6 +60,8 @@ export class UserManagementAdapterComponent {
             this.router.navigate(['create'], { relativeTo: this.route });
         } else if (newTabId === 'edit') {
             this.router.navigate(['edit'], { relativeTo: this.route });
+        } else if (newTabId === 'tenants') {
+            this.router.navigate(['tenants'], { relativeTo: this.route });
         }
     }
 }
