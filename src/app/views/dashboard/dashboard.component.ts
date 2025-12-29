@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { 
   LucideAngularModule, 
-  TrendingUp, TrendingDown, DollarSign, Package, AlertTriangle, 
-  Activity, ArrowRight, MoreVertical, Calendar, Download, 
-  Filter, Plus, ScanBarcode, FileText, ChevronDown, Search
+  Eye, Users, MousePointerClick, ShoppingCart, TrendingUp, 
+  TrendingDown, MoreVertical, Download, Plus, ChevronDown,
+  Star, Send, Calendar
 } from 'lucide-angular';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
@@ -13,56 +16,363 @@ import {
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './dashboard.component.html',
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit, AfterViewInit {
+  @ViewChild('profitChart') profitChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('activityChart') activityChartRef!: ElementRef<HTMLCanvasElement>;
   
-  activeTab: 'low-stock' | 'recent-sales' = 'low-stock';
+  private profitChart: Chart | null = null;
+  private activityChart: Chart | null = null;
 
   readonly icons = {
-    trendingUp: TrendingUp, trendingDown: TrendingDown, dollar: DollarSign,
-    package: Package, alert: AlertTriangle, activity: Activity,
-    arrowRight: ArrowRight, more: MoreVertical, calendar: Calendar,
-    download: Download, filter: Filter, plus: Plus, scan: ScanBarcode,
-    file: FileText, chevronDown: ChevronDown, search: Search
+    eye: Eye,
+    users: Users,
+    click: MousePointerClick,
+    cart: ShoppingCart,
+    trendingUp: TrendingUp,
+    trendingDown: TrendingDown,
+    more: MoreVertical,
+    download: Download,
+    plus: Plus,
+    chevronDown: ChevronDown,
+    star: Star,
+    send: Send,
+    calendar: Calendar
   };
 
-  // Quick Action Buttons
-  quickActions = [
-    { label: 'Add Item', icon: Plus, color: 'bg-blue-600', text: 'text-white' },
-    { label: 'Scan Stock', icon: ScanBarcode, color: 'bg-indigo-600', text: 'text-white' },
-    { label: 'Create Order', icon: FileText, color: 'bg-slate-800', text: 'text-white' },
+  hoveredDayIndex: number | null = null;
+
+  // Top Metrics
+  metrics = [
+    { 
+      label: 'Page Views', 
+      value: '16,431', 
+      change: '+15.3%', 
+      isPositive: true, 
+      icon: Eye,
+      comparison: 'vs 14,215 last period'
+    },
+    { 
+      label: 'Visitors', 
+      value: '6,225', 
+      change: '+8.6%', 
+      isPositive: true, 
+      icon: Users,
+      comparison: 'vs 5,734 last period'
+    },
+    { 
+      label: 'Click', 
+      value: '2,832', 
+      change: '-10.5%', 
+      isPositive: false, 
+      icon: MousePointerClick,
+      comparison: 'vs 3,167 last period'
+    },
+    { 
+      label: 'Orders', 
+      value: '1,224', 
+      change: '+4.4%', 
+      isPositive: true, 
+      icon: ShoppingCart,
+      comparison: 'vs 1,172 last period'
+    }
   ];
 
-  // Top Cards
-  stats = [
-    { label: 'Total Revenue', value: '$128,430', trend: '+12.5%', isPositive: true, icon: DollarSign, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Active Items', value: '2,453', trend: '+4.2%', isPositive: true, icon: Package, color: 'text-purple-600', bg: 'bg-purple-50' },
-    { label: 'Low Stock', value: '12', trend: '+2 new', isPositive: false, icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { label: 'Pending Orders', value: '18', trend: '-5%', isPositive: true, icon: Activity, color: 'text-emerald-600', bg: 'bg-emerald-50' }
+  // Customer Stats
+  customerStats = [
+    { label: 'New Users', value: '2,884', color: 'bg-blue-500', barColor: 'bg-blue-500', percentage: 65 },
+    { label: 'Existing Users', value: '1,432', color: 'bg-emerald-500', barColor: 'bg-emerald-500', percentage: 40 },
+    { label: 'Unsubscribed', value: '562', color: 'bg-orange-500', barColor: 'bg-orange-500', percentage: 15 }
   ];
 
-  // Visual Chart Data (CSS Chart)
-  categoryDistribution = [
-    { name: 'Electronics', percentage: 75, color: 'bg-blue-500', value: '$45k' },
-    { name: 'Furniture', percentage: 45, color: 'bg-purple-500', value: '$22k' },
-    { name: 'Accessories', percentage: 60, color: 'bg-emerald-500', value: '$34k' },
-    { name: 'Stationery', percentage: 30, color: 'bg-amber-500', value: '$12k' },
+  // Best Selling Products
+  products = [
+    { 
+      id: '#S3009', 
+      name: 'Hybrid Active Noise Cancel...', 
+      sold: '2,516 sold', 
+      revenue: '$124,839', 
+      rating: 5.0,
+      image: '🎧'
+    },
+    { 
+      id: '#S3001', 
+      name: 'Casio G-Shock Shock Resi...', 
+      sold: '1,236 sold', 
+      revenue: '$92,562', 
+      rating: 4.8,
+      image: '⌚'
+    },
+    { 
+      id: '#S3004', 
+      name: 'SAMSUNG Galaxy S25 Ultr...', 
+      sold: '832 sold', 
+      revenue: '$74,048', 
+      rating: 4.7,
+      image: '📱'
+    },
+    { 
+      id: '#S3002', 
+      name: 'Xbox Wireless Gaming Co...', 
+      sold: '645 sold', 
+      revenue: '$62,820', 
+      rating: 4.5,
+      image: '🎮'
+    },
+    { 
+      id: '#S3002', 
+      name: 'Timex Men\'s Easy Reader ...', 
+      sold: '572 sold', 
+      revenue: '$48,724', 
+      rating: 4.5,
+      image: '⌚'
+    }
   ];
 
-  lowStockItems = [
-    { name: 'MacBook Pro M2', sku: 'LAP-002', stock: 4, min: 10, status: 'Critical' },
-    { name: 'Ergo Chair Ultra', sku: 'FUR-992', stock: 12, min: 20, status: 'Low' },
-    { name: 'USB-C Hub', sku: 'ACC-201', stock: 8, min: 15, status: 'Low' },
-    { name: 'Monitor 4K', sku: 'DIS-101', stock: 2, min: 5, status: 'Critical' },
-    { name: 'Wireless Mouse', sku: 'ACC-505', stock: 15, min: 25, status: 'Low' },
+  // Daily Activity Data with actual values
+  dailyActivity = [
+    { day: 'Sun', value: 3842, fullDay: 'Sunday', date: 'Jan 12' },
+    { day: 'Mon', value: 8162, isHighest: true, fullDay: 'Monday', date: 'Jan 13' },
+    { day: 'Tue', value: 6234, fullDay: 'Tuesday', date: 'Jan 14' },
+    { day: 'Wed', value: 4521, fullDay: 'Wednesday', date: 'Jan 15' },
+    { day: 'Thu', value: 5834, fullDay: 'Thursday', date: 'Jan 16' },
+    { day: 'Fri', value: 4187, fullDay: 'Friday', date: 'Jan 17' },
+    { day: 'Sat', value: 3256, fullDay: 'Saturday', date: 'Jan 18' }
   ];
 
-  recentActivity = [
-    { title: 'Stock Adjustment', desc: 'iPhone 15 Pro Max (x5)', time: '10 min ago', user: 'AD' },
-    { title: 'New Order #2291', desc: ' dispatched to New York', time: '2 hours ago', user: 'JS' },
-    { title: 'Low Stock Alert', desc: 'MacBook Pro reached reorder point', time: '5 hours ago', user: 'SYS' },
-  ];
+  maxActivity = Math.max(...this.dailyActivity.map(d => d.value));
 
-  setActiveTab(tab: 'low-stock' | 'recent-sales') {
-    this.activeTab = tab;
+  ngOnInit() {}
+
+  ngAfterViewInit() {
+    // Wait for DOM to be fully ready
+    setTimeout(() => {
+      this.initProfitChart();
+      this.initActivityChart();
+    }, 300);
+  }
+
+  private initProfitChart() {
+    if (!this.profitChartRef?.nativeElement) {
+      console.error('Profit chart canvas not found');
+      return;
+    }
+
+    const ctx = this.profitChartRef.nativeElement.getContext('2d');
+    if (!ctx) {
+      console.error('Could not get 2D context for profit chart');
+      return;
+    }
+
+    // Destroy existing chart if it exists
+    if (this.profitChart) {
+      this.profitChart.destroy();
+    }
+
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.01)');
+
+    // Dummy data for profit chart
+    const profitData = {
+      labels: ['Jan 1', 'Jan 5', 'Jan 10', 'Jan 15', 'Jan 20', 'Jan 25', 'Jan 30'],
+      values: [5200, 6800, 5500, 8200, 7100, 9500, 11200]
+    };
+
+    this.profitChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: profitData.labels,
+        datasets: [{
+          label: 'Profit',
+          data: profitData.values,
+          borderColor: '#3b82f6',
+          backgroundColor: gradient,
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: '#3b82f6',
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: '#fff',
+            bodyColor: '#cbd5e1',
+            borderColor: '#334155',
+            borderWidth: 1,
+            padding: 16,
+            displayColors: false,
+            cornerRadius: 8,
+            titleFont: {
+              size: 13,
+              weight: 'bold'
+            },
+            bodyFont: {
+              size: 15,
+              weight: 'bold'
+            },
+            callbacks: {
+              title: (items) => items[0].label,
+              label: ({ parsed }) => parsed?.y != null ? `$${parsed.y.toLocaleString()}` : ''
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { 
+              display: false,
+            },
+            ticks: { 
+              color: '#94a3b8',
+              font: { 
+                size: 12,
+              },
+              padding: 8
+            }
+          },
+          y: {
+            border: { display: false },
+            grid: { 
+              color: '#f1f5f9',
+              drawTicks: false,
+            },
+            ticks: { 
+              color: '#94a3b8',
+              font: { 
+                size: 12,
+              },
+              callback: (value) => `$${Number(value) / 1000}k`,
+              padding: 12
+            }
+          }
+        },
+        interaction: {
+          mode: 'index',
+          intersect: false
+        }
+      }
+    });
+  }
+
+  private initActivityChart() {
+    if (!this.activityChartRef?.nativeElement) {
+      console.error('Activity chart canvas not found');
+      return;
+    }
+
+    const ctx = this.activityChartRef.nativeElement.getContext('2d');
+    if (!ctx) {
+      console.error('Could not get 2D context for activity chart');
+      return;
+    }
+
+    // Destroy existing chart if it exists
+    if (this.activityChart) {
+      this.activityChart.destroy();
+    }
+
+    // Dummy data for activity chart
+    const activityData = {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      values: [4200, 5800, 4500, 6200, 7800, 5100, 3900]
+    };
+
+    // Create gradient for bars
+    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+    gradient.addColorStop(0, '#3b82f6');
+    gradient.addColorStop(1, '#60a5fa');
+
+    this.activityChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: activityData.labels,
+        datasets: [{
+          label: 'Activity',
+          data: activityData.values,
+          backgroundColor: gradient,
+          borderRadius: 12,
+          borderSkipped: false,
+          hoverBackgroundColor: '#2563eb',
+          barThickness: 32
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: '#fff',
+            bodyColor: '#cbd5e1',
+            borderColor: '#334155',
+            borderWidth: 1,
+            padding: 16,
+            displayColors: false,
+            cornerRadius: 8,
+            titleFont: {
+              size: 13,
+              weight: 'bold'
+            },
+            bodyFont: {
+              size: 15,
+              weight: 'bold'
+            },
+            callbacks: {
+              title: (items) => items[0].label,
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { 
+              display: false,
+            },
+            ticks: { 
+              color: '#94a3b8',
+              font: { 
+                size: 12,
+              },
+              padding: 8
+            }
+          },
+          y: {
+            display: false,
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  getActivityHeight(value: number): number {
+    return (value / this.maxActivity) * 100;
+  }
+
+  setHoveredDay(index: number | null) {
+    this.hoveredDayIndex = index;
+  }
+
+  ngOnDestroy() {
+    // Clean up charts on component destroy
+    if (this.profitChart) {
+      this.profitChart.destroy();
+    }
+    if (this.activityChart) {
+      this.activityChart.destroy();
+    }
   }
 }

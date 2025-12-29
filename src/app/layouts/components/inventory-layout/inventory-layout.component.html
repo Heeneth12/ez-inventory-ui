@@ -9,14 +9,17 @@
         class="fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 border-r border-slate-800 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto"
         [ngClass]="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'">
 
-        <div class="h-16  flex items-center justify-between px-6 shrink-0">
-            <div class="flex items-center gap-2 font-bold text-xl text-white">
-                <img src="assets/images/EZH.png" alt="logo" class="w-18 h-10" />
+        <div class="h-18 my-2 flex items-center justify-between px-6 shrink-0">
+            <div class="flex px-2">
+                <img src="assets/images/new.png" alt="logo" class="w-10 h-10" />
+                <span class="text-3xl px-2 font-extrabold text-slate-400 bg-clip-text tracking-wide">
+                    Inventory
+                </span>
             </div>
+            <!-- RIGHT: Close button -->
             <button (click)="closeMenu()" class="lg:hidden text-slate-400 hover:text-white transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>

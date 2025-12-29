@@ -3,7 +3,7 @@ import { TableColumn } from "../components/standard-table/standard-table.model";
 //Items
 export const ITEMS_COLUMNS: TableColumn[] = [
     { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
-    { key: 'name', label: 'Item Name', width: '230px', type: 'text' },
+    { key: 'name', label: 'Item Name', width: '230px', type: 'profile' },
     { key: 'itemCode', label: 'Code', width: '110px', type: 'text' },
     { key: 'sku', label: 'SKU', width: '110px', type: 'text' },
     { key: 'itemType', label: 'Type', width: '100px', type: 'badge' },
@@ -47,13 +47,13 @@ export const SALES_ORDER_COLUMNS: TableColumn[] = [
 
 //Invoice
 export const INVOICE_COLUMNS: TableColumn[] = [
-    { key: 'contactMini', label: 'Customer', width: '140px', type: 'fullProfile', align: 'left' },
+    { key: 'contactMini', label: 'Customer', width: '160px', type: 'fullProfile', align: 'left' },
     { key: 'invoiceNumber', label: 'Invoice No', width: '130px', type: 'link' },
     { key: 'invoiceDate', label: 'Inv-Date', width: '130px', type: 'date', align: 'center' },
     { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
     { key: 'totalDiscount', label: "Dis %", width: '120px', type: 'currency', align: 'right' },
-    { key: 'status', label: 'Status', width: '140px', type: 'badge' },
-    { key: 'paymentStatus', label: 'Pay-Status', width: '140px', type: 'badge' },
+    { key: 'status', label: 'Status', width: '130px', type: 'badge' },
+    { key: 'paymentStatus', label: 'Pay-Status', width: '120px', type: 'badge' },
     { key: 'amountPaid', label: 'Paid Amt', width: '130px', type: 'currency', align: 'right' },
     { key: 'balance', label: 'Balance', width: '130px', type: 'currency', align: 'right' },
     { key: 'grandTotal', label: 'Total Amt', width: '130px', type: 'currency', align: 'right' },
