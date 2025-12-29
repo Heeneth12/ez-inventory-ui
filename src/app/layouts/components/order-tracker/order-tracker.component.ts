@@ -53,6 +53,14 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     this.steps[this.currentStep].disabled = false;
   }
 
+  goToPrevious() {
+  if (this.currentStep > 0) {
+    this.steps[this.currentStep].state = 'pending';
+    this.currentStep--;
+    this.steps[this.currentStep].state = 'active';
+  }
+}
+
   constructor(
     private salesOrderService: SalesOrderService,
     private invoiceService: InvoiceService,

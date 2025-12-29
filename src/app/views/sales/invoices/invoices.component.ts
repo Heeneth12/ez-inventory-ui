@@ -4,7 +4,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { FileDown, ReceiptIndianRupee, ScrollText, Truck } from 'lucide-angular';
+import { Banknote, FileDown, PieChart, ReceiptIndianRupee, ScrollText, ShoppingCart, Truck, Users } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';
@@ -16,11 +16,12 @@ import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PaymentSymmaryComponent } from '../payments/payment-symmary/payment-symmary.component';
 import { INVOICE_COLUMNS } from '../../../layouts/config/tableConfig';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
 
 @Component({
   selector: 'app-invoices',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent, StatGroupComponent],
   templateUrl: './invoices.component.html',
   styleUrls: ['./invoices.component.css']
 })
@@ -55,7 +56,7 @@ export class InvoicesComponent {
     },
     {
       key: 'download_invoice',
-      label: 'Download',
+      label: '',
       icon: FileDown,
       color: 'neutral',
       // Only show if status is Approved
@@ -239,4 +240,40 @@ export class InvoicesComponent {
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
   }
+
+  invoiceDashboardStats: StatCardConfig[] = [
+    {
+      key: 'totalInvoices',
+      label: 'Total Invoice Value',
+      value: '$45,780',              // 💰 Sum of all invoices
+      icon: Banknote,
+      color: 'gray',
+      trend: { value: '+$2,350', isUp: true }
+    },
+    {
+      key: 'collected',
+      label: 'Collected Amount',
+      value: '$32,420',              // ✅ Amount already paid
+      icon: PieChart,
+      color: 'gray',
+      trend: { value: '+$1,120', isUp: true }
+    },
+    {
+      key: 'uncollected',
+      label: 'Uncollected Amount',
+      value: '$13,360',              // ❌ Pending + overdue
+      icon: ShoppingCart,
+      color: 'gray',
+      trend: { value: '-$540', isUp: false }
+    },
+    {
+      key: 'pendingInvoices',
+      label: 'Pending Invoices',
+      value: '28',                   // 🕒 Count of unpaid invoices
+      icon: Users,
+      color: 'gray',
+      trend: { value: '+4', isUp: true }
+    }
+  ];
+
 }

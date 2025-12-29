@@ -219,4 +219,11 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
  back() {
   this.location.back();   // ⬅ navigates to previous page
 }
+formatReason(reason: string): string {
+  return reason.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+goBack(): void {
+  // Your navigation logic
+}
 }
