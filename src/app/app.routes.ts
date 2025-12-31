@@ -106,11 +106,6 @@ export const routes: Routes = [
         data: { moduleKey: 'EZH_INV_SETTINGS' }
     },
 
-    {
-        path:'test',
-        component:ExampleComponent
-    },
-
     // 11. USER MANAGEMENT (Admin)
     {
         path: 'admin',

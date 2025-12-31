@@ -1,6 +1,6 @@
 export const environment = {
-    devUrl: window.location.origin,
+    authUrl: "http://localhost:8080",
+    devUrl: "http://localhost:8085",
     appName: "Inventory",
-    appKey: "",
-    bKey: ""
+    appKey: "EZH_INV_001",
 };

@@ -64,6 +64,7 @@ export class ContactFormComponent implements OnInit {
       type: [AddressType.OFFICE, Validators.required],
       addressLine1: ['', Validators.required],
       addressLine2: [''],
+
       city: ['', Validators.required],
       state: ['', Validators.required],
       country: ['India', Validators.required],
@@ -168,3 +169,8 @@ export class ContactFormComponent implements OnInit {
     this.router.navigate(['/contacts']);
   }
 }
+
+//  private Integer creditDays; ->  in contact
+
+//  private String route; -> address
+//  private String area; -> address

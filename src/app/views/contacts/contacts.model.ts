@@ -8,6 +8,7 @@ export class ContactModel {
     gstNumber!: string;
     type!: ContactType;
     active!: boolean;
+    creditDays!: number;
     addresses: AddressModel[] = [];
 }
 
@@ -16,6 +17,8 @@ export class AddressModel {
     addressLine1!: string;
     addressLine2!: string;
     city!: string;
+    route!: string;
+    area!: string;
     state!: string;
     country!: string;
     pinCode!: string;
