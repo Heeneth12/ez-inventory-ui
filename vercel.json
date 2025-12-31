@@ -1,10 +1,7 @@
 {
   "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist/ez-inventory",
+  "outputDirectory": "dist/ez-inventory/browser",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
