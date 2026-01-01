@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "prebuild": "echo \"window.__env = { AUTH_URL: '$AUTH_URL', DEV_URL: '$DEV_URL' };\" > src/assets/env.js",
     "vercel-build": "npm install --legacy-peer-deps && ng build --configuration production"
   },
   "private": true,
