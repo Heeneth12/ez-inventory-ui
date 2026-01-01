@@ -4,11 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "node replace-env.js && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "prebuild": "echo \"window.__env = { AUTH_URL: '$AUTH_URL', DEV_URL: '$DEV_URL' };\" > src/assets/env.js",
-    "vercel-build": "npm install --legacy-peer-deps && ng build --configuration production"
+    "vercel-build": "node replace-env.js && ng build --configuration production"
   },
   "private": true,
   "dependencies": {
