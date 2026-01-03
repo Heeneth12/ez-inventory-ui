@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { CommonService } from '../service/common/common.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators'; // Import operators
 import { UserInitResponse } from '../models/Init-response.model';
 
 @Injectable({
@@ -9,34 +10,25 @@ import { UserInitResponse } from '../models/Init-response.model';
 })
 export class AuthService {
 
-  // Subject to hold the current user state
   private currentUserSubject = new BehaviorSubject<UserInitResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private commonService: CommonService, private router: Router) { }
 
-  /**
-   * 1. Signs in
-   * 2. Saves Tokens
-   * 3. Calls User Init
-   * 4. Navigates
-   */
-  login(payload: any, success: any, error: any) {
+  login(payload: any, success: (res: any) => void, error: (err: any) => void) {
     this.commonService.signIn(payload,
       (res: any) => {
-        // 1. Save Tokens
         localStorage.setItem('access_token', res.data.accessToken);
         localStorage.setItem('refresh_token', res.data.refreshToken);
 
-        // 2. Call User Init immediately after token storage
         this.fetchUserInit().subscribe({
           next: (userInitData) => {
-            // 3. Navigate only after user init is ready
-            this.router.navigate(['/dashboard']);
-            success(res); // Execute original success callback
+            // Navigate FIRST, then callback
+            this.router.navigate(['/dashboard']).then(() => {
+                success(res); 
+            });
           },
           error: (err) => {
-            // If init fails, we might want to logout/clear tokens
             this.logout();
             error(err);
           }
@@ -46,19 +38,12 @@ export class AuthService {
     );
   }
 
-  /**
-   * Fetches user init data and updates the Subject.
-   * Wrapped in an Observable so AuthGuard can wait for it.
-   */
   fetchUserInit(): Observable<UserInitResponse> {
     return new Observable((observer) => {
       this.commonService.initUser(
         (res: any) => {
           const userData: UserInitResponse = res.data;
           this.currentUserSubject.next(userData);
-          // Optional: Store basic user info in local storage if needed for persistence across hard refreshes
-          // localStorage.setItem('user_data', JSON.stringify(userData)); 
-          
           observer.next(userData);
           observer.complete();
         },
@@ -79,15 +64,40 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
-  getRefreshToken() {
+   getRefreshToken() {
     return localStorage.getItem('refresh_token');
   }
 
-  isLoggedIn() {
-    return !!this.getAccessToken();
+  // Refactored to be cleaner for RxJS pipes
+  validateToken(): Observable<boolean> {
+    return new Observable<boolean>((observer) => {
+      this.commonService.validateToken(
+        (res: any) => {
+          observer.next(true);
+          observer.complete();
+        },
+        (err: any) => {
+          this.logout(); // Auto logout on invalid token
+          observer.next(false);
+          observer.complete();
+        }
+      );
+    });
   }
 
-  // Helper to get current value synchronously
+  isLoggedIn(): Observable<boolean> {
+    const token = this.getAccessToken();
+    if (!token) {
+      return of(false);
+    }
+    // (Optional optimization, remove if you want strict server validation every route change)
+    if (this.currentUserSubject.value) {
+        return of(true);
+    }
+
+    return this.validateToken();
+  }
+
   getCurrentUserValue(): UserInitResponse | null {
     return this.currentUserSubject.value;
   }

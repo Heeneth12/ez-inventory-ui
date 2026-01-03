@@ -25,4 +25,7 @@ export class CommonService {
     return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/refresh`, request, success, error);
   }
 
+  validateToken(success: any, error: any){
+    return this.httpService.getHttp(`${CommonService.AUTH_BASE_URL}/validate`, success, error);
+  }
 }

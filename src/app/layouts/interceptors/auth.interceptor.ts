@@ -1,106 +1,108 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core'; // Import Injector
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpErrorResponse, HttpEvent } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { catchError, throwError, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, filter, take, switchMap, catchError, finalize } from 'rxjs';
 import { CommonService } from '../service/common/common.service';
 import { AuthService } from '../guards/auth.service';
 import { environment } from '../../../environments/environment.development';
 
-
-
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-    // Flag to prevent multiple refresh tokens from triggering simultaneously
-    private isRefreshing = false;
+  private isRefreshing = false;
+  private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
-    constructor(
-        private authService: AuthService,
-        private commonService: CommonService,
-        private router: Router
-    ) { }
+  constructor(
+    private injector: Injector,
+    private commonService: CommonService
+  ) { }
 
-    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const token = this.authService.getAccessToken();
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Lazy load AuthService to prevent Circular Dependency Loop
+    const authService = this.injector.get(AuthService);
+    const token = authService.getAccessToken();
 
-        // 1. Prepare base headers (Always required, e.g. AppKey)
-        const headersConfig: any = {
-            appKey: environment.appKey
-        };
+    const authReq = this.addToken(req, token);
 
-        // 2. Add Authorization token ONLY if it exists
-        if (token) {
-            headersConfig['Authorization'] = `Bearer ${token}`;
+    return next.handle(authReq).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401 && !authReq.url.includes('auth/refresh')) {
+          return this.handle401Error(authReq, next);
         }
 
-        // 3. Clone the request with the new headers
-        const request = req.clone({
-            setHeaders: headersConfig
-        });
-
-        return next.handle(request).pipe(
-            catchError((error: HttpErrorResponse) => {
-                // Check if 401 and we have a refresh token
-                // ALSO: Ensure we aren't already trying to refresh (to prevent infinite loops)
-                if (error.status === 401 && this.authService.getRefreshToken() && !req.url.includes('refresh')) {
-                    return this.handle401Error(request, next);
-                }
-
-                // If not 401 or no refresh token, logout and throw error
-                if (error.status === 401) {
-                    this.authService.logout();
-                }
-
-                return throwError(() => error);
-            })
-        );
-    }
-
-
-    private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        if (this.isRefreshing) {
-            // Simple logic: if already refreshing, just fail (or implement queueing logic if needed)
-            return throwError(() => new Error('Refresh already in progress'));
+        // If it's a 401 on the refresh endpoint itself, or any other error, logout.
+        if (error.status === 401 && authReq.url.includes('auth/refresh')) {
+             authService.logout();
         }
 
-        this.isRefreshing = true;
-        const payload = { refreshToken: this.authService.getRefreshToken() };
+        return throwError(() => error);
+      })
+    );
+  }
 
-        return new Observable<HttpEvent<any>>((observer) => {
-            this.commonService.refreshToken(
-                payload,
-                (res: any) => {
-                    this.isRefreshing = false;
-
-                    // 1. Save new token
-                    localStorage.setItem('access_token', res.data.accessToken);
-                    // Optional: Update refresh token if the API returns a new one
-                    if (res.data.refreshToken) {
-                        localStorage.setItem('refresh_token', res.data.refreshToken);
-                    }
-
-                    // 2. Clone the original request with the NEW token
-                    const newRequest = request.clone({
-                        setHeaders: {
-                            Authorization: `Bearer ${res.data.accessToken}`,
-                            appKey: environment.appKey
-                        }
-                    });
-
-                    // 3. Retry the request
-                    next.handle(newRequest).subscribe({
-                        next: (event) => observer.next(event),
-                        error: (err) => observer.error(err),
-                        complete: () => observer.complete()
-                    });
-                },
-                (err: any) => {
-                    this.isRefreshing = false;
-                    // If refresh fails, strict logout
-                    this.authService.logout();
-                    observer.error(err);
-                }
-            );
-        });
+  // Helper to cleanly add headers
+  private addToken(request: HttpRequest<any>, token: string | null) {
+    const headersConfig: any = {
+      appKey: environment.appKey
+    };
+    if (token) {
+      headersConfig['Authorization'] = `Bearer ${token}`;
     }
+    return request.clone({ setHeaders: headersConfig });
+  }
+
+  private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (!this.isRefreshing) {
+      // --- Scenario A: First request to hit 401 ---
+      this.isRefreshing = true;
+      
+      // Reset the subject to null so others wait
+      this.refreshTokenSubject.next(null);
+
+      const authService = this.injector.get(AuthService);
+
+      // We wrap your callback-based service in an Observable to make it play nice with RxJS
+      return new Observable<string>((observer) => {
+          this.commonService.refreshToken({ refreshToken: authService.getRefreshToken() },
+            (res: any) => {
+               // Success Callback
+               const newToken = res.data.accessToken;
+               localStorage.setItem('access_token', newToken);
+               if (res.data.refreshToken) {
+                   localStorage.setItem('refresh_token', res.data.refreshToken);
+               }
+               observer.next(newToken);
+               observer.complete();
+            },
+            (err: any) => {
+               // Error Callback
+               observer.error(err);
+            }
+          );
+      }).pipe(
+        switchMap((newToken: string) => {
+          this.isRefreshing = false;
+          // Notify all waiting requests that the new token is ready!
+          this.refreshTokenSubject.next(newToken);
+          return next.handle(this.addToken(request, newToken));
+        }),
+        catchError((err) => {
+          this.isRefreshing = false;
+          authService.logout();
+          return throwError(() => err);
+        })
+      );
+
+    } else {
+      // --- Scenario B: Subsequent requests while refreshing ---
+      // Wait until the refreshTokenSubject is not null
+      return this.refreshTokenSubject.pipe(
+        filter(token => token != null), // Wait for valid token
+        take(1), // Take only the first one
+        switchMap(token => {
+          // Retry the request with the new token
+          return next.handle(this.addToken(request, token));
+        })
+      );
+    }
+  }
 }

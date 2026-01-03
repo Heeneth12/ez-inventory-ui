@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { AuthService } from './auth.service';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { UserInitResponse } from '../models/Init-response.model';
 
 @Injectable({ providedIn: 'root' })
@@ -13,50 +13,53 @@ export class AuthGuard implements CanActivate {
     private router: Router
   ) { }
 
-  canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree | Observable<boolean | UrlTree> {
-    const isLoggedIn = this.authService.isLoggedIn();
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+    
+    // 1. First, check if token exists and is valid on server
+    return this.authService.isLoggedIn().pipe(
+      switchMap((isValid) => {
+        if (!isValid) {
+          // Token invalid or missing -> Redirect to Login
+          return of(this.router.createUrlTree(['/login'], { queryParams: { returnUrl: route.url.join('/') } }));
+        }
 
-    if (!isLoggedIn) {
-      return this.router.createUrlTree(['/login'], { queryParams: { returnUrl: route.url.join('/') } });
-    }
+        // 2. Token is valid. Do we have the User Data in memory?
+        const currentUser = this.authService.getCurrentUserValue();
 
-    const currentUser = this.authService.getCurrentUserValue();
-
-    if (currentUser) {
-      return this.checkPermissions(route, currentUser);
-    } else {
-      // Handle page refresh - fetch data first
-      return this.authService.fetchUserInit().pipe(
-        map((user) => {
-          return this.checkPermissions(route, user);
-        }),
-        catchError(() => {
-          this.authService.logout();
-          return of(this.router.createUrlTree(['/login']));
-        })
-      );
-    }
+        if (currentUser) {
+          // Data exists -> Check Permissions immediately
+          return of(this.checkPermissions(route, currentUser));
+        } else {
+          // Data missing (User refreshed page) -> Fetch Init Data first
+          return this.authService.fetchUserInit().pipe(
+            map((user) => {
+              return this.checkPermissions(route, user);
+            }),
+            catchError(() => {
+              // If Init fails (401/500), logout and redirect
+              this.authService.logout();
+              return of(this.router.createUrlTree(['/login']));
+            })
+          );
+        }
+      })
+    );
   }
 
   private checkPermissions(route: ActivatedRouteSnapshot, user: UserInitResponse): boolean | UrlTree {
-
-    // 1. Get the required Module Key from the Route Data (defined in step 1)
     const requiredModuleKey = route.data['moduleKey'] as string;
 
-    // If the route has no specific module requirement, allow access (e.g., home page)
     if (!requiredModuleKey) {
       return true;
     }
 
-    // 2. Check if the user has this module in any of their applications
     const hasModuleAccess = this.hasModuleAccess(user, requiredModuleKey);
 
     if (hasModuleAccess) {
       return true;
     }
 
-    // 3. Access Denied
-    console.warn(`Access denied: User missing module ${requiredModuleKey}`);
+    // Access Denied
     return this.router.createUrlTree(['/forbidden']);
   }
 
