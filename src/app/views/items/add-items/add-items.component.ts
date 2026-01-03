@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { ItemService } from '../item.service';
 import { ItemModel } from '../models/Item.model';
+import { ToastService } from '../../../layouts/components/toast/toastService';
 
 @Component({
   selector: 'app-add-items',
@@ -23,7 +24,8 @@ export class AddItemsComponent implements OnInit {
     private fb: FormBuilder,
     private itemService: ItemService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private toastSvc: ToastService,
   ) {
     this.itemForm = this.fb.group({
       // -- General Info --
@@ -43,7 +45,7 @@ export class AddItemsComponent implements OnInit {
       manufacturer: [''],
       purchasePrice: [0, [Validators.required, Validators.min(0)]],
       sellingPrice: [0, [Validators.required, Validators.min(0)]],
-      mrp: [null, [Validators.min(0)]], 
+      mrp: [null, [Validators.min(0)]],
       taxPercentage: [0, [Validators.min(0), Validators.max(100)]],
       discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
     });
@@ -104,14 +106,31 @@ export class AddItemsComponent implements OnInit {
     const itemModel: ItemModel = this.itemForm.value;
 
     if (this.isEditMode && this.itemId) {
-      this.itemService.updateItem(this.itemId, itemModel,
-        () => this.router.navigate(['/items']),
-        (err: any) => console.error('Error updating:', err)
+
+      this.itemService.updateItem(
+        this.itemId,
+        itemModel,
+        () => {
+          this.toastSvc.show('Item edited successfully', 'success');
+          this.router.navigate(['/items']);
+        },
+        (err: any) => {
+          console.error('Error updating:', err);
+          this.toastSvc.show('Item failed to update', 'error');
+        }
       );
+
     } else {
-      this.itemService.createItem(itemModel,
-        () => this.router.navigate(['/items']),
-        (err: any) => console.error('Error creating:', err)
+      this.itemService.createItem(
+        itemModel,
+        () => {
+          this.toastSvc.show('Item created successfully', 'success');
+          this.router.navigate(['/items']);
+        },
+        (err: any) => {
+          console.error('Error creating:', err);
+          this.toastSvc.show('Item creation failed', 'error');
+        }
       );
     }
   }

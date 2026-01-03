@@ -229,8 +229,8 @@ export class PurchaseOrderFormComponent implements OnInit {
     this.loaderSvc.show();
     const cb = (res: any) => {
       this.loaderSvc.hide();
-      this.toastService.show(this.isEditMode ? 'Updated Successfully' : 'Created Successfully', 'success');
-      this.router.navigate(['/purchase-orders']);
+      this.toastService.show(this.isEditMode ? 'Updated PO Successfully' : 'Created PO Successfully', 'success');
+      this.router.navigate(['purchases/order']);
     };
     const errCb = (err: any) => {
       this.loaderSvc.hide();
