@@ -1,4 +1,4 @@
-@if (authSvc.isLoggedIn()) {
+@if (authSvc.currentUser$ | async) {
   <app-inventory-layout>
       <router-outlet></router-outlet>
   </app-inventory-layout>
