@@ -8,6 +8,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { StockService } from '../stock.service';
 import { ItemStockSearchModel, BatchDetailModel } from '../models/stock.model';
 import { Router } from '@angular/router';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 // Matches Backend Enum exactly
 enum AdjustmentReason {
@@ -216,14 +217,11 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
   }
 
   // need to naviage back 
- back() {
-  this.location.back();   // ⬅ navigates to previous page
-}
-formatReason(reason: string): string {
-  return reason.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-}
+  back() {
+    this.location.back();
+  }
 
-goBack(): void {
-  // Your navigation logic
-}
+  formatReason(reason: string): string {
+    return reason.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
 }
