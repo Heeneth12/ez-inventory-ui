@@ -12,7 +12,7 @@ import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
-import { LucideAngularModule, PenIcon, ReceiptIndianRupee, Truck } from "lucide-angular";
+import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
 import { InvoiceModal, InvoiceItemModal, InvoiceRequest, DeliveryOption } from '../invoice.modal';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 
@@ -28,6 +28,22 @@ export class InvoiceFormComponent implements OnInit {
   //icons
   readonly TruckIcon = Truck;
   readonly ReceiptIndianRupeeIcon = ReceiptIndianRupee;
+  readonly checkIcon = Check;
+  readonly creditCardIcon =CreditCard;
+  readonly chevronRightIcon =ChevronRight;
+  readonly truckIcon =TruckIcon;
+  readonly saveIcon = SaveIcon;
+  readonly fileTextIcon = FileText;
+  readonly boxIcon = BoxIcon;
+  readonly userIcon =User;
+  readonly calendarIcon =CalculatorIcon;
+  readonly SearchIcon = Search;
+  readonly BarCode = QrCode;
+  readonly ShoppingBag = ShoppingBag;
+  readonly SettingsIcon = SettingsIcon;
+  readonly xIconIcon = XIcon;
+  readonly HistoryIcon = HistoryIcon;
+  readonly ChevronRightIcon = ChevronsLeftRight;
 
   invoiceForm: FormGroup;
   isEditMode = false;
@@ -301,7 +317,7 @@ export class InvoiceFormComponent implements OnInit {
       soItemId: [soItemId],
       itemId: [itemId, Validators.required],
       name: [name],
-      imageUrl: ['assets/placeholder.png'], // Placeholder for now
+      imageUrl: ['https://ui-avatars.com/api/?name=' + name + '&background=eff6ff&color=3b82f6&bold=true&size=128'],
       unitPrice: [unitPrice || 0, [Validators.required, Validators.min(0)]],
       orderedQty: [quantity, [Validators.required, Validators.min(1)]],
       discountAmount: [discountAmount || 0, Validators.min(0)],
