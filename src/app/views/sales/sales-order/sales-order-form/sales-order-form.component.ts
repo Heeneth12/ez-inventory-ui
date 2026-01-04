@@ -9,7 +9,7 @@ import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
-import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle } from 'lucide-angular';
+import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { ApprovalConsoleComponent } from '../../../approval-console/approval-console.component';
 import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/approval-console.model';
@@ -29,6 +29,8 @@ export class SalesOrderFormComponent implements OnInit {
   readonly BarCode = QrCode;
   readonly LoaderIcon = Loader2;
   readonly WarningIcon = AlertTriangle;
+  readonly ShoppingBag = ShoppingBag;
+  readonly SettingsIcon = SettingsIcon;
 
   orderForm: FormGroup;
   isEditMode = false;
@@ -263,7 +265,7 @@ export class SalesOrderFormComponent implements OnInit {
       itemId: [data.id],
       name: [data.name],
       hsn: [data.hsnSacCode],
-      imageUrl: [data.imageUrl || 'assets/placeholder.png'],
+      imageUrl: [data.imageUrl || 'https://ui-avatars.com/api/?name=' + data.name + '&background=eff6ff&color=3b82f6&bold=true&size=128'],
       unitPrice: [data.sellingPrice || 0, [Validators.required, Validators.min(0)]],
       orderedQty: [data.orderedQty || 1, [Validators.required, Validators.min(1)]],
       discount: [data.discount || 0, Validators.min(0)],
@@ -393,4 +395,11 @@ export class SalesOrderFormComponent implements OnInit {
     // Use optional chaining just in case
     return currentDiscPercent > (this.approvalConfigDetails.thresholdPercentage || 100);
   }
+
+
+
+  toggleGstBill() {
+  const current = this.orderForm.get('isGstBill')?.value;
+  this.orderForm.patchValue({ isGstBill: !current });
+}
 }

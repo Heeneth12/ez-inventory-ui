@@ -1,41 +1,31 @@
-<div class="w-full flex flex-col h-full">
-    <div class="bg-white border border-gray-200  shadow-sm overflow-hidden flex flex-col h-full">
-        <div class="border-b border-gray-100 bg-white px-6">
-            <div class="flex items-center gap-8 overflow-x-auto no-scrollbar">
-                
-                <button 
-                    *ngFor="let tab of tabs"
-                    (click)="selectTab(tab.id)"
-                    class="group relative py-4 text-sm font-medium transition-all duration-300 ease-in-out whitespace-nowrap flex items-center gap-2 focus:outline-none"
-                    [ngClass]="activeTabId === tab.id ? 'text-slate-900' : 'text-gray-500 hover:text-gray-700'"
-                >
-                    <lucide-icon 
-                        *ngIf="tab.icon" 
-                        [img]="tab.icon" 
-                        class="w-4 h-4 transition-colors duration-300"
-                        [ngClass]="activeTabId === tab.id ? 'stroke-indigo-600' : 'stroke-gray-400 group-hover:stroke-gray-500'"
-                    ></lucide-icon>
+<div class="w-full flex flex-col h-full bg-white rounded-xl border border-gray-200/60 shadow-sm overflow-hidden">
+    <div class="flex-none border-b border-gray-200 bg-white px-2">
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar px-2">
+            @for(tab of tabs; track tab.id){
+            <button (click)="selectTab(tab.id)"
+                class="group relative px-3 py-3.5 text-sm font-medium transition-all duration-200 ease-out whitespace-nowrap flex items-center gap-2 rounded-t-lg outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20"
+                [ngClass]="activeTabId === tab.id ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50/80'">
+                <lucide-icon *ngIf="tab.icon" [img]="tab.icon" class="w-4 h-4 transition-colors duration-200"
+                    [ngClass]="activeTabId === tab.id ? 'stroke-indigo-600' : 'stroke-gray-400 group-hover:stroke-gray-600'"></lucide-icon>
 
-                    <span>{{ tab.label }}</span>
+                <span class="relative z-10">{{ tab.label }}</span>
 
-                    <span *ngIf="tab.count !== undefined"
-                          class="ml-1 px-2 py-0.5 text-[10px] font-bold rounded-full transition-colors duration-300"
-                          [ngClass]="activeTabId === tab.id 
-                            ? 'bg-indigo-50 text-indigo-600' 
-                            : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'"
-                    >
-                        {{ tab.count }}
-                    </span>
-                    <div class="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full transition-all duration-300 ease-out transform origin-center"
-                         [ngClass]="activeTabId === tab.id ? 'bg-indigo-600 scale-x-100' : 'bg-transparent scale-x-0'"
-                    ></div>
-                </button>
-            </div>
+                <span *ngIf="tab.count !== undefined"
+                    class="ml-0.5 px-2 py-0.5 text-[10px] font-bold rounded-full border transition-all duration-200"
+                    [ngClass]="activeTabId === tab.id 
+                    ? 'bg-indigo-50 text-indigo-700 border-indigo-100' 
+                    : 'bg-gray-100 text-gray-500 border-transparent group-hover:bg-gray-200 group-hover:text-gray-700'">
+                    {{ tab.count }}
+                </span>
+
+                <div class="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                    [ngClass]="activeTabId === tab.id ? 'bg-indigo-600 scale-x-100 opacity-100' : 'bg-transparent scale-x-50 opacity-0'">
+                </div>
+            </button>
+            }
         </div>
-
-        <div class="flex-1 bg-white overflow-auto">
-            <ng-content></ng-content>
-        </div>
-        
+    </div>
+    <div class="flex-1 bg-white overflow-auto relative">
+        <ng-content></ng-content>
     </div>
 </div>

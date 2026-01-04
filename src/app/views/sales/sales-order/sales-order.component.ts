@@ -9,16 +9,17 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
-import { ArrowRight, View } from 'lucide-angular';
+import { ArrowRight, Clock, DollarSign, FileText, Headphones, RefreshCcw, View, XCircle } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
+import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
 
 @Component({
   selector: 'app-sales-order',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent, StatGroupComponent],
   templateUrl: './sales-order.component.html',
   styleUrls: ['./sales-order.component.css']
 })
@@ -48,6 +49,42 @@ export class SalesOrderComponent implements OnInit {
     // label: 'Filter Dates',
     placeholder: 'Start - End'
   };
+
+  // //DUMMY STATS DATA
+  salesOrderStats: StatCardConfig[] = [
+    {
+      key: 'totalValue',
+      label: 'Total Sales Order Value',
+      value: '₹12,45,000',
+      icon: DollarSign,
+      color: 'gray',
+      trend: { value: '+15% vs last month', isUp: true }
+    },
+    {
+      key: 'pendingApproval',
+      label: 'Pending Approval',
+      value: '8 Orders',
+      icon: Clock,
+      color: 'gray',
+      trend: { value: 'Needs Attention', isUp: false }
+    },
+    {
+      key: 'pendingInvoice',
+      label: 'Pending Invoice',
+      value: '14 Orders',
+      icon: FileText,
+      color: 'gray',
+      trend: { value: 'Ready to Bill', isUp: true }
+    },
+    {
+      key: 'cancelled',
+      label: 'Cancelled Orders',
+      value: '3',
+      icon: XCircle,
+      color: 'gray',
+      trend: { value: '-2% this week', isUp: true }
+    }
+  ];
 
   constructor(
     private salesOrderService: SalesOrderService,
