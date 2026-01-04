@@ -56,7 +56,7 @@ export class AuthComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       const demoCredentials = {
         email: 'demo@ezh.com',
-        password: '' 
+        password: 'Pass1234' 
       };
 
       this.executeLogin(demoCredentials);
