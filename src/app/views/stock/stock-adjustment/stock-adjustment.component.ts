@@ -10,6 +10,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { STOCK_ADJUSTMENT_COLUMNS } from '../../../layouts/config/tableConfig';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { StockService } from '../stock.service';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-stock-adjustment',
@@ -25,6 +26,7 @@ export class StockAdjustmentComponent implements OnInit {
 
   stockAdjustmentDetails: StockAdjustmentModel[] = [];
   stockAdjustmentSummary: StockAdjustmentDetailModel | null = null;
+  stockAdjustmentFilter: any = {};
   stockAdjColumn: any = STOCK_ADJUSTMENT_COLUMNS;
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
@@ -49,6 +51,12 @@ export class StockAdjustmentComponent implements OnInit {
     },
   ];
 
+  dateConfig: DatePickerConfig = {
+    type: 'both', // or 'single'
+    // label: 'Filter Dates',
+    placeholder: 'Start - End'
+  };
+
   constructor(
     private stockService: StockService,
     public drawerService: DrawerService,
@@ -67,7 +75,7 @@ export class StockAdjustmentComponent implements OnInit {
     this.stockService.getStockAdjustments(
       apiPage,
       this.pagination.pageSize,
-      {},
+      this.stockAdjustmentFilter,
       (response: any) => {
         this.stockAdjustmentDetails = response.data.content;
         this.pagination = {
@@ -84,7 +92,7 @@ export class StockAdjustmentComponent implements OnInit {
     );
   }
 
-  moveToCreateStockAdj(){
+  moveToCreateStockAdj() {
     this.router.navigate(['/stock/adjustment/create']);
   }
 
@@ -149,5 +157,20 @@ export class StockAdjustmentComponent implements OnInit {
 
   onLoadMore() {
     console.log('Load more triggered');
+  }
+
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    this.stockAdjustmentFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.stockAdjustmentFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 }

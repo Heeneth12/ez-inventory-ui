@@ -12,7 +12,7 @@ export const InvoiceRoutes: Routes = [
         children: [
             { path: '', component: InvoicesComponent },
             { path: 'create', component: InvoiceFormComponent },
-            { path: 'edit:id', component: InvoiceFormComponent },
+            { path: 'edit/:id', component: InvoiceFormComponent },
         ]
     }
 ];
