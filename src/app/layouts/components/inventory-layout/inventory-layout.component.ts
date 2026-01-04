@@ -26,7 +26,13 @@ import {
   FileText,
   Zap,
   CreditCard,
-  Plus
+  Plus,
+  Bell,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  Search,
+  SettingsIcon
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -41,6 +47,7 @@ import { LoaderComponent } from "../loader/loader.component";
 export class InventoryLayoutComponent implements OnInit {
 
   isMobileMenuOpen = false;
+  isSidebarCollapsed = false; // New state for collapse
   openDropdownIndex: number | null = null;
   @ViewChild('userProfileTemplate') userProfileTemplate!: TemplateRef<any>;
 
@@ -52,6 +59,12 @@ export class InventoryLayoutComponent implements OnInit {
   readonly ShoppingCart = ShoppingCart;
   readonly CreditCard = CreditCard;
   readonly Plus = Plus;
+  readonly Menu = Menu;
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
+  readonly Search = Search;
+  readonly Bell = Bell;
+  readonly Settings = SettingsIcon;
 
   isQuickCreateOpen = false;
   quickCreateItems = [
@@ -233,6 +246,14 @@ export class InventoryLayoutComponent implements OnInit {
 
   openSmartSearch() {
     this.searchService.open();
+  }
+
+  toggleSidebarCollapse() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+    // If collapsing, close any open dropdowns to avoid UI bugs
+    if(this.isSidebarCollapsed) {
+      this.openDropdownIndex = null;
+    }
   }
 }
 
