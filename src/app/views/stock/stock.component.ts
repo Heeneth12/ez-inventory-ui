@@ -6,15 +6,14 @@ import { PaginationConfig, TableColumn, TableAction } from '../../layouts/compon
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { StockDashboardModel, StockModel } from './models/stock.model';
 import { StockService } from './stock.service';
-import { StatCardComponent, StatCardData } from "../../layouts/UI/stat-card/stat-card.component";
-import { Activity, AlertCircle, Calendar, ClipboardList, DollarSign, Package, ShoppingCart, TrendingUp, Truck, Users, Zap } from 'lucide-angular';
+import { StatCardConfig, StatGroupComponent } from "../../layouts/UI/stat-group/stat-group.component"; 
+import { AlertCircle, Package, TrendingUp, Zap } from 'lucide-angular';
 import { STOCK_COLUMNS } from '../../layouts/config/tableConfig';
-
 
 @Component({
   selector: 'app-stock',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent, StatCardComponent],
+  imports: [CommonModule, StandardTableComponent, StatGroupComponent],
   templateUrl: './stock.component.html',
   styleUrls: ['./stock.component.css']
 })
@@ -22,16 +21,14 @@ export class StockComponent implements OnInit {
 
   stockList: StockModel[] = [];
   stockDashboardSummary: StockDashboardModel | null = null;
-
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
-
   columns: TableColumn[] = STOCK_COLUMNS;
-  selectedCardId: string | number = '1';
-
-
+  
   page: number = 0;
   size: number = 10;
-  tabs: any;
+
+  // Initialize with empty array
+  stockDashboardStats: StatCardConfig[] = [];
 
   constructor(
     private stockService: StockService,
@@ -39,96 +36,60 @@ export class StockComponent implements OnInit {
     private toastService: ToastService
   ) { }
 
-
   ngOnInit(): void {
     this.getCurrentStock();
     this.getDashboardSummary();
   }
 
-  stats: StatCardData[] = [
-    {
-      id: '1',
-      title: 'Total Stock Value',
-      value: '₹12,48,750',
-      trendText: '6% vs last month',
-      trendDirection: 'up',
-      icon: Package,
-      themeColor: 'blue'
-    },
-
-    {
-      id: '2',
-      title: 'Net Stock Movement',
-      value: '+320 Units',
-      trendText: 'Increased this month',
-      trendDirection: 'up',
-      icon: TrendingUp,
-      themeColor: 'emerald'
-    },
-
-    {
-      id: '3',
-      title: 'Out of Stock Items',
-      value: '14 Items',
-      trendText: '3 items added this week',
-      trendDirection: 'down',
-      icon: AlertCircle,
-      themeColor: 'purple'
-    },
-
-    {
-      id: '4',
-      title: 'Fast-Moving Items',
-      value: '9 Products',
-      trendText: 'Top sellers this month',
-      trendDirection: 'up',
-      icon: Zap,
-      themeColor: 'purple'
-    }
-  ];
-
-
+  // Mapped function to convert Backend Data -> StatGroup Config
   private buildStatsFromDashboard(summary: StockDashboardModel) {
-    this.stats = [
+    this.stockDashboardStats = [
       {
-        id: '1',
-        title: 'Total Stock Value',
-        value: `₹${summary.totalStockValue.toLocaleString()}`, // ⭐ important
-        trendText: 'Current inventory value',
-        trendDirection: 'up',
+        key: 'totalStockValue',
+        label: 'Total Stock Value',
+        value: `₹${summary.totalStockValue.toLocaleString()}`,
         icon: Package,
-        themeColor: 'blue'
+        color: 'blue',
+        trend: { 
+          value: 'Current Value', 
+          isUp: true 
+        }
       },
       {
-        id: '2',
-        title: 'Net Stock Movement',
+        key: 'netMovement',
+        label: 'Net Stock Movement',
         value: `${summary.netMovementQty > 0 ? '+' : ''}${summary.netMovementQty} Units`,
-        trendText: `In: ${summary.totalInQty} | Out: ${summary.totalOutQty}`,
-        trendDirection: summary.netMovementQty >= 0 ? 'up' : 'down',
         icon: TrendingUp,
-        themeColor: 'emerald'
+        color: 'emerald', // Greenish for movement
+        trend: { 
+          value: `In: ${summary.totalInQty} | Out: ${summary.totalOutQty}`, 
+          isUp: summary.netMovementQty >= 0 
+        }
       },
       {
-        id: '3',
-        title: 'Out of Stock Items',
-        value: `${summary.totalItemsOutOfStock} Items`,
-        trendText: 'Requires attention',
-        trendDirection: summary.totalItemsOutOfStock > 0 ? 'down' : 'up',
+        key: 'outOfStock',
+        label: 'Out of Stock Items',
+        value: `${summary.totalItemsOutOfStock}`,
         icon: AlertCircle,
-        themeColor: 'orange'
+        color: 'rose', // Warning color
+        trend: { 
+          value: summary.totalItemsOutOfStock > 0 ? 'Action Required' : 'Optimal', 
+          isUp: summary.totalItemsOutOfStock === 0 // Up (Good) if 0 items out of stock
+        }
       },
       {
-        id: '4',
-        title: 'Fast-Moving Items',
-        value: `${summary.fastMovingItems?.length || 0} Products`,
-        trendText: 'High demand items',
-        trendDirection: 'up',
+        key: 'fastMoving',
+        label: 'Fast-Moving Items',
+        value: `${summary.fastMovingItems?.length || 0}`,
         icon: Zap,
-        themeColor: 'purple'
+        color: 'orange',
+        trend: { 
+          value: 'High Demand', 
+          isUp: true 
+        }
       }
     ];
   }
-
 
   getDashboardSummary() {
     this.stockService.getStockDashboardSummary(
@@ -145,19 +106,14 @@ export class StockComponent implements OnInit {
     );
   }
 
-
-  handleCardSelection(card: StatCardData) {
-    this.selectedCardId = card.id;
-    // Perform other actions (filter lists, show charts, etc.)
-  }
-
   getCurrentStock() {
     this.stockService.getCurrentStock(this.page, this.size, {},
       (response: any) => {
         this.stockList = response.data.content;
       }, (error: any) => {
         this.toastService.show('Error fetching stock data', 'error');
-      });
+      }
+    );
   }
 
   onPageChange($event: number) {

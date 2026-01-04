@@ -9,7 +9,7 @@ import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
-import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon } from 'lucide-angular';
+import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { ApprovalConsoleComponent } from '../../../approval-console/approval-console.component';
 import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/approval-console.model';
@@ -31,6 +31,7 @@ export class SalesOrderFormComponent implements OnInit {
   readonly WarningIcon = AlertTriangle;
   readonly ShoppingBag = ShoppingBag;
   readonly SettingsIcon = SettingsIcon;
+  readonly FileDownIcon = FileDown;
 
   orderForm: FormGroup;
   isEditMode = false;
