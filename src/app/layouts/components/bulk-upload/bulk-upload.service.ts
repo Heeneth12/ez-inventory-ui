@@ -11,11 +11,14 @@ export class BulkUploadService {
 
     constructor(private httpService: HttpService) { }
 
-    downloadItemsTemplate(filter: any, successCallback?: any, errorCallback?: any) {
-        const url = BulkUploadService.ITEMS_BASE_URL + '/template';
+    // BulkUploadService.ts
 
-        this.httpService.postHttpBlob(url, filter,
+    downloadItemsTemplate(successCallback?: any, errorCallback?: any) {
+        const url = BulkUploadService.ITEMS_BASE_URL + '/template';
+        // Changed from postHttpBlob to getHttpBlob
+        this.httpService.getHttpBlob(url,
             (blob: Blob) => {
+                // Trigger browser download
                 this.downloadFile(blob, "inventory_item_template.xlsx");
                 if (successCallback) successCallback();
             },

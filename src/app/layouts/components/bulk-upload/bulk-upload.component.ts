@@ -137,7 +137,6 @@ export class BulkUploadComponent {
   downloadTemplate() {
     this.isDownloading.set(true);
     this.bulkService.downloadItemsTemplate(
-      {},
       () => {
         this.isDownloading.set(false);
         // Optional: Show a toast here

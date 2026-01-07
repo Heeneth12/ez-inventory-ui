@@ -40,7 +40,7 @@
               <p class="text-sm font-medium text-gray-900">Standard Template</p>
               <p class="text-xs text-gray-500 mt-0.5">Required columns: Name, SKU, Price, etc.</p>
             </div>
-            <button class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 transition-colors">
+            <button (click)="downloadTemplate()" class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 transition-colors">
               <lucide-icon [img]="icons.FileSpreadsheet" class="w-4 h-4 text-green-600"></lucide-icon>
               Download Template
             </button>
