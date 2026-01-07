@@ -102,6 +102,13 @@ export class HttpService {
         }).subscribe({ next: successFunc, error: errorFunc });
     }
 
+    getHttpBlob(apiUrl: string, successFunc: any, errorFunc: any) {
+        this.http.get(apiUrl, {
+            headers: this.headers,
+            responseType: 'blob' // Expect binary data
+        }).subscribe({ next: successFunc, error: errorFunc });
+    }
+
     postHttpBlob(apiUrl: string, data: any, successFunc: any, errorFunc: any) {
         this.http.post(apiUrl, data, {
             headers: this.headers,
