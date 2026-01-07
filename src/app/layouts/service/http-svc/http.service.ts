@@ -102,6 +102,16 @@ export class HttpService {
         }).subscribe({ next: successFunc, error: errorFunc });
     }
 
+    postHttpBlob(apiUrl: string, data: any, successFunc: any, errorFunc: any) {
+        this.http.post(apiUrl, data, {
+            headers: this.headers,
+            responseType: 'blob' // Important: Tells Angular to expect binary data, not JSON
+        }).subscribe({ next: successFunc, error: errorFunc });
+    }
 
-
+    postMultipart(apiUrl: string, formData: FormData, successFunc: any, errorFunc: any) {
+        this.http.post(apiUrl, formData, {
+            headers: this.headers // Keeps your app-key, etc.
+        }).subscribe({ next: successFunc, error: errorFunc });
+    }
 }

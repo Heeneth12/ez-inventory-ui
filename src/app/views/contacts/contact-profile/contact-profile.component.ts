@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { ContactService } from '../contacts.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ContactModel } from '../contacts.model';
@@ -15,7 +15,6 @@ import { PaymentService } from '../../sales/payments/payment.service';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { SalesOrderService } from '../../sales/sales-order/sales-order.service';
 import { InvoiceService } from '../../sales/invoices/invoice.service';
-import * as Highcharts from 'highcharts';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PaymentSymmaryComponent } from '../../sales/payments/payment-symmary/payment-symmary.component';
 
@@ -133,8 +132,6 @@ export class ContactProfileComponent implements OnInit {
       if (this.activeTab === 'overview') {
         this.onTabChange('overview');
       }
-    } else {
-      this.router.navigate(['/contacts']);
     }
   }
 
