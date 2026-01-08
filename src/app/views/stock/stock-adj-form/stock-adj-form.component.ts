@@ -8,7 +8,8 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { StockService } from '../stock.service';
 import { ItemStockSearchModel, BatchDetailModel } from '../models/stock.model';
 import { Router } from '@angular/router';
-import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { ApprovalConsoleService } from '../../approval-console/approval-console.service';
+import { ApprovalConfigModel, ApprovalType } from '../../approval-console/approval-console.model';
 
 // Matches Backend Enum exactly
 enum AdjustmentReason {
@@ -41,12 +42,13 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
 
-  // To track selected batches per row
+  approvalConfigDetails: ApprovalConfigModel | null = null;
   selectedItemBatches: Map<number, BatchDetailModel[]> = new Map();
 
   constructor(
     private fb: FormBuilder,
     private stockService: StockService,
+    private approvalConsoleService: ApprovalConsoleService,
     public drawerService: DrawerService,
     private toastSvc: ToastService,
     private router: Router,
@@ -65,8 +67,39 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadWarehouses();
+    this.getSalesOrderApprovalConfig();
     this.setupSearchListener();
     this.addItem(); // Add first row
+  }
+
+  getSalesOrderApprovalConfig() {
+    this.approvalConsoleService.getApprovalConfigByApprovalType(
+      ApprovalType.STOCK_ADJUSTMENT,
+      (response: any) => {
+        this.approvalConfigDetails = response.data;
+      },
+      (err: any) => {
+        this.toastSvc.show("Failed to load approval config", 'error')
+      }
+    )
+  }
+
+  //Check if Approval is Needed
+  get requiresApproval(): boolean {
+    if (!this.approvalConfigDetails || !this.approvalConfigDetails.isEnabled) {
+      return false;
+    }
+    const threshold = this.approvalConfigDetails.thresholdAmount || 0;
+    // Return true if total value exceeds threshold
+    return this.totalAdjustmentValue > threshold;
+  }
+
+  get totalAdjustmentValue(): number {
+    return this.items.controls.reduce((acc, control) => {
+      const qty = control.get('quantity')?.value || 0;
+      const price = control.get('unitPrice')?.value || 0;
+      return acc + (qty * price);
+    }, 0);
   }
 
   ngOnDestroy(): void {
@@ -119,9 +152,15 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
     const row = this.items.at(index);
 
     if (row) {
+      // FIX: Check if batches exist and grab the buyPrice from the first one
+      let defaultPrice = 0;
+      if (item.batches && item.batches.length > 0) {
+        defaultPrice = item.batches[0].buyPrice; 
+      }
       row.patchValue({
         itemId: item.itemId,
         itemName: item.name,
+        unitPrice: defaultPrice,
         batchNumber: ''
       });
 
@@ -136,6 +175,18 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
     this.activeSearchRowIndex = -1;
   }
 
+  onBatchChange(index: number, event: any) {
+  const selectedBatchNum = event.target.value;
+  const batches = this.selectedItemBatches.get(index) || [];
+  const selectedBatch = batches.find(b => b.batchNumber === selectedBatchNum);
+
+  if (selectedBatch) {
+    this.items.at(index).patchValue({
+      unitPrice: selectedBatch.buyPrice
+    });
+  }
+}
+
   // --- Form Array Getters ---
   get items(): FormArray {
     return this.stockAdjustmentForm.get('items') as FormArray;
@@ -146,6 +197,7 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
     return this.fb.group({
       itemId: [null, Validators.required],
       itemName: [''],
+      unitPrice: [0],
       quantity: [null, [Validators.required, Validators.min(1)]],
       batchNumber: ['']
     });
@@ -202,7 +254,10 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
       payload,
       (response: any) => {
         this.loaderSvc.hide();
-        this.toastSvc.show('Stock Adjustment created successfully', 'success');
+        const msg = this.requiresApproval 
+          ? 'Stock Adjustment sent for Approval' 
+          : 'Stock Adjustment saved successfully';
+        this.toastSvc.show(msg, 'success');
         this.back();
       },
       (error: any) => {

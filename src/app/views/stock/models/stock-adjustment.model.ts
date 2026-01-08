@@ -41,5 +41,7 @@ export enum AdjustmentType {
 export enum AdjustmentStatus {
     DRAFT = 'DRAFT',
     COMPLETED = 'COMPLETED',
-    CANCELLED = 'CANCELLED'
+    CANCELLED = 'CANCELLED',
+    REJECTED = 'REJECTED',
+    PENDING_APPROVAL = 'PENDING_APPROVAL'
 }

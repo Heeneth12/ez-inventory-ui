@@ -7,7 +7,7 @@ import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { StatCardData, StatCardComponent } from "../../layouts/UI/stat-card/stat-card.component";
-import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight } from 'lucide-angular';
+import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight, ClipboardListIcon } from 'lucide-angular';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
@@ -15,6 +15,8 @@ import { ApprovalConfigModel, ApprovalRequestModel, ApprovalType } from './appro
 import { APPROVAL_COLUMN } from '../../layouts/config/tableConfig';
 import { SalesOrderModal } from '../sales/sales-order/sales-order.modal';
 import { SalesOrderService } from '../sales/sales-order/sales-order.service';
+import { StockAdjustmentDetailModel } from '../stock/models/stock-adjustment.model';
+import { StockService } from '../stock/stock.service';
 
 @Component({
   selector: 'app-approval-console',
@@ -30,6 +32,9 @@ export class ApprovalConsoleComponent implements OnInit {
   //sales order discount template
   @ViewChild('salesOrderDiscount') salesOrderDiscount!: TemplateRef<any>;
   salesOrderDetails: SalesOrderModal | null = null;
+
+  @ViewChild('stockAdjustment') stockAdjustment!: TemplateRef<any>;
+  stockAdjustmentDetails: StockAdjustmentDetailModel | null = null;
 
   approvals: ApprovalRequestModel[] = [];
   configs: ApprovalConfigModel[] = [];
@@ -60,6 +65,7 @@ export class ApprovalConsoleComponent implements OnInit {
   readonly CheckCircle2Icon = CheckCircle2;
   readonly XCircleIcon = XCircle;
   readonly ArrowRightIcon = ArrowRight;
+  readonly ClipboardListIcon = ClipboardListIcon;
 
   //table config
   columns: TableColumn[] = APPROVAL_COLUMN;
@@ -103,6 +109,7 @@ export class ApprovalConsoleComponent implements OnInit {
   constructor(
     private approvalConsoleService: ApprovalConsoleService,
     private salesOrderService: SalesOrderService,
+    private stockService: StockService,
     private router: Router,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
@@ -242,7 +249,12 @@ export class ApprovalConsoleComponent implements OnInit {
         this.getSalesOrderById(referanceCode);
         this.drawerService.openTemplate(this.salesOrderDiscount, 'Sales Order Discount Details', 'lg');
         break;
-      default:
+      case ApprovalType.STOCK_ADJUSTMENT:
+        this.getStockAdjustmentDetails(referanceCode);
+        this.drawerService.openTemplate(this.stockAdjustment, 'Stock Adjustment Details', 'lg');
+        break;
+
+    default:
         this.toastService.show('Approval type not supported for detail view', 'info');
         break;
     }
@@ -263,12 +275,38 @@ export class ApprovalConsoleComponent implements OnInit {
     );
   }
 
+  getStockAdjustmentDetails(id: number | string) {
+    this.loaderSvc.show();
+    this.stockService.getStockAdjustmentById(
+      id,
+      (response: any) => {
+        this.stockAdjustmentDetails= response.data;
+        this.loaderSvc.hide();
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastService.show("Failed to load details", "error");
+      }
+    );
+  }
+
   // Helper to calculate percentage
   get discountPercentage(): number {
     if (!this.salesOrderDetails || !this.salesOrderDetails.subTotal || this.salesOrderDetails.subTotal === 0) {
       return 0;
     }
     return (this.salesOrderDetails.totalDiscount / this.salesOrderDetails.subTotal) * 100;
+  }
+
+  // Helper to calculate Total Adjustment Value dynamically
+  get stockAdjustmentTotalValue(): number {
+    if (!this.stockAdjustmentDetails || !this.stockAdjustmentDetails.items) return 0;
+    return this.stockAdjustmentDetails.items.reduce((acc: number, item: any) => {
+      // Assuming item has differenceQty and unitPrice/costPrice
+      const qty = Math.abs(item.differenceQty || 0); 
+      const price = item.unitPrice || item.costPrice || 0;
+      return acc + (qty * price);
+    }, 0);
   }
 
   // Helper to get a blank object
