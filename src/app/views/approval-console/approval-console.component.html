@@ -84,7 +84,6 @@
 </ng-template>
 
 <ng-template #configInputs let-item>
-
     <div
         *ngIf="item.approvalType === 'INVOICE_DISCOUNT' || item.approvalType === 'TAX_VARIANCE' || item.approvalType === 'SALES_ORDER_DISCOUNT' ">
         <label class="block text-xs font-medium text-gray-500">Threshold Percentage (%)</label>
@@ -104,5 +103,200 @@
         <input type="text" [(ngModel)]="item.approverRole" placeholder="e.g. MANAGER"
             class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
     </div>
+</ng-template>
 
+<ng-template #salesOrderDiscount>
+    <div class="flex flex-col h-full bg-gray-50/50">
+
+        <div *ngIf="!salesOrderDetails" class="flex flex-col items-center justify-center h-full text-gray-400">
+            <lucide-icon [img]="LoaderIcon" class="w-8 h-8 animate-spin mb-2"></lucide-icon>
+            <span class="text-sm font-medium">Loading Order Details...</span>
+        </div>
+
+        <div *ngIf="salesOrderDetails" class="flex flex-col h-full">
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                                <lucide-icon [img]="FileTextIcon" class="w-6 h-6"></lucide-icon>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 leading-tight">Sales Order #{{
+                                    salesOrderDetails.orderNumber }}</h3>
+                                <div class="flex items-center flex-wrap gap-3 text-sm text-gray-500 mt-1.5">
+                                    <span class="flex items-center gap-1.5 bg-gray-100 px-2 py-0.5 rounded-md">
+                                        <lucide-icon [img]="CalendarIcon" class="w-3.5 h-3.5"></lucide-icon>
+                                        {{ salesOrderDetails.orderDate | date:'mediumDate' }}
+                                    </span>
+                                    <span class="hidden md:inline w-1 h-1 rounded-full bg-gray-300"></span>
+                                    <span class="font-medium" [ngClass]="{
+                                            'text-orange-600': salesOrderDetails.status === 'PENDING_APPROVAL',
+                                            'text-green-600': salesOrderDetails.status === 'APPROVED',
+                                            'text-red-600': salesOrderDetails.status === 'REJECTED'
+                                          }">
+                                        {{ salesOrderDetails.status.replace('_', ' ') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:text-right pl-16 md:pl-0">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Customer</p>
+                            <p class="text-base font-bold text-gray-900">{{ salesOrderDetails.customerName }}</p>
+                            <a href="javascript:void(0)" 
+                                class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors group">
+                                    View Profile
+                                <lucide-icon [img]="ArrowRightIcon" class="w-3 h-3 transition-transform group-hover:translate-x-0.5"></lucide-icon>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white rounded-xl border border-gray-200 p-5 flex flex-col justify-between shadow-sm">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Order Sub
+                            Total</span>
+                        <div class="text-2xl font-bold text-gray-900 mt-2">
+                            {{ salesOrderDetails.subTotal | currency:'INR' }}
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-gradient-to-br from-orange-50 to-white rounded-xl border border-orange-200 p-5 relative overflow-hidden shadow-sm group">
+                        <div
+                            class="absolute -right-4 -top-4 opacity-10 group-hover:opacity-15 transition-opacity transform rotate-12">
+                            <lucide-icon [img]="PercentIcon" class="w-24 h-24 text-orange-600"></lucide-icon>
+                        </div>
+
+                        <span
+                            class="text-xs font-bold text-orange-700 uppercase flex items-center gap-2 tracking-wider">
+                            <lucide-icon [img]="AlertCircleIcon" class="w-3.5 h-3.5"></lucide-icon>
+                            Discount Requested
+                        </span>
+
+                        <div class="flex items-end gap-3 mt-2 relative z-10">
+                            <div class="text-3xl font-extrabold text-orange-600">
+                                {{ salesOrderDetails.totalDiscount | currency:'INR' }}
+                            </div>
+                            <div
+                                class="mb-1.5 px-2.5 py-0.5 rounded-full bg-orange-200 text-orange-800 text-xs font-bold border border-orange-300 shadow-sm">
+                                {{ discountPercentage | number:'1.1-2' }}%
+                            </div>
+                        </div>
+                        <p class="text-xs text-orange-600/80 mt-1 font-medium">of the total order value</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <div class="px-5 py-3 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                        <h4 class="font-semibold text-gray-700 text-sm">Order Items</h4>
+                        <span class="text-xs text-gray-400 font-medium">{{ salesOrderDetails.items.length }}
+                            Items</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-5 py-3 font-medium">Item Name</th>
+                                    <th class="px-5 py-3 font-medium text-center">Qty</th>
+                                    <th class="px-5 py-3 font-medium text-right">Unit Price</th>
+                                    <th class="px-5 py-3 font-medium text-right">Line Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr *ngFor="let item of salesOrderDetails.items">
+                                    <td class="px-5 py-3 font-medium text-gray-900">{{ item.itemName }}</td>
+                                    <td class="px-5 py-3 text-center text-gray-600">{{ item.orderedQty }}</td>
+                                    <td class="px-5 py-3 text-right text-gray-600">{{ item.unitPrice | currency:'INR' }}
+                                    </td>
+                                    <td class="px-5 py-3 text-right font-medium text-gray-900">{{ item.lineTotal |
+                                        currency:'INR' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-gray-50/80 px-5 py-4 border-t border-gray-200">
+                        <div class="flex flex-col gap-2 ml-auto max-w-xs">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Sub Total</span>
+                                <span class="font-medium text-gray-900">{{ salesOrderDetails.subTotal | currency:'INR'
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Tax</span>
+                                <span class="font-medium text-gray-900">{{ salesOrderDetails.totalTax | currency:'INR'
+                                    }}</span>
+                            </div>
+                            <div
+                                class="flex justify-between text-sm text-orange-600 bg-orange-50 px-2 py-1 -mx-2 rounded">
+                                <span class="font-medium">Total Discount</span>
+                                <span class="font-bold">- {{ salesOrderDetails.totalDiscount | currency:'INR' }}</span>
+                            </div>
+                            <div class="border-t border-gray-300 my-1"></div>
+                            <div class="flex justify-between text-base">
+                                <span class="font-bold text-gray-700">Grand Total</span>
+                                <span class="font-bold text-gray-900">{{ salesOrderDetails.grandTotal | currency:'INR'
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border-t border-gray-200 p-5 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20">
+                @if(salesOrderDetails.status === 'PENDING_APPROVAL'){
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 ml-1">
+                            Decision Remarks <span class="text-red-400 font-normal normal-case">(Required for
+                                rejection)</span>
+                        </label>
+                        <textarea [(ngModel)]="approvalNote" rows="2"
+                            placeholder="Enter your comments regarding this discount request..."
+                            class="w-full text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50 resize-none p-3 placeholder:text-gray-400 shadow-sm transition-all focus:bg-white"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <button (click)="processDrawerAction('REJECTED')"
+                            class="flex items-center justify-center gap-2 px-4 py-3 border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 rounded-lg font-semibold transition-colors active:translate-y-0.5">
+                            <lucide-icon [img]="CircleXIcon" class="w-5 h-5"></lucide-icon>
+                            Reject
+                        </button>
+
+                        <button (click)="processDrawerAction('APPROVED')"
+                            class="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white hover:from-emerald-700 hover:to-emerald-600 rounded-lg font-semibold shadow-md shadow-emerald-200 transition-all active:translate-y-0.5">
+                            <lucide-icon [img]="CircleCheckBigIcon" class="w-5 h-5"></lucide-icon>
+                            Approve Discount
+                        </button>
+                    </div>
+                </div>
+                }@else {
+                <div class="rounded-lg border p-4 flex items-start gap-4"
+                    [ngClass]="salesOrderDetails.status === 'REJECTED' ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'">
+
+                    <div class="p-2 rounded-full shrink-0"
+                        [ngClass]="salesOrderDetails.status === 'REJECTED' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'">
+
+                        <lucide-icon [img]="salesOrderDetails.status === 'REJECTED' ? XCircleIcon : CheckCircle2Icon"
+                            class="w-6 h-6"></lucide-icon>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-base"
+                            [ngClass]="salesOrderDetails.status === 'REJECTED' ? 'text-red-800' : 'text-emerald-800'">
+                            Request {{ salesOrderDetails.status === 'REJECTED' ? 'Rejected' : 'Approved' }}
+                        </h4>
+
+                        <p class="text-sm mt-1"
+                            [ngClass]="salesOrderDetails.status === 'REJECTED' ? 'text-red-700' : 'text-emerald-700'">
+                            This discount request has already been processed. No further action is required.
+                        </p>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
 </ng-template>

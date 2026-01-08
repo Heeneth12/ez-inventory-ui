@@ -7,17 +7,19 @@ import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { StatCardData, StatCardComponent } from "../../layouts/UI/stat-card/stat-card.component";
-import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap } from 'lucide-angular';
+import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight } from 'lucide-angular';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ApprovalConfigModel, ApprovalRequestModel, ApprovalType } from './approval-console.model';
 import { APPROVAL_COLUMN } from '../../layouts/config/tableConfig';
+import { SalesOrderModal } from '../sales/sales-order/sales-order.modal';
+import { SalesOrderService } from '../sales/sales-order/sales-order.service';
 
 @Component({
   selector: 'app-approval-console',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent, FormsModule, StatCardComponent],
+  imports: [CommonModule, StandardTableComponent, FormsModule, StatCardComponent, LucideAngularModule],
   templateUrl: './approval-console.component.html',
   styleUrl: './approval-console.component.css'
 })
@@ -25,8 +27,13 @@ export class ApprovalConsoleComponent implements OnInit {
 
   @ViewChild('configDrawer') configDrawer!: TemplateRef<any>;
 
+  //sales order discount template
+  @ViewChild('salesOrderDiscount') salesOrderDiscount!: TemplateRef<any>;
+  salesOrderDetails: SalesOrderModal | null = null;
+
   approvals: ApprovalRequestModel[] = [];
-  configs: ApprovalConfigModel[] = []; // List to store configs for the drawer
+  configs: ApprovalConfigModel[] = [];
+
 
   isCreatingNew = false;
   newConfig: ApprovalConfigModel = this.getEmptyConfig();
@@ -34,6 +41,25 @@ export class ApprovalConsoleComponent implements OnInit {
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
+
+  approvalNote: string = '';
+  currentReferenceId: string | number | null = null;
+  currentRequestId: string | number | null = null;
+
+  //icon 
+  readonly CircleCheckBigIcon = CircleCheckBig;
+  readonly CircleXIcon = CircleX;
+  readonly PackageIcon = Package;
+  readonly AlertCircleIcon = AlertCircle;
+  readonly TrendingUpIcon = TrendingUp;
+  readonly ZapIcon = Zap;
+  readonly FileTextIcon = FileTextIcon;
+  readonly LoaderIcon = Loader2;
+  readonly CalendarIcon = Calendar;
+  readonly PercentIcon = Percent;
+  readonly CheckCircle2Icon = CheckCircle2;
+  readonly XCircleIcon = XCircle;
+  readonly ArrowRightIcon = ArrowRight;
 
   //table config
   columns: TableColumn[] = APPROVAL_COLUMN;
@@ -63,11 +89,20 @@ export class ApprovalConsoleComponent implements OnInit {
       color: 'danger',
       // Only show if status is PENDING
       condition: (row) => row['status'] === 'PENDING'
+    },
+    {
+      key: 'view',
+      label: 'View',
+      icon: List,
+      color: 'primary',
+      // Always show this action
+      condition: (row) => true
     }
   ];
 
   constructor(
     private approvalConsoleService: ApprovalConsoleService,
+    private salesOrderService: SalesOrderService,
     private router: Router,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
@@ -137,6 +172,34 @@ export class ApprovalConsoleComponent implements OnInit {
     );
   }
 
+  processDrawerAction(status: 'APPROVED' | 'REJECTED') {
+    if (!this.currentRequestId) return;
+
+    if (status === 'REJECTED' && !this.approvalNote) {
+      this.toastService.show('Please provide a reason for rejection.', 'warning');
+      return;
+    }
+
+    this.loaderSvc.show();
+    this.approvalConsoleService.approvalProcess(
+      {
+        requestId: this.currentRequestId,
+        status: status,
+        remarks: this.approvalNote
+      },
+      (response: any) => {
+        this.toastService.show(`Request ${status === 'APPROVED' ? 'Approved' : 'Rejected'}`, 'success');
+        this.drawerService.close();
+        this.loaderSvc.hide();
+        this.getAllApprovals();
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastService.show('Failed to process approval', 'error');
+      }
+    );
+  }
+
   toggleCreateNew() {
     this.isCreatingNew = !this.isCreatingNew;
     this.newConfig = this.getEmptyConfig(); // Reset form
@@ -169,6 +232,44 @@ export class ApprovalConsoleComponent implements OnInit {
     );
   }
 
+  // view approval details
+  viewApprovalDetails(approvaltype: string, referanceCode: string, requestId: string | number) {
+    this.currentReferenceId = referanceCode;
+    this.currentRequestId = requestId;
+    this.approvalNote = ''; // Reset note
+    switch (approvaltype) {
+      case ApprovalType.SALES_ORDER_DISCOUNT:
+        this.getSalesOrderById(referanceCode);
+        this.drawerService.openTemplate(this.salesOrderDiscount, 'Sales Order Discount Details', 'lg');
+        break;
+      default:
+        this.toastService.show('Approval type not supported for detail view', 'info');
+        break;
+    }
+  }
+
+  // get approval details
+  getSalesOrderById(id: number | string) {
+    this.salesOrderService.getSalesOrderById(
+      Number(id),
+      (response: any) => {
+        this.salesOrderDetails = response.data;
+        console.log('Sales Order Details:', response.data);
+      },
+      (error: any) => {
+        this.toastService.show('Failed to load Sales Order details', 'error');
+        console.error('Error fetching Sales Order details:', error);
+      }
+    );
+  }
+
+  // Helper to calculate percentage
+  get discountPercentage(): number {
+    if (!this.salesOrderDetails || !this.salesOrderDetails.subTotal || this.salesOrderDetails.subTotal === 0) {
+      return 0;
+    }
+    return (this.salesOrderDetails.totalDiscount / this.salesOrderDetails.subTotal) * 100;
+  }
 
   // Helper to get a blank object
   getEmptyConfig(): ApprovalConfigModel {
@@ -191,6 +292,9 @@ export class ApprovalConsoleComponent implements OnInit {
     if (event.type === 'custom' && event.key === 'reject') {
       this.processApproval(event.row.id, 'REJECTED');
       this.getAllApprovals();
+    }
+    if (event.type === 'custom' && event.key === 'view') {
+      this.viewApprovalDetails(event.row['approvalType'], event.row['referenceId'], event.row['id']);
     }
     if (event.type === 'edit') {
       // Standard edit logic
@@ -233,7 +337,7 @@ export class ApprovalConsoleComponent implements OnInit {
       icon: Package,
       themeColor: 'blue'
     },
-    
+
     {
       id: '2',
       title: 'Net Stock Movement',
