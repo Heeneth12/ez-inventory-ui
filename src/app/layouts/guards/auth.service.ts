@@ -54,6 +54,35 @@ export class AuthService {
     });
   }
 
+  loginWithGoogle(idToken: string, success: (res: any) => void, error: (err: any) => void) {
+    const payload = {
+      idToken: idToken,
+      appKey: "EZH_INV_001"
+    };
+    // Use the new method in CommonService
+    this.commonService.signInWithGoogle(payload,
+      (res: any) => {
+        //Save Tokens
+        localStorage.setItem('access_token', res.data.accessToken);
+        localStorage.setItem('refresh_token', res.data.refreshToken);
+
+        //Fetch User Details & Navigate
+        this.fetchUserInit().subscribe({
+          next: (userInitData) => {
+            this.router.navigate(['/dashboard']).then(() => {
+              success(res);
+            });
+          },
+          error: (err) => {
+            this.logout();
+            error(err);
+          }
+        });
+      },
+      (err: any) => error(err)
+    );
+  }
+
   logout() {
     localStorage.clear();
     this.currentUserSubject.next(null);
@@ -64,7 +93,7 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
-   getRefreshToken() {
+  getRefreshToken() {
     return localStorage.getItem('refresh_token');
   }
 
@@ -92,7 +121,7 @@ export class AuthService {
     }
     // (Optional optimization, remove if you want strict server validation every route change)
     if (this.currentUserSubject.value) {
-        return of(true);
+      return of(true);
     }
 
     return this.validateToken();

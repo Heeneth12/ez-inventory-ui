@@ -9,6 +9,7 @@ const content = `export const environment = {
   devUrl: '${process.env.DEV_URL || ''}',
   appName: 'Inventory',
   appKey: 'EZH_INV_001',
+  googleClientId: '${process.env.GOOGLE_CLIENT_ID || ''}',
 };
 `;
 

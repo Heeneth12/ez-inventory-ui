@@ -28,4 +28,8 @@ export class CommonService {
   validateToken(success: any, error: any){
     return this.httpService.getHttp(`${CommonService.AUTH_BASE_URL}/validate`, success, error);
   }
+
+  signInWithGoogle(request: any, successfn: any, errorfn: any) {
+    return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/google`, request, successfn, errorfn);
+  }
 }
