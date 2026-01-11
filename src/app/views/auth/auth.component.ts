@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../layouts/guards/auth.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment.development';
+declare const google: any;
 
 @Component({
   selector: 'app-auth',
@@ -12,12 +14,13 @@ import { Subscription } from 'rxjs';
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css']
 })
-export class AuthComponent implements OnInit, OnDestroy {
+export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   isLogin = true;
   isLoading = false;
   loadingText = 'Please wait...';
   authForm!: FormGroup;
   private routeSub: Subscription | undefined;
+  private googleClientId = environment.googleClientId;
 
   countries = [
     { code: '+91', label: 'IN (+91)' },
@@ -31,9 +34,10 @@ export class AuthComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private authSvc: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private ngZone: NgZone
   ) {
-    this.initForm(); // Initialize form logic extracted to function
+    this.initForm();
   }
 
   ngOnInit() {
@@ -42,6 +46,11 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.onDemoLogin();
       }
     });
+  }
+
+  ngAfterViewInit() {
+    // We try to initialize the button when the view loads
+    this.initializeGoogleButton();
   }
 
   ngOnDestroy() {
@@ -75,7 +84,15 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   toggleMode() {
     this.isLogin = !this.isLogin;
-    this.initForm(); // Re-initialize form controls when switching
+    this.initForm(); 
+
+    // If we switched back to Login mode, we must re-render the Google Button
+    // We use setTimeout to let Angular render the empty <div> first
+    if (this.isLogin) {
+        setTimeout(() => {
+            this.initializeGoogleButton();
+        }, 100);
+    }
   }
 
   onDemoLogin() {
@@ -104,6 +121,64 @@ export class AuthComponent implements OnInit, OnDestroy {
     } else {
       this.authForm.markAllAsTouched();
     }
+  }
+
+  initializeGoogleButton() {
+    // 1. Check if the Google script is loaded
+    if (typeof google === 'undefined') {
+        console.error('Google GSI script not loaded');
+        return;
+    }
+
+    // 2. Check if the container element exists in the DOM
+    const btnContainer = document.getElementById("google-btn-container");
+    if (!btnContainer) {
+        // This is normal if we are in Register mode
+        return;
+    }
+
+    // 3. Initialize Google Auth
+    google.accounts.id.initialize({
+      client_id: this.googleClientId,
+      callback: (response: any) => this.handleGoogleCredentialResponse(response)
+    });
+
+    // 4. Render the button
+    google.accounts.id.renderButton(
+      btnContainer,
+      { 
+        theme: "outline", 
+        size: "large", 
+        width: "100%", // This tells Google to fill the container width
+        text: "continue_with",
+        shape: "rectangular",
+        logo_alignment: "left"
+      }
+    );
+  }
+
+  handleGoogleCredentialResponse(response: any) {
+    // This callback runs outside Angular's zone, so we need to re-enter it
+    this.ngZone.run(() => {
+      console.log("Google Token Received:", response.credential);
+      
+      this.isLoading = true;
+      this.loadingText = 'Verifying with Google...';
+
+      this.authSvc.loginWithGoogle(
+        response.credential,
+        (success) => {
+          console.log("Google Login Success");
+          // Navigation is handled in AuthService
+        },
+        (error) => {
+          console.error("Google Login Error", error);
+          this.isLoading = false;
+          this.loadingText = 'Please wait...';
+          alert('Google Sign-In Failed: ' + (error?.error?.message || 'Unknown Error'));
+        }
+      );
+    });
   }
 
   private executeLogin(credentials: any) {
