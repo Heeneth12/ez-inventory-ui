@@ -48,6 +48,14 @@ export class AiChatComponent implements OnInit {
   showSidebar: boolean = true;
   conversationGroups: { [key: string]: Conversation[] } = {};
 
+  // ADDED THIS: Data for the "Quick Actions" buttons in your HTML
+  quickActions: QuickAction[] = [
+    { id: 1, icon: '📦', title: 'Check Stock', description: 'Check inventory levels' },
+    { id: 2, icon: '📄', title: 'Create Invoice', description: 'Generate a new sale' },
+    { id: 3, icon: '📊', title: 'Sales Report', description: 'Summary of recent sales' },
+    { id: 4, icon: '🔍', title: 'Find Item', description: 'Search product details' }
+  ];
+
   constructor(
     private chatService: AiChatService,
     private sanitizer: DomSanitizer

@@ -32,7 +32,9 @@ import {
   ChevronRight,
   Menu,
   Search,
-  SettingsIcon
+  SettingsIcon,
+  MessageSquare,
+  MessageSquareText
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -65,6 +67,7 @@ export class InventoryLayoutComponent implements OnInit {
   readonly Search = Search;
   readonly Bell = Bell;
   readonly Settings = SettingsIcon;
+  readonly MessageSquareText = MessageSquareText;
 
   isQuickCreateOpen = false;
   quickCreateItems = [
@@ -161,6 +164,12 @@ export class InventoryLayoutComponent implements OnInit {
       label: 'Reports',
       link: '/reports',
       icon: FileChartColumn,
+      moduleKey: 'EZH_INV_REPORTS'
+    },
+    {
+      label: 'AI Chat',
+      link: '/ai-chat',
+      icon: MessageSquareText,
       moduleKey: 'EZH_INV_REPORTS'
     },
     {
