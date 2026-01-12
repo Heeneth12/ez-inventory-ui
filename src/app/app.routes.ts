@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './layouts/guards/auth.guard';
 import { ExampleComponent } from './views/example/example.component';
 import { AiChatComponent } from './views/ai-chat/ai-chat.component';
+import { SupportWidgetComponentComponent } from './views/support-widget-component/support-widget-component.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -112,7 +113,18 @@ export const routes: Routes = [
         loadChildren: () => import('./views/user-management/user-management.routes')
             .then(m => m.UserManagementRoutes),
         canActivate: [AuthGuard],
-        data: { moduleKey: 'EZH_INV_USER_MGMT' }
+        data: { moduleKey: 'EZH_INV_SETTINGS' }
+    },
+
+    // 11. USER MANAGEMENT (Admin)
+    {
+        path: 'ai-chat',
+        loadComponent() {
+            return import('./views/ai-chat/ai-chat.component')
+                .then(c => c.AiChatComponent);
+        },
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_SETTINGS' }
     },
 
     // 12. PUBLIC ROUTES

@@ -2,13 +2,15 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AiChatService } from './ai-chat.service';
+import { marked } from 'marked';
 
 interface Conversation {
   id: number;
   title: string;
-  date: string;
-  group?: string;
+  date: string; // Used for grouping
+  createdAt?: string; // Raw date from DB
 }
 
 interface QuickAction {
@@ -20,6 +22,7 @@ interface QuickAction {
 
 interface ChatMessage {
   text: string;
+  htmlContent: SafeHtml;
   sender: 'user' | 'ai';
   timestamp: Date;
 }
@@ -30,15 +33,14 @@ interface ChatMessage {
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './ai-chat.component.html',
   styleUrls: ['./ai-chat.component.css'],
-  providers: [AiChatService] // Ensure service is provided
+  providers: [AiChatService]
 })
 export class AiChatComponent implements OnInit {
   @ViewChild('messageTextarea') messageTextarea!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLDivElement>;
 
   message: string = '';
-  // Stores the active chat history
-  messages: ChatMessage[] = []; 
+  messages: ChatMessage[] = [];
   isLoading: boolean = false;
 
   conversations: Conversation[] = [];
@@ -46,87 +48,86 @@ export class AiChatComponent implements OnInit {
   showSidebar: boolean = true;
   conversationGroups: { [key: string]: Conversation[] } = {};
 
-  quickActions: QuickAction[] = [
-    {
-      id: 1,
-      icon: '📦',
-      title: 'Check Stock',
-      description: 'Check inventory levels for specific items'
-    },
-    {
-      id: 2,
-      icon: '🧾',
-      title: 'Create Invoice',
-      description: 'Generate a new invoice for a customer'
-    },
-    {
-      id: 3,
-      icon: '🔍',
-      title: 'List All Items',
-      description: 'Get a comprehensive list of all inventory'
-    },
-    {
-      id: 4,
-      icon: '❓',
-      title: 'Help',
-      description: 'Ask about available commands'
-    }
-  ];
-
-  constructor(private chatService: AiChatService) {}
+  constructor(
+    private chatService: AiChatService,
+    private sanitizer: DomSanitizer
+  ) { }
 
   ngOnInit(): void {
-    this.initializeConversations();
-    this.groupConversations();
+    this.loadHistory();
   }
 
-  initializeConversations(): void {
-    // ... (Your existing conversation mock data) ...
-    this.conversations = [
-      { id: 1, title: 'Invoice #102 Details', date: 'Today' },
-      { id: 2, title: 'Stock Check: Laptops', date: 'Today' },
-      // ... keep your other mock data
-    ];
-  }
+  // --- 1. Load History from Java Backend ---
+  loadHistory(): void {
+    this.chatService.getHistory(
+      (response: any) => {
+        const rawList = response.data || [];
 
-  groupConversations(): void {
-    this.conversationGroups = this.conversations.reduce((groups, conversation) => {
-      const group = conversation.date;
-      if (!groups[group]) {
-        groups[group] = [];
+        this.conversations = rawList.map((c: any) => ({
+          id: c.id,
+          title: c.title || 'Untitled Chat',
+          date: this.formatDateGroup(c.createdAt),
+          createdAt: c.createdAt
+        }));
+
+        // Sort by newest first
+        this.conversations.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+
+        this.groupConversations();
+      },
+      (error: any) => {
+        console.error('Error fetching history', error);
       }
-      groups[group].push(conversation);
-      return groups;
-    }, {} as { [key: string]: Conversation[] });
+    );
   }
 
-  getGroupKeys(): string[] {
-    return Object.keys(this.conversationGroups);
-  }
-
-  createNewChat(): void {
-    this.messages = []; // Clear current chat view
-    this.activeConversation = null;
-  }
-
+  // --- 2. Load Specific Conversation ---
   selectConversation(conversation: Conversation): void {
     this.activeConversation = conversation;
-    // In a real app, you would fetch the message history for this conversation ID here
-    // For now, we just clear it or show dummy data
-    this.messages = []; 
+    this.messages = [];
+    this.isLoading = true;
+
+    // On mobile, close sidebar when a chat is selected
+    if (window.innerWidth < 768) {
+        this.showSidebar = false;
+    }
+
+    this.chatService.getMessages(conversation.id,
+      async (response: any) => {
+        const rawMessages = response.data || [];
+
+        const processedMessages: ChatMessage[] = [];
+
+        for (const msg of rawMessages) {
+          const parsed = await marked.parse(msg.content);
+          processedMessages.push({
+            text: msg.content,
+            htmlContent: this.sanitizer.bypassSecurityTrustHtml(parsed),
+            sender: msg.sender,
+            timestamp: new Date(msg.timestamp)
+          });
+        }
+
+        this.messages = processedMessages;
+        this.isLoading = false;
+        this.scrollToBottom();
+      },
+      (error: any) => {
+        console.error('Error fetching messages', error);
+        this.isLoading = false;
+      }
+    );
   }
 
-  toggleSidebar(): void {
-    this.showSidebar = !this.showSidebar;
-  }
-
-  sendMessage(): void {
+  // --- 3. Send Message ---
+  async sendMessage(): Promise<void> {
     if (this.message.trim() && !this.isLoading) {
       const userText = this.message.trim();
-      
-      // 1. Add User Message
+
+      // Optimistic UI Update
       this.messages.push({
         text: userText,
+        htmlContent: this.sanitizer.bypassSecurityTrustHtml(userText.replace(/\n/g, '<br>')),
         sender: 'user',
         timestamp: new Date()
       });
@@ -136,21 +137,43 @@ export class AiChatComponent implements OnInit {
       this.scrollToBottom();
       this.isLoading = true;
 
-      // 2. Call the MCP Backend
-      this.chatService.sendMessage(userText).subscribe({
-        next: (response) => {
+      const currentChatId = this.activeConversation ? this.activeConversation.id : null;
+
+      this.chatService.sendMessage(userText, currentChatId).subscribe({
+        next: async (response) => {
+          const data = response.data; // Access data from ResponseResource
+
+          // New Chat Created? Add to Sidebar
+          if (!this.activeConversation && data.conversationId) {
+            const newConv: Conversation = {
+              id: data.conversationId,
+              title: userText.substring(0, 30) + (userText.length > 30 ? '...' : ''),
+              date: 'Today',
+              createdAt: new Date().toISOString()
+            };
+            this.activeConversation = newConv;
+            this.conversations.unshift(newConv);
+            this.groupConversations();
+          }
+
+          // Process AI Response (Markdown -> HTML)
+          const parsedHtml = await marked.parse(data.content);
+
           this.messages.push({
-            text: response.reply,
+            text: data.content,
+            htmlContent: this.sanitizer.bypassSecurityTrustHtml(parsedHtml),
             sender: 'ai',
             timestamp: new Date()
           });
+
           this.isLoading = false;
           this.scrollToBottom();
         },
         error: (error) => {
           console.error(error);
           this.messages.push({
-            text: "Sorry, I couldn't connect to the inventory system. Is the backend running?",
+            text: "Error connecting.",
+            htmlContent: this.sanitizer.bypassSecurityTrustHtml('<span class="text-red-500">Connection failed.</span>'),
             sender: 'ai',
             timestamp: new Date()
           });
@@ -161,8 +184,47 @@ export class AiChatComponent implements OnInit {
     }
   }
 
-  handleAttach(): void { console.log('Attach file clicked'); }
-  handleUploadImage(): void { console.log('Upload image clicked'); }
+  // --- Helper Methods ---
+
+  groupConversations(): void {
+    this.conversationGroups = this.conversations.reduce((groups, conversation) => {
+      const group = conversation.date;
+      if (!groups[group]) groups[group] = [];
+      groups[group].push(conversation);
+      return groups;
+    }, {} as { [key: string]: Conversation[] });
+  }
+
+  getGroupKeys(): string[] {
+    return Object.keys(this.conversationGroups);
+  }
+
+  createNewChat(): void {
+    this.messages = [];
+    this.activeConversation = null;
+    // Keep sidebar open on desktop, maybe close on mobile
+    if (window.innerWidth < 768) {
+        this.showSidebar = false;
+    }
+  }
+
+  toggleSidebar(): void {
+    this.showSidebar = !this.showSidebar;
+  }
+
+  handleKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendMessage();
+    }
+  }
+
+  handleQuickAction(action: QuickAction): void {
+    // Just populates the textarea, user still clicks send
+    this.message = action.title + " ";
+    // Optional: Auto-focus textarea
+    if (this.messageTextarea) this.messageTextarea.nativeElement.focus();
+  }
 
   autoResizeTextarea(): void {
     if (this.messageTextarea) {
@@ -174,24 +236,23 @@ export class AiChatComponent implements OnInit {
 
   onTextareaInput(): void { this.autoResizeTextarea(); }
 
-  handleQuickAction(action: QuickAction): void {
-    this.message = action.title + " ";
-    // Optional: Automatically send it
-    // this.sendMessage(); 
-  }
-
-  handleKeyPress(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.sendMessage();
-    }
-  }
-
   private scrollToBottom(): void {
     setTimeout(() => {
       if (this.scrollContainer) {
         this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
       }
     }, 100);
+  }
+
+  private formatDateGroup(dateString?: string): string {
+    if (!dateString) return 'Today';
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) return 'Today';
+    if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+    return 'Previous 30 Days';
   }
 }

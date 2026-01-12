@@ -1,7 +1,6 @@
 <div class="flex h-screen bg-white">
   
   <div class="flex-1 flex flex-col">
-    
     <div class="h-14 border-b border-gray-200 flex items-center justify-between px-4">
       <div class="flex items-center gap-3">
         <h1 class="text-lg font-semibold text-gray-800">AI Inventory Assistant</h1>
@@ -55,8 +54,10 @@
                   'bg-black text-white rounded-br-none': msg.sender === 'user', 
                   'bg-gray-100 text-gray-800 rounded-bl-none border border-gray-200': msg.sender === 'ai'
                 }"
-                class="max-w-[80%] rounded-2xl px-5 py-3 text-base leading-relaxed whitespace-pre-wrap shadow-sm">
-                {{ msg.text }}
+                class="max-w-[85%] rounded-2xl px-5 py-3 text-base leading-relaxed shadow-sm">
+                
+                <div class="markdown-body" [innerHTML]="msg.htmlContent"></div>
+                
               </div>
               <span class="text-xs text-gray-400 mt-1 mx-1">
                 {{ msg.sender === 'user' ? 'You' : 'AI' }} • {{ msg.timestamp | date:'shortTime' }}
@@ -92,10 +93,6 @@
             style="min-height: 52px; max-height: 200px;"></textarea>
           
           <div class="absolute bottom-2 right-2 flex items-center gap-1">
-            <button class="p-2 hover:bg-gray-100 rounded-md text-gray-400 hover:text-gray-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-            </button>
-
             <button 
               (click)="sendMessage()"
               [disabled]="!message.trim() || isLoading"
@@ -116,7 +113,7 @@
 
   <div 
     *ngIf="showSidebar"
-    class="w-80 border-l border-gray-200 flex flex-col bg-white hidden md:flex"> 
+    class="w-80 border-l border-gray-200 flex-col bg-white hidden md:flex"> 
     
     <div class="h-14 border-b border-gray-200 flex items-center justify-between px-4">
       <h2 class="font-semibold text-gray-900">History</h2>

@@ -1,16 +1,48 @@
-::-webkit-scrollbar {
-    width: 6px;
+/* Custom styles for AI Markdown content */
+.markdown-body {
+  font-size: 0.95rem;
 }
 
-::-webkit-scrollbar-track {
-    background: transparent;
+/* 1. Fix Bold Text */
+.markdown-body strong, 
+.markdown-body b {
+  font-weight: 700;
+  color: inherit; /* Keeps user white, AI dark */
 }
 
-::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 3px;
+/* 2. Fix Links */
+.markdown-body a {
+  color: #2563eb; /* Blue */
+  text-decoration: underline;
+  font-weight: 500;
+}
+.markdown-body a:hover {
+  color: #1d4ed8;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
+/* 3. Fix Lists */
+.markdown-body ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body li {
+  margin-bottom: 0.25rem;
+}
+
+/* 4. Fix Spacing */
+.markdown-body p {
+  margin-bottom: 0.75rem;
+}
+.markdown-body p:last-child {
+  margin-bottom: 0;
 }
