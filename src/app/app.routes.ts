@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './layouts/guards/auth.guard';
 import { ExampleComponent } from './views/example/example.component';
 import { AiChatComponent } from './views/ai-chat/ai-chat.component';
-import { SupportWidgetComponentComponent } from './views/support-widget-component/support-widget-component.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
