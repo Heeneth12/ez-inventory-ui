@@ -38,11 +38,13 @@ import {
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
+import { AiChatComponent } from "../../../views/ai-chat/ai-chat.component";
+import { McpChatBotComponent } from "../mcp-chat-bot/mcp-chat-bot.component";
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent],
+  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, AiChatComponent, McpChatBotComponent],
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css'
 })
