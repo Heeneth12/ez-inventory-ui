@@ -20,7 +20,7 @@ export class StockLedgerComponent {
 
   stockLedgerList: StockLedger[] = [];
 
-  pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
+  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
     { key: 'id', label: 'ID', width: '60px', type: 'text' },

@@ -57,8 +57,7 @@ export class SalesOrderComponent implements OnInit {
       label: 'Total Sales Order Value',
       value: '₹12,45,000',
       icon: DollarSign,
-      color: 'gray',
-      trend: { value: '+15% vs last month', isUp: true }
+      color: 'emerald',
     },
     {
       key: 'pendingApproval',
@@ -66,23 +65,20 @@ export class SalesOrderComponent implements OnInit {
       value: '8 Orders',
       icon: Clock,
       color: 'gray',
-      trend: { value: 'Needs Attention', isUp: false }
     },
     {
       key: 'pendingInvoice',
       label: 'Pending Invoice',
       value: '14 Orders',
       icon: FileText,
-      color: 'gray',
-      trend: { value: 'Ready to Bill', isUp: true }
+      color: 'amber',
     },
     {
       key: 'cancelled',
       label: 'Cancelled Orders',
       value: '3',
       icon: XCircle,
-      color: 'gray',
-      trend: { value: '-2% this week', isUp: true }
+      color: 'orange',
     }
   ];
 

@@ -10,7 +10,7 @@ import { PurchaseOrderModel } from '../models/purchase-order.model';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { GoodsReceiptFormComponent } from '../goods-receipt/goods-receipt-form/goods-receipt-form.component';
-import { ArrowRight } from 'lucide-angular';
+import { ArrowRight, ListCheck, ListCollapse } from 'lucide-angular';
 
 @Component({
   selector: 'app-purchase-order',
@@ -32,10 +32,11 @@ export class PurchaseOrderComponent {
 
   columns: TableColumn[] = [
     { key: 'orderNumber', label: 'PO Number', width: '100px', type: 'link' },
+    { key: 'createdAt', label: 'Order Date', width: '110px', type: 'date' },
+    { key: 'expectedDeliveryDate', label: 'Delivery Date', width: '110px', type: 'date' },
     { key: 'supplierName', label: 'Supplier', width: '110px', type: 'text' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
-    { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency' },
-    { key: 'id', label: 'Grn', width: '150px', type: 'link' },
+    { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency', align: 'right' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
 
@@ -47,6 +48,21 @@ export class PurchaseOrderComponent {
       color: 'primary',
       // Only show if status is Approved
       condition: (row) => row['status'] !== 'COMPLETED'
+    },
+
+    {
+      key: 'view_grn_details',
+      label: 'GRN Details',
+      icon: ArrowRight,
+      color: 'success',
+      condition: (row) => row['status'] === 'COMPLETED'
+    },
+    {
+      key: 'view_details',
+      label: 'View Details',
+      icon: ListCollapse,
+      color: 'neutral',
+      condition: (row) => true
     }
   ];
 
@@ -56,7 +72,7 @@ export class PurchaseOrderComponent {
     private modalService: ModalService,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
-    private drawerService: DrawerService
+    private drawerService: DrawerService,
   ) {
   }
 
@@ -136,7 +152,11 @@ export class PurchaseOrderComponent {
       case 'view':
         console.log("View:", row.id);
         this.getPoById(row.id);
-        this.modalService.openTemplate(this.opSummary)
+        this.drawerService.openTemplate(
+          this.opSummary,
+          'PO Summary',
+          "lg"
+        )
         break;
       case 'edit':
         this.openUpdatePoForm(row.id);
@@ -180,5 +200,4 @@ export class PurchaseOrderComponent {
         return 'bg-blue-100 text-blue-700 border border-blue-200';
     }
   }
-
 }
