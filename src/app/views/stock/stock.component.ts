@@ -2,13 +2,15 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StandardTableComponent } from '../../layouts/components/standard-table/standard-table.component';
-import { PaginationConfig, TableColumn, TableAction } from '../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableColumn, TableAction, HeaderAction } from '../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { StockDashboardModel, StockModel } from './models/stock.model';
 import { StockService } from './stock.service';
-import { StatCardConfig, StatGroupComponent } from "../../layouts/UI/stat-group/stat-group.component"; 
-import { AlertCircle, Package, TrendingUp, Zap } from 'lucide-angular';
+import { StatCardConfig, StatGroupComponent } from "../../layouts/UI/stat-group/stat-group.component";
+import { AlertCircle, CloudDownloadIcon, Package, TrendingUp, Zap } from 'lucide-angular';
 import { STOCK_COLUMNS } from '../../layouts/config/tableConfig';
+import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
+import { DrawerService } from '../../layouts/components/drawer/drawerService';
 
 @Component({
   selector: 'app-stock',
@@ -23,16 +25,27 @@ export class StockComponent implements OnInit {
   stockDashboardSummary: StockDashboardModel | null = null;
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
   columns: TableColumn[] = STOCK_COLUMNS;
-  
+
   page: number = 0;
   size: number = 10;
 
   // Initialize with empty array
   stockDashboardStats: StatCardConfig[] = [];
 
+  headerActions: HeaderAction[] = [
+    {
+      label: 'Bulk Download',
+      icon: CloudDownloadIcon,
+      variant: 'primary',
+      key: 'bulk_download',
+      action: () => this.downloadCurrentStockReport()
+    }
+  ];
+
   constructor(
     private stockService: StockService,
     private router: Router,
+    private drawerSvc: DrawerService,
     private toastService: ToastService
   ) { }
 
@@ -50,43 +63,27 @@ export class StockComponent implements OnInit {
         value: `₹${summary.totalStockValue.toLocaleString()}`,
         icon: Package,
         color: 'blue',
-        trend: { 
-          value: 'Current Value', 
-          isUp: true 
-        }
       },
       {
         key: 'netMovement',
         label: 'Net Stock Movement',
         value: `${summary.netMovementQty > 0 ? '+' : ''}${summary.netMovementQty} Units`,
         icon: TrendingUp,
-        color: 'emerald', // Greenish for movement
-        trend: { 
-          value: `In: ${summary.totalInQty} | Out: ${summary.totalOutQty}`, 
-          isUp: summary.netMovementQty >= 0 
-        }
+        color: 'emerald',
       },
       {
         key: 'outOfStock',
         label: 'Out of Stock Items',
-        value: `${summary.totalItemsOutOfStock}`,
+        value: `${summary.totalItemsOutOfStock} Items`,
         icon: AlertCircle,
-        color: 'rose', // Warning color
-        trend: { 
-          value: summary.totalItemsOutOfStock > 0 ? 'Action Required' : 'Optimal', 
-          isUp: summary.totalItemsOutOfStock === 0 // Up (Good) if 0 items out of stock
-        }
+        color: 'rose',
       },
       {
         key: 'fastMoving',
         label: 'Fast-Moving Items',
-        value: `${summary.fastMovingItems?.length || 0}`,
+        value: `${summary.fastMovingItems?.length || 0} Items`,
         icon: Zap,
         color: 'orange',
-        trend: { 
-          value: 'High Demand', 
-          isUp: true 
-        }
       }
     ];
   }
@@ -114,6 +111,18 @@ export class StockComponent implements OnInit {
         this.toastService.show('Error fetching stock data', 'error');
       }
     );
+  }
+
+  downloadCurrentStockReport() {
+    this.drawerSvc.openComponent(BulkUploadComponent,
+      {},
+      "Bulk Data Management",
+      'lg'
+    )
+  }
+
+  handleHeaderAction(event: HeaderAction) {
+    console.log('Header action triggered:', event);
   }
 
   onPageChange($event: number) {

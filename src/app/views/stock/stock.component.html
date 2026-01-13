@@ -3,6 +3,7 @@
 <div class="space-y-6">
     <div class="flex-1 h-[calc(100vh-90px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="stockList" [pagination]="pagination"
+            [headerActions]="headerActions" (headerAction)="handleHeaderAction($event)"
             (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)">
         </app-standard-table>
     </div>

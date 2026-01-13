@@ -18,10 +18,9 @@ export const ITEMS_COLUMNS: TableColumn[] = [
 
 //stock
 export const STOCK_COLUMNS: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
     { key: 'itemId', label: 'Item ID', width: '100px', type: 'text' },
     { key: 'itemName', label: 'Item Name', width: '200px', type: 'text' },
-    { key: 'warehouseId', label: 'Warehouse', width: '110px', type: 'text' },
+    { key: 'warehouseId', label: 'Warehouse', width: '110px', type: 'text', align:'center' },
     { key: 'openingQty', label: 'Opening Qty', align: 'right', width: '120px', type: 'number' },
     { key: 'inQty', label: 'In Qty', align: 'right', width: '100px', type: 'number' },
     { key: 'outQty', label: 'Out Qty', align: 'right', width: '100px', type: 'number' },
