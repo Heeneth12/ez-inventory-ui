@@ -1,0 +1,142 @@
+<div class="z-[9999] fixed bottom-6 right-6 font-sans">
+
+  <button 
+    (click)="toggleChat()"
+    [class.rotate-90]="isOpen"
+    class="group flex items-center justify-center w-14 h-14 bg-black text-white rounded-full shadow-2xl hover:scale-110 transition-all duration-300 focus:outline-none">
+    
+    <svg *ngIf="!isOpen" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+    </svg>
+
+    <svg *ngIf="isOpen" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+    
+    <span *ngIf="!isOpen" class="absolute right-16 bg-gray-900 text-white text-xs py-1 px-3 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+      Ask AI Assistant
+    </span>
+  </button>
+
+
+  <div 
+    *ngIf="isOpen"
+    [ngClass]="{
+        'w-[90vw] h-[80vh] md:w-[400px] md:h-[600px]': !isExpanded,
+        'w-[95vw] h-[90vh] md:w-[800px] md:h-[800px]': isExpanded
+    }"
+    class="absolute bottom-20 right-0 bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-200 overflow-hidden transition-all duration-300 origin-bottom-right animate-fade-in-up">
+
+    <div class="h-16 bg-gradient-to-r from-gray-900 to-gray-800 flex items-center justify-between px-4 shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-white/10 backdrop-blur rounded-full flex items-center justify-center text-white">
+          ✨
+        </div>
+        <div>
+          <h1 class="text-white font-semibold text-sm">Inventory Assistant</h1>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            <span class="text-gray-300 text-xs">Online</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+         <button (click)="toggleHistoryView()" class="p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="History">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </button>
+        
+        <button (click)="expandWidget()" class="p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors hidden md:block">
+           <svg *ngIf="!isExpanded" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+           <svg *ngIf="isExpanded" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="showHistory" class="absolute inset-0 top-16 bg-white z-20 flex flex-col">
+        <div class="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="font-semibold text-gray-800">Your Conversations</h3>
+            <button (click)="createNewChat()" class="text-xs bg-black text-white px-3 py-1 rounded-md">New Chat</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-2">
+            <div *ngFor="let group of getGroupKeys()">
+                <div class="text-xs font-bold text-gray-400 uppercase mt-4 mb-2 px-2">{{ group }}</div>
+                <button 
+                  *ngFor="let conversation of conversationGroups[group]"
+                  (click)="selectConversation(conversation)"
+                  class="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200 mb-1">
+                    <div class="font-medium text-gray-800 text-sm truncate">{{ conversation.title }}</div>
+                    <div class="text-xs text-gray-400 mt-1">{{ conversation.createdAt | date:'shortTime' }}</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div #scrollContainer class="flex-1 overflow-y-auto bg-gray-50 p-4 relative">
+      
+      <div *ngIf="messages.length === 0" class="h-full flex flex-col items-center justify-center text-center space-y-6">
+        <div class="p-3 bg-white rounded-2xl shadow-sm border border-gray-100">
+           <svg class="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </div>
+        <div>
+            <h3 class="text-gray-900 font-medium">How can I help with Inventory?</h3>
+            <p class="text-xs text-gray-500 mt-1">I can check stock, create invoices, or analyze sales.</p>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2 w-full">
+            <button *ngFor="let action of quickActions" 
+                (click)="handleQuickAction(action)"
+                class="p-3 bg-white border border-gray-200 rounded-xl hover:border-gray-400 hover:shadow-sm transition-all text-left">
+                <span class="text-xl block mb-1">{{action.icon}}</span>
+                <span class="text-xs font-medium text-gray-700 block">{{action.title}}</span>
+            </button>
+        </div>
+      </div>
+
+      <div *ngFor="let msg of messages" class="mb-4 flex flex-col" [ngClass]="{'items-end': msg.sender === 'user', 'items-start': msg.sender === 'ai'}">
+        <div [ngClass]="{
+            'bg-black text-white rounded-br-none': msg.sender === 'user', 
+            'bg-white text-gray-800 border border-gray-200 rounded-bl-none shadow-sm': msg.sender === 'ai'
+          }"
+          class="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed">
+          <div class="markdown-body" [innerHTML]="msg.htmlContent"></div>
+        </div>
+        <span class="text-[10px] text-gray-400 mt-1 mx-1">{{ msg.timestamp | date:'shortTime' }}</span>
+      </div>
+
+      <div *ngIf="isLoading" class="flex items-start">
+        <div class="bg-white border border-gray-200 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
+          <div class="flex space-x-1">
+            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-3 bg-white border-t border-gray-200">
+      <div class="relative bg-gray-50 rounded-xl border border-gray-200 focus-within:border-gray-400 focus-within:bg-white transition-all">
+        <textarea
+            #messageTextarea
+            [(ngModel)]="message"
+            (keypress)="handleKeyPress($event)"
+            [disabled]="isLoading"
+            placeholder="Ask AI..."
+            class="w-full px-3 py-2.5 pr-10 resize-none bg-transparent focus:outline-none text-sm text-gray-800 placeholder-gray-400"
+            rows="1"
+            style="min-height: 44px; max-height: 120px;"></textarea>
+        
+        <button 
+            (click)="sendMessage()"
+            [disabled]="!message.trim() || isLoading"
+            class="absolute bottom-1.5 right-1.5 p-1.5 bg-black text-white rounded-lg disabled:opacity-30 hover:bg-gray-800 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+        </button>
+      </div>
+      <div class="text-[10px] text-gray-400 text-center mt-2">
+         Inventory AI Actions Enabled
+      </div>
+    </div>
+  </div>
+</div>
