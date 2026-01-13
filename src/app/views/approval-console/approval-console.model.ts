@@ -9,7 +9,9 @@ export interface ApprovalRequestModel {
   valueAmount?: number;
   actionedBy?: number;
   actionRemarks?: string;
+  approvedDate?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApprovalConfigModel {
