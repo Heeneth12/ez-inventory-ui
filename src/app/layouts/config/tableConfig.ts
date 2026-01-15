@@ -2,7 +2,6 @@ import { TableColumn } from "../components/standard-table/standard-table.model";
 
 //Items
 export const ITEMS_COLUMNS: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
     { key: 'name', label: 'Item Name', width: '230px', type: 'profile' },
     { key: 'itemCode', label: 'Code', width: '110px', type: 'text' },
     { key: 'sku', label: 'SKU', width: '110px', type: 'text' },

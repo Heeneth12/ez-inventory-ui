@@ -6,7 +6,7 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { StockService } from '../stock.service';
-import { ItemStockSearchModel, BatchDetailModel } from '../models/stock.model';
+import { ItemStockSearchModel, BatchDetailModel, StockFilterModel } from '../models/stock.model';
 import { Router } from '@angular/router';
 import { ApprovalConsoleService } from '../../approval-console/approval-console.service';
 import { ApprovalConfigModel, ApprovalType } from '../../approval-console/approval-console.model';
@@ -30,6 +30,7 @@ enum AdjustmentReason {
 export class StockAdjFormComponent implements OnInit, OnDestroy {
 
   stockAdjustmentForm: FormGroup;
+  stockFilter: StockFilterModel = new StockFilterModel();
 
   // Data Sources
   reasons = Object.values(AdjustmentReason);
@@ -132,11 +133,10 @@ export class StockAdjFormComponent implements OnInit, OnDestroy {
   performSearch(query: string) {
     this.isSearching = true;
     // Assuming warehouseId is needed for stock search context
-    const warehouseId = this.stockAdjustmentForm.get('warehouseId')?.value || "1";
-
+    this.stockFilter.warehouseId = this.stockAdjustmentForm.get('warehouseId')?.value || 1;
+    this.stockFilter.searchQuery = query;
     this.stockService.searchItems(
-      query,
-      warehouseId,
+      this.stockFilter,
       (response: any) => {
         this.isSearching = false;
         this.searchResults = response?.data || [];

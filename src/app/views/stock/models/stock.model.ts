@@ -32,3 +32,14 @@ export interface StockDashboardModel {
   netMovementQty: number;
   fastMovingItems: StockModel[];
 }
+
+export class StockFilterModel {
+    id?: number;                     // Long id
+    searchQuery?: string;            // String searchQuery
+    status?: string;                 // String status
+    customerId?: number;             // Long customerId
+    itemId?: number;                 // Long itemId
+    warehouseId?: number;            // Long warehouseId
+    fromDate?: Date;                 // Date fromDate
+    toDate?: Date;                   // Date toDate
+}
