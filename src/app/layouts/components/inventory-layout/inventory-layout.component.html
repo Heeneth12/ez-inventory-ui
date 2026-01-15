@@ -16,7 +16,7 @@
         <div class="h-16 flex items-center shrink-0 transition-all duration-300 border-b border-white/5"
             [ngClass]="isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'">
 
-            <div class="flex items-center gap-2 overflow-hidden whitespace-nowrap">
+            <div class="flex items-center gap-1 overflow-hidden whitespace-nowrap">
                 <img src="assets/images/new.png" alt="logo" class="w-8 h-8 object-contain shrink-0" />
 
                 @if (!isSidebarCollapsed) {
@@ -29,7 +29,7 @@
             </div>
 
             <button (click)="closeMenu()" class="lg:hidden text-slate-400 hover:text-white transition-colors p-1">
-                <lucide-icon name="x" class="w-6 h-6"></lucide-icon>
+                <lucide-icon [img]="XIcon" class="w-6 h-6"></lucide-icon>
             </button>
         </div>
 

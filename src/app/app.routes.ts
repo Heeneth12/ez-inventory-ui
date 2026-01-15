@@ -127,7 +127,6 @@ export const routes: Routes = [
     },
 
     // 12. PUBLIC ROUTES
-    // Even these should be lazy loaded to speed up the first paint
     {
         path: 'login',
         loadComponent: () => import('./views/auth/auth.component')

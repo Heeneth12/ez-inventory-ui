@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, UsersRound, UserPlus, UserPen } from 'lucide-angular';
+import { LucideAngularModule, UsersRound, UserPlus, UserPen, AppWindow } from 'lucide-angular';
 import { TabCardComponent, TabItem } from "../../layouts/UI/tab-card/tab-card.component";
 
 
@@ -26,7 +26,8 @@ export class UserManagementAdapterComponent {
     isLoading = signal<boolean>(false);
 
     navigationTabs: TabItem[] = [
-        { id: 'userManagement', label: 'User Management', icon: UsersRound },
+        { id: 'userManagement', label: 'Tenant Management', icon: UsersRound },
+        { id: 'app', label: 'Applications', icon: AppWindow },
         { id: 'create', label: 'Create User', icon: UserPlus },
         { id: 'edit', label: 'Edit User', icon: UserPen },
         { id: 'tenants', label: 'Tenants', icon: UserPen }

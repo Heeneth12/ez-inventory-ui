@@ -34,7 +34,8 @@ import {
   Search,
   SettingsIcon,
   MessageSquare,
-  MessageSquareText
+  MessageSquareText,
+  X
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -70,6 +71,7 @@ export class InventoryLayoutComponent implements OnInit {
   readonly Bell = Bell;
   readonly Settings = SettingsIcon;
   readonly MessageSquareText = MessageSquareText;
+  readonly XIcon= X;
 
   isQuickCreateOpen = false;
   quickCreateItems = [
