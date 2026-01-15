@@ -10,6 +10,7 @@ import { PurchaseService } from '../purchase.service';
 import { GrnModel } from '../models/grn.model';
 import { PurchaseReturnFormComponent } from '../purchase-returns/purchase-return-form/purchase-return-form.component';
 import { ArrowRight } from 'lucide-angular';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-goods-receipt',
@@ -23,6 +24,7 @@ export class GoodsReceiptComponent implements OnInit {
   @ViewChild('grnSummary') grnSummary!: TemplateRef<any>;
 
   grnList: GrnModel[] = [];
+  grnFilter: any = {};
   selectedGrn: GrnModel | null = null;
   readonly ArrowRight = ArrowRight;
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
@@ -48,6 +50,12 @@ export class GoodsReceiptComponent implements OnInit {
       condition: (row) => row['status'] === 'APPROVED'
     }
   ];
+
+  dateConfig: DatePickerConfig = {
+    type: 'both', // or 'single'
+    // label: 'Filter Dates',
+    placeholder: 'Start - End'
+  };
 
   constructor(
     private purchaseService: PurchaseService,
@@ -134,7 +142,21 @@ export class GoodsReceiptComponent implements OnInit {
     }
   }
 
-  // --- UI Helpers ---
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    this.grnFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.grnFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
 
   getStatusColor(status: string | undefined): string {
     if (!status) return 'bg-gray-100 text-gray-600';

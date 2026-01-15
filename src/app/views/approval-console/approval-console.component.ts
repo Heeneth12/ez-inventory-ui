@@ -17,6 +17,7 @@ import { SalesOrderModal } from '../sales/sales-order/sales-order.modal';
 import { SalesOrderService } from '../sales/sales-order/sales-order.service';
 import { StockAdjustmentDetailModel } from '../stock/models/stock-adjustment.model';
 import { StockService } from '../stock/stock.service';
+import { DatePickerConfig, DateRangeEmit } from '../../layouts/UI/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-approval-console',
@@ -38,6 +39,8 @@ export class ApprovalConsoleComponent implements OnInit {
 
   approvals: ApprovalRequestModel[] = [];
   configs: ApprovalConfigModel[] = [];
+
+  approvalFilter: any = {};
 
 
   isCreatingNew = false;
@@ -105,6 +108,14 @@ export class ApprovalConsoleComponent implements OnInit {
       condition: (row) => true
     }
   ];
+
+
+  dateConfig: DatePickerConfig = {
+    type: 'both', // or 'single'
+    // label: 'Filter Dates',
+    placeholder: 'Start - End'
+  };
+
 
   constructor(
     private approvalConsoleService: ApprovalConsoleService,
@@ -254,7 +265,7 @@ export class ApprovalConsoleComponent implements OnInit {
         this.drawerService.openTemplate(this.stockAdjustment, 'Stock Adjustment Details', 'lg');
         break;
 
-    default:
+      default:
         this.toastService.show('Approval type not supported for detail view', 'info');
         break;
     }
@@ -280,7 +291,7 @@ export class ApprovalConsoleComponent implements OnInit {
     this.stockService.getStockAdjustmentById(
       id,
       (response: any) => {
-        this.stockAdjustmentDetails= response.data;
+        this.stockAdjustmentDetails = response.data;
         this.loaderSvc.hide();
       },
       (error: any) => {
@@ -303,7 +314,7 @@ export class ApprovalConsoleComponent implements OnInit {
     if (!this.stockAdjustmentDetails || !this.stockAdjustmentDetails.items) return 0;
     return this.stockAdjustmentDetails.items.reduce((acc: number, item: any) => {
       // Assuming item has differenceQty and unitPrice/costPrice
-      const qty = Math.abs(item.differenceQty || 0); 
+      const qty = Math.abs(item.differenceQty || 0);
       const price = item.unitPrice || item.costPrice || 0;
       return acc + (qty * price);
     }, 0);
@@ -363,6 +374,21 @@ export class ApprovalConsoleComponent implements OnInit {
   handleCardSelection(card: StatCardData) {
     this.selectedCardId = card.id;
     // Perform other actions (filter lists, show charts, etc.)
+  }
+
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    this.approvalFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.approvalFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   stats: StatCardData[] = [

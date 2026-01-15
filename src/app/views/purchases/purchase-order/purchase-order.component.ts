@@ -11,6 +11,7 @@ import { ModalService } from '../../../layouts/components/modal/modalService';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { GoodsReceiptFormComponent } from '../goods-receipt/goods-receipt-form/goods-receipt-form.component';
 import { ArrowRight, ListCheck, ListCollapse } from 'lucide-angular';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-purchase-order',
@@ -22,6 +23,7 @@ import { ArrowRight, ListCheck, ListCollapse } from 'lucide-angular';
 export class PurchaseOrderComponent {
 
   @ViewChild('opSummary') opSummary!: TemplateRef<any>;
+  purchaseOrderFilter: any = {};
 
   purchaseOrderList: PurchaseOrderModel[] = [];
   purchaseOrder: PurchaseOrderModel | null = null;
@@ -65,6 +67,12 @@ export class PurchaseOrderComponent {
       condition: (row) => true
     }
   ];
+
+  dateConfig: DatePickerConfig = {
+    type: 'both', // or 'single'
+    // label: 'Filter Dates',
+    placeholder: 'Start - End'
+  };
 
   constructor(
     private purchaseService: PurchaseService,
@@ -199,5 +207,21 @@ export class PurchaseOrderComponent {
       default:
         return 'bg-blue-100 text-blue-700 border border-blue-200';
     }
+  }
+
+
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    this.purchaseOrderFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.purchaseOrderFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 }

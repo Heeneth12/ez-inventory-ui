@@ -2,6 +2,7 @@
     <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="purchaseReturnList"
             [pagination]="pagination" [isServerSide]="true" (pageChange)="onPageChange($event)"
+            [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)"
             (loadMore)="onLoadMore()" (action)="onTableAction($event)">
         </app-standard-table>
     </div>

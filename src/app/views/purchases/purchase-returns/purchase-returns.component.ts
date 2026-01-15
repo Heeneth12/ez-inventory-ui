@@ -8,7 +8,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PurchaseService } from '../purchase.service';
 import { PurchaseReturnModel } from '../models/purchase-return.model';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { PurchaseReturnFormComponent } from './purchase-return-form/purchase-return-form.component';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-purchase-returns',
@@ -20,6 +20,7 @@ import { PurchaseReturnFormComponent } from './purchase-return-form/purchase-ret
 export class PurchaseReturnsComponent implements OnInit {
 
   purchaseReturnList: PurchaseReturnModel[] = [];
+  purchaseReturnFilter: any = {};
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
@@ -34,6 +35,14 @@ export class PurchaseReturnsComponent implements OnInit {
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
   purchaseOrderList: any;
+
+
+  dateConfig: DatePickerConfig = {
+    type: 'both', // or 'single'
+    // label: 'Filter Dates',
+    placeholder: 'Start - End'
+  };
+
 
   constructor(
     private purchaseService: PurchaseService,
@@ -103,4 +112,18 @@ export class PurchaseReturnsComponent implements OnInit {
   onLoadMore() {
   }
 
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    this.purchaseReturnFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.purchaseReturnFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
 }
