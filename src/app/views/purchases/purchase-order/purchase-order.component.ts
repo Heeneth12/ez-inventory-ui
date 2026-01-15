@@ -143,13 +143,23 @@ export class PurchaseOrderComponent {
     })
   }
 
+  viewPoDetails(poId: any) {
+    this.getPoById(poId);
+    this.drawerService.openTemplate(
+      this.opSummary,
+      'PO Summary',
+      "lg"
+    );
+  }
+
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'move_to_grn') {
       console.log('Moving PO to GRN:', event.row);
       this.openGrnForm(event.row.id);
     }
-    if (event.type === 'edit') {
-      // Standard edit logic
+    if (event.type === 'custom' && event.key === 'view_details') {
+      console.log('Viewing PO Details:', event.row);
+      this.viewPoDetails(event.row.id);
     }
   }
 
@@ -159,12 +169,7 @@ export class PurchaseOrderComponent {
     switch (type) {
       case 'view':
         console.log("View:", row.id);
-        this.getPoById(row.id);
-        this.drawerService.openTemplate(
-          this.opSummary,
-          'PO Summary',
-          "lg"
-        )
+        this.viewPoDetails(row.id);
         break;
       case 'edit':
         this.openUpdatePoForm(row.id);
