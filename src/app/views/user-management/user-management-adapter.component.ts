@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, UsersRound, UserPlus, UserPen, AppWindow } from 'lucide-angular';
+import { Component, OnInit, signal } from '@angular/core';
+import { RouterModule, Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { LucideAngularModule, UsersRound, AppWindow } from 'lucide-angular';
+import { filter } from 'rxjs/operators';
 import { TabCardComponent, TabItem } from "../../layouts/UI/tab-card/tab-card.component";
-
 
 @Component({
     selector: 'app-user-management-adapter',
@@ -13,56 +13,55 @@ import { TabCardComponent, TabItem } from "../../layouts/UI/tab-card/tab-card.co
     <div class="text-slate-800">
       <app-tab-card
         [tabs]="navigationTabs"
-        [(activeTabId)]="activeTab"
+        [activeTabId]="activeTab()"
         (activeTabIdChange)="onTabChange($event)">
         <router-outlet></router-outlet>
       </app-tab-card>
     </div>
   `
 })
-export class UserManagementAdapterComponent {
+export class UserManagementAdapterComponent implements OnInit {
 
-    activeTab = signal<string>('userManagement');
+    activeTab = signal<string>('tenants'); // Default to a valid tab ID
     isLoading = signal<boolean>(false);
 
     navigationTabs: TabItem[] = [
-        { id: 'userManagement', label: 'Tenant Management', icon: UsersRound },
-        { id: 'app', label: 'Applications', icon: AppWindow },
-        { id: 'create', label: 'Create User', icon: UserPlus },
-        { id: 'edit', label: 'Edit User', icon: UserPen },
-        { id: 'tenants', label: 'Tenants', icon: UserPen }
+        { id: 'tenants', label: 'Tenants', icon: UsersRound },
+        { id: 'apps', label: 'Apps', icon: AppWindow },
+        { id: 'users', label: 'Users', icon: UsersRound },
     ];
 
     constructor(
         private router: Router,
         private route: ActivatedRoute
-    ) {
-        this.router.events.subscribe(() => {
-            const currentUrl = this.router.url;
-            if (currentUrl.includes('/user-management/edit')) {
-                this.activeTab.set('edit');
-            } else if (currentUrl.includes('/user-management/create')) {
-                this.activeTab.set('create');
-            } else if(currentUrl.includes('user-management/tenants')){
-                this.activeTab.set('tenants')
-            }
-             else {
-                this.activeTab.set('userManagement');
-            }
+    ) {}
+
+    ngOnInit() {
+        this.setActiveTabFromUrl();
+        this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd)
+        ).subscribe(() => {
+            this.setActiveTabFromUrl();
         });
     }
 
-    onTabChange(newTabId: string) {
-        // Simulate API network delay for better UX feel
-        this.isLoading.set(true);
-        if (newTabId === 'userManagement') {
-            this.router.navigate(['./'], { relativeTo: this.route });
-        } else if (newTabId === 'create') {
-            this.router.navigate(['create'], { relativeTo: this.route });
-        } else if (newTabId === 'edit') {
-            this.router.navigate(['edit'], { relativeTo: this.route });
-        } else if (newTabId === 'tenants') {
-            this.router.navigate(['tenants'], { relativeTo: this.route });
+    private setActiveTabFromUrl() {
+        const currentUrl = this.router.url;
+        const foundTab = this.navigationTabs.find(tab => currentUrl.includes(`/${tab.id}`));
+        
+        if (foundTab) {
+            this.activeTab.set(foundTab.id);
+        } else {
+            this.activeTab.set('tenants');
         }
+    }
+
+    onTabChange(newTabId: string) {
+        this.isLoading.set(true);
+        this.activeTab.set(newTabId);
+        // Simple navigation relative to the current route
+        // Since Tab ID == Route Path, we pass the ID directly
+        this.router.navigate([newTabId], { relativeTo: this.route })
+            .then(() => this.isLoading.set(false));
     }
 }

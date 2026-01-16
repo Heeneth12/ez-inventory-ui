@@ -3,201 +3,146 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { Router } from '@angular/router';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
-import { TableColumn, PaginationConfig, HeaderAction, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
+import { TableColumn, PaginationConfig, HeaderAction, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { UserManagementService } from '../userManagement.service';
-import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { Building, User, Mail, Phone, Key, FilePlusCorner } from 'lucide-angular';
-import { FormField, DynamicFormComponent } from '../../../layouts/UI/dynamic-form/dynamic-form.component';
+import {ArrowRight, CloudDownloadIcon } from 'lucide-angular';
+import { RoleModel } from '../models/application.model';
+import { TenantModel } from '../models/tenant.model';
+import { UserModel } from '../models/user.model';
 
 @Component({
   selector: 'app-tenants',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent, DynamicFormComponent],
+  imports: [CommonModule, StandardTableComponent],
   templateUrl: './tenants.component.html',
   styleUrl: './tenants.component.css'
 })
 export class TenantsComponent {
 
-  @ViewChild('register') registerTemplate!: TemplateRef<any>;
+  @ViewChild('tenantDetailsTemplate') tenantDetailsTemplate!: TemplateRef<any>;
+  @ViewChild('configApplicationsTemplate') configApplicationsTemplate!: TemplateRef<any>;
 
-  tenants: any = [];
+  users: UserModel[] = [];
+  roles: RoleModel[] = [];
+  tenants: TenantModel[] = [];
+  tenantDetails: TenantModel | null = null;
+
+  isConfigEditMode: boolean = false;
+  isLoadingApps: boolean = false;
+
+  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
-    { key: 'id', label: 'id', width: '130px', type: 'text' },
-    { key: 'tenantUuid', label: 'UUID', width: '130px', type: 'text' },
-    { key: 'tenantName', label: 'Tenant Name', width: '150px', type: 'profile' }, // Adjusted based on DTO
-    { key: 'tenantCode', label: 'Code', width: '100px', type: 'text' },
-    { key: 'isActive', label: 'Active', width: '100px', type: 'toggle', align: 'center' },
+    { key: 'tenantName', label: 'Tenant', width: '130px', type: 'profile' },
+    { key: 'tenantCode', label: 'Tenant Id', width: '100px', type: 'text' },
+    { key: 'email', label: 'Email', width: '220px', type: 'link' },
+    { key: 'phone', label: 'Phone', width: '100px', type: 'text' },
+    { key: 'isActive', label: 'Active', width: '130px', type: 'toggle', align: 'center' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
   ];
 
-  myHeaderActions: HeaderAction[] = [
+  headerActions: HeaderAction[] = [
     {
-      label: 'Create',
-      icon: FilePlusCorner,
+      label: 'Config Applications',
+      icon: CloudDownloadIcon,
       variant: 'primary',
-      action: () => this.openRegisterTenant() // Direct callback
-    },
-  ];
-
-  createTenantFields: FormField[] = [
-    {
-      key: 'tenantName',
-      label: 'Tenant Name',
-      type: 'text',
-      required: true,
-      minLength: 2,
-      icon: Building,
-      placeholder: 'e.g. Acme Corp'
-    },
-    {
-      key: 'adminFullName',
-      label: 'Admin Full Name',
-      type: 'text',
-      required: true,
-      minLength: 2,
-      icon: User,
-      placeholder: 'John Doe'
-    },
-    {
-      key: 'adminEmail',
-      label: 'Admin Email',
-      type: 'email',
-      required: true,
-      icon: Mail,
-      pattern: '^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'
-    },
-    {
-      key: 'adminPhone',
-      label: 'Phone Number',
-      type: 'tel',
-      icon: Phone,
-      placeholder: '+1 (555) 000-0000'
-    },
-    {
-      key: 'password',
-      label: 'Password',
-      type: 'password',
-      required: true,
-      minLength: 6,
-      icon: Lock
-    },
-    {
-      key: 'appKey',
-      label: 'App Key',
-      type: 'text',
-      icon: Key,
-      placeholder: 'Optional API Key'
-    },
-    {
-      key: 'isPersonal',
-      label: 'Account Type',
-      type: 'checkbox',
-      placeholder: 'Is this a personal account?'
+      key: 'config_applications',
+      action: () => console.log('Config Applications clicked')
     }
   ];
 
-  pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
+  viewActions: TableActionConfig[] = [
+    {
+      key: 'view_tenant_details',
+      label: 'View Details',
+      icon: ArrowRight,
+      color: 'primary',
+      condition: (row) => true
+    }
+  ];
 
   constructor(
     private router: Router,
     public drawerService: DrawerService,
-    private toastSvc: ToastService,
-    private userManagementService: UserManagementService,
-    private loaderSvc: LoaderService
-  ) {
-
-  }
+    private toast: ToastService,
+    private userManagementService: UserManagementService
+  ) { }
 
   ngOnInit() {
     this.loadTenants();
   }
 
   loadTenants() {
-    this.loaderSvc.show();
-    const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
-    this.userManagementService.getAllTenants(
-      apiPage,
-      this.pagination.pageSize,
-      {},
-      (response: any) => {
-        this.tenants = response.data.content;
-        this.pagination = {
-          currentPage: this.pagination.currentPage,
-          totalItems: response.data.totalElements,
-          pageSize: response.data.size
-        };
-        this.loaderSvc.hide();
+    this.userManagementService.getAllTenants(0, 100, {},
+      (res: any) => {
+        this.tenants = res.data.content;
       },
-      (error: any) => {
-        this.loaderSvc.hide();
-        this.toastSvc.show('Failed to load Items', 'error');
-        console.error('Error fetching items:', error);
+      (err: any) => {
+        this.toast.show('Failed to load tenants', 'error');
       }
     );
   }
 
-  handleRegisterSubmit(formData: any) {
-    this.loaderSvc.show();
-    // Call your service
-    // Assuming userManagementService has a createTenant method
-    this.userManagementService.createTenant(formData,
-      (response: any) => {
-        this.loaderSvc.hide();
-        this.toastSvc.show('Tenant created successfully', 'success');
-        this.drawerService.close() // Close drawer
-        this.loadTenants(); // Refresh table
+  getTenantDetails(tenantId: number) {
+    this.userManagementService.getTenantById(tenantId,
+      (res: any) => {
+        this.tenantDetails = res.data;
+        this.drawerService.openTemplate(
+          this.tenantDetailsTemplate,
+          'Tenant Details',
+          'lg'
+        );
       },
       (err: any) => {
-        this.loaderSvc.hide();
-        this.toastSvc.show(err.error?.message || 'Failed to create tenant', 'error');
+        this.toast.show('Failed to load tenant details', 'error');
       }
-    )
-  };
-
-
-  openRegisterTenant(){
-    this.drawerService.openTemplate(
-      this.registerTemplate,
-      "",
-      'lg'
-    )
+    );
   }
 
-  onCancelDrawer() {
-    this.drawerService.close();
+  viewTenantDetails(tenantId: number) {
+    this.getTenantDetails(tenantId);
   }
+
+
+  toggleConfigEditMode() {
+    this.isConfigEditMode = !this.isConfigEditMode;
+  }
+
 
   onTableAction(event: TableAction) {
-    const { type, row, key } = event;
+    // console.log("Table action event:", event);
+    const { type, row } = event;
 
     switch (type) {
       case 'view':
-        console.log("View:", row.id);
         break;
       case 'edit':
+        this.editUser(row.id);
         break;
       case 'delete':
-        console.log("Delete:", row.id);
         break;
       case 'toggle':
         break;
     }
   }
 
-  
-
-  handleHeaderAction(event: HeaderAction) {
-    if (event.key === 'create_route') {
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'view_tenant_details') {
+      this.viewTenantDetails(Number(event.row.id));
     }
   }
 
-  onPageChange(newPage: number) {
-    this.pagination = { ...this.pagination, currentPage: newPage };
+  onPageChange($event: number) {
+    console.log("Page change event:", $event);
   }
 
   onLoadMore() {
+    console.log("Load more event");
+  }
+
+  editUser(userId: any) {
+    this.router.navigate(['/admin/user-management/edit', userId]);
   }
 
 }
