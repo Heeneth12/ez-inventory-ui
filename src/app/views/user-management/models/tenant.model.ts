@@ -14,7 +14,16 @@ export interface TenantModel {
     applications?: ApplicationModel[];
     tenantAddress?: TenantAddressModel[];
 }
-
+export interface TenantRegistrationModel {
+    tenantName: string;
+    adminFullName: string;
+    adminEmail: string;
+    password: string;
+    adminPhone?: string;
+    isPersonal?: boolean;
+    appKey: string;
+    address?: TenantAddressModel;
+}
 
 export interface TenantAddressModel {
     id: number;
@@ -26,5 +35,5 @@ export interface TenantAddressModel {
     state: string;
     country: string;
     pinCode: string;
-    addressType: string;
+    type: string;
 }

@@ -40,8 +40,8 @@ export class UserManagementService {
         return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/${id}/update`, requestBody, successfn, errorfn);
     }
 
-    getAllUsers(successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${UserManagementService.USER_BASE_URL}/all`, successfn, errorfn);
+    getAllUsers(page: number, size: number, filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
     getUserById(id: number, successfn: any, errorfn: any) {

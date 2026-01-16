@@ -6,27 +6,31 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { TableColumn, PaginationConfig, HeaderAction, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { UserManagementService } from '../userManagement.service';
-import {ArrowRight, CloudDownloadIcon } from 'lucide-angular';
+import { ArrowRight, CloudDownloadIcon, UserCheck } from 'lucide-angular';
 import { RoleModel } from '../models/application.model';
-import { TenantModel } from '../models/tenant.model';
-import { UserModel } from '../models/user.model';
+import { TenantModel, TenantRegistrationModel } from '../models/tenant.model';
+import { UserFilterModel, UserModel } from '../models/user.model';
+import { error } from 'highcharts';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-tenants',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent],
+  imports: [CommonModule, StandardTableComponent, FormsModule],
   templateUrl: './tenants.component.html',
   styleUrl: './tenants.component.css'
 })
 export class TenantsComponent {
 
   @ViewChild('tenantDetailsTemplate') tenantDetailsTemplate!: TemplateRef<any>;
-  @ViewChild('configApplicationsTemplate') configApplicationsTemplate!: TemplateRef<any>;
+  @ViewChild('tenantUserDetailsTemplate') tenantUserDetailsTemplate!: TemplateRef<any>;
+  @ViewChild('createTenantTemplate') createTenantTemplate!: TemplateRef<any>;
 
   users: UserModel[] = [];
   roles: RoleModel[] = [];
   tenants: TenantModel[] = [];
   tenantDetails: TenantModel | null = null;
+  userFilter: UserFilterModel = new UserFilterModel();
 
   isConfigEditMode: boolean = false;
   isLoadingApps: boolean = false;
@@ -44,11 +48,11 @@ export class TenantsComponent {
 
   headerActions: HeaderAction[] = [
     {
-      label: 'Config Applications',
+      label: 'Create Tenant',
       icon: CloudDownloadIcon,
       variant: 'primary',
       key: 'config_applications',
-      action: () => console.log('Config Applications clicked')
+      action: () => this.openCreateDrawer()
     }
   ];
 
@@ -59,15 +63,44 @@ export class TenantsComponent {
       icon: ArrowRight,
       color: 'primary',
       condition: (row) => true
+    },
+    {
+      key: 'view_users_details',
+      label: 'User Details',
+      icon: UserCheck,
+      color: 'success',
+      condition: (row) => true
     }
   ];
+
+
+  newTenant: TenantRegistrationModel = {
+    tenantName: '',
+    appKey: '',
+    adminFullName: '',
+    adminEmail: '',
+    password: '',
+    adminPhone: '',
+    isPersonal: false,
+    address: {
+      id: 0,
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      country: '',
+      pinCode: '',
+      type: 'OFFICE'
+    }
+  };
 
   constructor(
     private router: Router,
     public drawerService: DrawerService,
     private toast: ToastService,
     private userManagementService: UserManagementService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.loadTenants();
@@ -81,6 +114,33 @@ export class TenantsComponent {
       (err: any) => {
         this.toast.show('Failed to load tenants', 'error');
       }
+    );
+  }
+
+  // Inside TenantsComponent class
+
+  loadUsersByTenant(tenantId: number) {
+    this.userFilter.tenantId = tenantId;
+    this.isLoadingApps = true; // Optional: Use a loading state if you have one
+
+    this.userManagementService.getAllUsers(0, 100, this.userFilter,
+      (res: any) => {
+        this.users = res.data.content;
+        this.isLoadingApps = false;
+        this.openUserDrawer();
+      },
+      (err: any) => {
+        this.isLoadingApps = false;
+        this.toast.show('Failed to load users for tenant', 'error');
+      }
+    );
+  }
+
+  openUserDrawer() {
+    this.drawerService.openTemplate(
+      this.tenantUserDetailsTemplate,
+      'Associated Users',
+      'lg' // Size of the drawer
     );
   }
 
@@ -98,6 +158,39 @@ export class TenantsComponent {
         this.toast.show('Failed to load tenant details', 'error');
       }
     );
+  }
+
+  createTenant() {
+    this.isLoadingApps = true;
+    console.log(this.newTenant);
+    this.userManagementService.createTenant(
+      this.newTenant,
+      (response: any) => {
+        this.isLoadingApps = false;
+        this.drawerService.close();
+        this.toast.show('Tenant created successfully', 'success');
+        this.loadTenants(); // Refresh table
+        this.resetForm(); // Helper to clear form
+      },
+      (error: any) => {
+        this.isLoadingApps = false;
+        this.toast.show('Failed to create tenant', 'error');
+      }
+    );
+  }
+
+
+  resetForm() {
+    this.newTenant = {
+        tenantName: '', appKey: '', adminFullName: '', adminEmail: '', 
+        password: '', adminPhone: '', isPersonal: false,
+        address: { id: 0, addressLine1: '', city: '', state: '', country: '', pinCode: '', type: 'Billing' }
+    };
+  }
+  
+  // Update header action to open this drawer
+  openCreateDrawer() {
+     this.drawerService.openTemplate(this.createTenantTemplate, 'Register Tenant', 'lg');
   }
 
   viewTenantDetails(tenantId: number) {
@@ -130,6 +223,9 @@ export class TenantsComponent {
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'view_tenant_details') {
       this.viewTenantDetails(Number(event.row.id));
+    }
+    if (event.type === 'custom' && event.key === 'view_users_details') {
+      this.loadUsersByTenant(Number(event.row.id))
     }
   }
 

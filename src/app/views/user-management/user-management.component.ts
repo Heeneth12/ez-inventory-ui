@@ -2,14 +2,14 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ArrowRight, CloudDownloadIcon } from 'lucide-angular';
+import { ArrowRight, CloudDownloadIcon, UserPenIcon } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { UserManagementService } from './userManagement.service';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { RoleModel, ApplicationModel, ModuleModel, PrivilegeModel } from './models/application.model';
-import { UserModel } from './models/user.model';
+import { UserFilterModel, UserModel } from './models/user.model';
 import { TenantModel } from './models/tenant.model';
 
 interface ApplicationUI extends ApplicationModel {
@@ -36,11 +36,13 @@ export class UserManagementComponent implements OnInit {
   tenants: TenantModel[] = [];
   tenantDetails: TenantModel | null = null;
 
+  userFilter: UserFilterModel = new UserFilterModel();
+
   isConfigEditMode: boolean = false;
   isLoadingApps: boolean = false;
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
-  
+
   columns: TableColumn[] = [
     { key: 'tenantName', label: 'Tenant', width: '130px', type: 'profile' },
     { key: 'tenantCode', label: 'Tenant Id', width: '100px', type: 'text' },
@@ -52,11 +54,11 @@ export class UserManagementComponent implements OnInit {
 
   headerActions: HeaderAction[] = [
     {
-      label: 'Config Applications',
-      icon: CloudDownloadIcon,
+      label: 'Create User',
+      icon: UserPenIcon,
       variant: 'primary',
-      key: 'config_applications',
-      action: () => this.openConfigApplications()
+      key: 'create_user',
+      action: () => this.router.navigateByUrl('/admin/users/form')
     }
   ];
 
@@ -75,19 +77,22 @@ export class UserManagementComponent implements OnInit {
     public drawerService: DrawerService,
     private toast: ToastService,
     private userManagementService: UserManagementService
-  ) {}
+  ) { }
 
   ngOnInit() {
-    this.loadTenants();
+    this.loadUsers();
   }
 
-  loadTenants() {
-    this.userManagementService.getAllTenants(0, 100, {},
+  loadUsers() {
+    this.isLoadingApps = true; // Optional: Use a loading state if you have one
+    this.userManagementService.getAllUsers(0, 100,
+      this.userFilter,
       (res: any) => {
-        this.tenants = res.data.content;
+        this.users = res.data.content;
       },
       (err: any) => {
-        this.toast.show('Failed to load tenants', 'error');
+        this.isLoadingApps = false;
+        this.toast.show('Failed to load users for tenant', 'error');
       }
     );
   }
@@ -127,7 +132,7 @@ export class UserManagementComponent implements OnInit {
           ...app,
           isExpanded: false,
           isLoadingModules: false,
-          modules: [] 
+          modules: []
         }));
         this.isLoadingApps = false;
       },
@@ -144,7 +149,7 @@ export class UserManagementComponent implements OnInit {
 
     // 2. Lazy Load: If opening AND modules are empty, fetch them
     if (app.isExpanded && (!app.modules || app.modules.length === 0)) {
-      
+
       app.isLoadingModules = true;
 
       this.userManagementService.getModulesByApplication(app.id,

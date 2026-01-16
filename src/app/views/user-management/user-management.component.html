@@ -1,6 +1,6 @@
 <div class="space-y-6">
     <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
-        <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="tenants" [pagination]="pagination"
+        <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="users" [pagination]="pagination"
             [customActions]="viewActions" (action)="handleTableAction($event)" (pageChange)="onPageChange($event)"
             [headerActions]="headerActions" (loadMore)="onLoadMore()" (action)="onTableAction($event)">
         </app-standard-table>
@@ -101,7 +101,7 @@
                         <div class="flex justify-between items-start mb-2">
                             <span
                                 class="px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                                {{ addr.addressType || 'OFFICE' }}
+                                {{ addr.type || 'OFFICE' }}
                             </span>
                         </div>
                         <div class="text-sm text-gray-600 space-y-1">

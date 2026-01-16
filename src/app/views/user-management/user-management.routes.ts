@@ -13,7 +13,13 @@ export const UserManagementRoutes: Routes = [
             { path: '', redirectTo: 'tenants', pathMatch: 'full' },
             { path: 'tenants', component: TenantsComponent },
             { path: 'apps', component: ApplicationsComponent },
-            { path: 'users', component: UserManagementComponent },
+            {
+                path: 'users',
+                children: [
+                    { path: '', component: UserManagementComponent },
+                    { path: 'form', component: UserFormComponent }
+                ]
+            }
         ]
     },
 ];
