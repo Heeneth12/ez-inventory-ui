@@ -1,8 +1,4 @@
-Here’s a **clean, professional, and UI-focused README** you can directly use for **EzInventory**:
-
----
-
-# EzInventory 🧾
+# EzInventory 🧾  — [Live Demo](https://app.ez-hub.in/login)
 
 **EzInventory** is a modern, production-ready **Angular 18** web application designed for inventory and business management as part of the **EZH multi-tenant SaaS platform**. It focuses on clean UI, performance, and scalable architecture.
 
