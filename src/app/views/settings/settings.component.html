@@ -1,290 +1,162 @@
-<div class="bg-white text-gray-900 font-sans selection:bg-gray-100 selection:text-gray-900">
-  <div class="px-4 sm:px-6 lg:px-8 py-6">
-    <!-- Main Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Settings</h1>
-      <p class="mt-2 text-gray-500">Manage your account settings and preferences.</p>
-    </div>
+<div class="bg-white text-gray-900 font-sans">
+    <div class="px-6 py-10">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900">Settings</h1>
+            <p class="mt-2 text-gray-500">Manage your account settings and preferences</p>
+        </div>
 
-    <!-- Horizontal Tab Navigation -->
-    <div class="bg-gray-50 rounded-lg p-1 mb-10 overflow-x-auto no-scrollbar">
-      <div class="flex items-center gap-1 min-w-max">
-        @for (tab of tabs; track tab.id) {
-        <button (click)="activeTab.set(tab.id)" [class.bg-white]="activeTab() === tab.id"
-          [class.shadow-sm]="activeTab() === tab.id" [class.text-gray-900]="activeTab() === tab.id"
-          [class.text-gray-500]="activeTab() !== tab.id"
-          class="px-6 py-2.5 rounded-md text-sm font-medium transition-all duration-200 flex-1 sm:flex-none text-center hover:text-gray-900">
-          {{ tab.label }}
-        </button>
-        }
-      </div>
-    </div>
+        <div class="flex flex-wrap gap-2 mb-12">
+            <button *ngFor="let tab of tabs"
+                (click)="switchTab(tab)"
+                class="px-5 py-2 rounded-full text-sm font-medium transition-all duration-200"
+                [ngClass]="activeTab() === tab 
+                    ? 'bg-gray-900 text-white shadow-sm' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                {{ tab }}
+            </button>
+        </div>
 
-    <!-- Content Area -->
-    <div class="animate-fade-in">
-      @switch (activeTab()) {
-      <!-- PROFILE SECTION (Designed like the 'Card Details' section) -->
-      @case ('profile') {
-      <div class="space-y-12">
-        <!-- Section 1 -->
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">My Details</h2>
-          <p class="text-gray-500 text-sm mb-6">Update your personal information and profile photo.</p>
-          <div class="flex items-start gap-8 mb-8">
-            <img [src]="profile().avatarUrl"
-              class="w-20 h-20 rounded-lg object-cover bg-gray-100 border border-gray-200">
-            <div class="flex-1">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-1.5">
-                  <label class="text-xs font-semibold text-gray-900 uppercase tracking-wide">First Name</label>
-                  <input type="text" [(ngModel)]="profile().firstName"
-                    class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors bg-white text-gray-900 placeholder-gray-400"
-                    placeholder="Enter first name">
+        <div *ngIf="isLoading()" class="flex items-center justify-center py-20">
+            <div class="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+
+        <form *ngIf="!isLoading() && activeTab() === 'General'" [formGroup]="generalForm" (ngSubmit)="onSave()" class="animate-fade-in space-y-12">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+                <div class="md:col-span-1">
+                    <h2 class="text-lg font-bold text-gray-900">Profile</h2>
+                    <p class="text-sm text-gray-500 mt-1">Set your account details</p>
                 </div>
-                <div class="space-y-1.5">
-                  <label class="text-xs font-semibold text-gray-900 uppercase tracking-wide">Last Name</label>
-                  <input type="text" [(ngModel)]="profile().lastName"
-                    class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors bg-white text-gray-900 placeholder-gray-400"
-                    placeholder="Enter last name">
+
+                <div class="md:col-span-2">
+                    <div class="flex flex-col-reverse md:flex-row gap-8">
+                        
+                        <div class="flex-1 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-1.5">
+                                    <label class="text-sm text-gray-500">Name</label>
+                                    <input type="text" formControlName="firstName" 
+                                        class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-sm text-gray-500">Surname</label>
+                                    <input type="text" formControlName="lastName" 
+                                        class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="text-sm text-gray-500">Email</label>
+                                <input type="email" formControlName="email" 
+                                    class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-sm text-gray-500">Phone</label>
+                                <input type="text" formControlName="phone" 
+                                    class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-24 h-24 rounded-full bg-orange-100 overflow-hidden relative group">
+                                <img *ngIf="avatarUrl()" [src]="avatarUrl()" class="w-full h-full object-cover">
+                                <div *ngIf="!avatarUrl()" class="w-full h-full flex items-center justify-center text-orange-800 text-2xl font-bold">
+                                    {{ userInitials() }}
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" class="px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg hover:bg-gray-50">Edit photo</button>
+                                <button type="button" class="p-1.5 border border-gray-200 rounded-lg hover:text-red-500 hover:bg-red-50 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <hr class="border-gray-100">
-
-        <!-- Section 2 -->
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">Contact Info</h2>
-          <p class="text-gray-500 text-sm mb-6">Where should we send notifications and invoices?</p>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-1.5 md:col-span-2">
-              <label class="text-xs font-semibold text-gray-900 uppercase tracking-wide">Email Address</label>
-              <div class="flex items-center px-4 py-3 rounded-lg border border-gray-200 bg-white">
-                <input type="email" [(ngModel)]="profile().email"
-                  class="w-full border-none p-0 focus:ring-0 text-gray-900 placeholder-gray-400"
-                  placeholder="name@company.com">
-                <span class="text-gray-400">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                    </path>
-                  </svg>
-                </span>
-              </div>
             </div>
 
-            <div class="space-y-1.5 md:col-span-2">
-              <label class="text-xs font-semibold text-gray-900 uppercase tracking-wide">Bio</label>
-              <textarea [(ngModel)]="profile().bio" rows="3"
-                class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors bg-white text-gray-900 placeholder-gray-400 resize-none"></textarea>
-            </div>
-          </div>
-        </div>
+            <hr class="border-gray-100">
 
-      </div>
-      }
-
-      <!-- INVENTORY SECTION -->
-      @case ('general') {
-      <div class="space-y-12">
-
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">Regional Formats</h2>
-          <p class="text-gray-500 text-sm mb-6">Set your preferred currency and date formats.</p>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-1.5">
-              <label class="text-xs font-semibold text-gray-900 uppercase tracking-wide">Currency</label>
-              <div class="relative">
-                <select [(ngModel)]="appSettings().currency"
-                  class="w-full appearance-none px-4 py-3 rounded-lg border border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors bg-white text-gray-900">
-                  <option value="USD">USD ($) - United States Dollar</option>
-                  <option value="EUR">EUR (€) - Euro</option>
-                  <option value="GBP">GBP (£) - British Pound</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="md:col-span-1">
+                    <h2 class="text-lg font-bold text-gray-900">Timezone & preferences</h2>
+                    <p class="text-sm text-gray-500 mt-1">Let us know the time zone and format</p>
                 </div>
-              </div>
-            </div>
 
-            <div class="space-y-1.5">
-              <label class="text-xs font-semibold text-gray-900 uppercase tracking-wide">Date Format</label>
-              <div class="relative">
-                <select [(ngModel)]="appSettings().dateFormat"
-                  class="w-full appearance-none px-4 py-3 rounded-lg border border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors bg-white text-gray-900">
-                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                  <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                  <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-1.5">
+                        <label class="text-sm text-gray-500">City</label>
+                        <input type="text" formControlName="city" placeholder="New York"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm text-gray-500">Timezone</label>
+                        <div class="relative">
+                            <select formControlName="timezone" class="w-full appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-gray-900 outline-none">
+                                <option>UTC/GMT -4 hours</option>
+                                <option>UTC/GMT +1 hours</option>
+                                <option>UTC/GMT +5:30 hours</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm text-gray-500">Date & Time format</label>
+                         <div class="relative">
+                            <select formControlName="dateFormat" class="w-full appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-gray-900 outline-none">
+                                <option>dd/mm/yyyy 00:00</option>
+                                <option>mm/dd/yyyy 12:00 PM</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
 
-        <hr class="border-gray-100">
+            <hr class="border-gray-100">
 
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">Stock Thresholds</h2>
-          <p class="text-gray-500 text-sm mb-6">Configure when low stock alerts should be triggered.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10">
+                <div class="md:col-span-1">
+                    <h2 class="text-lg font-bold text-gray-900">Your work</h2>
+                    <p class="text-sm text-gray-500 mt-1">Add info about your position</p>
+                </div>
 
-          <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
-            <div class="flex justify-between mb-2">
-              <span class="text-sm font-medium text-gray-900">Trigger Alert At</span>
-              <span class="text-sm font-bold text-gray-900">{{ appSettings().lowStockThreshold }} Units</span>
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1.5">
+                        <label class="text-sm text-gray-500">Function</label>
+                        <input type="text" formControlName="function" placeholder="Design"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm text-gray-500">Job Title</label>
+                        <input type="text" formControlName="jobTitle" placeholder="Team Lead Designer"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none">
+                    </div>
+                </div>
             </div>
-            <input type="range" min="0" max="100" step="1" [(ngModel)]="appSettings().lowStockThreshold"
-              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-900">
-            <div class="flex justify-between mt-2 text-xs text-gray-400">
-              <span>0 Units</span>
-              <span>100 Units</span>
+
+            <div class="flex justify-end pt-4">
+                <button type="submit" [disabled]="isSaving()" 
+                    class="px-8 py-2.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-black focus:ring-4 focus:ring-gray-200 transition-all flex items-center gap-2">
+                    <span *ngIf="isSaving()" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    Save changes
+                </button>
             </div>
-          </div>
+        </form>
+
+        <div *ngIf="activeTab() !== 'General'" class="py-20 text-center text-gray-500">
+             <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+             </div>
+             <p>The <strong>{{ activeTab() }}</strong> panel is under construction.</p>
         </div>
-      </div>
-      }
-
-      <!-- NOTIFICATIONS SECTION (Table Style) -->
-      @case ('notifications') {
-      <div class="space-y-10">
-
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">Email Preferences</h2>
-          <p class="text-gray-500 text-sm mb-6">Choose what updates you want to receive.</p>
-
-          <div class="space-y-4">
-            <!-- Radio Style Option -->
-            <label class="flex items-start cursor-pointer group">
-              <div class="flex items-center h-5">
-                <input type="checkbox" [(ngModel)]="notifications().emailAlerts"
-                  class="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900">
-              </div>
-              <div class="ml-3 text-sm">
-                <span class="font-medium text-gray-900">Critical Alerts</span>
-                <p class="text-gray-500">Receive emails about low stock and system errors.</p>
-              </div>
-            </label>
-
-            <label class="flex items-start cursor-pointer group">
-              <div class="flex items-center h-5">
-                <input type="checkbox" [(ngModel)]="notifications().weeklyDigest"
-                  class="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900">
-              </div>
-              <div class="ml-3 text-sm">
-                <span class="font-medium text-gray-900">Weekly Digest</span>
-                <p class="text-gray-500">A summary of your inventory performance sent every Monday.</p>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Table mimicking the 'Billing History' from image -->
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">Notification History</h2>
-          <p class="text-gray-500 text-sm mb-6">Recent alerts sent to your team.</p>
-
-          <div class="border border-gray-200 rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Triggered
-                    By</th>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th scope="col" class="relative px-6 py-3">
-                    <span class="sr-only">Edit</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                @for (item of historyItems; track item.id) {
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {{ item.action }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ item.date }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ item.user }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span [class]="getStatusClass(item.status)"
-                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                      {{ item.status }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href="#" class="text-gray-400 hover:text-gray-600">
-                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                      </svg>
-                    </a>
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-      }
-
-      <!-- SECURITY SECTION -->
-      @case ('security') {
-      <div class="space-y-12">
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">Password</h2>
-          <p class="text-gray-500 text-sm mb-6">Ensure your account is using a long, random password.</p>
-
-          <div class="max-w-xl">
-            <div class="space-y-4">
-              <input type="password"
-                class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors bg-white text-gray-900 placeholder-gray-400"
-                placeholder="Current Password">
-              <input type="password"
-                class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors bg-white text-gray-900 placeholder-gray-400"
-                placeholder="New Password">
-
-              <div class="pt-2">
-                <button
-                  class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">Update
-                  Password</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      }
-      }
-
     </div>
-    <!-- Footer Actions -->
-    <div class="mt-16 pt-6 border-t border-gray-100 flex justify-end gap-3">
-      <button class="px-6 py-2.5 text-gray-600 font-medium hover:text-gray-900 transition-colors">Cancel</button>
-      <button (click)="saveAll()" [disabled]="isSaving()"
-        class="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2">
-        <span *ngIf="isSaving()"
-          class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-        Save Preferences
-      </button>
-    </div>
-  </div>
 </div>

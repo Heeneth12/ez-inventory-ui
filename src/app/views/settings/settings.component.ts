@@ -1,146 +1,128 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ToastService } from '../../layouts/components/toast/toastService';
+import { AuthService } from '../../layouts/guards/auth.service';
+import { UserManagementService } from '../user-management/userManagement.service';
+import { UserInitResponse } from '../../layouts/models/Init-response.model';
+import { Observable, take } from 'rxjs';
 
-// Interfaces for type safety
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  bio: string;
-  avatarUrl: string;
-}
-
-interface AppSettings {
-  currency: string;
-  dateFormat: string;
-  lowStockThreshold: number;
-  autoReorder: boolean;
-  enableBarcodeScanning: boolean;
-  theme: 'light' | 'dark' | 'system';
-  density: 'compact' | 'comfortable';
-}
-
-interface NotificationSettings {
-  emailAlerts: boolean;
-  pushNotifications: boolean;
-  weeklyDigest: boolean;
-  lowStockAlerts: boolean;
-  newOrderAlerts: boolean;
-}
+// Defined tabs based on your request
+type Tab = 'General' | 'Payments' | 'Security' | 'Subscriptions';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: `./settings.component.html`,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
 
-  activeTab = signal('profile');
-  
-  tabs = [
-    { id: 'profile', label: 'My details' },
-    { id: 'general', label: 'Inventory' },
-    { id: 'notifications', label: 'Notifications' },
-    { id: 'security', label: 'Password' }
-  ];
+  // State
+  activeTab = signal<Tab>('General');
+  isLoading = signal<boolean>(true);
+  isSaving = signal<boolean>(false);
 
-  // State Signals
-  isSaving = signal(false);
-  showToast = signal(false);
+  userData$!: Observable<UserInitResponse | null>;
 
-  // Data Models
-  profile = signal<UserProfile>({
-    firstName: 'Mayad',
-    lastName: 'Ahmed',
-    email: 'mayadahmed@ofspace.co',
-    role: 'Administrator',
-    bio: '',
-    avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  });
+  // Tabs List for the UI loop
+  tabs: Tab[] = ['General', 'Payments', 'Security', 'Subscriptions'];
 
-  appSettings = signal<AppSettings>({
-    currency: 'USD',
-    dateFormat: 'MM/DD/YYYY',
-    lowStockThreshold: 15,
-    autoReorder: false,
-    enableBarcodeScanning: true,
-    theme: 'system',
-    density: 'comfortable'
-  });
+  // Forms
+  generalForm: FormGroup;
 
-  notifications = signal<NotificationSettings>({
-    emailAlerts: true,
-    pushNotifications: false,
-    weeklyDigest: false,
-    lowStockAlerts: true,
-    newOrderAlerts: false
-  });
+  // Data
+  currentUser: any = null;
+  userInitials = signal<string>('');
+  avatarUrl = signal<string | null>(null); // Placeholder for avatar
 
-  // Mock History Items
-  historyItems: HistoryItem[] = [
-    { id: '1', action: 'Low Stock Alert (SKU-102)', date: 'Apr 14, 2024', user: 'System', status: 'Pending' },
-    { id: '2', action: 'Bulk Import', date: 'Jun 24, 2024', user: 'Mayad Ahmed', status: 'Failed' },
-    { id: '3', action: 'Subscription Renewed', date: 'Feb 28, 2024', user: 'Billing', status: 'Completed' },
-  ];
-
-  // Helpers
-  saveAll() {
-    this.isSaving.set(true);
-    setTimeout(() => {
-      this.isSaving.set(false);
-      this.showToast.set(true);
-      setTimeout(() => this.showToast.set(false), 3000);
-    }, 800);
+  constructor(
+    private authSvs: AuthService,
+    private userService: UserManagementService,
+    private fb: FormBuilder,
+    private toast: ToastService
+  ) {
+    this.userData$ = this.authSvs.currentUser$;
+    // General Form matches the Screenshot fields
+    this.generalForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: [''],
+      email: [{ value: '', disabled: false }, [Validators.required, Validators.email]], // Enabled in design
+      city: [''],
+      phone:[''],
+      timezone: ['UTC/GMT -4 hours'], // Default mock
+      dateFormat: ['dd/mm/yyyy 00:00'], // Default mock
+      function: [''],
+      jobTitle: ['']
+    });
   }
 
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'Completed': return 'bg-green-100 text-green-800';
-      case 'Pending': return 'bg-green-100 text-green-800'; // Matched image "Pending" color (Greenish)
-      case 'Failed': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  ngOnInit() {
+    this.userData$.pipe(take(1)).subscribe(user => {
+      if (user?.id) {
+        this.loadUserData(user.id);
+      } else {
+        this.isLoading.set(false);
+        this.toast.show('User session not found', 'error');
+      }
+    });
+  }
+
+  loadUserData(userId: number) {
+    this.isLoading.set(true);
+    this.userService.getUserById(userId, (res: any) => {
+      this.currentUser = res.data;
+      this.patchForm(this.currentUser);
+      this.generateInitials(this.currentUser.fullName);
+      this.isLoading.set(false);
+    }, (err: any) => {
+      this.isLoading.set(false);
+      this.toast.show('Failed to load profile', 'error');
+    });
+  }
+
+  patchForm(user: any) {
+    // Split full name for the UI logic
+    const names = (user.fullName || '').split(' ');
+    const firstName = names[0] || '';
+    const lastName = names.slice(1).join(' ') || '';
+
+    this.generalForm.patchValue({
+      firstName: firstName,
+      lastName: lastName,
+      email: user.email,
+      phone: user.phone
+    });
+
+    // If you have address data, patch city here
+    if (user.userAddress?.[0]) {
+      this.generalForm.patchValue({ city: user.userAddress[0].city });
     }
   }
-}
 
+  generateInitials(name: string) {
+    if (!name) return;
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      this.userInitials.set((parts[0][0] + parts[1][0]).toUpperCase());
+    } else {
+      this.userInitials.set(name.substring(0, 2).toUpperCase());
+    }
+  }
 
-// Interfaces for type safety
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  bio: string;
-  avatarUrl: string;
-}
+  switchTab(tab: Tab) {
+    this.activeTab.set(tab);
+  }
 
-interface AppSettings {
-  currency: string;
-  dateFormat: string;
-  lowStockThreshold: number;
-  autoReorder: boolean;
-  enableBarcodeScanning: boolean;
-  theme: 'light' | 'dark' | 'system';
-  density: 'compact' | 'comfortable';
-}
+  onSave() {
+    if (this.generalForm.invalid) return;
+    this.isSaving.set(true);
 
-interface NotificationSettings {
-  emailAlerts: boolean;
-  pushNotifications: boolean;
-  weeklyDigest: boolean;
-  lowStockAlerts: boolean;
-  newOrderAlerts: boolean;
-}
-
-// Mock data for the table view
-interface HistoryItem {
-  id: string;
-  action: string;
-  date: string;
-  user: string;
-  status: 'Completed' | 'Pending' | 'Failed';
+    // Simulate API call
+    setTimeout(() => {
+      this.isSaving.set(false);
+      this.toast.show('Settings saved successfully', 'success');
+    }, 1000);
+  }
 }
