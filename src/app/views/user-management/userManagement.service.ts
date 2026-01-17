@@ -23,6 +23,11 @@ export class UserManagementService {
         return this.httpService.postHttp(`${UserManagementService.TENANT_BASE_URL}/register`, filter, successfn, errorfn);
     }
 
+    updateTenant(tenantId: number, data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/update`, data, successfn, errorfn);
+    }
+
+
     getAllTenants(page: number, size: number, filter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${UserManagementService.TENANT_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }

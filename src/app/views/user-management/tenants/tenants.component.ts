@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { TableColumn, PaginationConfig, HeaderAction, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { UserManagementService } from '../userManagement.service';
-import { ArrowRight, CloudDownloadIcon, UserCheck } from 'lucide-angular';
+import { ArrowRight, Building2, CloudDownloadIcon, UserCheck } from 'lucide-angular';
 import { RoleModel } from '../models/application.model';
 import { TenantModel, TenantRegistrationModel } from '../models/tenant.model';
 import { UserFilterModel, UserModel } from '../models/user.model';
@@ -24,7 +24,6 @@ export class TenantsComponent {
 
   @ViewChild('tenantDetailsTemplate') tenantDetailsTemplate!: TemplateRef<any>;
   @ViewChild('tenantUserDetailsTemplate') tenantUserDetailsTemplate!: TemplateRef<any>;
-  @ViewChild('createTenantTemplate') createTenantTemplate!: TemplateRef<any>;
 
   users: UserModel[] = [];
   roles: RoleModel[] = [];
@@ -49,10 +48,10 @@ export class TenantsComponent {
   headerActions: HeaderAction[] = [
     {
       label: 'Create Tenant',
-      icon: CloudDownloadIcon,
+      icon: Building2,
       variant: 'primary',
       key: 'config_applications',
-      action: () => this.openCreateDrawer()
+      action: () => this.openCreateTenant()
     }
   ];
 
@@ -96,6 +95,7 @@ export class TenantsComponent {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     public drawerService: DrawerService,
     private toast: ToastService,
     private userManagementService: UserManagementService
@@ -117,11 +117,9 @@ export class TenantsComponent {
     );
   }
 
-  // Inside TenantsComponent class
-
   loadUsersByTenant(tenantId: number) {
     this.userFilter.tenantId = tenantId;
-    this.isLoadingApps = true; // Optional: Use a loading state if you have one
+    this.isLoadingApps = true;
 
     this.userManagementService.getAllUsers(0, 100, this.userFilter,
       (res: any) => {
@@ -169,8 +167,8 @@ export class TenantsComponent {
         this.isLoadingApps = false;
         this.drawerService.close();
         this.toast.show('Tenant created successfully', 'success');
-        this.loadTenants(); // Refresh table
-        this.resetForm(); // Helper to clear form
+        this.loadTenants();
+        this.resetForm();
       },
       (error: any) => {
         this.isLoadingApps = false;
@@ -179,18 +177,20 @@ export class TenantsComponent {
     );
   }
 
-
   resetForm() {
     this.newTenant = {
-        tenantName: '', appKey: '', adminFullName: '', adminEmail: '', 
-        password: '', adminPhone: '', isPersonal: false,
-        address: { id: 0, addressLine1: '', city: '', state: '', country: '', pinCode: '', type: 'Billing' }
+      tenantName: '', appKey: '', adminFullName: '', adminEmail: '',
+      password: '', adminPhone: '', isPersonal: false,
+      address: { id: 0, addressLine1: '', city: '', state: '', country: '', pinCode: '', type: 'Billing' }
     };
   }
-  
-  // Update header action to open this drawer
-  openCreateDrawer() {
-     this.drawerService.openTemplate(this.createTenantTemplate, 'Register Tenant', 'lg');
+
+  openCreateTenant() {
+    this.router.navigate(['form'], { relativeTo: this.route });
+  }
+
+  editTenant(tenantId: number | string) {
+    this.router.navigate(['form', tenantId], { relativeTo: this.route });
   }
 
   viewTenantDetails(tenantId: number) {
@@ -211,7 +211,7 @@ export class TenantsComponent {
       case 'view':
         break;
       case 'edit':
-        this.editUser(row.id);
+        this.editTenant(row.id);
         break;
       case 'delete':
         break;

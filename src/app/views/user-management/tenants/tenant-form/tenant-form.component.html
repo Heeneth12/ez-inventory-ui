@@ -1,0 +1,186 @@
+<div class="w-full h-screen flex flex-col bg-white overflow-hidden font-sans relative">
+
+  <div *ngIf="isLoading" class="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
+    <div class="animate-spin h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full"></div>
+  </div>
+
+  <div class="flex items-center justify-between px-8 py-3 border-b border-gray-100 shrink-0 bg-white z-10">
+    <div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">
+          {{ getPageTitle() }}
+        </h1>
+        <span *ngIf="mode !== 'create'" 
+          [class.bg-green-100]="formData.isActive" [class.text-green-700]="formData.isActive"
+          [class.bg-red-100]="!formData.isActive" [class.text-red-700]="!formData.isActive"
+          class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide">
+          {{ formData.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+      <p class="text-xs text-gray-400 mt-0.5">
+        <span *ngIf="mode === 'create'">Create a new organization workspace.</span>
+        <span *ngIf="mode === 'edit'">Update contact information and address details.</span>
+        <span *ngIf="mode === 'view'">View registered details for this tenant.</span>
+      </p>
+    </div>
+
+    <div class="flex gap-4">
+      <button type="button" (click)="goBack()"
+        class="px-6 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200">
+        {{ mode === 'view' ? 'Close' : 'Cancel' }}
+      </button>
+      
+      <button *ngIf="mode !== 'view'" type="button" (click)="handleSubmit()" 
+        [disabled]="!form.valid || isSubmitting"
+        class="px-8 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 flex items-center gap-2">
+        <span *ngIf="isSubmitting" class="animate-spin h-3 w-3 border-2 border-white border-t-transparent rounded-full"></span>
+        {{ mode === 'create' ? 'Create Tenant' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+
+  <form #form="ngForm" class="flex-1 flex flex-col px-8 py-6 gap-12 overflow-y-auto lg:overflow-x-hidden custom-scrollbar">
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-8 max-w-6xl">
+      
+      <div class="lg:col-span-4 pb-2 border-b border-gray-50 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Organization Profile</h3>
+      </div>
+
+      <div class="space-y-1 lg:col-span-2">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Tenant Name <span class="text-red-500">*</span>
+        </label>
+        <input type="text" [(ngModel)]="formData.tenantName" name="tenantName" required
+          [disabled]="isReadOnly('meta')"
+          placeholder="e.g. Acme Corp"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed"
+          [class.border-red-500]="form.submitted && !formData.tenantName">
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          App Key <span class="text-red-500">*</span>
+        </label>
+        <input type="text" [(ngModel)]="formData.appKey" name="appKey" required
+          [disabled]="isReadOnly('meta')"
+          placeholder="e.g. acme_main"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+      </div>
+
+      <div class="space-y-1" *ngIf="mode !== 'create'">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Tenant Code
+        </label>
+        <input type="text" [(ngModel)]="formData.tenantCode" name="tenantCode" disabled
+          class="w-full border-b border-gray-200 py-2 text-gray-500 font-mono text-xs bg-transparent cursor-not-allowed">
+      </div>
+
+      <div class="flex items-end pb-2 justify-start" *ngIf="mode === 'create'">
+        <label class="flex items-center gap-3 cursor-pointer group">
+          <div class="relative">
+            <input type="checkbox" [(ngModel)]="formData.isPersonal" name="isPersonal" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+            </div>
+          </div>
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
+            Personal Account?
+          </span>
+        </label>
+      </div>
+
+
+      <div class="lg:col-span-4 pb-2 border-b border-gray-50 mt-4">
+        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Administrator Contact</h3>
+      </div>
+
+      <div class="space-y-1 lg:col-span-2">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Full Name <span class="text-red-500">*</span>
+        </label>
+        <input type="text" [(ngModel)]="formData.adminFullName" name="adminFullName" required
+          [disabled]="isReadOnly('meta')"
+          placeholder="Jane Doe"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+      </div>
+
+      <div class="space-y-1 lg:col-span-1">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Email Address <span class="text-red-500">*</span>
+        </label>
+        <input type="email" [(ngModel)]="formData.adminEmail" name="adminEmail" required
+          [disabled]="isReadOnly('meta')"
+          placeholder="jane@company.com"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+      </div>
+
+      <div class="space-y-1 lg:col-span-1">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Phone Number
+        </label>
+        <input type="tel" [(ngModel)]="formData.adminPhone" name="adminPhone"
+          [disabled]="isReadOnly('contact')"
+          placeholder="+1 (555) 000-0000"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+      </div>
+
+      <div class="space-y-1 lg:col-span-2" *ngIf="mode === 'create'">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Initial Password <span class="text-red-500">*</span>
+        </label>
+        <input type="password" [(ngModel)]="formData.password" name="password" required
+          placeholder="••••••••"
+          class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm">
+      </div>
+
+
+      <ng-container *ngIf="formData.address">
+        <div class="lg:col-span-4 pb-2 border-b border-gray-50 mt-4">
+          <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Headquarters Address</h3>
+        </div>
+
+        <div class="space-y-1 lg:col-span-2">
+          <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Address Line 1</label>
+          <input type="text" [(ngModel)]="formData.address.addressLine1" name="addr1"
+            [disabled]="isReadOnly('contact')"
+            class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+        </div>
+
+        <div class="space-y-1 lg:col-span-2">
+          <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Address Line 2</label>
+          <input type="text" [(ngModel)]="formData.address.addressLine2" name="addr2"
+            [disabled]="isReadOnly('contact')"
+            class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">City</label>
+          <input type="text" [(ngModel)]="formData.address.city" name="city"
+            [disabled]="isReadOnly('contact')"
+            class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">State</label>
+          <input type="text" [(ngModel)]="formData.address.state" name="state"
+            [disabled]="isReadOnly('contact')"
+            class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Country</label>
+          <input type="text" [(ngModel)]="formData.address.country" name="country"
+            [disabled]="isReadOnly('contact')"
+            class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pincode</label>
+          <input type="text" [(ngModel)]="formData.address.pinCode" name="pincode"
+            [disabled]="isReadOnly('contact')"
+            class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300 sm:text-sm disabled:text-gray-400 disabled:cursor-not-allowed">
+        </div>
+      </ng-container>
+    </div>
+  </form>
+</div>
