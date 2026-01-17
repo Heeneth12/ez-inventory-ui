@@ -5,6 +5,8 @@ import { AuthService } from '../../layouts/guards/auth.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
+import { CommonService } from '../../layouts/service/common/common.service';
+import { ToastService } from '../../layouts/components/toast/toastService';
 declare const google: any;
 
 @Component({
@@ -21,18 +23,21 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   authForm!: FormGroup;
   private routeSub: Subscription | undefined;
   private googleClientId = environment.googleClientId;
+  private readonly APP_KEY = 'EZH_INV_001';
 
   countries = [
-    { code: '+91', label: 'IN (+91)' },
-    { code: '+1', label: 'US (+1)' },
-    { code: '+44', label: 'UK (+44)' },
-    { code: '+971', label: 'UAE (+971)' },
-    { code: '+61', label: 'AU (+61)' },
-    { code: '+65', label: 'SG (+65)' }
+    { code: '+91', label: 'IN (+91)', countryName: 'India' },
+    { code: '+1', label: 'US (+1)', countryName: 'USA' },
+    { code: '+44', label: 'UK (+44)', countryName: 'UK' },
+    { code: '+971', label: 'UAE (+971)', countryName: 'UAE' },
+    { code: '+61', label: 'AU (+61)', countryName: 'Australia' },
+    { code: '+65', label: 'SG (+65)', countryName: 'Singapore' }
   ];
 
   constructor(
     private fb: FormBuilder,
+    private commonService: CommonService,
+    private toastService:ToastService,
     private authSvc: AuthService,
     private route: ActivatedRoute,
     private ngZone: NgZone
@@ -49,7 +54,6 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // We try to initialize the button when the view loads
     this.initializeGoogleButton();
   }
 
@@ -67,16 +71,19 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       // Registration Form
       this.authForm = this.fb.group({
-        name: ['', Validators.required],
-        companyName: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
+        name: ['', Validators.required], // Maps to adminFullName
+        companyName: ['', Validators.required], // Maps to tenantName
+        email: ['', [Validators.required, Validators.email]], // Maps to adminEmail
         password: ['', [Validators.required, Validators.minLength(8)]],
-        countryCode: ['+91', Validators.required], 
-        phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]], 
+        countryCode: ['+91', Validators.required],
+        phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+
+        // Address Fields
         addressLine1: ['', Validators.required],
         addressLine2: [''],
         city: ['', Validators.required],
         state: ['', Validators.required],
+        country: ['India', Validators.required],
         pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]]
       });
     }
@@ -84,14 +91,12 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggleMode() {
     this.isLogin = !this.isLogin;
-    this.initForm(); 
+    this.initForm();
 
-    // If we switched back to Login mode, we must re-render the Google Button
-    // We use setTimeout to let Angular render the empty <div> first
     if (this.isLogin) {
-        setTimeout(() => {
-            this.initializeGoogleButton();
-        }, 100);
+      setTimeout(() => {
+        this.initializeGoogleButton();
+      }, 100);
     }
   }
 
@@ -109,47 +114,74 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       this.isLoading = true;
       this.loadingText = this.isLogin ? 'Signing in...' : 'Creating your account...';
 
-      // Distinguish between login and register payload
       if (this.isLogin) {
         this.executeLogin(this.authForm.value);
       } else {
-        // Handle Registration Logic here
-        console.log("Register Payload:", this.authForm.value);
-        // simulate success for now
-        setTimeout(() => { this.isLoading = false; }, 2000);
+        this.executeRegistration();
       }
     } else {
       this.authForm.markAllAsTouched();
     }
   }
 
-  initializeGoogleButton() {
-    // 1. Check if the Google script is loaded
-    if (typeof google === 'undefined') {
-        console.error('Google GSI script not loaded');
-        return;
-    }
+  private executeRegistration() {
+    const formValue = this.authForm.value;
+    const registerPayload = {
+      tenantName: formValue.companyName,
+      adminFullName: formValue.name,
+      adminEmail: formValue.email,
+      password: formValue.password,
+      adminPhone: `${formValue.countryCode} ${formValue.phone}`,
+      isPersonal: false, // Default value
+      appKey: this.APP_KEY,
+      address: {
+        addressLine1: formValue.addressLine1,
+        addressLine2: formValue.addressLine2,
+        city: formValue.city,
+        state: formValue.state,
+        country: formValue.country,
+        pinCode: formValue.pincode,
+        type: 'OFFICE'
+      }
+    };
 
-    // 2. Check if the container element exists in the DOM
+    console.log("Sending Register Payload:", registerPayload);
+
+    // 3. Call Service
+    this.commonService.createTenant(registerPayload,
+      (response: any) => {
+        console.log("Registration Success", response);
+        this.isLoading = false;
+        this.toastService.show('Registration Successful!',"success")
+        this.toggleMode();
+      },
+      (err: any) => {
+        console.error("Registration Failed", err);
+        this.isLoading = false;
+        this.loadingText = 'Please wait...';
+        alert('Registration Failed: ' + (err?.error?.message || 'Unknown error'));
+      }
+    );
+  }
+
+  initializeGoogleButton() {
+    if (typeof google === 'undefined') {
+      return;
+    }
     const btnContainer = document.getElementById("google-btn-container");
     if (!btnContainer) {
-        // This is normal if we are in Register mode
-        return;
+      return;
     }
-
-    // 3. Initialize Google Auth
     google.accounts.id.initialize({
       client_id: this.googleClientId,
       callback: (response: any) => this.handleGoogleCredentialResponse(response)
     });
-
-    // 4. Render the button
     google.accounts.id.renderButton(
       btnContainer,
-      { 
-        theme: "outline", 
-        size: "large", 
-        width: "100%", // This tells Google to fill the container width
+      {
+        theme: "outline",
+        size: "large",
+        width: "100%",
         text: "continue_with",
         shape: "rectangular",
         logo_alignment: "left"
@@ -157,25 +189,26 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
+  updateCountryName() {
+    const selectedCode = this.authForm.get('countryCode')?.value;
+    const countryObj = this.countries.find(c => c.code === selectedCode);
+    if (countryObj) {
+      this.authForm.patchValue({ country: countryObj.countryName });
+    }
+  }
+
+
   handleGoogleCredentialResponse(response: any) {
-    // This callback runs outside Angular's zone, so we need to re-enter it
     this.ngZone.run(() => {
-      console.log("Google Token Received:", response.credential);
-      
       this.isLoading = true;
       this.loadingText = 'Verifying with Google...';
 
       this.authSvc.loginWithGoogle(
         response.credential,
-        (success) => {
-          console.log("Google Login Success");
-          // Navigation is handled in AuthService
-        },
+        (success) => { },
         (error) => {
-          console.error("Google Login Error", error);
           this.isLoading = false;
-          this.loadingText = 'Please wait...';
-          alert('Google Sign-In Failed: ' + (error?.error?.message || 'Unknown Error'));
+          alert('Google Sign-In Failed');
         }
       );
     });
