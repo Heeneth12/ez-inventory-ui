@@ -1,27 +1,48 @@
-# EzInventory
+# EzInventory 🧾  — [Live Demo](https://app.ez-hub.in/login)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.2.
+**EzInventory** is a modern, production-ready **Angular 18** web application designed for inventory and business management as part of the **EZH multi-tenant SaaS platform**. It focuses on clean UI, performance, and scalable architecture.
 
-## Development server
+![EzInventory UI](https://github.com/user-attachments/assets/97f060bc-2be4-4c5e-9423-721edc92f31b)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+---
 
-## Code scaffolding
+### ✨ Application Features
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+* **Sales Management**
+  Create and manage sales orders, invoices, and customer transactions with a clear, intuitive workflow.
 
-## Build
+* **Purchase Management**
+  Track purchases, vendors, stock intake, and purchase history in a structured and reliable way.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+* **Billing & Invoicing**
+  Generate bills, manage payments, and maintain accurate financial records for day-to-day business operations.
 
-## Running unit tests
+* **Inventory Management**
+  Real-time product tracking, stock updates, and inventory control optimized for growing businesses.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+* **User & Role Management**
+  Secure user access with role-based permissions and approval-driven workflows.
 
-## Running end-to-end tests
+* **Multi-Tenant SaaS Architecture**
+  Designed to support multiple organizations with isolated data and scalable configuration.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+* **REST API Integration**
+  Seamless communication with backend services for authentication, billing, inventory, and reporting.
 
-## Further help
+* **MCP Server Integration**
+  Connected with an **MCP (Model Context Protocol) server** to enable intelligent workflows, automation, and AI-assisted operations.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+* **Production-Ready UI**
+  Clean, responsive, and reusable Angular components built with strict TypeScript for long-term maintainability.
+
+* **Optimized for Real-World SaaS Use**
+  Built with performance, scalability, and extensibility in mind for real business environments.
+
+---
+
+## 🛠 Tech Stack
+
+* **Frontend:** Angular 18, TypeScript
+* **Styling:** CSS / Tailwind-ready UI structure
+* **Build Tooling:** Angular CLI
+* **Architecture:** Component-based, scalable UI
