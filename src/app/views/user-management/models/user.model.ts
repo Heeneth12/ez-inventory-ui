@@ -13,18 +13,15 @@ export class UserModel {
 export class UserAddressModel {
   id!: number;
   userId!: number;
-
   addressLine1!: string;
   addressLine2?: string;
   route?: string;
   area?: string;
-
   city!: string;
   state!: string;
   country!: string;
   pinCode!: string;
-
-  addressType!: AddressType;
+  type!: AddressType;
 }
 
 export enum AddressType {

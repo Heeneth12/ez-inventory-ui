@@ -1,7 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ArrowRight, CloudDownloadIcon, UserPenIcon } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
@@ -44,10 +44,10 @@ export class UserManagementComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
-    { key: 'tenantName', label: 'Tenant', width: '130px', type: 'profile' },
-    { key: 'tenantCode', label: 'Tenant Id', width: '100px', type: 'text' },
+    { key: 'fullName', label: 'Name', width: '130px', type: 'profile' },
     { key: 'email', label: 'Email', width: '220px', type: 'link' },
     { key: 'phone', label: 'Phone', width: '100px', type: 'text' },
+    { key: 'roles', label: 'Roles', width: '100px', type: 'text' },
     { key: 'isActive', label: 'Active', width: '130px', type: 'toggle', align: 'center' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
   ];
@@ -58,7 +58,7 @@ export class UserManagementComponent implements OnInit {
       icon: UserPenIcon,
       variant: 'primary',
       key: 'create_user',
-      action: () => this.router.navigateByUrl('/admin/users/form')
+      action: () => this.openCreateUser()
     }
   ];
 
@@ -74,6 +74,7 @@ export class UserManagementComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     public drawerService: DrawerService,
     private toast: ToastService,
     private userManagementService: UserManagementService
@@ -111,6 +112,15 @@ export class UserManagementComponent implements OnInit {
         this.toast.show('Failed to load tenant details', 'error');
       }
     );
+  }
+
+
+  openCreateUser() {
+    this.router.navigate(['form'], { relativeTo: this.route });
+  }
+
+  editUser(tenantId: number | string) {
+    this.router.navigate(['form', tenantId], { relativeTo: this.route });
   }
 
   viewTenantDetails(tenantId: number) {
@@ -208,7 +218,4 @@ export class UserManagementComponent implements OnInit {
     console.log("Load more event");
   }
 
-  editUser(userId: any) {
-    this.router.navigate(['/admin/user-management/edit', userId]);
-  }
 }

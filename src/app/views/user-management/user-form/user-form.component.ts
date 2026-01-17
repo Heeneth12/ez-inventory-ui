@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { RoleModel, ApplicationModel, ModuleModel } from '../models/application.model';
 import { PrivilegeAssignRequest } from '../models/user.interfaces';
+import { AddressType, UserAddressModel } from '../models/user.model';
 import { UserManagementService } from '../userManagement.service';
-
 
 @Component({
   selector: 'app-user-form',
@@ -28,6 +28,9 @@ export class UserFormComponent implements OnInit {
   applications: ApplicationModel[] = [];
   appModulesMap: Map<number, ModuleModel[]> = new Map();
 
+  // Enums for Template
+  addressTypes = Object.values(AddressType);
+
   // Selection State
   selectedAppIds: Set<number> = new Set();
   selectedRoleIds: Set<number> = new Set();
@@ -46,8 +49,13 @@ export class UserFormComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
       password: [''],
-      isActive: [true]
+      isActive: [true],
+      address: this.fb.array([])
     });
+  }
+
+  get addressArray(): FormArray {
+    return this.userForm.get('address') as FormArray;
   }
 
   ngOnInit() {
@@ -57,20 +65,15 @@ export class UserFormComponent implements OnInit {
       this.userId = Number(params.get('id'));
       if (this.userId) {
         this.isEditing = true;
-        this.loadUserData(this.userId);
+        this.userForm.get('email')?.disable();
+        this.userForm.get('password')?.removeValidators(Validators.required);
       } else {
         this.userForm.get('password')?.addValidators([Validators.required, Validators.minLength(8)]);
+        // Optional: Add one empty address block by default for new users
+        this.addAddress();
       }
+      this.userForm.get('password')?.updateValueAndValidity();
     });
-
-    console.log(this.userId);
-    if (this.userId) {
-      this.isEditing = true;
-      this.userForm.get('email')?.disable();
-      this.userForm.get('password')?.removeValidators(Validators.required);
-    } else {
-      this.userForm.get('password')?.addValidators([Validators.required, Validators.minLength(8)]);
-    }
 
     this.loadDependencies();
   }
@@ -92,10 +95,7 @@ export class UserFormComponent implements OnInit {
   }
 
   loadUserData(id: number) {
-    // Assuming you created a specific endpoint in your controller like /api/users/{id}/edit
-    // If you are reusing the standard get, ensure it calls the new service logic.
     this.userService.getUserById(id, (res: any) => {
-      // res.data should match UserEditResponse structure
       this.patchUserToForm(res.data);
       this.isLoading = false;
     }, (err: any) => {
@@ -105,7 +105,7 @@ export class UserFormComponent implements OnInit {
   }
 
   patchUserToForm(user: any) {
-    // 1. Patch basic Form Control values
+    // 1. Patch Basic Fields
     this.userForm.patchValue({
       fullName: user.fullName,
       email: user.email,
@@ -113,64 +113,110 @@ export class UserFormComponent implements OnInit {
       isActive: user.isActive
     });
 
-    // 2. Patch Roles (Backend now returns a simple list of IDs: [1, 2, 3])
-    if (user.roleIds) {
-      user.roleIds.forEach((roleId: number) => {
-        this.selectedRoleIds.add(roleId);
+    // 2. Patch Roles
+    // Backend sends: userRoles: [{ roleId: 1, roleName: "Admin"... }]
+    this.selectedRoleIds.clear();
+    if (user.userRoles) {
+      user.userRoles.forEach((ur: any) => {
+        // IMPORTANT: Use 'roleId' if your DTO has it, otherwise check the object structure
+        if (ur.roleId) this.selectedRoleIds.add(ur.roleId);
       });
     }
 
     // 3. Patch Applications & Privileges
+    // Backend sends: userApplications: [{ applicationId: 1, modulePrivileges: [...] }]
+    this.selectedAppIds.clear();
+    this.selectedPrivileges.clear();
+
     if (user.userApplications) {
-      user.userApplications.forEach((uaDto: any) => {
+      user.userApplications.forEach((appDto: any) => {
 
-        // Note: DTO returns 'applicationId', not 'id'
-        const appId = uaDto.applicationId;
+        const appId = appDto.applicationId;
 
-        // Select the Application Checkbox
+        // A. Mark App as Selected
         this.selectedAppIds.add(appId);
 
-        // Trigger loading modules for this app so the UI can render the accordion
+        // B. Load modules for this app (so the accordion UI works)
         this.loadModulesForApp(appId);
 
-        // Map the privileges
-        if (uaDto.modulePrivileges) {
-          uaDto.modulePrivileges.forEach((umpDto: any) => {
-            // DTO structure: { moduleId: 1, privilegeId: 5 }
-            this.addPrivilegeToMap(appId, umpDto.moduleId, umpDto.privilegeId);
+        // C. Map the Privileges
+        // Backend DTO field is 'modulePrivileges' (List of { moduleId, privilegeId })
+        if (appDto.modulePrivileges) {
+          appDto.modulePrivileges.forEach((privDto: any) => {
+            // Add to the Map: appId -> moduleId -> Set(privilegeIds)
+            this.addPrivilegeToMap(appId, privDto.moduleId, privDto.privilegeId);
           });
         }
+      });
+    }
+
+    // 4. Patch Addresses
+    this.addressArray.clear();
+    const incomingAddresses = user.userAddress || [];
+    if (incomingAddresses.length > 0) {
+      incomingAddresses.forEach((addr: any) => {
+        this.addressArray.push(this.createAddressGroup(addr));
       });
     }
   }
 
 
-  onCancel() {
-    this.location.back();
+  createAddressGroup(addr?: UserAddressModel): FormGroup {
+    return this.fb.group({
+      id: [addr?.id || null], // Keep ID for updates
+      addressLine1: [addr?.addressLine1 || '', Validators.required],
+      addressLine2: [addr?.addressLine2 || ''],
+      route: [addr?.route || ''],
+      area: [addr?.area || ''],
+      city: [addr?.city || '', Validators.required],
+      state: [addr?.state || '', Validators.required],
+      country: [addr?.country || '', Validators.required],
+      pinCode: [addr?.pinCode || '', Validators.required],
+      type: [addr?.type || AddressType.HOME, Validators.required]
+    });
   }
+
+  addAddress() {
+    this.addressArray.push(this.createAddressGroup());
+  }
+
+  removeAddress(index: number) {
+    this.addressArray.removeAt(index);
+  }
+
+  // --- SUBMISSION ---
 
   onSubmit() {
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
+      this.toast.show('Please fill in all required fields', 'warning');
       return;
     }
 
     this.isSubmitting = true;
-    const formVal = this.userForm.value;
+    const formVal = this.userForm.getRawValue();
+
+    // --- FIX STARTS HERE ---
     const privilegeMapping: PrivilegeAssignRequest[] = [];
+
     this.selectedPrivileges.forEach((modulesMap, appId) => {
+      // Only process privileges if the App itself is still selected
       if (this.selectedAppIds.has(appId)) {
         modulesMap.forEach((privIds, moduleId) => {
-          if (privIds.size > 0) {
-            privilegeMapping.push({
-              applicationId: appId,
-              moduleId: moduleId,
-              privilegeIds: Array.from(privIds)
-            });
-          }
+
+          // REMOVED THE "if (privIds.size > 0)" CHECK
+          // We must send the entry even if empty, so the backend knows to delete existing privileges.
+
+          privilegeMapping.push({
+            applicationId: appId,
+            moduleId: moduleId,
+            privilegeIds: Array.from(privIds)
+          });
+
         });
       }
     });
+    // --- FIX ENDS HERE ---
 
     const requestBody: any = {
       fullName: formVal.fullName,
@@ -178,7 +224,8 @@ export class UserFormComponent implements OnInit {
       isActive: formVal.isActive,
       roleIds: Array.from(this.selectedRoleIds),
       applicationIds: Array.from(this.selectedAppIds),
-      privilegeMapping: privilegeMapping
+      privilegeMapping: privilegeMapping,
+      address: formVal.address
     };
 
     if (!this.isEditing) {
@@ -190,7 +237,7 @@ export class UserFormComponent implements OnInit {
     }
 
     const callback = (res: any) => {
-      this.toast.show(this.isEditing ? 'User updated' : 'User created', 'success');
+      this.toast.show(this.isEditing ? 'User updated successfully' : 'User created successfully', 'success');
       this.onCancel();
     };
 
@@ -200,13 +247,15 @@ export class UserFormComponent implements OnInit {
     };
 
     if (this.isEditing) {
-      this.userService.updateUser(requestBody, requestBody.id, callback, errCallback);
+      this.userService.updateUser(requestBody, this.userId!, callback, errCallback);
     } else {
       this.userService.createUser(requestBody, callback, errCallback);
     }
   }
 
-  // --- HELPER LOGIC ---
+  onCancel() {
+    this.location.back();
+  }
 
   loadModulesForApp(appId: number) {
     if (this.appModulesMap.has(appId)) return;
@@ -258,5 +307,6 @@ export class UserFormComponent implements OnInit {
   handleError = (err: any) => {
     console.error(err);
     this.isLoading = false;
+    this.toast.show('An error occurred', 'error');
   };
 }

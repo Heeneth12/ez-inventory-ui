@@ -1,4 +1,5 @@
 import { ApplicationModel, RoleModel } from "./application.model";
+import { AddressType } from "./user.model";
 
 export interface UserListResponse {
     id: number;
@@ -21,10 +22,24 @@ export interface CreateUserRequest {
     roleIds: number[];
     applicationIds: number[];
     privilegeMapping: PrivilegeAssignRequest[];
+    address: UserAddressModel[];
 }
 
 export interface PrivilegeAssignRequest {
     applicationId: number;
     moduleId: number;
     privilegeIds: number[];
+}
+export interface UserAddressModel {
+  id?: number;
+  userId?: number;
+  addressLine1: string;
+  addressLine2?: string;
+  route?: string;
+  area?: string;
+  city: string;
+  state: string;
+  country: string;
+  pinCode: string;
+  type: AddressType;
 }
