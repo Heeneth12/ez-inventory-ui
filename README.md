@@ -1,27 +1,52 @@
-# EzInventory
+Here’s a **clean, professional, and UI-focused README** you can directly use for **EzInventory**:
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.2.
+---
 
-## Development server
+# EzInventory 🧾
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+**EzInventory** is a modern, production-ready **Angular 18** web application designed for inventory and business management as part of the **EZH multi-tenant SaaS platform**. It focuses on clean UI, performance, and scalable architecture.
 
-## Code scaffolding
+![EzInventory UI](https://github.com/user-attachments/assets/97f060bc-2be4-4c5e-9423-721edc92f31b)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+---
 
-## Build
+### ✨ Application Features
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+* **Sales Management**
+  Create and manage sales orders, invoices, and customer transactions with a clear, intuitive workflow.
 
-## Running unit tests
+* **Purchase Management**
+  Track purchases, vendors, stock intake, and purchase history in a structured and reliable way.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+* **Billing & Invoicing**
+  Generate bills, manage payments, and maintain accurate financial records for day-to-day business operations.
 
-## Running end-to-end tests
+* **Inventory Management**
+  Real-time product tracking, stock updates, and inventory control optimized for growing businesses.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+* **User & Role Management**
+  Secure user access with role-based permissions and approval-driven workflows.
 
-## Further help
+* **Multi-Tenant SaaS Architecture**
+  Designed to support multiple organizations with isolated data and scalable configuration.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+* **REST API Integration**
+  Seamless communication with backend services for authentication, billing, inventory, and reporting.
+
+* **MCP Server Integration**
+  Connected with an **MCP (Model Context Protocol) server** to enable intelligent workflows, automation, and AI-assisted operations.
+
+* **Production-Ready UI**
+  Clean, responsive, and reusable Angular components built with strict TypeScript for long-term maintainability.
+
+* **Optimized for Real-World SaaS Use**
+  Built with performance, scalability, and extensibility in mind for real business environments.
+
+---
+
+## 🛠 Tech Stack
+
+* **Frontend:** Angular 18, TypeScript
+* **Styling:** CSS / Tailwind-ready UI structure
+* **Build Tooling:** Angular CLI
+* **Architecture:** Component-based, scalable UI
