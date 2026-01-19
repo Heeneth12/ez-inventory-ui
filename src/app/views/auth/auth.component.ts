@@ -7,7 +7,9 @@ import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { CommonService } from '../../layouts/service/common/common.service';
 import { ToastService } from '../../layouts/components/toast/toastService';
+
 declare const google: any;
+type AuthMode = 'login' | 'register' | 'booking';
 
 @Component({
   selector: 'app-auth',
@@ -17,7 +19,7 @@ declare const google: any;
   styleUrls: ['./auth.component.css']
 })
 export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
-  isLogin = true;
+  currentMode: AuthMode = 'login';
   isLoading = false;
   loadingText = 'Please wait...';
   authForm!: FormGroup;
@@ -34,10 +36,18 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     { code: '+65', label: 'SG (+65)', countryName: 'Singapore' }
   ];
 
+  bookingReasons = [
+    'Request a Demo',
+    'Pricing Inquiry',
+    'Custom Requirements',
+    'Partnership',
+    'Other'
+  ];
+
   constructor(
     private fb: FormBuilder,
     private commonService: CommonService,
-    private toastService:ToastService,
+    private toastService: ToastService,
     private authSvc: AuthService,
     private route: ActivatedRoute,
     private ngZone: NgZone
@@ -50,35 +60,65 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       if (params['demo'] === 'true') {
         this.onDemoLogin();
       }
+      if (params['booking'] === 'true') {
+        this.switchMode('booking');
+      }
     });
   }
 
   ngAfterViewInit() {
-    this.initializeGoogleButton();
+    if (this.currentMode === 'login') {
+      this.initializeGoogleButton();
+    }
   }
 
   ngOnDestroy() {
     if (this.routeSub) this.routeSub.unsubscribe();
   }
 
-  // Initialize form based on mode
+  // --- Getters for Cleaner Template ---
+  get isLoginMode(): boolean { return this.currentMode === 'login'; }
+  get isRegisterMode(): boolean { return this.currentMode === 'register'; }
+  get isBookingMode(): boolean { return this.currentMode === 'booking'; }
+
+  get headerTitle(): string {
+    if (this.isLoginMode) return 'Welcome back';
+    if (this.isBookingMode) return 'Book Consultation';
+    return 'Start your 14-day free trial';
+  }
+
+  get headerSubtitle(): string {
+    if (this.isLoginMode) return 'Please enter your details to sign in.';
+    if (this.isBookingMode) return 'Tell us your requirements.';
+    return 'No credit card required. Setup your warehouse in minutes.';
+  }
+
+  // --- Logic ---
+
   private initForm() {
-    if (this.isLogin) {
+    if (this.isBookingMode) {
+      this.authForm = this.fb.group({
+        name: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        countryCode: ['+91', Validators.required],
+        phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+        reason: ['Request a Demo', Validators.required],
+        message: ['', [Validators.required, Validators.minLength(10)]]
+      });
+    } else if (this.isLoginMode) {
       this.authForm = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(8)]]
       });
     } else {
-      // Registration Form
+      // Register
       this.authForm = this.fb.group({
-        name: ['', Validators.required], // Maps to adminFullName
-        companyName: ['', Validators.required], // Maps to tenantName
-        email: ['', [Validators.required, Validators.email]], // Maps to adminEmail
+        name: ['', Validators.required],
+        companyName: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         countryCode: ['+91', Validators.required],
         phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-
-        // Address Fields
         addressLine1: ['', Validators.required],
         addressLine2: [''],
         city: ['', Validators.required],
@@ -89,18 +129,23 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  toggleMode() {
-    this.isLogin = !this.isLogin;
+  switchMode(mode: AuthMode) {
+    this.currentMode = mode;
     this.initForm();
-
-    if (this.isLogin) {
-      setTimeout(() => {
-        this.initializeGoogleButton();
-      }, 100);
+    
+    // Re-init Google Button if returning to login
+    if (mode === 'login') {
+      setTimeout(() => this.initializeGoogleButton(), 100);
     }
   }
 
+  toggleMode() {
+    // Toggles only between Login and Register
+    this.switchMode(this.isLoginMode ? 'register' : 'login');
+  }
+
   onDemoLogin() {
+    this.switchMode('login'); // Ensure we are in login mode
     this.isLoading = true;
     this.loadingText = 'Detected demo link. Spinning up your environment...';
     setTimeout(() => {
@@ -110,18 +155,33 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onSubmit() {
-    if (this.authForm.valid) {
-      this.isLoading = true;
-      this.loadingText = this.isLogin ? 'Signing in...' : 'Creating your account...';
-
-      if (this.isLogin) {
-        this.executeLogin(this.authForm.value);
-      } else {
-        this.executeRegistration();
-      }
-    } else {
+    if (this.authForm.invalid) {
       this.authForm.markAllAsTouched();
+      return;
     }
+
+    this.isLoading = true;
+
+    if (this.isLoginMode) {
+      this.loadingText = 'Signing in...';
+      this.executeLogin(this.authForm.value);
+    } else if (this.isRegisterMode) {
+      this.loadingText = 'Creating your account...';
+      this.executeRegistration();
+    } else if (this.isBookingMode) {
+      this.loadingText = 'Sending request...';
+      this.executeBooking();
+    }
+  }
+
+  private executeBooking() {
+    // TODO: Implement Booking Service Call
+    console.log('Booking Payload:', this.authForm.value);
+    setTimeout(() => {
+      this.isLoading = false;
+      this.toastService.show('Request sent successfully!', 'success');
+      this.switchMode('login');
+    }, 1500);
   }
 
   private executeRegistration() {
@@ -132,7 +192,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       adminEmail: formValue.email,
       password: formValue.password,
       adminPhone: `${formValue.countryCode} ${formValue.phone}`,
-      isPersonal: false, // Default value
+      isPersonal: false,
       appKey: this.APP_KEY,
       address: {
         addressLine1: formValue.addressLine1,
@@ -145,47 +205,32 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     };
 
-    console.log("Sending Register Payload:", registerPayload);
-
-    // 3. Call Service
     this.commonService.createTenant(registerPayload,
       (response: any) => {
-        console.log("Registration Success", response);
         this.isLoading = false;
-        this.toastService.show('Registration Successful!',"success")
-        this.toggleMode();
+        this.toastService.show('Registration Successful!', "success");
+        this.switchMode('login');
       },
       (err: any) => {
-        console.error("Registration Failed", err);
         this.isLoading = false;
-        this.loadingText = 'Please wait...';
         alert('Registration Failed: ' + (err?.error?.message || 'Unknown error'));
       }
     );
   }
 
   initializeGoogleButton() {
-    if (typeof google === 'undefined') {
-      return;
-    }
+    if (typeof google === 'undefined') return;
+    
     const btnContainer = document.getElementById("google-btn-container");
-    if (!btnContainer) {
-      return;
-    }
+    if (!btnContainer) return;
+
     google.accounts.id.initialize({
       client_id: this.googleClientId,
       callback: (response: any) => this.handleGoogleCredentialResponse(response)
     });
     google.accounts.id.renderButton(
       btnContainer,
-      {
-        theme: "outline",
-        size: "large",
-        width: "100%",
-        text: "continue_with",
-        shape: "rectangular",
-        logo_alignment: "left"
-      }
+      { theme: "outline", size: "large", width: "100%", text: "continue_with", shape: "rectangular", logo_alignment: "left" }
     );
   }
 
@@ -197,16 +242,14 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-
   handleGoogleCredentialResponse(response: any) {
     this.ngZone.run(() => {
       this.isLoading = true;
       this.loadingText = 'Verifying with Google...';
-
       this.authSvc.loginWithGoogle(
         response.credential,
-        (success) => { },
-        (error) => {
+        () => {},
+        () => {
           this.isLoading = false;
           alert('Google Sign-In Failed');
         }
@@ -216,11 +259,10 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private executeLogin(credentials: any) {
     this.authSvc.login(credentials,
-      (response: any) => console.log("Login success"),
+      () => console.log("Login success"),
       (error: any) => {
         console.error("Login error", error);
         this.isLoading = false;
-        this.loadingText = 'Please wait...';
       }
     );
   }
