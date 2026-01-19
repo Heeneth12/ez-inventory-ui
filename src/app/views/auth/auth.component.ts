@@ -9,7 +9,7 @@ import { CommonService } from '../../layouts/service/common/common.service';
 import { ToastService } from '../../layouts/components/toast/toastService';
 
 declare const google: any;
-type AuthMode = 'login' | 'register' | 'booking';
+type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password';
 
 @Component({
   selector: 'app-auth',
@@ -80,23 +80,30 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   get isLoginMode(): boolean { return this.currentMode === 'login'; }
   get isRegisterMode(): boolean { return this.currentMode === 'register'; }
   get isBookingMode(): boolean { return this.currentMode === 'booking'; }
+  get isForgotPassMode(): boolean { return this.currentMode === 'forgot-password'; }
 
   get headerTitle(): string {
     if (this.isLoginMode) return 'Welcome back';
     if (this.isBookingMode) return 'Book Consultation';
+    if (this.isForgotPassMode) return 'Reset Password'; // New Title
     return 'Start your 14-day free trial';
   }
 
   get headerSubtitle(): string {
     if (this.isLoginMode) return 'Please enter your details to sign in.';
     if (this.isBookingMode) return 'Tell us your requirements.';
+    if (this.isForgotPassMode) return 'Enter your email to receive reset instructions.'; // New Subtitle
     return 'No credit card required. Setup your warehouse in minutes.';
   }
 
   // --- Logic ---
 
   private initForm() {
-    if (this.isBookingMode) {
+    if (this.isForgotPassMode) {
+      this.authForm = this.fb.group({
+        email: ['', [Validators.required, Validators.email]]
+      });
+    } else if (this.isBookingMode) {
       this.authForm = this.fb.group({
         name: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
@@ -132,7 +139,6 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   switchMode(mode: AuthMode) {
     this.currentMode = mode;
     this.initForm();
-    
     // Re-init Google Button if returning to login
     if (mode === 'login') {
       setTimeout(() => this.initializeGoogleButton(), 100);
@@ -171,6 +177,9 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     } else if (this.isBookingMode) {
       this.loadingText = 'Sending request...';
       this.executeBooking();
+    } else if (this.isForgotPassMode) {
+      this.loadingText = 'Sending reset link...';
+      this.executeForgotPassword();
     }
   }
 
@@ -220,7 +229,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
 
   initializeGoogleButton() {
     if (typeof google === 'undefined') return;
-    
+
     const btnContainer = document.getElementById("google-btn-container");
     if (!btnContainer) return;
 
@@ -248,13 +257,26 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       this.loadingText = 'Verifying with Google...';
       this.authSvc.loginWithGoogle(
         response.credential,
-        () => {},
+        () => { },
         () => {
           this.isLoading = false;
           alert('Google Sign-In Failed');
         }
       );
     });
+  }
+
+  private executeForgotPassword() {
+    const email = this.authForm.get('email')?.value;
+    console.log('Sending reset email to:', email);
+
+    // Simulate API Call
+    // this.authSvc.forgotPassword(email)...
+    setTimeout(() => {
+      this.isLoading = false;
+      this.toastService.show('Reset link sent to your email!', 'success');
+      this.switchMode('login');
+    }, 1500);
   }
 
   private executeLogin(credentials: any) {
