@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpService } from "../../layouts/service/http-svc/http.service";
 import { CreateUserModel } from "./models/create-user.model";
+import { environment } from "../../../environments/environment.development";
 
 
 @Injectable({
@@ -8,8 +9,8 @@ import { CreateUserModel } from "./models/create-user.model";
 })
 export class UserManagementService {
 
-    private static BASE_URL = "http://localhost:8080";
-
+    private static BASE_URL = environment.authUrl;
+    
     private static USER_MANAG_BASE_URL = UserManagementService.BASE_URL + '/api/v1/common';
     private static USER_BASE_URL = UserManagementService.BASE_URL + '/api/v1/user';
     private static TENANT_BASE_URL = UserManagementService.BASE_URL + '/api/v1/tenant';
