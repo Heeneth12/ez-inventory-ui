@@ -5,7 +5,7 @@
     </div>
     }
 
-    <aside
+    <aside id="app-sidebar"
         class="fixed inset-y-0 left-0 z-30 bg-[#0f172a] border-r border-slate-800/60 flex flex-col transition-all duration-300 ease-in-out lg:static shadow-xl"
         [ngClass]="{
             'translate-x-0': isMobileMenuOpen, 
@@ -34,11 +34,11 @@
         </div>
 
         <nav class="flex-1 mt-4 px-3 space-y-1 custom-scrollbar transition-all duration-300"
-             [ngClass]="isSidebarCollapsed ? 'overflow-visible' : 'overflow-y-auto overflow-x-hidden'">
+            [ngClass]="isSidebarCollapsed ? 'overflow-visible' : 'overflow-y-auto overflow-x-hidden'">
             @for (item of visibleNavItems; track item.label; let i = $index) {
 
             @if (!item.subItems) {
-            <a [routerLink]="item.link" routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
+            <a [routerLink]="item.link" [id]="'menu-item-' + i" routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
                 class="group relative flex items-center rounded-xl p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 transition-all duration-300 cursor-pointer outline-none"
                 [ngClass]="{'justify-center': isSidebarCollapsed}">
 
@@ -51,8 +51,11 @@
                 }
 
                 @if (isSidebarCollapsed) {
-                <div class="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[100] whitespace-nowrap rounded-md bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 origin-left scale-95 group-hover:scale-100">
-                    <div class="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700"></div>
+                <div
+                    class="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[100] whitespace-nowrap rounded-md bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 origin-left scale-95 group-hover:scale-100">
+                    <div
+                        class="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700">
+                    </div>
                     {{ item.label }}
                 </div>
                 }
@@ -61,7 +64,7 @@
 
             @if (item.subItems) {
             <div class="space-y-1">
-                <div (click)="toggleDropdown(i)"
+                <div (click)="toggleDropdown(i)" [id]="'menu-item-' + i"
                     class="group relative flex items-center justify-between rounded-xl p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 cursor-pointer transition-all duration-300 select-none"
                     [ngClass]="{
                         'bg-slate-800/50 text-indigo-300 border-slate-700/50': isDropdownOpen(i),
@@ -186,7 +189,7 @@
                     </svg>
                 </button>
 
-                <div class="hidden md:block relative">
+                <div class="hidden md:block relative" id="smart-search">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg class="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                             fill="none" viewBox="0 0 20 20">
@@ -210,7 +213,7 @@
                 </button>
 
                 <div class="relative">
-                    <button (click)="isQuickCreateOpen = !isQuickCreateOpen"
+                    <button (click)="isQuickCreateOpen = !isQuickCreateOpen" id="quick-create-btn"
                         class="relative p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-all">
                         <lucide-icon [img]="Zap" class="w-5 h-5 fill-current"></lucide-icon>
 

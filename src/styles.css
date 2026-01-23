@@ -2,3 +2,58 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Overriding driver.js default styles for a clean SaaS look */
+.driverjs-theme {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  padding: 20px !important;
+  max-width: 350px !important;
+
+  .driver-popover-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin-bottom: 8px !important;
+  }
+
+  .driver-popover-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem !important;
+    color: #64748b !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Style the buttons (Next/Prev) */
+  .driver-popover-footer {
+    margin-top: 16px !important;
+    
+    button {
+      background-color: #f1f5f9 !important;
+      color: #334155 !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 6px !important;
+      font-size: 0.85rem !important;
+      padding: 6px 12px !important;
+      text-shadow: none !important;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #e2e8f0 !important;
+      }
+
+      &.driver-popover-next-btn {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+        border: none !important;
+        
+        &:hover {
+          background-color: #4338ca !important;
+        }
+      }
+    }
+  }
+}

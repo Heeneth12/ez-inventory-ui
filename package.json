@@ -20,6 +20,7 @@
     "@angular/platform-browser-dynamic": "^18.0.0",
     "@angular/router": "^18.0.0",
     "chart.js": "^4.5.1",
+    "driver.js": "^1.4.0",
     "highcharts": "^12.4.0",
     "lucide-angular": "^0.554.0",
     "marked": "^17.0.1",
