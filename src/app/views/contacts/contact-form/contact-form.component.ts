@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ContactService } from '../contacts.service';
 import { AddressType, ContactModel, ContactType } from '../contacts.model';
 import { CardComponent } from "../../../layouts/UI/card/card.component";
+import { ToastService } from '../../../layouts/components/toast/toastService';
 
 @Component({
   selector: 'app-contact-form',
@@ -24,7 +25,13 @@ export class ContactFormComponent implements OnInit {
   contactTypes = Object.values(ContactType);
   addressTypes = Object.values(AddressType);
 
-  constructor(private contactService: ContactService, private fb: FormBuilder, private route: ActivatedRoute, private router: Router) { }
+  constructor(
+    private contactService: ContactService,
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private toastService: ToastService
+  ) { }
 
   ngOnInit(): void {
     this.contactId = this.route.snapshot.paramMap.get('id') ? +this.route.snapshot.paramMap.get('id')! : null;
@@ -148,7 +155,7 @@ export class ContactFormComponent implements OnInit {
 
     const successCallback = (res: any) => {
       this.isLoading = false;
-      alert(this.isEditMode ? 'Contact Updated Successfully' : 'Contact Created Successfully');
+      this.toastService.show(this.isEditMode ? 'Contact Updated Successfully' : 'Contact Created Successfully', 'success')
       this.router.navigate(['/contacts']); // Navigate back to list
     };
 

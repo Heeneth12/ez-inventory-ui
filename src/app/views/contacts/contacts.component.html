@@ -1,13 +1,162 @@
 <div class="space-y-6">
-    <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
-        <app-standard-table
-            [title]="'Data Table'"
-            [columns]="columns"
-            [data]="filteredContacts"
-            [pagination]="pagination"
-            (pageChange)="onPageChange($event)"
-            (loadMore)="onLoadMore()"
-            (action)="onTableAction($event)">
-        </app-standard-table>
-    </div>
+  <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
+    <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="filteredContacts"
+      [customActions]="contactActions" [headerActions]="myHeaderActions" (action)="handleTableAction($event)"
+      [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
+      (action)="onTableAction($event)">
+    </app-standard-table>
+  </div>
 </div>
+
+
+<ng-template #contactDetailsTemplate>
+  <div class="h-full flex flex-col bg-white" *ngIf="contact; else loadingState">
+    <div class="px-6 py-8 bg-slate-50 border-b border-slate-100">
+      <div class="flex justify-between items-start">
+        <div class="flex gap-4">
+          <div
+            class="h-16 w-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold border border-blue-200">
+            {{ contact.name.charAt(0).toUpperCase() }}
+          </div>
+
+          <div>
+            <h2 class="text-2xl font-bold text-slate-800">{{ contact.name }}</h2>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="px-2.5 py-0.5 rounded text-xs font-medium bg-slate-200 text-slate-600">
+                {{ contact.contactCode }}
+              </span>
+              <span class="flex items-center gap-1 text-sm font-medium px-2.5 py-0.5 rounded-full"
+                [ngClass]="contact.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                <lucide-icon [img]="contact.active ? CheckCircle2 : XCircle" class="w-3 h-3"></lucide-icon>
+                {{ contact.active ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            <div class="mt-2 text-sm text-slate-500 font-medium flex items-center gap-1">
+              <lucide-icon [img]="User" class="w-3 h-3"></lucide-icon>
+              {{ contact.type | titlecase }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-6 space-y-8">
+
+      <section>
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">
+          Contact Information
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div class="group">
+            <label class="text-xs text-slate-500 font-medium mb-1 block">Email Address</label>
+            <div class="flex items-center gap-2 text-slate-700">
+              <div class="p-2 bg-slate-50 rounded-md text-slate-400 group-hover:text-blue-500 transition-colors">
+                <lucide-icon [img]="Mail" class="w-4 h-4"></lucide-icon>
+              </div>
+              <span class="font-medium">{{ contact.email || '-' }}</span>
+            </div>
+          </div>
+
+          <div class="group">
+            <label class="text-xs text-slate-500 font-medium mb-1 block">Phone Number</label>
+            <div class="flex items-center gap-2 text-slate-700">
+              <div class="p-2 bg-slate-50 rounded-md text-slate-400 group-hover:text-blue-500 transition-colors">
+                <lucide-icon [img]="Phone" class="w-4 h-4"></lucide-icon>
+              </div>
+              <span class="font-medium">{{ contact.phone || '-' }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">
+          Business Details
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div>
+            <label class="text-xs text-slate-500 font-medium mb-1 block">GST Number</label>
+            <div class="flex items-center gap-2 text-slate-700">
+              <lucide-icon [img]="FileText" class="w-4 h-4 text-slate-400"></lucide-icon>
+              <span class="font-mono bg-slate-100 px-2 py-1 rounded text-sm">{{ contact.gstNumber || 'N/A' }}</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-500 font-medium mb-1 block">Credit Terms</label>
+            <div class="flex items-center gap-2 text-slate-700">
+              <lucide-icon [img]="CreditCard" class="w-4 h-4 text-slate-400"></lucide-icon>
+              <span class="font-medium">{{ contact.creditDays }} Days</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center justify-between mb-4 border-b pb-2">
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Addresses</h3>
+          <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+            {{ contact.addresses.length }}
+          </span>
+        </div>
+
+        <div *ngIf="contact.addresses.length === 0"
+          class="text-center py-8 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+          <lucide-icon [img]="MapPin" class="w-8 h-8 text-slate-300 mx-auto mb-2"></lucide-icon>
+          <p class="text-sm text-slate-500">No addresses linked to this contact.</p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4">
+          <div *ngFor="let addr of contact.addresses"
+            class="relative p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/30 transition-all group">
+
+            <div class="absolute top-4 right-4">
+              <span class="text-[10px] font-bold px-2 py-1 rounded border uppercase tracking-wide" [ngClass]="{
+                   'bg-purple-50 text-purple-700 border-purple-200': addr.type === 'BILLING',
+                   'bg-orange-50 text-orange-700 border-orange-200': addr.type === 'SHIPPING',
+                   'bg-gray-50 text-gray-700 border-gray-200': addr.type !== 'BILLING' && addr.type !== 'SHIPPING'
+                 }">
+                {{ addr.type }}
+              </span>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="mt-1 text-slate-400">
+                <lucide-icon [img]="Building2" class="w-5 h-5"></lucide-icon>
+              </div>
+              <div class="text-sm">
+                <p class="text-slate-800 font-medium">{{ addr.addressLine1 }}</p>
+                <p class="text-slate-600" *ngIf="addr.addressLine2">{{ addr.addressLine2 }}</p>
+                <p class="text-slate-600 mt-1">
+                  {{ addr.city }}, {{ addr.state }} - <span class="font-mono text-xs">{{ addr.pinCode }}</span>
+                </p>
+                <p class="text-slate-500 text-xs mt-0.5">{{ addr.country }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="p-4 border-t bg-slate-50 flex justify-end gap-3">
+      <button (click)="drawerService.close()"
+        class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50">
+        Close
+      </button>
+      <button (click)="openEditContact(contact.id)"
+        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 shadow-sm flex items-center gap-2">
+        Edit Contact
+      </button>
+    </div>
+  </div>
+
+  <ng-template #loadingState>
+    <div class="h-full flex flex-col items-center justify-center text-slate-400">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-400 mb-4"></div>
+      <p>Loading contact details...</p>
+    </div>
+  </ng-template>
+</ng-template>

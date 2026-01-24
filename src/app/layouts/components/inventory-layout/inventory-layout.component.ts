@@ -35,17 +35,20 @@ import {
   SettingsIcon,
   MessageSquare,
   MessageSquareText,
-  X
+  X,
+  UserPlusIcon
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
 import { AiChatComponent } from "../../../views/ai-chat/ai-chat.component";
 import { McpChatBotComponent } from "../mcp-chat-bot/mcp-chat-bot.component";
+import { TutorialService } from '../../service/common/tutorial.service';
+import { PromoModalComponent } from "../promo-modal/promo-modal.component";
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, AiChatComponent, McpChatBotComponent],
+  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, AiChatComponent, McpChatBotComponent, PromoModalComponent],
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css'
 })
@@ -183,6 +186,12 @@ export class InventoryLayoutComponent implements OnInit {
       moduleKey: 'EZH_INV_DOCUMENTS'
     },
     {
+      label: 'Admin',
+      link: '/admin',
+      icon: UserPlusIcon,
+      moduleKey: 'EZH_INV_USER_MGMT'
+    },
+    {
       label: 'Settings',
       link: '/settings',
       icon: Settings,
@@ -195,6 +204,7 @@ export class InventoryLayoutComponent implements OnInit {
     private searchService: SearchService,
     private authService: AuthService,
     private router: Router,
+    private tutorialService: TutorialService
   ) { }
 
   ngOnInit() {
@@ -211,6 +221,20 @@ export class InventoryLayoutComponent implements OnInit {
         };
       }
     });
+
+    this.checkAndStartTutorial();
+  }
+
+  checkAndStartTutorial() {
+    const hasSeenTutorial = localStorage.getItem('hasSeenInventoryTutorial');
+    
+    if (!hasSeenTutorial) {
+      // Small timeout to ensure DOM is rendered and animations are done
+      setTimeout(() => {
+        this.tutorialService.startTour();
+        localStorage.setItem('hasSeenInventoryTutorial', 'true');
+      }, 1000);
+    }
   }
 
   filterNavItems(user: any) {

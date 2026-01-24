@@ -6,19 +6,21 @@ import { ToastService } from '../../layouts/components/toast/toastService';
 import { ContactService } from './contacts.service';
 import { ContactFilter, ContactModel } from './contacts.model';
 import { Router } from '@angular/router';
-import { PaginationConfig, TableAction, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
+import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { CONTACT_COLUMNS } from '../../layouts/config/tableConfig';
+import { ArrowRight, Building2, Calendar, CheckCircle2, ChevronDown, CreditCard, FilePlusCorner, FileText, Mail, MapPin, Phone, User, UserPlus, XCircle, Zap, LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-contacts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent, LucideAngularModule],
   templateUrl: './contacts.component.html',
   styleUrls: ['./contacts.component.css']
 })
 export class ContactsComponent implements OnInit {
-  @ViewChild('contactProfile') contactProfile!: TemplateRef<any>;
+
+  @ViewChild('contactDetailsTemplate') contactDetailsTemplate!: TemplateRef<any>;
 
   contacts: ContactModel[] = [];
   filteredContacts: ContactModel[] = [];
@@ -37,7 +39,42 @@ export class ContactsComponent implements OnInit {
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
+  contactActions: TableActionConfig[] = [
+    {
+      key: 'view_contact_details',
+      label: 'View Details',
+      icon: ArrowRight,
+      color: 'primary',
+      condition: (row) => true
+    }
+  ];
+
+  myHeaderActions: HeaderAction[] = [
+    {
+      label: 'Create',
+      icon: UserPlus,
+      variant: 'primary',
+      action: () => console.log("hello")
+    },
+  ];
+
   columns: TableColumn[] = CONTACT_COLUMNS;
+
+  readonly ArrowRight = ArrowRight;
+  readonly UserPlus = UserPlus;
+  readonly FilePlusCorner = FilePlusCorner;
+  readonly Mail = Mail;
+  readonly Phone = Phone;
+  readonly MapPin = MapPin;
+  readonly Building2 = Building2;
+  readonly CreditCard = CreditCard;
+  readonly CheckCircle2 = CheckCircle2;
+  readonly XCircle = XCircle;
+  readonly User = User;
+  readonly FileText = FileText;
+  readonly ChevronDown = ChevronDown;
+  readonly Calendar = Calendar;
+  readonly Zap = Zap;
 
   constructor(
     private contactService: ContactService,
@@ -119,8 +156,29 @@ export class ContactsComponent implements OnInit {
 
   }
 
+
+  viewContactDetails(id: number) {
+    this.getContactById(id);
+    this.drawerService.openTemplate(
+      this.contactDetailsTemplate,
+      'Contact Details',
+      'xl',
+    );
+  }
+
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'view_contact_details') {
+      console.log('View stock adj details:', event.row.id);
+      this.viewContactDetails(Number(event.row.id));
+    }
+    if (event.type === 'edit') {
+      // Standard edit logic
+    }
+  }
+
   openEditContact(contactId: number) {
     this.editingId = contactId;
+    this.drawerService.close();
     this.router.navigate(['/contacts/edit', 1]);
 
   }
@@ -128,7 +186,6 @@ export class ContactsComponent implements OnInit {
   onToolbarAction(action: 'export' | 'create') {
     console.log('Action triggered:', action);
     if (action === 'create') {
-      // Logic to open create modal
       alert('Open Create Modal');
     }
   }
