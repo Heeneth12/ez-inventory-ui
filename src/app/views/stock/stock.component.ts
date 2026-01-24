@@ -7,7 +7,7 @@ import { ToastService } from '../../layouts/components/toast/toastService';
 import { ItemStockSearchModel, StockDashboardModel, StockFilterModel, StockModel, BatchDetailModel } from './models/stock.model';
 import { StockService } from './stock.service';
 import { StatCardConfig, StatGroupComponent } from "../../layouts/UI/stat-group/stat-group.component";
-import { AlertCircle, CloudDownloadIcon, List, Package, TrendingUp, Zap, LucideAngularModule, Calendar, Search } from 'lucide-angular';
+import { AlertCircle, CloudDownloadIcon, List, Package, TrendingUp, Zap, LucideAngularModule, Calendar, Search, Building2 } from 'lucide-angular';
 import { STOCK_COLUMNS } from '../../layouts/config/tableConfig';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
@@ -44,11 +44,18 @@ export class StockComponent implements OnInit {
 
   headerActions: HeaderAction[] = [
     {
-      label: 'Bulk Download',
+      label: 'Bulk Process',
       icon: CloudDownloadIcon,
       variant: 'primary',
       key: 'bulk_download',
       action: () => this.downloadCurrentStockReport()
+    },
+     {
+      label: 'Warehouse',
+      icon: Building2,
+      variant: 'outline',
+      key: 'bulk_download',
+      action: () => console.log("Warehouse")
     }
   ];
 

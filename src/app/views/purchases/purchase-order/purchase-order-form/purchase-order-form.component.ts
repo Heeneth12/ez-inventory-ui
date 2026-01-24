@@ -10,11 +10,12 @@ import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ContactModel } from '../../../contacts/contacts.model';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
+import { LucideAngularModule } from "lucide-angular";
 
 @Component({
   selector: 'app-purchase-order-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './purchase-order-form.component.html',
   styleUrls: ['./purchase-order-form.component.css']
 })

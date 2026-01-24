@@ -6,8 +6,8 @@ import { FormsModule } from '@angular/forms'; // Import FormsModule for the draw
 import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { ToastService } from '../../layouts/components/toast/toastService';
-import { StatCardData, StatCardComponent } from "../../layouts/UI/stat-card/stat-card.component";
-import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight, ClipboardListIcon } from 'lucide-angular';
+import { StatCardData } from "../../layouts/UI/stat-card/stat-card.component";
+import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight, ClipboardListIcon, Clock, FileText } from 'lucide-angular';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
@@ -18,11 +18,12 @@ import { SalesOrderService } from '../sales/sales-order/sales-order.service';
 import { StockAdjustmentDetailModel } from '../stock/models/stock-adjustment.model';
 import { StockService } from '../stock/stock.service';
 import { DatePickerConfig, DateRangeEmit } from '../../layouts/UI/date-picker/date-picker.component';
+import { StatCardConfig, StatGroupComponent } from '../../layouts/UI/stat-group/stat-group.component';
 
 @Component({
   selector: 'app-approval-console',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent, FormsModule, StatCardComponent, LucideAngularModule],
+  imports: [CommonModule, StandardTableComponent, FormsModule, LucideAngularModule, StatGroupComponent],
   templateUrl: './approval-console.component.html',
   styleUrl: './approval-console.component.css'
 })
@@ -41,6 +42,36 @@ export class ApprovalConsoleComponent implements OnInit {
   configs: ApprovalConfigModel[] = [];
 
   approvalFilter: any = {};
+  approvalDashboardStats: StatCardConfig[] = [
+    {
+      key: 'pending_requests',
+      label: 'Pending Approvals',
+      value: '14 Items',
+      icon: Clock,
+      color: 'orange',
+    },
+    {
+      key: 'approved_requests',
+      label: 'Approved',
+      value: '128 Items',
+      icon: CheckCircle2,
+      color: 'emerald',
+    },
+    {
+      key: 'rejected_requests',
+      label: 'Rejected',
+      value: '5 Items',
+      icon: XCircle,
+      color: 'rose',
+    },
+    {
+      key: 'total_requests',
+      label: 'Total Requests',
+      value: '147 Items',
+      icon: FileText,
+      color: 'blue',
+    }
+  ];
 
 
   isCreatingNew = false;
