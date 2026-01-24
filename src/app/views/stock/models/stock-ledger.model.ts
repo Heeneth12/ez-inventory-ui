@@ -8,5 +8,6 @@
     referenceType!: string; // GRN / SALE / TRANSFER / RETURN
     referenceId!: number;
     beforeQty!: number;
-    afterQty!: number;  
+    afterQty!: number;
+    createdAt!:string;
 }

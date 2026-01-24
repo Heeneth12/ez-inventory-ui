@@ -27,6 +27,7 @@ export class StockLedgerComponent {
     { key: 'itemId', label: 'Item ID', width: '100px', type: 'text' },
     { key: 'itemName', label: 'Item Name', width: '200px', type: 'text' },
     { key: 'warehouseId', label: 'Warehouse ID', width: '120px', type: 'text' },
+    { key: 'createdAt', label: 'Created Date', width: '120px', type: 'date' },
     { key: 'transactionType', label: 'Txn Type', width: '120px', type: 'badge' },   // IN / OUT
     { key: 'quantity', label: 'Qty', align: 'right', width: '90px', type: 'number' },
     { key: 'beforeQty', label: 'Before Qty', align: 'right', width: '110px', type: 'number' },
