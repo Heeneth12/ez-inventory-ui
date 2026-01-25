@@ -14,7 +14,14 @@ export class TutorialService {
     }
 
     startTour() {
+        
         this.driverObj.drive();
+    }
+
+    closeTour() {
+        if (this.driverObj) {
+            this.driverObj.destroy();
+        }
     }
 }
 
