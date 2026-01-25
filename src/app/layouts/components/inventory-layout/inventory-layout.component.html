@@ -38,9 +38,9 @@
             @for (item of visibleNavItems; track item.label; let i = $index) {
 
             @if (!item.subItems) {
-            <a [routerLink]="item.link" [id]="'menu-item-' + i" routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
+            <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i" routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
                 class="group relative flex items-center rounded-xl p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 transition-all duration-300 cursor-pointer outline-none"
-                [ngClass]="{'justify-center': isSidebarCollapsed}">
+                [ngClass]="{'justify-center': isSidebarCollapsed,'opacity-50 cursor-not-allowed': item.isDisabled}">
 
                 <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300"
                     [ngClass]="{'text-white': isSidebarCollapsed}">
@@ -48,6 +48,15 @@
 
                 @if (!isSidebarCollapsed) {
                 <span class="ml-3 truncate animate-in fade-in slide-in-from-left-2 duration-300">{{ item.label }}</span>
+
+                @if (item.badge) {
+                <span [ngClass]="{
+                        'bg-slate-500 text-white': item.label === 'Approval',
+                        'bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold text-[10px]': item.label === 'AI Chat'
+                    }" class="ml-auto px-2 py-0.5 rounded-full text-[11px] shadow-sm">
+                    {{ item.badge }}
+                </span>
+                }
                 }
 
                 @if (isSidebarCollapsed) {

@@ -40,15 +40,15 @@ import {
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
-import { AiChatComponent } from "../../../views/ai-chat/ai-chat.component";
 import { McpChatBotComponent } from "../mcp-chat-bot/mcp-chat-bot.component";
 import { TutorialService } from '../../service/common/tutorial.service';
 import { PromoModalComponent } from "../promo-modal/promo-modal.component";
+import { ModalService } from '../modal/modalService';
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, AiChatComponent, McpChatBotComponent, PromoModalComponent],
+  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, McpChatBotComponent, PromoModalComponent],
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css'
 })
@@ -74,7 +74,7 @@ export class InventoryLayoutComponent implements OnInit {
   readonly Bell = Bell;
   readonly Settings = SettingsIcon;
   readonly MessageSquareText = MessageSquareText;
-  readonly XIcon= X;
+  readonly XIcon = X;
 
   isQuickCreateOpen = false;
   quickCreateItems = [
@@ -165,7 +165,8 @@ export class InventoryLayoutComponent implements OnInit {
       label: 'Approval',
       link: '/approval',
       icon: ListChecks,
-      moduleKey: 'EZH_INV_EMPLOYEE'
+      moduleKey: 'EZH_INV_EMPLOYEE',
+      badge: 2,
     },
     {
       label: 'Reports',
@@ -177,7 +178,10 @@ export class InventoryLayoutComponent implements OnInit {
       label: 'AI Chat',
       link: '/ai-chat',
       icon: MessageSquareText,
-      moduleKey: 'EZH_INV_REPORTS'
+      moduleKey: 'EZH_INV_REPORTS',
+      badge: 'Pro',
+      badgeVariant: 'pro',
+      isDisabled: true,
     },
     {
       label: 'Documents',
@@ -202,6 +206,7 @@ export class InventoryLayoutComponent implements OnInit {
   constructor(
     private drawerService: DrawerService,
     private searchService: SearchService,
+    private modalService: ModalService,
     private authService: AuthService,
     private router: Router,
     private tutorialService: TutorialService
@@ -223,6 +228,7 @@ export class InventoryLayoutComponent implements OnInit {
     });
 
     this.checkAndStartTutorial();
+    this.openCatalystWelcomeModal();
   }
 
   checkAndStartTutorial() {
@@ -292,6 +298,14 @@ export class InventoryLayoutComponent implements OnInit {
       this.openDropdownIndex = null;
     }
   }
+
+  openCatalystWelcomeModal() {
+    this.modalService.openComponent(
+      PromoModalComponent,
+      {},
+      'md'
+    )
+  }
 }
 
 export interface SubMenuItem {
@@ -302,9 +316,12 @@ export interface SubMenuItem {
 export interface NavItem {
   label: string;
   icon: any;
+  badge?: string | number;
+  badgeVariant?: 'default' | 'pro' | 'warning';
   link?: string;
   moduleKey?: string;
   subItems?: SubMenuItem[];
+  isDisabled?: boolean;
 }
 
 export interface UserProfile {
