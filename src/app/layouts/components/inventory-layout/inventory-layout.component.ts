@@ -44,6 +44,7 @@ import { McpChatBotComponent } from "../mcp-chat-bot/mcp-chat-bot.component";
 import { TutorialService } from '../../service/common/tutorial.service';
 import { PromoModalComponent } from "../promo-modal/promo-modal.component";
 import { ModalService } from '../modal/modalService';
+import { NotificationsComponent } from '../notifications/notifications.component';
 
 @Component({
   selector: 'app-inventory-layout',
@@ -282,6 +283,15 @@ export class InventoryLayoutComponent implements OnInit {
     } else {
       this.openDropdownIndex = index;
     }
+  }
+
+  openNotification() {
+    this.drawerService.openComponent(
+      NotificationsComponent,
+      {},
+      'Notifications',
+      'md'
+    )
   }
 
   isDropdownOpen(index: number): boolean {
