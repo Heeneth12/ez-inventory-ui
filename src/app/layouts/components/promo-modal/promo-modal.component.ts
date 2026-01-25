@@ -13,7 +13,7 @@ import { ModalService } from '../modal/modalService';
 export class PromoModalComponent {
 
   private readonly STORAGE_KEY = 'catalyst_tour_completed';
-  isVisible = true;
+  isVisible = false;
 
 
   constructor(
@@ -21,14 +21,18 @@ export class PromoModalComponent {
     private modalService: ModalService
   ) {
     const hasSeenTour = localStorage.getItem(this.STORAGE_KEY);
-    this.isVisible = hasSeenTour !== 'true';
+    if (hasSeenTour === 'true') {
+      this.isVisible = false;
+    }else{
+      this.isVisible = true;
+    }
   }
 
 
   onAction(id: string) {
-    this.isVisible = false;
     this.markAsSeen();
-    this.onClose();
+    this.isVisible = false;
+    this.modalService.close();
     setTimeout(() => {
       this.tutorialService.startTour();
     }, 400);
@@ -37,8 +41,7 @@ export class PromoModalComponent {
   onClose() {
     this.markAsSeen();
     this.isVisible = false;
-    this.tutorialService.closeTour();
-    this.modalService.close()
+    this.modalService.close();
   }
 
   private markAsSeen() {

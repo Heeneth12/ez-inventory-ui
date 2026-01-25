@@ -9,7 +9,7 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
-import { ArrowRight, Clock, DollarSign, FileText, Headphones, RefreshCcw, View, XCircle } from 'lucide-angular';
+import { ArrowRight, CircleX, Clock, DollarSign, FileText, Headphones, ReceiptText, RefreshCcw, View, XCircle } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
@@ -39,7 +39,13 @@ export class SalesOrderComponent implements OnInit {
       label: 'Move to Invoice',
       icon: ArrowRight,
       color: 'primary',
-      // Only show if status is Approved
+      condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
+    },
+    {
+      key: 'move_to_cancle',
+      label: '',
+      icon: CircleX,
+      color: 'danger',
       condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
     }
   ];

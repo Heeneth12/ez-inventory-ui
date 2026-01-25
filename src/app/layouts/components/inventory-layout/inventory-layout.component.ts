@@ -58,6 +58,7 @@ export class InventoryLayoutComponent implements OnInit {
   isSidebarCollapsed = false; // New state for collapse
   openDropdownIndex: number | null = null;
   @ViewChild('userProfileTemplate') userProfileTemplate!: TemplateRef<any>;
+  private readonly STORAGE_KEY = 'catalyst_tour_completed';
 
   //icons
   readonly Calendar = Calendar
@@ -226,14 +227,14 @@ export class InventoryLayoutComponent implements OnInit {
         };
       }
     });
-
+    const hasSeenTour = localStorage.getItem(this.STORAGE_KEY);
     this.checkAndStartTutorial();
-    this.openCatalystWelcomeModal();
+    this.openCatalystWelcomeModal(hasSeenTour);
   }
 
   checkAndStartTutorial() {
     const hasSeenTutorial = localStorage.getItem('hasSeenInventoryTutorial');
-    
+
     if (!hasSeenTutorial) {
       // Small timeout to ensure DOM is rendered and animations are done
       setTimeout(() => {
@@ -294,17 +295,20 @@ export class InventoryLayoutComponent implements OnInit {
   toggleSidebarCollapse() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
     // If collapsing, close any open dropdowns to avoid UI bugs
-    if(this.isSidebarCollapsed) {
+    if (this.isSidebarCollapsed) {
       this.openDropdownIndex = null;
     }
   }
 
-  openCatalystWelcomeModal() {
-    this.modalService.openComponent(
-      PromoModalComponent,
-      {},
-      'md'
-    )
+  openCatalystWelcomeModal(hasSeenTour: string | null) {
+    if (hasSeenTour !== 'true') {
+      console.log("open")
+      this.modalService.openComponent(
+        PromoModalComponent,
+        {},
+        'md'
+      )
+    }
   }
 }
 
