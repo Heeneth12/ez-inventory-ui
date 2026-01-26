@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule} from '@angular/common';
+import { CommonModule, JsonPipe } from '@angular/common';
 import { ContactService } from '../contacts.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ContactModel } from '../contacts.model';
-import { LucideAngularModule, Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Bell, Calendar, ChevronDown, Fingerprint, HelpCircle, Pencil, User, Users, UserSquare, LocateIcon, MapPinCheckIcon, Hash, Plus, Star } from 'lucide-angular';
+import { LucideAngularModule, Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Bell, Calendar, ChevronDown, Fingerprint, HelpCircle, Pencil, User, Users, UserSquare, LocateIcon, MapPinCheckIcon, Hash, Plus, Star, ArrowRight, CircleX, FilePlusCorner, ScrollText, ReceiptIndianRupee, FileDown } from 'lucide-angular';
 import { SalesOrderFilterModal, SalesOrderModal } from '../../sales/sales-order/sales-order.modal';
 import { InvoiceFilterModal, InvoiceModal } from '../../sales/invoices/invoice.modal';
 import { PaymentFilterModal, PaymentModal } from '../../sales/payments/payment.modal';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
+import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { INVOICE_COLUMNS, PAYMENTS_COLUMNS, SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
 import { PaymentService } from '../../sales/payments/payment.service';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
@@ -17,6 +17,8 @@ import { SalesOrderService } from '../../sales/sales-order/sales-order.service';
 import { InvoiceService } from '../../sales/invoices/invoice.service';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PaymentSymmaryComponent } from '../../sales/payments/payment-symmary/payment-symmary.component';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { StockAdjustmentComponent } from '../../stock/stock-adjustment/stock-adjustment.component';
 
 @Component({
   selector: 'app-contact-profile',
@@ -35,12 +37,60 @@ export class ContactProfileComponent implements OnInit {
   salesOrderDetails: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
   salesOrderFilter: SalesOrderFilterModal = new SalesOrderFilterModal();
+  soActions: TableActionConfig[] = [
+    {
+      key: 'move_to_invoice',
+      label: 'Move to Invoice',
+      icon: ArrowRight,
+      color: 'primary',
+      condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
+    },
+    {
+      key: 'move_to_cancle',
+      label: '',
+      icon: CircleX,
+      color: 'danger',
+      condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
+    }
+  ];
+
+  soHeaderActions: HeaderAction[] = [
+    {
+      label: 'Create',
+      icon: FilePlusCorner,
+      variant: 'primary',
+      action: () => console.log("hello")
+    },
+  ];
 
   //Invoice
   invoiceColumn: TableColumn[] = INVOICE_COLUMNS;
   invoiceDetails: InvoiceModal[] = [];
   invoiceDetail: InvoiceModal | null = null;
   invoiceFilter: InvoiceFilterModal = new InvoiceFilterModal();
+  paymentDetailsActions: TableActionConfig[] = [
+    {
+      key: 'payment_details',
+      label: 'Payment details',
+      icon: ScrollText,
+      color: 'success',
+      condition: (row) => row['paymentStatus'] === 'PAID'
+    },
+    {
+      key: 'receive_payment',
+      label: 'Receive Payment',
+      icon: ReceiptIndianRupee,
+      color: 'primary',
+      condition: (row) => row['paymentStatus'] === 'UNPAID' || row['paymentStatus'] === 'PARTIALLY_PAID'
+    },
+    {
+      key: 'download_invoice',
+      label: '',
+      icon: FileDown,
+      color: 'neutral',
+      condition: (row) => true
+    }
+  ];
 
 
 
@@ -91,6 +141,10 @@ export class ContactProfileComponent implements OnInit {
   readonly Plus = Plus;
   readonly Star = Star;
 
+  dateConfig: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+  };
 
   // Mock Financial Data (Replace with real API data later)
   financialStats = {
@@ -118,7 +172,7 @@ export class ContactProfileComponent implements OnInit {
     private paymentService: PaymentService,
     private toast: ToastService,
     private router: Router,
-    private modalService :ModalService,
+    private modalService: ModalService,
     private loaderSvc: LoaderService,
     private route: ActivatedRoute
   ) { }
@@ -332,17 +386,44 @@ export class ContactProfileComponent implements OnInit {
   bulkUploadItems() {
   }
 
-  openPaymentSummary(customerId:any) {
-      this.modalService.openComponent(
-        PaymentSymmaryComponent,
-        {customerId},
-        'lg'
-      );
+  openPaymentSummary(customerId: any) {
+    this.modalService.openComponent(
+      PaymentSymmaryComponent,
+      { customerId },
+      'lg'
+    );
+  }
+
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    this.salesOrderFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.salesOrderFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'move_to_invoice') {
+      console.log('Moving PO to Invoice:', event.row.id);
+      this.router.navigate(['/sales/invoice/create'], {
+        queryParams: { salesOrderId: event.row.id }
+      });
     }
+    if (event.type === 'edit') {
+      // Standard edit logic
+    }
+  }
+
 
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
-
     switch (type) {
       case 'view':
         console.log("View:", row.id);
@@ -361,6 +442,7 @@ export class ContactProfileComponent implements OnInit {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getAllSalesOrders();
   }
 
   onLoadMore() {
