@@ -229,20 +229,7 @@ export class InventoryLayoutComponent implements OnInit {
       }
     });
     const hasSeenTour = localStorage.getItem(this.STORAGE_KEY);
-    this.checkAndStartTutorial();
     this.openCatalystWelcomeModal(hasSeenTour);
-  }
-
-  checkAndStartTutorial() {
-    const hasSeenTutorial = localStorage.getItem('hasSeenInventoryTutorial');
-
-    if (!hasSeenTutorial) {
-      // Small timeout to ensure DOM is rendered and animations are done
-      setTimeout(() => {
-        this.tutorialService.startTour();
-        localStorage.setItem('hasSeenInventoryTutorial', 'true');
-      }, 1000);
-    }
   }
 
   filterNavItems(user: any) {
