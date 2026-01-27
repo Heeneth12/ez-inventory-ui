@@ -108,12 +108,12 @@ export const CONTACT_COLUMNS: TableColumn[] = [
 
 //approvel
 export const APPROVAL_COLUMN: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center', type: 'text' },
-    { key: 'approvalType', label: 'Approval Type', width: '230px', type: 'text' },
-    { key: 'referenceCode', label: 'Ref', width: '110px', type: 'link' },
+    { key: 'approvalRequestNumber', label: 'Approval Id', width: '140px', type: 'link' },
+    { key: 'approvalType', label: 'Approval Type', width: '110px', type: 'text' },
     { key: 'createdAt', label: 'Created At', align: 'center', width: '130px', type: 'date' },
-    { key: 'approvedDate', label: 'Approved At', align: 'center', width: '130px', type: 'date' },
+    { key: 'referenceCode', label: 'Ref ID', align: 'center', width: '130px', type: 'link' },
     { key: 'valueAmount', label: 'Value', align: 'right', width: '110px', type: 'currency' },
     { key: 'status', label: 'Status', align: 'center', width: '100px', type: 'badge' },
+    { key: 'approvedDate', label: 'Approved Date', align: 'right', width: '110px', type: 'date' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
 ];
