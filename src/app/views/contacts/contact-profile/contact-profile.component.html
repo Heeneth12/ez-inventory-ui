@@ -8,8 +8,8 @@
                 <lucide-icon [img]="User" class="w-16 h-16 text-slate-300"></lucide-icon>
             </div>
             <button
-                class="absolute -bottom-2 -right-2 p-2 bg-[#2D4495] text-white rounded-lg shadow-lg hover:bg-[#1e2e66] transition-all">
-                <lucide-icon [img]="Pencil" class="w-4 h-4"></lucide-icon>
+                class="absolute -bottom-0 -right-0 p-2 bg-[#2D4495] text-white rounded-full shadow-lg hover:bg-[#1e2e66] transition-all">
+                <lucide-icon [img]="Pencil" class="w-3 h-3"></lucide-icon>
             </button>
         </div>
 
@@ -65,7 +65,7 @@
                     <button
                         class="flex items-center justify-center gap-2 py-3 bg-[#2D4495] text-white rounded-lg hover:bg-opacity-90 transition-all">
                         <lucide-icon [img]="FileText" class="w-4 h-4"></lucide-icon>
-                        <span class="text-[10px] font-bold text-center leading-tight">Generate Service Bill</span>
+                        <span class="text-[10px] font-bold text-center leading-tight">Generate Inv</span>
                     </button>
                 </div>
             </div>
@@ -196,7 +196,8 @@
             <div>
                 <app-standard-table [title]="'Transactions'" [columns]="soColumn" [data]="salesOrderDetails"
                     [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
-                    (action)="onTableAction($event)">
+                    (dateChange)="onFilterDate($event)" (action)="handleTableAction($event)" [customActions]="soActions"
+                    [datePickerConfig]="dateConfig" (action)="onTableAction($event)" [headerActions]="soHeaderActions">
                 </app-standard-table>
             </div>
             }@else if (activeTab === 'invoices') {

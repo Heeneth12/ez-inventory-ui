@@ -55,12 +55,22 @@ export class PaymentSymmaryComponent {
   }
 
   ngOnInit(): void {
+    if (!this.invoiceId && this.customerId) {
+      // If we only have a customer, automatically show the "Add Money" form
+      this.showWalletForm = true;
+    }
     this.refreshAllData();
   }
 
   refreshAllData() {
-    if (this.invoiceId) this.loadPaymentSummary();
-    if (this.customerId) this.loadCustomerWallet();
+    if (this.customerId) {
+      this.loadCustomerWallet();
+    }
+    if (this.invoiceId) {
+      this.loadPaymentSummary();
+    } else {
+      this.paymentSummary = null;
+    }
   }
 
   loadPaymentSummary() {
