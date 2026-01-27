@@ -10,7 +10,7 @@ import { PurchaseOrderModel } from '../models/purchase-order.model';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { GoodsReceiptFormComponent } from '../goods-receipt/goods-receipt-form/goods-receipt-form.component';
-import { ArrowRight, ListCheck, ListCollapse } from 'lucide-angular';
+import { ArrowRight, ListCheck, ListCollapse, ListRestart } from 'lucide-angular';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 @Component({
@@ -48,16 +48,21 @@ export class PurchaseOrderComponent {
       label: 'Move to GRN',
       icon: ArrowRight,
       color: 'primary',
-      // Only show if status is Approved
-      condition: (row) => row['status'] !== 'COMPLETED'
+      condition: (row) => row['status'] === 'ISSUED'
     },
-
     {
       key: 'view_grn_details',
       label: 'GRN Details',
       icon: ArrowRight,
       color: 'success',
       condition: (row) => row['status'] === 'COMPLETED'
+    },
+    {
+      key: 'review_po',
+      label: 'Review PO',
+      icon: ListRestart,
+      color: 'danger',
+      condition: (row) => row['status'] === 'DRAFT'
     },
     {
       key: 'view_details',
@@ -69,8 +74,7 @@ export class PurchaseOrderComponent {
   ];
 
   dateConfig: DatePickerConfig = {
-    type: 'both', // or 'single'
-    // label: 'Filter Dates',
+    type: 'both',
     placeholder: 'Start - End'
   };
 
@@ -154,12 +158,13 @@ export class PurchaseOrderComponent {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'move_to_grn') {
-      console.log('Moving PO to GRN:', event.row);
       this.openGrnForm(event.row.id);
     }
     if (event.type === 'custom' && event.key === 'view_details') {
-      console.log('Viewing PO Details:', event.row);
       this.viewPoDetails(event.row.id);
+    }
+    if (event.type === 'custom' && event.key === 'review_po') {
+      this.openUpdatePoForm(event.row.id);
     }
   }
 
