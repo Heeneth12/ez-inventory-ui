@@ -9,7 +9,9 @@ import { Router } from '@angular/router';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { CONTACT_COLUMNS } from '../../layouts/config/tableConfig';
-import { ArrowRight, Building2, Calendar, CheckCircle2, ChevronDown, CreditCard, FilePlusCorner, FileText, Mail, MapPin, Phone, User, UserPlus, XCircle, Zap, LucideAngularModule } from 'lucide-angular';
+import { ArrowRight, Building2, Calendar, CheckCircle2, ChevronDown, CreditCard, FilePlusCorner, FileText, Mail, MapPin, Phone, User, UserPlus, XCircle, Zap, Search, LucideAngularModule } from 'lucide-angular';
+import { UserManagementService } from '../user-management/userManagement.service';
+import { TenantModel } from '../user-management/models/tenant.model';
 
 @Component({
   selector: 'app-contacts',
@@ -21,6 +23,7 @@ import { ArrowRight, Building2, Calendar, CheckCircle2, ChevronDown, CreditCard,
 export class ContactsComponent implements OnInit {
 
   @ViewChild('contactDetailsTemplate') contactDetailsTemplate!: TemplateRef<any>;
+  @ViewChild('findTenantTemplate') findTenantTemplate!: TemplateRef<any>
 
   contacts: ContactModel[] = [];
   filteredContacts: ContactModel[] = [];
@@ -37,6 +40,10 @@ export class ContactsComponent implements OnInit {
 
   editingId: number | null = null;
 
+  tenants: TenantModel[] = [];
+  tenantDetails: TenantModel | null = null;
+  filteredTenants: TenantModel[] = [];
+
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   contactActions: TableActionConfig[] = [
@@ -51,10 +58,17 @@ export class ContactsComponent implements OnInit {
 
   myHeaderActions: HeaderAction[] = [
     {
-      label: 'Create',
+      label: 'Find Network Partners',
       icon: UserPlus,
       variant: 'primary',
-      action: () => console.log("hello")
+      action: () => {
+        this.loadTenants(); // Fetch tenants from auth-service
+        this.drawerService.openTemplate(
+          this.findTenantTemplate,
+          'Global Business Network',
+          'lg'
+        );
+      }
     },
   ];
 
@@ -75,16 +89,26 @@ export class ContactsComponent implements OnInit {
   readonly ChevronDown = ChevronDown;
   readonly Calendar = Calendar;
   readonly Zap = Zap;
+  readonly Search = Search
 
   constructor(
     private contactService: ContactService,
     public drawerService: DrawerService,
     private toast: ToastService,
+    private userManagementService: UserManagementService,
     private router: Router
   ) { }
 
   ngOnInit() {
     this.getAllContacts();
+    this.contactService.getMyNetwork(
+      (res:any)=>{
+        console.log(res);
+      },
+      (err:any)=>{
+        
+      }
+    )
   }
 
   getAllContacts() {
@@ -148,6 +172,73 @@ export class ContactsComponent implements OnInit {
         this.toast.show('Failed to update contact status', 'error');
       }
     );
+  }
+
+  loadTenants() {
+    this.userManagementService.getAllTenants(0, 100, {},
+      (res: any) => {
+        this.tenants = res.data.content;
+        this.filteredTenants = [...this.tenants];
+      },
+      (err: any) => this.toast.show('Failed to load network', 'error')
+    );
+  }
+
+  // 3. Update loadTenants to initialize filtered lis
+  getTenantDetailsById(tenantId: any) {
+    this.userManagementService.getTenantById(tenantId,
+      (res: any) => {
+        this.tenantDetails = res.data;
+      },
+      (err: any) => {
+        this.toast.show('Failed to load tenants', 'error');
+      }
+    )
+  }
+
+  filterTenants(event: any) {
+    const val = event.target.value.toLowerCase();
+    this.filteredTenants = this.tenants.filter(t =>
+      t.tenantName.toLowerCase().includes(val) ||
+      t.tenantCode.toLowerCase().includes(val)
+    );
+  }
+
+  // The "Handshake" logic
+  sendTradeRequest(targetTenant: TenantModel) {
+    // 1. Create a local Contact record but mark it as 'PENDING_NETWORK'
+    const newNetworkContact: any = {
+      name: targetTenant.tenantName,
+      contactCode: targetTenant.tenantCode,
+      email: targetTenant.tenantAdmin?.email,
+      tenantId: 0, // Your current tenant ID (handled by Backend)
+      linkedTenantUuid: targetTenant.tenantUuid, // KEY: This links the two accounts
+      active: false, // Don't allow billing until they accept
+      contactType: 'SUPPLIER' // Or ask user to choose
+    };
+
+    this.contactService.createContact(newNetworkContact,
+      (res: any) => {
+        this.toast.show(`Trade request sent to ${targetTenant.tenantName}`, 'success');
+        this.drawerService.close();
+        this.getAllContacts(); // Refresh list
+      },
+      (err: any) => {
+        this.toast.show('Request already exists or failed', 'error');
+      }
+    );
+  }
+
+  // 1. Add this variable to your class
+  selectedTenantId: number | null = null;
+
+  // 2. Logic to toggle (One at a time)
+  toggleTenant(id: number) {
+    if (this.selectedTenantId === id) {
+      this.selectedTenantId = null; // Close if clicked again
+    } else {
+      this.selectedTenantId = id; // Open new, closes previous because of *ngIf
+    }
   }
 
 

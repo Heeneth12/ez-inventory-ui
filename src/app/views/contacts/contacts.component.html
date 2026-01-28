@@ -160,3 +160,73 @@
     </div>
   </ng-template>
 </ng-template>
+
+<ng-template #findTenantTemplate>
+  <div class="flex flex-col h-full bg-slate-50">
+    <div class="p-6 bg-white border-b sticky top-0 z-10">
+      <div class="relative">
+        <lucide-icon [img]="Search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 size-4"></lucide-icon>
+        <input type="text" placeholder="Search businesses by name, code or city..."
+          class="w-full pl-10 pr-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all"
+          (input)="filterTenants($event)">
+      </div>
+    </div>
+
+    <div class="p-6 space-y-4 overflow-y-auto">
+      <div *ngFor="let t of filteredTenants"
+        class="bg-white border rounded-2xl overflow-hidden transition-all duration-300 shadow-sm"
+        [class.ring-2]="selectedTenantId === t.id" [class.ring-blue-500]="selectedTenantId === t.id"
+        [class.shadow-md]="selectedTenantId === t.id">
+
+        <div (click)="toggleTenant(t.id)"
+          class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="size-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg">
+              {{ t.tenantName.substring(0,2) | uppercase }}
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800">{{ t.tenantName }}</h4>
+              <span class="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-500">{{ t.tenantCode }}</span>
+            </div>
+          </div>
+          <lucide-icon [name]="ChevronDown" class="transition-transform duration-300 text-slate-400"
+            [class.rotate-180]="selectedTenantId === t.id">
+          </lucide-icon>
+        </div>
+
+        <div *ngIf="selectedTenantId === t.id"
+          class="p-4 border-t bg-slate-50/50 animate-in slide-in-from-top-2 duration-300">
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="space-y-3">
+              <label class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Contact Info</label>
+              <div class="flex items-center gap-3 text-sm text-slate-600">
+                <lucide-icon [name]="Mail" class="size-4"></lucide-icon>
+                <span>{{ t.tenantAdmin?.email || 'N/A' }}</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm text-slate-600">
+                <lucide-icon [name]="Phone" class="size-4"></lucide-icon>
+                <span>{{ t.tenantAdmin?.phone || 'N/A' }}</span>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <label class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Location</label>
+              <div class="flex items-center gap-3 text-sm text-slate-600">
+                <lucide-icon [name]="MapPin" class="size-4"></lucide-icon>
+                <span>{{ t.tenantAddress?.[0]?.city }}, {{ t.tenantAddress?.[0]?.country }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <button (click)="sendTradeRequest(t)"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all">
+              <lucide-icon [name]="Zap" class="size-4"></lucide-icon>
+              Send Connection Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -36,4 +36,20 @@ export class ContactService {
     searchContacts(filter: ContactFilter, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}/search`, filter, successfn, errorfn);
     }
+
+    getMyNetwork(successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${ContactService.CONTACTS_BASE_URL}/network/all`, successfn, errorfn);
+    }
+
+    updateNetworkStatus(id: number, status: string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}/network/${id}/update?status=${status}`, {}, successfn, errorfn);
+    }
+
+    sendNetworkRequest(payload: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${ContactService.CONTACTS_BASE_URL}/network/request`, payload, successfn, errorfn);
+    }
+
+    getIncomingRequests(successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${ContactService.CONTACTS_BASE_URL}/network/requests/incoming`, successfn, errorfn);
+    }
 }
