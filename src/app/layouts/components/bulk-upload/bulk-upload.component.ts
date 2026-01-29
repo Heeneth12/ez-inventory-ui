@@ -1,4 +1,4 @@
-import { Component, signal, Output, EventEmitter, inject } from '@angular/core';
+import { Component, signal, Output, EventEmitter, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -50,6 +50,9 @@ export class BulkUploadComponent {
     X, Loader2, Filter, Trash2, FileSpreadsheet, AlertTriangle
   };
 
+  @Input() type: 'download' | 'upload' | 'both' = 'both';
+  @Input() serviceType: 'items' | 'stock' | 'purchases' = 'items';
+
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
@@ -77,6 +80,11 @@ export class BulkUploadComponent {
     private toastService: ToastService
   ) {
 
+  }
+
+  handleSwitchSevices(type: 'items' | 'stock' | 'purchases') {
+    this.serviceType = type;
+    this.reset();
   }
 
   handleFile(file: File) {

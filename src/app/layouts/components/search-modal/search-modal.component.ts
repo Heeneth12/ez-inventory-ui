@@ -3,120 +3,150 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
-import { SearchResult, SearchService } from './search-modal.service';
+import { SearchResult, SearchService, SearchCategory } from './search-modal.service';
 
 @Component({
   selector: 'app-search-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <!-- Overlay -->
     <ng-container *ngIf="searchService.isOpen$ | async">
       <div 
-        class="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm transition-opacity"
+        class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300"
         (click)="close()">
       </div>
 
-      <!-- Modal Positioned Top-Center -->
-      <div class="fixed inset-0 z-[101] flex items-start justify-center pt-16 sm:pt-24 pointer-events-none px-4">
+      <div class="fixed inset-0 z-[101] flex items-start justify-center pt-16 sm:pt-28 pointer-events-none px-4">
         
-        <!-- Modal Card -->
         <div 
-          class="bg-white w-full max-w-2xl rounded-xl shadow-2xl border border-gray-200 overflow-hidden pointer-events-auto transform transition-all animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[80vh]">
+          class="bg-white w-full max-w-3xl rounded-xl shadow-2xl ring-1 ring-slate-900/5 overflow-hidden pointer-events-auto flex flex-col max-h-[75vh] animate-in fade-in zoom-in-95 duration-200">
           
-          <!-- Input Area -->
-          <div class="flex items-center px-4 py-3 border-b border-gray-100 relative">
-            <svg class="w-5 h-5 text-gray-400 absolute left-5 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input 
-              #searchInput
-              type="text" 
-              [(ngModel)]="searchQuery"
-              (ngModelChange)="onSearchInput($event)"
-              placeholder="Search pages, users, orders..." 
-              class="w-full pl-10 pr-4 py-2 text-lg text-slate-800 placeholder:text-gray-400 border-none focus:ring-0 focus:outline-none bg-transparent h-12"
-              autocomplete="off">
-            
-            <div class="hidden sm:flex items-center gap-1.5 absolute right-4">
-              <span class="text-xs font-medium text-gray-400 border border-gray-200 rounded px-1.5 py-0.5">ESC</span>
+          <div class="flex flex-col border-b border-gray-100">
+            <div class="flex items-center px-4 py-4 relative">
+              <svg class="w-6 h-6 text-indigo-500 absolute left-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <input 
+                #searchInput
+                type="text" 
+                [(ngModel)]="searchQuery"
+                (ngModelChange)="onSearchInput($event)"
+                placeholder="Search inventory, orders, customers..." 
+                class="w-full pl-12 pr-12 text-xl text-slate-800 placeholder:text-slate-400 border-none focus:ring-0 focus:outline-none bg-transparent h-10 font-medium"
+                autocomplete="off">
+              
+              <div *ngIf="isLoading" class="absolute right-6">
+                <svg class="animate-spin h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+              
+              <div *ngIf="!isLoading" class="hidden sm:flex absolute right-6">
+                <kbd class="hidden sm:inline-block border border-gray-200 rounded px-2 py-0.5 text-xs font-medium text-gray-400 bg-gray-50">ESC</kbd>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 px-5 pb-3 overflow-x-auto no-scrollbar">
+              <button 
+                *ngFor="let filter of filters"
+                (click)="setFilter(filter.id)"
+                [class.bg-indigo-600]="activeFilter === filter.id"
+                [class.text-white]="activeFilter === filter.id"
+                [class.bg-slate-100]="activeFilter !== filter.id"
+                [class.text-slate-600]="activeFilter !== filter.id"
+                class="px-3 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap hover:bg-indigo-500 hover:text-white">
+                {{ filter.label }}
+              </button>
             </div>
           </div>
 
-          <!-- Loading State -->
-          <div *ngIf="isLoading" class="p-4 text-center text-slate-400">
-            <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </div>
-
-          <!-- RESULTS LIST -->
-          <div class="flex-1 overflow-y-auto scroll-smooth p-2" *ngIf="!isLoading">
+          <div class="flex-1 overflow-y-auto scroll-smooth bg-slate-50/50">
             
-            <!-- ZERO STATE: Recent Searches -->
-            <div *ngIf="!searchQuery && recentSearches.length > 0">
-              <h3 class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Recent</h3>
-              <ul>
-                <li *ngFor="let item of recentSearches; let i = index">
-                  <button 
-                    (click)="selectResult(item)"
-                    (mouseenter)="selectedIndex = i"
-                    [class.bg-slate-100]="selectedIndex === i"
-                    class="w-full flex items-center gap-3 px-3 py-3 rounded-lg group transition-colors text-left">
-                    <div class="w-5 h-5 text-gray-400 group-hover:text-slate-600 flex items-center justify-center">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <span class="text-slate-600 group-hover:text-slate-900 font-medium">{{ item.title }}</span>
-                    <span class="ml-auto text-xs text-gray-300 group-hover:text-gray-400">{{ item.category }}</span>
-                  </button>
-                </li>
-              </ul>
+            <div *ngIf="searchQuery && groupedResults.length === 0 && !isLoading" class="py-16 text-center">
+              <div class="bg-white p-4 rounded-full shadow-sm w-16 h-16 mx-auto flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="text-slate-900 font-medium text-lg">No results found</h3>
+              <p class="text-slate-500 text-sm mt-1">We couldn't find anything for "{{searchQuery}}".</p>
             </div>
 
-            <!-- EMPTY STATE -->
-            <div *ngIf="searchQuery && groupedResults.length === 0" class="py-12 text-center">
-              <p class="text-slate-500 font-medium">No results found for "{{searchQuery}}"</p>
-              <p class="text-slate-400 text-sm">Try searching for 'Inventory' or 'John'</p>
-            </div>
-
-            <!-- SEARCH MATCHES GROUPED -->
-            <div *ngFor="let group of groupedResults">
-              <h3 class="px-3 py-2 mt-2 text-xs font-semibold text-gray-400 uppercase tracking-wider sticky top-0 bg-white/95 backdrop-blur z-10">
+            <div *ngFor="let group of groupedResults" class="pb-2">
+              <h3 class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur px-5 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-gray-100/50">
                 {{ group.category }}
               </h3>
-              <ul>
-                <li *ngFor="let item of group.items">
+              
+              <ul class="px-3 pt-2">
+                <li *ngFor="let item of group.items" class="mb-1">
                   <button 
                     (click)="selectResult(item)"
                     [id]="'result-' + item.id"
-                    [class.bg-indigo-50]="isActive(item)"
-                    [class.text-indigo-900]="isActive(item)"
-                    class="w-full flex items-center gap-3 px-3 py-3 rounded-lg group transition-colors text-left relative scroll-my-2">
+                    [class.bg-white]="!isActive(item)"
+                    [class.bg-indigo-600]="isActive(item)"
+                    [class.shadow-sm]="!isActive(item)"
+                    [class.shadow-md]="isActive(item)"
+                    class="w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group text-left border border-transparent"
+                    [ngClass]="isActive(item) ? 'border-indigo-500 scale-[1.01]' : 'border-gray-100 hover:border-gray-200'">
                     
-                    <!-- Active Indicator -->
-                    <div *ngIf="isActive(item)" class="absolute left-0 top-2 bottom-2 w-1 bg-indigo-500 rounded-full"></div>
-
-                    <!-- Icon -->
-                    <div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center shrink-0 text-gray-500"
-                       [class.bg-indigo-100]="isActive(item)"
-                       [class.text-indigo-600]="isActive(item)">
-                       <ng-container [ngSwitch]="item.icon">
-                         <svg *ngSwitchCase="'home'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                         <svg *ngSwitchCase="'user'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                         <svg *ngSwitchCase="'file-text'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                         <svg *ngSwitchDefault class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                       </ng-container>
+                    <div class="shrink-0 relative">
+                       <img *ngIf="item.image" [src]="item.image" class="w-10 h-10 rounded-lg object-cover bg-gray-100 border border-gray-200">
+                       
+                       <div *ngIf="!item.image" 
+                         [class.text-indigo-600]="!isActive(item)"
+                         [class.bg-indigo-50]="!isActive(item)"
+                         [class.text-white]="isActive(item)"
+                         class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
+                         <ng-container [ngSwitch]="item.type">
+                           <svg *ngSwitchCase="'products'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                           <svg *ngSwitchCase="'orders'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                           <svg *ngSwitchCase="'customers'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                           <svg *ngSwitchDefault class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                         </ng-container>
+                       </div>
                     </div>
 
-                    <!-- Text -->
                     <div class="flex-1 min-w-0">
-                      <div class="font-medium truncate" [innerHTML]="highlightText(item.title, searchQuery)"></div>
-                      <div *ngIf="item.subtitle" class="text-xs text-gray-500 truncate mt-0.5">
-                        {{ item.subtitle }}
+                      <div class="flex items-center justify-between">
+                        <span 
+                          [class.text-white]="isActive(item)"
+                          [class.text-slate-900]="!isActive(item)"
+                          class="font-semibold text-base truncate" 
+                          [innerHTML]="highlightText(item.title, searchQuery, isActive(item))">
+                        </span>
+                        
+                        <span *ngIf="item.meta" 
+                          [class.text-indigo-200]="isActive(item)"
+                          [class.text-slate-500]="!isActive(item)"
+                          class="text-xs font-mono">
+                          {{ item.meta }}
+                        </span>
+                      </div>
+                      
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span 
+                          [class.text-indigo-100]="isActive(item)"
+                          [class.text-slate-500]="!isActive(item)"
+                          class="text-sm truncate">
+                          {{ item.subtitle }}
+                        </span>
+                        
+                        <span *ngIf="item.statusLabel"
+                          [ngClass]="{
+                            'bg-green-100 text-green-700': item.status === 'success' && !isActive(item),
+                            'bg-yellow-100 text-yellow-800': item.status === 'warning' && !isActive(item),
+                            'bg-red-100 text-red-700': item.status === 'danger' && !isActive(item),
+                            'bg-gray-100 text-gray-600': item.status === 'neutral' && !isActive(item),
+                            'bg-white/20 text-white': isActive(item)
+                          }"
+                          class="text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wide">
+                          {{ item.statusLabel }}
+                        </span>
                       </div>
                     </div>
 
-                    <!-- Jump Icon (Visible on Active) -->
-                    <svg *ngIf="isActive(item)" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    <div *ngIf="isActive(item)" class="hidden sm:block">
+                      <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
 
                   </button>
                 </li>
@@ -124,21 +154,14 @@ import { SearchResult, SearchService } from './search-modal.service';
             </div>
           </div>
 
-          <!-- FOOTER: Keyboard Hints -->
-          <div class="bg-gray-50 px-4 py-3 border-t border-gray-100 flex items-center gap-4 text-xs text-gray-500">
-             <div class="flex items-center gap-1">
-               <span class="bg-white border border-gray-200 rounded px-1.5 py-0.5 font-sans">↩</span>
-               <span>to select</span>
-             </div>
-             <div class="flex items-center gap-1">
-               <span class="bg-white border border-gray-200 rounded px-1.5 py-0.5 font-sans">↑</span>
-               <span class="bg-white border border-gray-200 rounded px-1.5 py-0.5 font-sans">↓</span>
-               <span>to navigate</span>
-             </div>
-             <div class="flex items-center gap-1 ml-auto">
-               <span class="bg-white border border-gray-200 rounded px-1.5 py-0.5 font-sans">ESC</span>
-               <span>to close</span>
-             </div>
+          <div class="bg-gray-50 border-t border-gray-100 px-5 py-3 flex items-center justify-between text-xs text-gray-500">
+            <div class="flex gap-4">
+              <span><kbd class="font-sans font-semibold bg-white border border-gray-200 rounded px-1.5 shadow-sm">Enter</kbd> to select</span>
+              <span><kbd class="font-sans font-semibold bg-white border border-gray-200 rounded px-1.5 shadow-sm">↑↓</kbd> to navigate</span>
+            </div>
+            <div>
+              <span *ngIf="groupedResults.length > 0" class="text-gray-400">{{ flatResults.length }} results found</span>
+            </div>
           </div>
 
         </div>
@@ -152,8 +175,18 @@ export class SearchModalComponent implements OnInit {
   searchQuery = '';
   isLoading = false;
   
+  // Filtering Logic
+  activeFilter: SearchCategory = 'all';
+  filters: { id: SearchCategory; label: string }[] = [
+    { id: 'all', label: 'All' },
+    { id: 'products', label: 'Products' },
+    { id: 'orders', label: 'Orders' },
+    { id: 'customers', label: 'Customers' },
+    { id: 'pages', label: 'Navigation' },
+  ];
+
   recentSearches: SearchResult[] = [];
-  flatResults: SearchResult[] = []; // For keyboard nav index
+  flatResults: SearchResult[] = [];
   groupedResults: { category: string, items: SearchResult[] }[] = [];
   
   selectedIndex = 0;
@@ -167,44 +200,55 @@ export class SearchModalComponent implements OnInit {
   ngOnInit() {
     this.recentSearches = this.searchService.getRecentSearches();
 
-    // Debounce search
     this.searchSubject.pipe(
-      debounceTime(300),
+      debounceTime(250), // Snappier response
       distinctUntilChanged(),
       switchMap(query => {
         this.isLoading = true;
-        return this.searchService.search(query);
+        // Pass the active filter to the service
+        return this.searchService.search(query, this.activeFilter);
       })
     ).subscribe(results => {
       this.isLoading = false;
       this.processResults(results);
     });
 
-    // Auto focus when opened
     this.searchService.isOpen$.subscribe((isOpen: any) => {
       if (isOpen) {
         this.recentSearches = this.searchService.getRecentSearches();
         this.searchQuery = '';
+        this.activeFilter = 'all'; // Reset filter on open
         this.selectedIndex = 0;
         this.groupedResults = [];
-        setTimeout(() => this.searchInput?.nativeElement.focus(), 100);
+        setTimeout(() => this.searchInput?.nativeElement.focus(), 50);
       }
     });
   }
 
-  // --- Keyboard Shortcuts ---
+  // Set filter via click or maybe tab key later
+  setFilter(filter: SearchCategory) {
+    this.activeFilter = filter;
+    // Re-trigger search if query exists
+    if (this.searchQuery) {
+      this.onSearchInput(this.searchQuery);
+    }
+    // Focus back on input
+    this.searchInput?.nativeElement.focus();
+  }
+
   @HostListener('window:keydown', ['$event'])
   onKeydown(event: KeyboardEvent) {
-    // Open: Cmd+K or Ctrl+K
+    // Check if modal is open via service logic in real app
+    // Assuming we have a flag here or check isOpen$
+    
     if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
       event.preventDefault();
       this.searchService.toggle();
     }
 
-    // Only handle nav keys if open
-    // Note: We check a simple boolean flag in a real app, here checking service sub value implicitly
-    // Ideally we subscribe to isOpen$ to set a local flag for performance in HostListener
-    
+    // Only process nav if modal is visually open (simplified check)
+    // Add logic here to prevent processing if closed
+
     if (event.key === 'Escape') {
       this.close();
     }
@@ -223,13 +267,19 @@ export class SearchModalComponent implements OnInit {
       event.preventDefault();
       this.selectCurrent();
     }
+    
+    // Allow Tab to cycle filters?
+    if (event.key === 'Tab') {
+       // Optional: Advanced logic to cycle filters
+    }
   }
 
   onSearchInput(query: string) {
     if (!query) {
       this.isLoading = false;
       this.groupedResults = [];
-      this.flatResults = this.recentSearches; // Fallback to recent for nav
+      // Show recent searches only if filter is 'all' or matches
+      this.flatResults = this.recentSearches; 
     } else {
       this.searchSubject.next(query);
     }
@@ -243,13 +293,13 @@ export class SearchModalComponent implements OnInit {
     this.flatResults = results;
     this.selectedIndex = 0;
 
-    // Grouping Logic
     const groups: Record<string, SearchResult[]> = {};
     results.forEach(r => {
       if (!groups[r.category]) groups[r.category] = [];
       groups[r.category].push(r);
     });
 
+    // Ensure specific order of categories if desired
     this.groupedResults = Object.keys(groups).map(key => ({
       category: key,
       items: groups[key]
@@ -264,11 +314,10 @@ export class SearchModalComponent implements OnInit {
     if (this.selectedIndex < 0) this.selectedIndex = list.length - 1;
     if (this.selectedIndex >= list.length) this.selectedIndex = 0;
 
-    // Scroll into view logic
     const item = list[this.selectedIndex];
     if(item) {
         const el = document.getElementById('result-' + item.id);
-        el?.scrollIntoView({ block: 'nearest' });
+        el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }
   }
 
@@ -282,7 +331,7 @@ export class SearchModalComponent implements OnInit {
   selectResult(item: SearchResult) {
     this.searchService.addRecentSearch(item);
     this.close();
-    this.router.navigate([item.route]);
+    this.router.navigate(Array.isArray(item.route) ? item.route : [item.route]);
   }
 
   isActive(item: SearchResult): boolean {
@@ -290,10 +339,14 @@ export class SearchModalComponent implements OnInit {
     return list[this.selectedIndex]?.id === item.id;
   }
 
-  // Highlight matched text using regex
-  highlightText(text: string, query: string): string {
+  // Improved Highlighter that handles contrast
+  highlightText(text: string, query: string, isActive: boolean): string {
     if (!query) return text;
     const regex = new RegExp(`(${query})`, 'gi');
-    return text.replace(regex, '<span class="text-indigo-600 font-bold bg-indigo-50">$1</span>');
+    const highlightClass = isActive 
+      ? 'text-indigo-600 bg-white font-bold px-0.5 rounded-sm' // Inverse highlight on active
+      : 'text-indigo-600 bg-indigo-50 font-bold px-0.5 rounded-sm';
+      
+    return text.replace(regex, `<span class="${highlightClass}">$1</span>`);
   }
 }

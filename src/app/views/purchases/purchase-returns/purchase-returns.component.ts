@@ -3,12 +3,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
-import { PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
+import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PurchaseService } from '../purchase.service';
 import { PurchaseReturnModel } from '../models/purchase-return.model';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { ArrowRight, FilePlusCorner } from 'lucide-angular';
 
 @Component({
   selector: 'app-purchase-returns',
@@ -35,6 +36,25 @@ export class PurchaseReturnsComponent implements OnInit {
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
   ];
   purchaseOrderList: any;
+
+  soActions: TableActionConfig[] = [
+    {
+      key: 'create_purchase_return',
+      label: 'Create PR',
+      icon: ArrowRight,
+      color: 'primary',
+      condition: (row) => true
+    }
+  ];
+
+  myHeaderActions: HeaderAction[] = [
+    {
+      label: 'Create',
+      icon: FilePlusCorner,
+      variant: 'primary',
+      action: () => console.log("heelo")
+    },
+  ];
 
 
   dateConfig: DatePickerConfig = {

@@ -1,6 +1,6 @@
-import { Injectable, Injector } from '@angular/core'; // Import Injector
+import { Injectable, Injector } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpErrorResponse, HttpEvent } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError, filter, take, switchMap, catchError, finalize } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, filter, take, switchMap, catchError } from 'rxjs';
 import { CommonService } from '../service/common/common.service';
 import { AuthService } from '../guards/auth.service';
 import { environment } from '../../../environments/environment.development';
@@ -25,12 +25,15 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401 && !authReq.url.includes('auth/refresh')) {
-          return this.handle401Error(authReq, next);
+        // Note: We exclude the login/refresh URL specifically to avoid infinite loops
+        if ((error.status === 401 || error.status === 403) && 
+            !authReq.url.includes('auth/refresh') && 
+            !authReq.url.includes('auth/login')) {
+          return this.handleAuthError(authReq, next);
         }
 
-        // If it's a 401 on the refresh endpoint itself, or any other error, logout.
-        if (error.status === 401 && authReq.url.includes('auth/refresh')) {
+        // If the refresh token itself fails (401/403), logout immediately
+        if ((error.status === 401 || error.status === 403) && authReq.url.includes('auth/refresh')) {
              authService.logout();
         }
 
@@ -50,21 +53,18 @@ export class AuthInterceptor implements HttpInterceptor {
     return request.clone({ setHeaders: headersConfig });
   }
 
-  private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  // Renamed for clarity since it handles 401 and 403
+  private handleAuthError(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
-      // --- Scenario A: First request to hit 401 ---
       this.isRefreshing = true;
-      
-      // Reset the subject to null so others wait
       this.refreshTokenSubject.next(null);
 
       const authService = this.injector.get(AuthService);
 
-      // We wrap your callback-based service in an Observable to make it play nice with RxJS
       return new Observable<string>((observer) => {
           this.commonService.refreshToken({ refreshToken: authService.getRefreshToken() },
             (res: any) => {
-               // Success Callback
+               // Success: Save new tokens
                const newToken = res.data.accessToken;
                localStorage.setItem('access_token', newToken);
                if (res.data.refreshToken) {
@@ -74,7 +74,7 @@ export class AuthInterceptor implements HttpInterceptor {
                observer.complete();
             },
             (err: any) => {
-               // Error Callback
+               // Error: Refresh failed
                observer.error(err);
             }
           );
@@ -93,13 +93,11 @@ export class AuthInterceptor implements HttpInterceptor {
       );
 
     } else {
-      // --- Scenario B: Subsequent requests while refreshing ---
       // Wait until the refreshTokenSubject is not null
       return this.refreshTokenSubject.pipe(
-        filter(token => token != null), // Wait for valid token
-        take(1), // Take only the first one
+        filter(token => token != null),
+        take(1),
         switchMap(token => {
-          // Retry the request with the new token
           return next.handle(this.addToken(request, token));
         })
       );
