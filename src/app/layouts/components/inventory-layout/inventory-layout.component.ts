@@ -45,11 +45,12 @@ import { TutorialService } from '../../service/common/tutorial.service';
 import { PromoModalComponent } from "../promo-modal/promo-modal.component";
 import { ModalService } from '../modal/modalService';
 import { NotificationsComponent } from '../notifications/notifications.component';
+import { NotificationService } from '../notifications/notification.service';
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, McpChatBotComponent, PromoModalComponent],
+  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, McpChatBotComponent, PromoModalComponent, NotificationsComponent],
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css'
 })
@@ -211,7 +212,8 @@ export class InventoryLayoutComponent implements OnInit {
     private modalService: ModalService,
     private authService: AuthService,
     private router: Router,
-    private tutorialService: TutorialService
+    private tutorialService: TutorialService,
+    private notificationSvc:NotificationService
   ) { }
 
   ngOnInit() {

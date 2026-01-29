@@ -19,6 +19,7 @@
     "@angular/platform-browser": "^18.0.0",
     "@angular/platform-browser-dynamic": "^18.0.0",
     "@angular/router": "^18.0.0",
+    "@stomp/stompjs": "^7.2.1",
     "chart.js": "^4.5.1",
     "driver.js": "^1.4.0",
     "highcharts": "^12.4.0",
@@ -26,6 +27,7 @@
     "marked": "^17.0.1",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.8.3",
+    "sockjs-client": "^1.6.1",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
   },
@@ -34,6 +36,7 @@
     "@angular/cli": "^18.0.2",
     "@angular/compiler-cli": "^18.0.0",
     "@types/jasmine": "~5.1.0",
+    "@types/sockjs-client": "^1.5.4",
     "autoprefixer": "^10.4.20",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
