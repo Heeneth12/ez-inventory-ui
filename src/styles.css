@@ -2,6 +2,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'driver.js/dist/driver.css';
 
 /* Overriding driver.js default styles for a clean SaaS look */
 .driverjs-theme {
