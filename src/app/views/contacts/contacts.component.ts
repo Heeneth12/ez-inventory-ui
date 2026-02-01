@@ -270,7 +270,7 @@ export class ContactsComponent implements OnInit {
   openEditContact(contactId: number) {
     this.editingId = contactId;
     this.drawerService.close();
-    this.router.navigate(['/contacts/edit', 1]);
+    this.router.navigate(['/contacts/edit', this.editingId]);
 
   }
 

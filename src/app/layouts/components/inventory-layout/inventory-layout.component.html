@@ -15,18 +15,19 @@
         }">
         <div class="h-16 flex items-center shrink-0 transition-all duration-300 border-b border-white/5"
             [ngClass]="isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'">
+            <a href="/dashboard">
+                <div class="flex items-center gap-1 overflow-hidden whitespace-nowrap">
+                    <img src="assets/images/new.png" alt="logo" class="w-8 h-8 object-contain shrink-0" />
 
-            <div class="flex items-center gap-1 overflow-hidden whitespace-nowrap">
-                <img src="assets/images/new.png" alt="logo" class="w-8 h-8 object-contain shrink-0" />
-
-                @if (!isSidebarCollapsed) {
-                <div class="flex flex-col animate-in fade-in slide-in-from-left-4 duration-300">
-                    <span class="text-xl font-bold text-white tracking-tight leading-none bg-clip-text">
-                        Inventory
-                    </span>
+                    @if (!isSidebarCollapsed) {
+                    <div class="flex flex-col animate-in fade-in slide-in-from-left-4 duration-300">
+                        <span class="text-xl font-bold text-white tracking-tight leading-none bg-clip-text">
+                            Inventory
+                        </span>
+                    </div>
+                    }
                 </div>
-                }
-            </div>
+            </a>
 
             <button (click)="closeMenu()" class="lg:hidden text-slate-400 hover:text-white transition-colors p-1">
                 <lucide-icon [img]="XIcon" class="w-6 h-6"></lucide-icon>
@@ -288,7 +289,7 @@
 <app-modal></app-modal>
 <app-drawer></app-drawer>
 <app-loader></app-loader>
-<app-mcp-chat-bot></app-mcp-chat-bot>
+<!-- <app-mcp-chat-bot></app-mcp-chat-bot> -->
 <app-search-modal></app-search-modal>
 <ng-template #userProfileTemplate>
     <app-user></app-user>

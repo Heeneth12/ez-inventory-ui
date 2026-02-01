@@ -8,12 +8,35 @@ import { environment } from "../../../environments/environment.development";
 })
 export class PurchaseService {
 
+    private static PURCHASE_REQUEST_BASE_URL = environment.devUrl + 'v1/prq'
     private static PURCHASE_ORDER_BASE_URL = environment.devUrl + '/v1/purchaseorder';
     private static GRN_BASE_URL = environment.devUrl + '/v1/grn';
     private static PURCHASE_RETURN_BASE_URL = environment.devUrl + '/v1/purchasereturn';
 
     constructor(private httpService: HttpService) { }
 
+    // PRQ
+    createPrq(request: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(PurchaseService.PURCHASE_REQUEST_BASE_URL, request, successfn, errorfn);
+    }
+
+    getPrqById(prqId: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PurchaseService.PURCHASE_REQUEST_BASE_URL}/${prqId}`, successfn, errorfn);
+    }
+
+    getAllPrqs(page: number, size: number, filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PurchaseService.PURCHASE_REQUEST_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
+    }
+
+    updatePrq(prqId: number, request: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PurchaseService.PURCHASE_REQUEST_BASE_URL}/${prqId}/update`, request, successfn, errorfn);
+    }
+
+    updatePrqStatus(prqId: number, status: string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PurchaseService.PURCHASE_REQUEST_BASE_URL}/${prqId}/status?status=${status}`, {}, successfn, errorfn);
+    }
+
+    // PO
     createPO(request: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(PurchaseService.PURCHASE_ORDER_BASE_URL, request, successfn, errorfn);
     }
@@ -22,16 +45,16 @@ export class PurchaseService {
         return this.httpService.getHttp(`${PurchaseService.PURCHASE_ORDER_BASE_URL}/${poId}`, successfn, errorfn);
     }
 
-    getAllPo(page: number, size: number, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${PurchaseService.PURCHASE_ORDER_BASE_URL}?page=${page}&size=${size}`, successfn, errorfn);
+    getAllPo(page: number, size: number, filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PurchaseService.PURCHASE_ORDER_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
     updatePo(poId: number, request: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${PurchaseService.PURCHASE_ORDER_BASE_URL}/${poId}/update`, request, successfn, errorfn);
     }
 
-    cancelPo(poId: number, successfn: any, errorfn: any) {
-        return this.httpService.deleteHttp(`${PurchaseService.PURCHASE_ORDER_BASE_URL}/${poId}`, successfn, errorfn);
+    updatePoSatus(poId: number, status: string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PurchaseService.PURCHASE_ORDER_BASE_URL}/${poId}/status?status=${status}`, {}, successfn, errorfn);
     }
 
     // GRN
@@ -51,7 +74,7 @@ export class PurchaseService {
         return this.httpService.getHttp(`${PurchaseService.GRN_BASE_URL}/po/${poId}`, successfn, errorfn);
     }
 
-    // PURCHASE RETURN
+    // PR
     createPurchaseReturn(request: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(PurchaseService.PURCHASE_RETURN_BASE_URL, request, successfn, errorfn);
     }
