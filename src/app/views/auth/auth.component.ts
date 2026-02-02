@@ -25,7 +25,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   authForm!: FormGroup;
   private routeSub: Subscription | undefined;
   private googleClientId = environment.googleClientId;
-  private readonly APP_KEY = 'EZH_INV_001';
+  private readonly APP_KEY = 'EZH_INV_APP';
 
   countries = [
     { code: '+91', label: 'IN (+91)', countryName: 'India' },

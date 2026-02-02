@@ -171,7 +171,7 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // DANGER
-    if (['inactive', 'out', 'error', 'failed', 'rejected', 'out of stock', 'closed', 'unpaid'].includes(s)) {
+    if (['inactive', 'out', 'error', 'failed', 'rejected', 'out of stock', 'closed', 'unpaid', 'cancelled'].includes(s)) {
       return styles.danger;
     }
 
