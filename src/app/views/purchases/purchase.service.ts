@@ -8,7 +8,7 @@ import { environment } from "../../../environments/environment.development";
 })
 export class PurchaseService {
 
-    private static PURCHASE_REQUEST_BASE_URL = environment.devUrl + 'v1/prq'
+    private static PURCHASE_REQUEST_BASE_URL = environment.devUrl + '/v1/prq'
     private static PURCHASE_ORDER_BASE_URL = environment.devUrl + '/v1/purchaseorder';
     private static GRN_BASE_URL = environment.devUrl + '/v1/grn';
     private static PURCHASE_RETURN_BASE_URL = environment.devUrl + '/v1/purchasereturn';

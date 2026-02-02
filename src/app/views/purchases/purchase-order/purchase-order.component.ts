@@ -6,24 +6,31 @@ import { PurchaseService } from '../purchase.service';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
-import { PurchaseOrderModel } from '../models/purchase-order.model';
+import { PurchaseOrderFilter, PurchaseOrderModel } from '../models/purchase-order.model';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { GoodsReceiptFormComponent } from '../goods-receipt/goods-receipt-form/goods-receipt-form.component';
-import { ArrowRight, ListCheck, ListCollapse, ListRestart } from 'lucide-angular';
+import { ArrowRight, ClipboardList, Download, PenIcon, ShareIcon, X } from 'lucide-angular';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { ButtonConfig, ButtonGroupComponent } from '../../../layouts/UI/button-group/button-group.component';
+import { PO_ACTIONS, PO_COLUMN, PO_DATE_CONFIG } from '../purchasesConfig';
 
 @Component({
   selector: 'app-purchase-order',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent],
+  imports: [CommonModule, StandardTableComponent, ButtonGroupComponent],
   templateUrl: './purchase-order.component.html',
   styleUrl: './purchase-order.component.css'
 })
 export class PurchaseOrderComponent {
 
+  //config
+  columns: TableColumn[] = PO_COLUMN
+  poActions: TableActionConfig[] = PO_ACTIONS
+  dateConfig: DatePickerConfig = PO_DATE_CONFIG
+
   @ViewChild('opSummary') opSummary!: TemplateRef<any>;
-  purchaseOrderFilter: any = {};
+  purchaseOrderFilter: PurchaseOrderFilter = new PurchaseOrderFilter();
 
   purchaseOrderList: PurchaseOrderModel[] = [];
   purchaseOrder: PurchaseOrderModel | null = null;
@@ -32,51 +39,49 @@ export class PurchaseOrderComponent {
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
 
-  columns: TableColumn[] = [
-    { key: 'orderNumber', label: 'PO Number', width: '100px', type: 'link' },
-    { key: 'createdAt', label: 'Order Date', width: '110px', type: 'date' },
-    { key: 'expectedDeliveryDate', label: 'Delivery Date', width: '110px', type: 'date' },
-    { key: 'supplierName', label: 'Supplier', width: '110px', type: 'text' },
-    { key: 'status', label: 'status', width: '100px', type: 'badge' },
-    { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency', align: 'right' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
-  ];
-
-  poActions: TableActionConfig[] = [
+  opSummaryCompleted: ButtonConfig[] = [
     {
-      key: 'move_to_grn',
-      label: 'Move to GRN',
-      icon: ArrowRight,
-      color: 'primary',
-      condition: (row) => row['status'] === 'ISSUED'
+      label: 'Download',
+      icon: Download,
+      color: 'gray',
+      size: 'md',
+      action: () => console.log('Close modal'),
+      disabled: false
     },
     {
-      key: 'view_grn_details',
-      label: 'GRN Details',
-      icon: ArrowRight,
-      color: 'success',
-      condition: (row) => row['status'] === 'COMPLETED'
-    },
-    {
-      key: 'review_po',
-      label: 'Review PO',
-      icon: ListRestart,
-      color: 'danger',
-      condition: (row) => row['status'] === 'DRAFT'
-    },
-    {
-      key: 'view_details',
-      label: 'View Details',
-      icon: ListCollapse,
-      color: 'neutral',
-      condition: (row) => true
+      label: 'Share',
+      icon: ShareIcon,
+      color: 'blue',
+      size: 'md',
+      action: () => console.log('Save changes')
     }
   ];
 
-  dateConfig: DatePickerConfig = {
-    type: 'both',
-    placeholder: 'Start - End'
-  };
+  opSummaryDraft: ButtonConfig[] = [
+    {
+      label: 'Cancle PO',
+      icon: X,
+      color: 'red',
+      size: 'md',
+      action: () => this.purchaseOrder && this.updatePoStatus(this.purchaseOrder.id, "CANCELLED"),
+      disabled: false
+    },
+    {
+      label: 'Edit PO',
+      icon: PenIcon,
+      color: 'orange',
+      size: 'md',
+      action: () => console.log('Close modal'),
+      disabled: false
+    },
+    {
+      label: 'Conform PO',
+      icon: ClipboardList,
+      color: 'blue',
+      size: 'md',
+      action: () => this.purchaseOrder && this.updatePoStatus(this.purchaseOrder.id, "ISSUED")
+    }
+  ];
 
   constructor(
     private purchaseService: PurchaseService,
@@ -98,6 +103,7 @@ export class PurchaseOrderComponent {
     this.purchaseService.getAllPo(
       apiPage,
       this.pagination.pageSize,
+      this.purchaseOrderFilter,
       (response: any) => {
         this.purchaseOrderList = response.data.content;
         this.pagination = {
@@ -154,6 +160,22 @@ export class PurchaseOrderComponent {
       'PO Summary',
       "lg"
     );
+  }
+
+  updatePoStatus(poId: number | null, status: string) {
+    if (poId == null) return;
+    this.purchaseService.updatePoSatus(
+      poId,
+      status,
+      (response: any) => {
+        this.toastService.show("PO status updates to" + status, 'success');
+        this.drawerService.close();
+        this.getAllPo();
+      },
+      (error: any) => {
+        this.toastService.show(" ", 'error')
+      }
+    )
   }
 
   handleTableAction(event: TableAction) {

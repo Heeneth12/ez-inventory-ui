@@ -1,33 +1,32 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
+import { Component } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { Search, ShoppingBag, XIcon, Check, ChevronRight, SaveIcon, Eye, Mail, FileText, Settings, LucideAngularModule } from 'lucide-angular';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
-import { PurchaseService } from '../../purchase.service';
+import { ContactModel } from '../../../contacts/contacts.model';
 import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
-import { ContactModel } from '../../../contacts/contacts.model';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
-import { LucideAngularModule, Search, ShoppingBag, XIcon, Check, ChevronRight, Eye, Mail, SaveIcon, FileText, Settings } from "lucide-angular";
-import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
+import { PurchaseService } from '../../purchase.service';
+import { CommonModule } from '@angular/common';
+import { InvoiceHeaderComponent } from '../../../../layouts/components/invoice-header/invoice-header.component';
+import { PrqStatus } from '../../models/prq.model';
 
 @Component({
-  selector: 'app-purchase-order-form',
+  selector: 'app-purchase-request-form',
   standalone: true,
-  imports: [
-    CommonModule,
+  imports: [CommonModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
     LucideAngularModule,
-    InvoiceHeaderComponent
-  ],
-  templateUrl: './purchase-order-form.component.html',
-  styleUrls: ['./purchase-order-form.component.css']
+    InvoiceHeaderComponent],
+  templateUrl: './purchase-request-form.component.html',
+  styleUrl: './purchase-request-form.component.css'
 })
-export class PurchaseOrderFormComponent implements OnInit {
+export class PurchaseRequestFormComponent {
 
   // Lucide Icons
   readonly SearchIcon = Search;
@@ -41,10 +40,10 @@ export class PurchaseOrderFormComponent implements OnInit {
   readonly fileTextIcon = FileText;
   readonly SettingsIcon = Settings;
 
-  poForm!: FormGroup;
+  prqForm!: FormGroup;
   isEditMode = false;
-  poId: number | null = null;
-  poStatus: 'OPEN' | 'DRAFT' | 'ISSUED' = 'ISSUED';
+  prqId: number | null = null;
+  prqStatus: 'OPEN' | 'DRAFT' | 'ISSUED' | 'PENDING' = 'PENDING';
 
   // Data State
   selectedSupplier: ContactModel | null = null;
@@ -75,10 +74,9 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   private initForm() {
-    this.poForm = this.fb.group({
+    this.prqForm = this.fb.group({
       supplierId: [null, [Validators.required]],
       warehouseId: [1, [Validators.required]],
-      expectedDeliveryDate: [new Date().toISOString().substring(0, 10), [Validators.required]],
       notes: [''],
       items: this.fb.array([], Validators.required)
     });
@@ -89,8 +87,8 @@ export class PurchaseOrderFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.isEditMode = true;
-        this.poId = +id;
-        this.loadPoDetails(this.poId);
+        this.prqId = +id;
+        this.loadPrqDetails(this.prqId);
       }
     });
   }
@@ -124,18 +122,12 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   onItemSearchInput(event: any) {
-    const query = event.target.value;
-    this.itemSearchQuery = query;
-    this.itemSearchSubject.next(query);
+    this.itemSearchSubject.next(event.target.value);
   }
 
   selectItemFromSearch(item: ItemModel) {
     const itemsArray = this.itemsFormArray;
-
-    // Check if item exists in list to increment qty instead of adding new row
-    const existingIndex = itemsArray.controls.findIndex(
-      ctrl => ctrl.get('itemId')?.value === item.id
-    );
+    const existingIndex = itemsArray.controls.findIndex(ctrl => ctrl.get('itemId')?.value === item.id);
 
     if (existingIndex > -1) {
       this.adjustQuantity(existingIndex, 1);
@@ -143,11 +135,10 @@ export class PurchaseOrderFormComponent implements OnInit {
       itemsArray.push(this.createItemGroup({
         itemId: item.id,
         itemName: item.name,
-        unitPrice: item.purchasePrice || 0,
-        orderedQty: 1
+        estimatedUnitPrice: item.purchasePrice || 0, // Mapping to PRQ DTO
+        requestedQty: 1
       }));
     }
-
     this.itemSearchQuery = "";
     this.showItemResults = false;
   }
@@ -156,15 +147,15 @@ export class PurchaseOrderFormComponent implements OnInit {
    * FORM ARRAY HELPERS
    */
   get itemsFormArray(): FormArray {
-    return this.poForm.get('items') as FormArray;
+    return this.prqForm.get('items') as FormArray;
   }
 
   createItemGroup(data?: any): FormGroup {
     return this.fb.group({
       itemId: [data ? data.itemId : null, Validators.required],
       itemName: [data ? data.itemName : ''],
-      orderedQty: [data ? data.orderedQty : 1, [Validators.required, Validators.min(1)]],
-      unitPrice: [data ? data.unitPrice : 0, [Validators.required, Validators.min(0)]]
+      requestedQty: [data ? data.requestedQty : 1, [Validators.required, Validators.min(1)]],
+      estimatedUnitPrice: [data ? data.estimatedUnitPrice : 0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -173,20 +164,18 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   adjustQuantity(index: number, delta: number) {
-    const control = this.itemsFormArray.at(index).get('orderedQty');
+    const control = this.itemsFormArray.at(index).get('requestedQty');
     const newValue = (control?.value || 0) + delta;
-    if (newValue >= 1) {
-      control?.setValue(newValue);
-    }
+    if (newValue >= 1) control?.setValue(newValue);
   }
 
   getRowTotal(index: number): number {
     const row = this.itemsFormArray.at(index);
-    return (row.get('orderedQty')?.value || 0) * (row.get('unitPrice')?.value || 0);
+    return (row.get('requestedQty')?.value || 0) * (row.get('estimatedUnitPrice')?.value || 0);
   }
 
   get grandTotal(): number {
-    return this.itemsFormArray.controls.reduce((acc, c) => acc + this.getRowTotal(this.itemsFormArray.controls.indexOf(c)), 0);
+    return this.itemsFormArray.controls.reduce((acc, _, i) => acc + this.getRowTotal(i), 0);
   }
 
   /**
@@ -195,79 +184,62 @@ export class PurchaseOrderFormComponent implements OnInit {
    */
   selectSupplier(supplier: ContactModel) {
     this.selectedSupplier = supplier;
-    this.poForm.patchValue({ supplierId: supplier.id });
+    this.prqForm.patchValue({ supplierId: supplier.id });
   }
 
   onSupplierCleared() {
     this.selectedSupplier = null;
-    this.poForm.patchValue({ supplierId: null });
+    this.prqForm.patchValue({ supplierId: null });
   }
 
   /**
    * DATA LOADING & SUBMISSION
    */
-  loadPoDetails(id: number) {
+  loadPrqDetails(id: number) {
     this.loaderSvc.show();
-    this.purchaseService.getPoById(id,
-      (res: any) => {
-        const data = res.data;
-        this.poForm.patchValue({
-          supplierId: data.supplierId,
-          warehouseId: data.warehouseId,
-          expectedDeliveryDate: new Date(data.expectedDeliveryDate).toISOString().split('T')[0],
-          notes: data.notes
-        });
-
-        const itemControl = this.itemsFormArray;
-        itemControl.clear();
-        data.items.forEach((item: any) => itemControl.push(this.createItemGroup(item)));
-
-        this.fetchSupplier(data.supplierId);
-        this.loaderSvc.hide();
-      },
-      () => this.loaderSvc.hide()
-    );
+    this.purchaseService.getPrqById(id, (res: any) => {
+      const data = res.data;
+      this.prqForm.patchValue({
+        supplierId: data.supplierId,
+        warehouseId: data.warehouseId,
+        notes: data.notes
+      });
+      const itemControl = this.itemsFormArray;
+      itemControl.clear();
+      data.items.forEach((item: any) => itemControl.push(this.createItemGroup(item)));
+      this.fetchSupplier(data.supplierId);
+      this.loaderSvc.hide();
+    }, () => this.loaderSvc.hide());
   }
 
   private fetchSupplier(id: number) {
-    this.contactService.getContactById(id,
-      (res: any) => this.selectedSupplier = res.data,
-      () => this.selectedSupplier = null
-    );
+    this.contactService.getContactById(id, (res: any) => this.selectedSupplier = res.data, () => { });
   }
 
   onSubmit() {
-    if (this.poForm.invalid) {
-      this.poForm.markAllAsTouched();
-      this.toastService.show('Please add items and fill required fields', 'warning');
+    if (this.prqForm.invalid) {
+      this.prqForm.markAllAsTouched();
+      this.toastService.show('Please fill all required fields', 'warning');
       return;
     }
 
     this.loaderSvc.show();
-    const rawVal = this.poForm.getRawValue();
-
-    // Prepare Payload
     const payload = {
-      ...rawVal,
-      status: this.poStatus,
-      expectedDeliveryDate: new Date(rawVal.expectedDeliveryDate).getTime()
+      ...this.prqForm.getRawValue(),
+      status: this.prqStatus,
+      totalEstimatedAmount: this.grandTotal
     };
 
-    const cb = (res: any) => {
+    const cb = () => {
       this.loaderSvc.hide();
-      this.toastService.show(this.isEditMode ? 'Purchase Order Updated' : 'Purchase Order Created', 'success');
-      this.router.navigate(['purchases/order']);
+      this.toastService.show(this.isEditMode ? 'PRQ Updated' : 'PRQ Created', 'success');
+      this.router.navigate(['purchases/request']); // Adjusted route
     };
 
-    const errCb = () => {
-      this.loaderSvc.hide();
-      this.toastService.show('Failed to save purchase order', 'error');
-    };
-
-    if (this.isEditMode && this.poId) {
-      this.purchaseService.updatePo(this.poId, payload, cb, errCb);
+    if (this.isEditMode && this.prqId) {
+      this.purchaseService.updatePrq(this.prqId, payload, cb, () => this.loaderSvc.hide());
     } else {
-      this.purchaseService.createPO(payload, cb, errCb);
+      this.purchaseService.createPrq(payload, cb, () => this.loaderSvc.hide());
     }
   }
 
@@ -275,9 +247,9 @@ export class PurchaseOrderFormComponent implements OnInit {
     this.router.navigate(['purchases/order']);
   }
 
-  updatePoStatus(poId: number, status: string) {
+  updatePoStatus(prqId: number, status: string) {
     this.purchaseService.updatePoSatus(
-      poId,
+      prqId,
       status,
       (response: any) => {
         this.toastService.show("PO status updates to" + status, 'success');
@@ -289,7 +261,7 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   onSaveDraft() {
-    this.poStatus = 'DRAFT';
+    this.prqStatus = 'DRAFT';
     this.onSubmit();
   }
 
@@ -304,4 +276,5 @@ export class PurchaseOrderFormComponent implements OnInit {
     }
     this.toastService.show(`Sending email to ${this.selectedSupplier.email}`, 'success');
   }
+
 }

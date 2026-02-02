@@ -27,8 +27,8 @@ export class PurchaseOrderAdapterComponent {
 
     navigationTabs: TabItem[] = [
         { id: 'list', label: 'Purchase Orders', icon: FileText },
-        { id: 'create', label: 'Create PO', icon: FilePen },
-        { id: 'edit', label: 'Edit PO', icon: Pencil }
+        { id: 'create', label: 'Create PRQ', icon: FilePen },
+        { id: 'edit', label: 'Edit PRQ', icon: Pencil }
     ];
 
     constructor(
@@ -40,9 +40,9 @@ export class PurchaseOrderAdapterComponent {
             if (!(event instanceof NavigationEnd)) return;
             const url = this.router.url;
 
-            if (url.includes('/purchases/order/create')) {
+            if (url.includes('/purchases/prq/create')) {
                 this.activeTab.set('create');
-            } else if (url.includes('/purchases/order/edit')) {
+            } else if (url.includes('/purchases/prq/edit')) {
                 this.activeTab.set('edit');
             } else {
                 this.activeTab.set('list');

@@ -1,0 +1,228 @@
+<div class="bg-white font-sans">
+  <form [formGroup]="prqForm" (ngSubmit)="onSubmit()">
+    <div class="max-w-[1600px] mx-auto p-2 lg:p-4">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start  ">
+
+        <div class="lg:col-span-8 space-y-6">
+
+          <app-invoice-header [selectedContact]="selectedSupplier" [searchType]="'BOTH'"
+            (contactSelected)="selectSupplier($event)" (contactCleared)="onSupplierCleared()">
+          </app-invoice-header>
+
+          <div class="bg-white rounded-lg border border-gray-300 flex flex-col overflow-hidden min-h-[600px]">
+            <div class="p-6 md:p-8 border-b border-gray-50">
+              <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900 tracking-tight">Order Items</h3>
+                  <p class="text-sm text-gray-500 mt-1">Manage items to be purchased from vendor</p>
+                </div>
+                <div class="text-right hidden md:block">
+                  <span
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
+                    {{ itemsFormArray.length }} Items
+                  </span>
+                </div>
+              </div>
+
+              <div class="relative z-30 group">
+                <div
+                  class="flex items-center rounded-xl bg-white border border-gray-200 shadow-sm transition-all duration-200 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/30">
+                  <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <lucide-icon [img]="SearchIcon"
+                        class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500"></lucide-icon>
+                    </div>
+                    <input type="text" [(ngModel)]="itemSearchQuery" [ngModelOptions]="{standalone: true}"
+                      (keyup)="onItemSearchInput($event)"
+                      class="block w-full pl-11 pr-4 py-3.5 bg-transparent border-none text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+                      placeholder="Search products to add..." />
+                  </div>
+                </div>
+
+                <div *ngIf="showItemResults"
+                  class="absolute mt-2 w-full bg-white rounded-xl shadow-2xl border border-gray-100 max-h-96 overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2">
+                  <div *ngFor="let item of itemSearchResults" (click)="selectItemFromSearch(item)"
+                    class="flex items-center gap-4 px-4 py-3.5 hover:bg-indigo-50/50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors">
+                    <div
+                      class="w-10 h-10 bg-gray-100 rounded-lg shrink-0 border border-gray-200 flex items-center justify-center overflow-hidden">
+                      <img [src]="'https://ui-avatars.com/api/?name=' + item.name + '&background=e0e7ff&color=4f46e5'"
+                        class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h4 class="text-sm font-semibold text-gray-900">{{ item.name }}</h4>
+                      <p class="text-xs text-gray-500 font-mono">SKU: {{ item.sku || 'N/A' }}</p>
+                    </div>
+                    <div class="text-right">
+                      <div class="font-bold text-gray-900">{{ item.purchasePrice | currency:'INR' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50/80 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider sticky top-0 z-10 backdrop-blur-sm">
+              <div class="col-span-6 pl-2">Item Details</div>
+              <div class="col-span-2 text-right">Unit Price</div>
+              <div class="col-span-2 text-center">Quantity</div>
+              <div class="col-span-2 text-right pr-4">Line Total</div>
+            </div>
+
+            <div *ngIf="itemsFormArray.length === 0"
+              class="flex flex-col items-center justify-center py-20 text-center">
+              <lucide-icon [img]="ShoppingBag" class="w-12 h-12 text-gray-200 mb-4"></lucide-icon>
+              <p class="text-sm font-medium text-gray-900">Purchase list is empty</p>
+              <p class="text-xs text-gray-500 mt-1">Search for products above to build your order</p>
+            </div>
+
+            <div class="px-2 md:px-0 pb-4" formArrayName="items">
+              <div *ngFor="let item of itemsFormArray.controls; let i = index" [formGroupName]="i"
+                class="relative grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-50 hover:bg-gray-50/50 transition-all group items-center">
+
+                <div class="col-span-1 md:col-span-6 flex items-center gap-4">
+                  <div
+                    class="w-10 h-10 bg-indigo-50 border border-indigo-100 rounded-lg flex items-center justify-center text-indigo-500 font-bold text-xs">
+                    {{ i + 1 }}
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold text-gray-900 truncate">{{ item.get('itemName')?.value }}</p>
+                    <p class="text-[10px] text-gray-400 font-mono">ID: {{ item.get('itemId')?.value }}</p>
+                  </div>
+                </div>
+
+                <div class="col-span-1 md:col-span-2 md:text-right flex justify-between md:block">
+                <label class="md:hidden text-xs text-gray-500">Est. Rate</label>
+                <input type="number" formControlName="estimatedUnitPrice"
+                  class="w-24 md:w-full text-right bg-transparent border-b border-transparent focus:border-indigo-500 p-0 text-sm font-medium text-gray-900 focus:ring-0">
+              </div>
+
+              <div class="col-span-1 md:col-span-2 flex justify-between md:justify-center">
+                <label class="md:hidden text-xs text-gray-500">Qty</label>
+                <div class="flex items-center bg-white border border-gray-200 rounded-lg shadow-sm h-8">
+                  <button type="button" (click)="adjustQuantity(i, -1)" class="px-2 text-gray-400">-</button>
+                  <input type="number" formControlName="requestedQty"
+                    class="w-10 text-center text-sm font-bold border-none p-0 focus:ring-0">
+                  <button type="button" (click)="adjustQuantity(i, 1)" class="px-2 text-gray-400">+</button>
+                </div>
+              </div>
+
+                <div class="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-3 md:pr-4">
+                  <label class="md:hidden text-xs font-bold text-gray-900">Total</label>
+                  <span class="text-sm font-bold text-gray-900">{{ getRowTotal(i) | currency:'INR' }}</span>
+                  <button type="button" (click)="removeItem(i)"
+                    class="text-gray-300 hover:text-red-500 p-1 rounded-full transition-all md:opacity-0 md:group-hover:opacity-100">
+                    <lucide-icon [img]="xIconIcon" class="w-4 h-4"></lucide-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-6">
+          <div class="sticky top-6 space-y-6">
+
+            <div class="grid grid-cols-3 gap-3 mt-8">
+              <button type="submit"
+                class="col-span-2 group relative flex items-center justify-between p-4 bg-indigo-600 border border-indigo-600 rounded-xl hover:shadow-indigo-300 hover:-translate-y-0.5 transition-all active:scale-[0.98] text-white">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                    <lucide-icon [img]="checkIcon" class="w-5 h-5"></lucide-icon>
+                  </div>
+                  <div class="text-left">
+                    <div class="font-bold text-sm">Save Order</div>
+                    <div class="text-[10px] text-indigo-100 opacity-90">Finalize Purchase</div>
+                  </div>
+                </div>
+                <lucide-icon [img]="chevronRightIcon"
+                  class="w-5 h-5 text-white/70 group-hover:translate-x-1 transition-transform"></lucide-icon>
+              </button>
+
+              <button type="button" (click)="onCancel()"
+                class="col-span-1 group flex flex-col items-center justify-center gap-1 p-3 bg-white border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-100 hover:shadow-md transition-all active:scale-[0.98]">
+                <div
+                  class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center group-hover:bg-red-100 group-hover:text-red-500 transition-colors">
+                  <lucide-icon [img]="xIconIcon" class="w-4 h-4"></lucide-icon>
+                </div>
+                <span class="text-[10px] font-bold text-gray-500 group-hover:text-red-600">Cancel</span>
+              </button>
+
+              <button type="button" (click)="onSaveDraft()"
+                class="col-span-1 flex flex-col items-center justify-center gap-1.5 h-16 bg-gray-50 border border-gray-200 rounded-xl hover:bg-white hover:border-gray-300 transition-all group">
+                <lucide-icon [img]="saveIcon"
+                  class="w-5 h-5 text-gray-500 transition-transform group-hover:scale-110"></lucide-icon>
+                <span class="text-[10px] font-bold text-gray-600">Draft</span>
+              </button>
+
+              <button type="button" (click)="onPreview()"
+                class="col-span-1 flex flex-col items-center justify-center gap-1.5 h-16 bg-blue-50/40 border border-blue-100 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all group">
+                <lucide-icon [img]="eyeIcon"
+                  class="w-5 h-5 text-blue-400 transition-transform group-hover:scale-110"></lucide-icon>
+                <span class="text-[10px] font-bold text-blue-500">Preview</span>
+              </button>
+
+              <button type="button" (click)="onSendMail()"
+                class="col-span-1 flex flex-col items-center justify-center gap-1.5 h-16 bg-orange-50/50 border border-orange-100 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-all group">
+                <lucide-icon [img]="mailIcon"
+                  class="w-5 h-5 text-orange-400 transition-transform group-hover:scale-110"></lucide-icon>
+                <span class="text-[10px] font-bold text-orange-500">Send Mail</span>
+              </button>
+            </div>
+
+            <div class="bg-white rounded-lg border border-gray-300 overflow-hidden shadow-sm">
+              <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="text-sm font-bold text-gray-900 uppercase">Order Summary</h3>
+              </div>
+              <div class="p-6 space-y-4">
+                <div class="flex justify-between text-sm text-gray-600">
+                  <span>Subtotal</span>
+                  <span class="font-bold text-gray-900">{{ grandTotal | currency:'INR' }}</span>
+                </div>
+                <div class="h-px bg-gray-100"></div>
+                <div class="flex justify-between items-end">
+                  <div>
+                    <span class="text-xs font-bold text-gray-500 uppercase">Estimated Total</span>
+                    <p class="text-[10px] text-gray-400">Final price may vary</p>
+                  </div>
+                  <span class="text-2xl font-extrabold text-indigo-600">{{ grandTotal | currency:'INR' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-gray-300 overflow-hidden shadow-sm">
+              <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                <h3 class="text-xs font-bold text-gray-900 uppercase tracking-widest">Notes & Terms</h3>
+              </div>
+              <div class="p-4">
+                <textarea formControlName="notes"
+                  class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:border-indigo-500 resize-none h-24 transition-all placeholder-gray-300 shadow-inner"
+                  placeholder="Add internal notes, vendor instructions, or delivery terms..."></textarea>
+                <p class="text-[10px] text-gray-400 mt-2 italic">* These notes will be included in the PDF invoice.</p>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg border border-gray-300 p-5">
+              <h3 class="text-sm font-bold text-gray-900 uppercase mb-4">Configuration</h3>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-500 mb-2">Target Warehouse</label>
+                  <select formControlName="warehouseId"
+                    class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500">
+                    <option *ngFor="let w of warehouseList" [value]="w.id">{{ w.name }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-500 mb-2">Expected Delivery</label>
+                  <div class="relative">
+                    <input type="date" formControlName="expectedDeliveryDate"
+                      class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

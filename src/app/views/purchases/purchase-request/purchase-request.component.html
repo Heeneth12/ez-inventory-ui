@@ -1,1 +1,121 @@
-<p>purchase-request works!</p>
+<div class="space-y-6">
+  <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
+    <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="purchaseRequestList" [pagination]="pagination"
+      [isServerSide]="true" (pageChange)="onPageChange($event)" [customActions]="prqActions" (loadMore)="onLoadMore()"
+      [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)" (action)="onTableAction($event)"
+      (action)="handleTableAction($event)">
+    </app-standard-table>
+  </div>
+</div>
+
+
+<ng-template #prqSummary let-data>
+  <div class="flex flex-col h-full bg-white rounded-xl shadow-2xl ring-1 ring-black/5 overflow-hidden font-sans">
+
+    <div class="px-8 py-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4">
+      <div class="flex items-center gap-4">
+        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 tracking-tight">
+            {{ purchaseRequestDetails?.prqNumber }}
+          </h3>
+          <div class="flex items-center text-sm text-gray-500 mt-0.5 gap-2">
+            <span>Requested: {{ purchaseRequestDetails?.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm border"
+        [ngClass]="{
+          'bg-yellow-50 text-yellow-700 border-yellow-200': purchaseRequestDetails?.status === 'PENDING',
+          'bg-green-50 text-green-700 border-green-200': purchaseRequestDetails?.status === 'APPROVED',
+          'bg-red-50 text-red-700 border-red-200': purchaseRequestDetails?.status === 'REJECTED',
+          'bg-gray-100 text-gray-600 border-gray-200': !purchaseRequestDetails?.status
+        }">
+        <span class="w-1.5 h-1.5 rounded-full mr-2" [ngClass]="{
+            'bg-yellow-500': purchaseRequestDetails?.status === 'PENDING',
+            'bg-green-500': purchaseRequestDetails?.status === 'APPROVED',
+            'bg-red-500': purchaseRequestDetails?.status === 'REJECTED',
+            'bg-gray-400': !purchaseRequestDetails?.status
+          }"></span>
+        {{ purchaseRequestDetails?.status || 'Unknown' }}
+      </span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto bg-gray-50/50 p-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+          <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-3">
+            <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
+            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Suggested Supplier</label>
+          </div>
+          <div class="text-base text-gray-900 font-semibold">{{ purchaseRequestDetails?.supplierName }}</div>
+          <div class="text-xs text-gray-500 font-mono mt-1 bg-gray-100 inline-block px-2 py-0.5 rounded">ID: {{ purchaseRequestDetails?.supplierId }}</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+          <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-3">
+            <lucide-icon [img]="ShoppingBag" class="w-4 h-4 text-gray-400"></lucide-icon>
+            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Target Warehouse</label>
+          </div>
+          <div class="text-base text-gray-900 font-semibold">Warehouse #{{ purchaseRequestDetails?.warehouseId }}</div>
+          <div class="text-sm text-gray-600 mt-1">Dept: {{ purchaseRequestDetails?.department || 'N/A' }}</div>
+        </div>
+      </div>
+
+      <div *ngIf="purchaseRequestDetails?.notes" class="mb-8">
+        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Request Justification</h4>
+        <div class="p-4 bg-blue-50/30 text-sm text-gray-700 rounded-lg border border-blue-100 italic">
+          "{{ purchaseRequestDetails?.notes }}"
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Requested Items ({{ purchaseRequestDetails?.items?.length || 0 }})</h4>
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-gray-50 text-gray-500 text-xs uppercase font-semibold border-b border-gray-200">
+              <tr>
+                <th class="px-5 py-4 w-1/2">Item Details</th>
+                <th class="px-5 py-4 text-right">Est. Unit Price</th>
+                <th class="px-5 py-4 text-center">Qty</th>
+                <th class="px-5 py-4 text-right bg-gray-50/80">Line Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr *ngFor="let item of purchaseRequestDetails?.items" class="hover:bg-indigo-50/30 transition-colors group">
+                <td class="px-5 py-4">
+                  <div class="font-semibold text-gray-900">{{ item.itemName || 'Product ID: ' + item.itemId }}</div>
+                  <div class="text-[10px] text-gray-400 font-mono">SKU ID: {{ item.itemId }}</div>
+                </td>
+                <td class="px-5 py-4 text-right tabular-nums text-gray-600">
+                  {{ item.estimatedUnitPrice | currency:'INR' }}
+                </td>
+                <td class="px-5 py-4 text-center tabular-nums font-medium bg-gray-50/30">
+                  {{ item.requestedQty }}
+                </td>
+                <td class="px-5 py-4 text-right font-bold text-gray-900 tabular-nums bg-gray-50/50">
+                  {{ item.lineTotal | currency:'INR' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-8 py-5 bg-white border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="text-right flex flex-col items-end">
+        <span class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Total Estimated Amount</span>
+        <span class="text-3xl font-extrabold text-indigo-600 tracking-tight leading-none">
+          {{ purchaseRequestDetails?.totalEstimatedAmount | currency:'INR' }}
+        </span>
+        <span class="text-[10px] text-gray-400 mt-1">Prices are subject to vendor confirmation</span>
+      </div>
+    </div>
+  </div>
+</ng-template>

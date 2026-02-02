@@ -1,11 +1,7 @@
-
-
-
-
-
 import { Routes } from "@angular/router";
 import { PurchaseRequestAdapterComponent } from "./purchase-request-adapter.component";
 import { PurchaseRequestComponent } from "./purchase-request.component";
+import { PurchaseRequestFormComponent } from "./purchase-request-form/purchase-request-form.component";
 
 
 export const PurchasesRequestRoutes: Routes = [
@@ -14,8 +10,8 @@ export const PurchasesRequestRoutes: Routes = [
         component: PurchaseRequestAdapterComponent,
         children: [
             { path: '', component: PurchaseRequestComponent },
-            // { path: 'create', component: PurchaseOrderFormComponent },
-            // { path: 'edit/:id', component: PurchaseOrderFormComponent },
+            { path: 'create', component: PurchaseRequestFormComponent },
+            { path: 'edit/:id', component: PurchaseRequestFormComponent },
         ]
     }
 ];

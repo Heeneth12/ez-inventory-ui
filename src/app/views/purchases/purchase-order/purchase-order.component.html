@@ -2,8 +2,8 @@
   <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
     <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="purchaseOrderList" [pagination]="pagination"
       [isServerSide]="true" (pageChange)="onPageChange($event)" [customActions]="poActions" (loadMore)="onLoadMore()"
-      [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)"
-      (action)="onTableAction($event)" (action)="handleTableAction($event)">
+      [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)" (action)="onTableAction($event)"
+      (action)="handleTableAction($event)">
     </app-standard-table>
   </div>
 </div>
@@ -11,11 +11,13 @@
 <ng-template #opSummary let-data>
   <div class="flex flex-col h-full bg-white rounded-xl shadow-2xl ring-1 ring-black/5 overflow-hidden font-sans">
 
-    <div class="px-8 py-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4">
+    <div
+      class="px-8 py-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4">
       <div class="flex items-center gap-4">
         <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
         <div>
@@ -28,18 +30,18 @@
         </div>
       </div>
 
-      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm border"
+      <span
+        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm border"
         [ngClass]="{
-          'bg-green-50 text-green-700 border-green-200': purchaseOrder?.status === 'Completed',
-          'bg-blue-50 text-blue-700 border-blue-200': purchaseOrder?.status === 'Pending',
-          'bg-red-50 text-red-700 border-red-200': purchaseOrder?.status === 'Cancelled',
+          'bg-green-50 text-green-700 border-green-200': purchaseOrder?.status === 'COMPLETED',
+          'bg-blue-50 text-blue-700 border-blue-200': purchaseOrder?.status === 'ISSUED',
+          'bg-red-50 text-red-700 border-red-200': purchaseOrder?.status === 'CANCELLED',
           'bg-gray-100 text-gray-600 border-gray-200': !purchaseOrder?.status
         }">
-        <span class="w-1.5 h-1.5 rounded-full mr-2" 
-          [ngClass]="{
-            'bg-green-500': purchaseOrder?.status === 'Completed',
-            'bg-blue-500': purchaseOrder?.status === 'Pending',
-            'bg-red-500': purchaseOrder?.status === 'Cancelled',
+        <span class="w-1.5 h-1.5 rounded-full mr-2" [ngClass]="{
+            'bg-green-500': purchaseOrder?.status === 'COMPLETED',
+            'bg-blue-500': purchaseOrder?.status === 'ISSUED',
+            'bg-red-500': purchaseOrder?.status === 'CANCELLED',
             'bg-gray-400': !purchaseOrder?.status
           }"></span>
         {{ purchaseOrder?.status || 'Unknown' }}
@@ -47,27 +49,38 @@
     </div>
 
     <div class="flex-1 overflow-y-auto bg-gray-50/50 p-8">
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        
-        <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+
+        <div
+          class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
           <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-3">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+              </path>
+            </svg>
             <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Supplier</label>
           </div>
           <div class="text-base text-gray-900 font-semibold">{{ purchaseOrder?.supplierName }}</div>
-          <div class="text-xs text-gray-500 font-mono mt-1 bg-gray-100 inline-block px-2 py-0.5 rounded">ID: {{ purchaseOrder?.supplierId }}</div>
+          <div class="text-xs text-gray-500 font-mono mt-1 bg-gray-100 inline-block px-2 py-0.5 rounded">ID: {{
+            purchaseOrder?.supplierId }}</div>
         </div>
 
-        <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div
+          class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
           <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-3">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0">
+              </path>
+            </svg>
             <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Shipping To</label>
           </div>
           <div class="text-base text-gray-900 font-semibold">Warehouse #{{ purchaseOrder?.warehouseId }}</div>
           <div class="text-sm text-gray-600 mt-1 flex items-center gap-1">
-             <span class="text-gray-400">Exp. Delivery:</span> 
-             <span class="font-medium">{{ purchaseOrder?.expectedDeliveryDate | date:'mediumDate' }}</span>
+            <span class="text-gray-400">Exp. Delivery:</span>
+            <span class="font-medium">{{ purchaseOrder?.expectedDeliveryDate | date:'mediumDate' }}</span>
           </div>
         </div>
       </div>
@@ -75,13 +88,18 @@
       <div *ngIf="purchaseOrder?.notes" class="mb-8 group">
         <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Internal Notes</h4>
         <div class="p-4 bg-yellow-50/50 text-sm text-gray-700 rounded-lg border border-yellow-100 relative pl-10">
-          <svg class="w-5 h-5 text-yellow-400 absolute left-3 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+          <svg class="w-5 h-5 text-yellow-400 absolute left-3 top-4" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+          </svg>
           "{{ purchaseOrder?.notes }}"
         </div>
       </div>
 
       <div class="mb-2">
-        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Ordered Items ({{ purchaseOrder?.items?.length || 0 }})</h4>
+        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Ordered Items ({{
+          purchaseOrder?.items?.length || 0 }})</h4>
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 text-gray-500 text-xs uppercase font-semibold border-b border-gray-200">
@@ -96,7 +114,8 @@
               <tr *ngFor="let item of purchaseOrder?.items" class="hover:bg-blue-50/30 transition-colors group">
                 <td class="px-5 py-4">
                   <div class="font-semibold text-gray-900">{{ item.itemName }}</div>
-                  <div class="text-xs text-gray-400 mt-0.5 group-hover:text-blue-500 transition-colors">ID: {{ item.itemId }}</div>
+                  <div class="text-xs text-gray-400 mt-0.5 group-hover:text-blue-500 transition-colors">ID: {{
+                    item.itemId }}</div>
                 </td>
                 <td class="px-5 py-4 text-right tabular-nums text-gray-600">
                   {{ item.unitPrice | currency }}
@@ -117,23 +136,18 @@
       </div>
     </div>
 
-    <div class="px-8 py-5 bg-white border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
-      
-      <div class="flex gap-3 w-full md:w-auto">
-        <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-          Print
-        </button>
-        <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          Download PDF
-        </button>
-        <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          Share
-        </button>
-      </div>
+    <div
+      class="px-8 py-5 bg-white border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
 
+      <div class="flex gap-3 w-full md:w-auto">
+        @if(purchaseOrder?.status === 'DRAFT'){
+        <app-button-group [buttons]="opSummaryDraft">
+        </app-button-group>
+        }@else if (purchaseOrder?.status === 'COMPLETED') {
+        <app-button-group [buttons]="opSummaryCompleted">
+        </app-button-group>
+        }
+      </div>
       <div class="text-right flex flex-col items-end">
         <span class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Grand Total</span>
         <span class="text-3xl font-extrabold text-gray-900 tracking-tight leading-none">
