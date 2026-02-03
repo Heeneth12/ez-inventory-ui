@@ -2,7 +2,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ArrowRight, CloudDownloadIcon, UserPenIcon } from 'lucide-angular';
+import { ArrowRight, CloudDownloadIcon, UserPenIcon, UserRoundCog } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { UserManagementService } from './userManagement.service';
@@ -11,6 +11,7 @@ import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableCo
 import { RoleModel, ApplicationModel, ModuleModel, PrivilegeModel } from './models/application.model';
 import { UserFilterModel, UserModel } from './models/user.model';
 import { TenantModel } from './models/tenant.model';
+import { CreateUserRequest } from './models/user.interfaces';
 
 interface ApplicationUI extends ApplicationModel {
   isExpanded?: boolean;       // Is the accordion open?
@@ -28,13 +29,18 @@ interface ApplicationUI extends ApplicationModel {
 export class UserManagementComponent implements OnInit {
 
   @ViewChild('tenantDetailsTemplate') tenantDetailsTemplate!: TemplateRef<any>;
+  @ViewChild('createRoleTemplate') createRoleTemplate!: TemplateRef<any>;
   @ViewChild('configApplicationsTemplate') configApplicationsTemplate!: TemplateRef<any>;
+  @ViewChild('userDetailsTemplate') userDetailsTemplate!: TemplateRef<any>;
 
   users: UserModel[] = [];
   roles: RoleModel[] = [];
   applications: ApplicationUI[] = [];
   tenants: TenantModel[] = [];
   tenantDetails: TenantModel | null = null;
+  userDetails: CreateUserRequest | null = null;
+  userData: any = {};
+  roleForm: RoleModel = new RoleModel();
 
   userFilter: UserFilterModel = new UserFilterModel();
 
@@ -59,12 +65,26 @@ export class UserManagementComponent implements OnInit {
       variant: 'primary',
       key: 'create_user',
       action: () => this.openCreateUser()
+    },
+    {
+      label: 'Create Role',
+      icon: UserRoundCog,
+      variant: 'primary',
+      key: 'create_user',
+      action: () => this.openCreateRole()
     }
   ];
 
   viewActions: TableActionConfig[] = [
     {
       key: 'view_tenant_details',
+      label: 'View Details',
+      icon: ArrowRight,
+      color: 'primary',
+      condition: (row) => true
+    },
+    {
+      key: 'view_user_details',
       label: 'View Details',
       icon: ArrowRight,
       color: 'primary',
@@ -114,6 +134,53 @@ export class UserManagementComponent implements OnInit {
     );
   }
 
+  getUserDetails(userId: number) {
+    this.userManagementService.getUserById(userId,
+      (res: any) => {
+        this.userData = res.data;
+        this.drawerService.openTemplate(
+          this.userDetailsTemplate,
+          'User Details',
+          'lg'
+        );
+      },
+      (err: any) => {
+        this.toast.show('Failed to load user details', 'error');
+      }
+    );
+  }
+
+
+  getAllRoles() {
+    this.userManagementService.getAllRoles(
+      (res: any) => {
+        this.roles = res.data;
+      },
+      (err: any) => {
+        this.toast.show('Failed to load roles', 'error');
+      }
+    );
+  }
+
+  createRole() {
+    this.userManagementService.createRole({ name: 'New Role' },
+      (res: any) => {
+        this.toast.show('Role created successfully', 'success');
+      },
+      (err: any) => {
+        this.toast.show('Failed to create role', 'error');
+      }
+    );
+  }
+
+  openCreateRole() {
+    this.getAllRoles();
+    this.drawerService.openTemplate(
+      this.createRoleTemplate,
+      'Create Role',
+      'lg'
+    );
+  }
 
   openCreateUser() {
     this.router.navigate(['form'], { relativeTo: this.route });
@@ -207,6 +274,9 @@ export class UserManagementComponent implements OnInit {
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'view_tenant_details') {
       this.viewTenantDetails(Number(event.row.id));
+    }
+    if (event.type === 'custom' && event.key === 'view_user_details') {
+      this.getUserDetails(Number(event.row.id));
     }
   }
 

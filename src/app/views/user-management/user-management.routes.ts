@@ -11,12 +11,12 @@ export const UserManagementRoutes: Routes = [
         path: '',
         component: UserManagementAdapterComponent,
         children: [
-            { path: '', redirectTo: 'tenants', pathMatch: 'full' },
+            { path: '', redirectTo: 'users', pathMatch: 'full' },
             {
                 path: 'tenants',
                 children: [
                     { path: '', component: TenantsComponent },
-                    { path: 'form', component: TenantFormComponent }, 
+                    { path: 'form', component: TenantFormComponent },
                     { path: 'form/:id', component: TenantFormComponent }
                 ]
             },
@@ -26,7 +26,7 @@ export const UserManagementRoutes: Routes = [
                     { path: '', component: UserManagementComponent },
                     { path: 'form', component: UserFormComponent },
                     { path: 'form/:id', component: UserFormComponent },
-        
+
                 ]
             },
             { path: 'apps', component: ApplicationsComponent },

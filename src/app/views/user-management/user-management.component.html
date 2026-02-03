@@ -180,3 +180,228 @@
         </div>
     </div>
 </ng-template>
+
+<ng-template #createRoleTemplate>
+    <div class="flex flex-col h-full bg-white">
+        <div class="flex-1 overflow-y-auto p-6 space-y-8">
+            <section>
+                <div class="flex items-center gap-2 mb-4">
+                    <span
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 text-xs font-bold">1</span>
+                    <h3 class="font-semibold text-gray-800">Create New Role</h3>
+                </div>
+
+                <form #f="ngForm" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-gray-600 uppercase">Role Name</label>
+                        <input type="text" name="roleName" [(ngModel)]="roleForm.roleName" required
+                            placeholder="e.g. Content Manager"
+                            class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all text-sm">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-gray-600 uppercase">Role Key</label>
+                        <div class="relative">
+                            <input type="text" name="roleKey" [(ngModel)]="roleForm.roleKey" required
+                                placeholder="ROLE_MANAGER"
+                                class="w-full pl-3 pr-10 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-gray-600 uppercase">Description</label>
+                        <textarea name="description" [(ngModel)]="roleForm.description" rows="3"
+                            placeholder="Describe the scope of this role..."
+                            class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all text-sm"></textarea>
+                    </div>
+
+                    <button type="button" (click)="createRole()" [disabled]="!f.valid"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white font-medium py-2.5 rounded-lg transition-all shadow-sm shadow-indigo-200 active:transform active:scale-[0.98]">
+                        Add Role to System
+                    </button>
+                </form>
+            </section>
+
+            <hr class="border-gray-100">
+
+            <section>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-600 text-xs font-bold">2</span>
+                        <h3 class="font-semibold text-gray-800">All System Roles</h3>
+                    </div>
+                    <span
+                        class="text-[10px] bg-gray-100 px-2 py-0.5 rounded uppercase font-bold text-gray-500">{{roles.length}}
+                        Total</span>
+                </div>
+
+                <div class="space-y-3">
+                    @for(role of roles; track role.id) {
+                    <div
+                        class="group p-3 border border-gray-100 rounded-xl hover:bg-indigo-50/50 hover:border-indigo-100 transition-all">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800 group-hover:text-indigo-700">
+                                    {{role.roleName}}</h4>
+                                <p class="text-[11px] font-mono text-indigo-500">{{role.roleKey}}</p>
+                            </div>
+                            <button
+                                class="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                        @if(role.description) {
+                        <p class="mt-2 text-xs text-gray-500 line-clamp-2 italic leading-relaxed">
+                            "{{role.description}}"
+                        </p>
+                        }
+                    </div>
+                    } @empty {
+                    <div
+                        class="flex flex-col items-center justify-center py-8 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                        <p class="text-sm text-gray-400">No roles found.</p>
+                    </div>
+                    }
+                </div>
+            </section>
+        </div>
+
+        <div class="p-4 border-t border-gray-100 bg-gray-50">
+            <button (click)="drawerService.close()"
+                class="w-full py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors">
+                Close Panel
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #userDetailsTemplate>
+    <div class="flex flex-col h-full bg-slate-50">
+        <div class="px-6 py-8 bg-white border-b border-gray-100 sticky top-0 z-10">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="h-16 w-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-indigo-100">
+                        {{ userData.fullName}}
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">{{ userData.fullName }}</h2>
+                        <p class="text-sm text-gray-500">{{ userData.email }}</p>
+                    </div>
+                </div>
+                <button (click)="drawerService.close()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                <span
+                    [class]="userData.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'"
+                    class="px-2.5 py-1 rounded-md text-xs font-bold border flex items-center gap-1.5">
+                    <span class="h-1.5 w-1.5 rounded-full"
+                        [class]="userData.isActive ? 'bg-emerald-500' : 'bg-red-500'"></span>
+                    {{ userData.isActive ? 'ACTIVE' : 'INACTIVE' }}
+                </span>
+                @for(roleName of userData.roles; track $index) {
+                <span
+                    class="bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-1 rounded-md text-xs font-bold uppercase">
+                    {{ roleName.replace('_', ' ') }}
+                </span>
+                }
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <section class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    Contact Details
+                </h3>
+                <div class="grid grid-cols-1 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-500 text-xs">Phone Number</p>
+                        <p class="font-medium text-gray-800">{{ userData.phone || 'Not Provided' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs">User UUID</p>
+                        <p class="font-mono text-[10px] text-gray-400 truncate">{{ userData.userUuid }}</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2 px-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    App Permissions
+                </h3>
+
+                @for(app of userData.userApplications; track app.applicationId) {
+                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm">{{ app.appName }}</h4>
+                            <p class="text-[10px] text-indigo-600 font-semibold uppercase tracking-tight">Application
+                                ID: {{ app.applicationId }}</p>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+
+                    <div class="p-4 grid grid-cols-1 gap-2">
+                        @for(priv of app.modulePrivileges; track priv.privilegeId) {
+                        <div
+                            class="flex items-center justify-between p-2 rounded-lg border border-gray-50 bg-white hover:border-indigo-100 hover:bg-indigo-50/30 transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="h-2 w-2 rounded-full bg-indigo-400"></div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-700">{{ priv.privilegeName }}</p>
+                                    <p class="text-[9px] font-mono text-gray-400 uppercase tracking-tighter">{{
+                                        priv.privilegeKey }}</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold text-gray-300">MOD_{{ priv.moduleId }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+            </section>
+
+            <section class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Residential Address</h3>
+                @if(userData.userAddress.length > 0) {
+                } @else {
+                <div class="text-center py-4">
+                    <p class="text-xs text-gray-400 italic">No address information available.</p>
+                </div>
+                }
+            </section>
+        </div>
+
+        <div class="p-4 border-t border-gray-100 bg-white">
+            <button (click)="drawerService.close()"
+                class="w-full py-3 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-all active:scale-[0.98]">
+                Close Details
+            </button>
+        </div>
+    </div>
+</ng-template>

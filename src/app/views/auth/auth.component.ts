@@ -222,7 +222,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       (err: any) => {
         this.isLoading = false;
-        alert('Registration Failed: ' + (err?.error?.message || 'Unknown error'));
+        this.toastService.show(`Registration Failed  ${err?.error?.message}`, 'error');
       }
     );
   }
@@ -260,7 +260,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
         () => { },
         () => {
           this.isLoading = false;
-          alert('Google Sign-In Failed');
+          this.toastService.show("Google Sign-In Failed", 'error');
         }
       );
     });
@@ -284,6 +284,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       () => console.log("Login success"),
       (error: any) => {
         console.error("Login error", error);
+        this.toastService.show("Login error", 'error');
         this.isLoading = false;
       }
     );

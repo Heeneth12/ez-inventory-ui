@@ -1,7 +1,8 @@
 @if (authSvc.currentUser$ | async) {
-  <app-inventory-layout>
-      <router-outlet></router-outlet>
-  </app-inventory-layout>
-} @else {
+<app-inventory-layout>
   <router-outlet></router-outlet>
+</app-inventory-layout>
+} @else {
+<router-outlet></router-outlet>
 }
+<app-toast></app-toast>

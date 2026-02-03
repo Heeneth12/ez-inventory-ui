@@ -27,14 +27,14 @@ export class UserManagementAdapterComponent implements OnInit {
 
     navigationTabs: TabItem[] = [
         { id: 'tenants', label: 'Tenants', icon: UsersRound },
-        { id: 'apps', label: 'Apps', icon: AppWindow },
         { id: 'users', label: 'Users', icon: UsersRound },
+        { id: 'apps', label: 'Apps', icon: AppWindow },
     ];
 
     constructor(
         private router: Router,
         private route: ActivatedRoute
-    ) {}
+    ) { }
 
     ngOnInit() {
         this.setActiveTabFromUrl();
@@ -48,7 +48,7 @@ export class UserManagementAdapterComponent implements OnInit {
     private setActiveTabFromUrl() {
         const currentUrl = this.router.url;
         const foundTab = this.navigationTabs.find(tab => currentUrl.includes(`/${tab.id}`));
-        
+
         if (foundTab) {
             this.activeTab.set(foundTab.id);
         } else {

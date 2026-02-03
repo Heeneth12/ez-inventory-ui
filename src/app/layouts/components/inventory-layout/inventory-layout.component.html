@@ -39,7 +39,8 @@
             @for (item of visibleNavItems; track item.label; let i = $index) {
 
             @if (!item.subItems) {
-            <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i" routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
+            <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i"
+                routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
                 class="group relative flex items-center rounded-xl p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 transition-all duration-300 cursor-pointer outline-none"
                 [ngClass]="{'justify-center': isSidebarCollapsed,'opacity-50 cursor-not-allowed': item.isDisabled}">
 
@@ -285,7 +286,7 @@
     </main>
 </div>
 
-<app-toast></app-toast>
+
 <app-modal></app-modal>
 <app-drawer></app-drawer>
 <app-loader></app-loader>
