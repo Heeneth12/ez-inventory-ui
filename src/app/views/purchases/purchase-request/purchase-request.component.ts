@@ -101,8 +101,14 @@ export class PurchaseRequestComponent implements OnInit {
   }
 
 
+  openUpdatePrqForm(poId: any) {
+    this.router.navigate(['purchases/prq/edit/', poId]);
+  }
+
+
   handleTableAction(event: TableAction) {
-    if (event.type === 'custom' && event.key === 'move_to_grn') {
+    if (event.type === 'custom' && event.key === 'edit_details') {
+      this.openUpdatePrqForm(event.row.id);
     }
     if (event.type === 'custom' && event.key === 'view_details') {
       this.viewPrqDetails(event.row.id);
@@ -115,9 +121,10 @@ export class PurchaseRequestComponent implements OnInit {
     const { type, row, key } = event;
     switch (type) {
       case 'view':
-        console.log("View:", row.id);
+        this.viewPrqDetails(event.row.id);
         break;
       case 'edit':
+        this.openUpdatePrqForm(event.row.id)
         break;
       case 'delete':
         console.log("Delete:", row.id);

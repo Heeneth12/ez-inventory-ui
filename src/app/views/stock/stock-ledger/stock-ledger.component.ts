@@ -23,8 +23,7 @@ export class StockLedgerComponent {
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
-    { key: 'id', label: 'ID', width: '60px', type: 'text' },
-    { key: 'itemId', label: 'Item ID', width: '100px', type: 'text' },
+    { key: 'itemId', label: 'Item ID', width: '75px', type: 'text' },
     { key: 'itemName', label: 'Item Name', width: '200px', type: 'text' },
     { key: 'warehouseId', label: 'Warehouse ID', width: '120px', type: 'text' },
     { key: 'createdAt', label: 'Created Date', width: '120px', type: 'date' },

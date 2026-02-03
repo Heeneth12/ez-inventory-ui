@@ -1,4 +1,4 @@
-import { ArrowRight, ListRestart, ListCollapse } from "lucide-angular";
+import { ArrowRight, ListRestart, ListCollapse, PenLineIcon } from "lucide-angular";
 import { TableActionConfig, TableColumn } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 
@@ -26,6 +26,13 @@ export const PRQ_ACTIONS: TableActionConfig[] = [
         icon: ListCollapse,
         color: 'neutral',
         condition: (row) => true
+    },
+    {
+        key: 'edit_details',
+        label: 'Edit Details',
+        icon: PenLineIcon,
+        color: 'primary',
+        condition: (row) => row['status'] === 'PENDING'
     }
 ];
 
