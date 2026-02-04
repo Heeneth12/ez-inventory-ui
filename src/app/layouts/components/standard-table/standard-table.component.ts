@@ -68,6 +68,7 @@ export class StandardTableComponent implements OnChanges {
   stripedRows: boolean = true;
 
   activeMenuRowId = signal<string | number | null>(null);
+  private toggleTimeout: any;
 
   constructor(private eRef: ElementRef) { }
 
@@ -176,7 +177,7 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // WARNING
-    if (['pending', 'processing', 'hold', 'warning', 'partially_invoiced',  'customer_pickup', 'pending_approval',].includes(s)) {
+    if (['pending', 'processing', 'hold', 'warning', 'partially_invoiced', 'customer_pickup', 'pending_approval',].includes(s)) {
       return styles.warning;
     }
 
@@ -205,7 +206,7 @@ export class StandardTableComponent implements OnChanges {
 
   getBtnClasses(variant: string = 'secondary'): string {
     const base = "flex items-center gap-2 px-4 py-2.5 rounded-full transition-colors text-sm font-medium focus:outline-none shadow-sm";
-    
+
     switch (variant) {
       case 'primary':
         return `${base} bg-[#E86426] hover:bg-[#d5561b] text-white`;
@@ -326,8 +327,14 @@ export class StandardTableComponent implements OnChanges {
   emitAction(type: 'view' | 'edit' | 'delete' | 'toggle', row: TableRow, key?: string) {
     if (type === 'toggle' && key) {
       row[key] = !row[key];
+      clearTimeout(this.toggleTimeout);
+      this.toggleTimeout = setTimeout(() => {
+        this.action.emit({ type, row, key });
+      }, 400);
     }
-    this.action.emit({ type, row, key });
+    else {
+      this.action.emit({ type, row, key });
+    }
     this.activeMenuRowId.set(null); // Close menu after action
   }
 
@@ -335,10 +342,10 @@ export class StandardTableComponent implements OnChanges {
   handleDateSelect(range: DateRangeEmit) {
     // Emit the event to the parent component (to filter API or local data)
     this.dateChange.emit(range);
-    
+
     // Optional: If you want to reset pagination on filter change
     if (this.pagination) {
-       this.pageChange.emit(1); 
+      this.pageChange.emit(1);
     }
   }
 }
