@@ -2,7 +2,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ArrowRight, CloudDownloadIcon, UserPenIcon, UserRoundCog } from 'lucide-angular';
+import { ArrowRight, CloudCog, CloudDownloadIcon, UserPenIcon, UserRoundCog } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { UserManagementService } from './userManagement.service';
@@ -76,13 +76,6 @@ export class UserManagementComponent implements OnInit {
   ];
 
   viewActions: TableActionConfig[] = [
-    {
-      key: 'view_tenant_details',
-      label: 'View Details',
-      icon: ArrowRight,
-      color: 'primary',
-      condition: (row) => true
-    },
     {
       key: 'view_user_details',
       label: 'View Details',
@@ -163,9 +156,10 @@ export class UserManagementComponent implements OnInit {
   }
 
   createRole() {
-    this.userManagementService.createRole({ name: 'New Role' },
+    this.userManagementService.createRole(this.roleForm,
       (res: any) => {
         this.toast.show('Role created successfully', 'success');
+        this.drawerService.close();
       },
       (err: any) => {
         this.toast.show('Failed to create role', 'error');
@@ -193,6 +187,21 @@ export class UserManagementComponent implements OnInit {
   viewTenantDetails(tenantId: number) {
     this.getTenantDetails(tenantId);
   }
+
+  toggleUserStatus(item: UserModel) {
+      this.userManagementService.toggleUserStatus(item.id,
+        (response: any) => {
+          this.toast.show(
+            response.data.message,
+            response.data.status === 'SUCCESS' ? 'success' : 'warning'
+          );
+          this.loadUsers();
+        },
+        (error: any) => {
+          this.toast.show('Failed to update item status', 'error');
+        }
+      );
+    }
 
   openConfigApplications() {
     this.isConfigEditMode = false;
@@ -267,6 +276,7 @@ export class UserManagementComponent implements OnInit {
       case 'delete':
         break;
       case 'toggle':
+        this.toggleUserStatus(row as UserModel);
         break;
     }
   }
