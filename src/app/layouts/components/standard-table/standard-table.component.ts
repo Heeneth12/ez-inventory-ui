@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, Si
 import { CommonModule, DecimalPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig, HeaderAction } from './standard-table.model';
-import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight } from 'lucide-angular';
+import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight, RefreshCcw, RotateCcw } from 'lucide-angular';
 import { StatusStepperComponent } from '../../UI/status-stepper/status-stepper.component';
 import { UserCardComponent } from "../../UI/user-card/user-card.component";
 import { DatePickerConfig, DateRangeEmit, DatePickerComponent } from '../../UI/date-picker/date-picker.component';
@@ -48,6 +48,7 @@ export class StandardTableComponent implements OnChanges {
   readonly Delete = Trash2;
   readonly MoreVertical = MoreVertical;
   readonly ArrowRight = ArrowRight;
+  readonly RotateCcw = RotateCcw;
 
   // State Signals
   searchQuery = signal('');
@@ -69,6 +70,7 @@ export class StandardTableComponent implements OnChanges {
 
   activeMenuRowId = signal<string | number | null>(null);
   private toggleTimeout: any;
+  triggerReset = 0;
 
   constructor(private eRef: ElementRef) { }
 
@@ -348,4 +350,13 @@ export class StandardTableComponent implements OnChanges {
       this.pageChange.emit(1);
     }
   }
-}
+
+  resetFilters() {
+    this.searchQuery.set('');
+    this.sortKey.set('');
+    this.sortDirection.set('asc');
+    this.currentPageSignal.set(1);
+    this.triggerReset++;
+    this.pageChange.emit(1);
+  }
+}   

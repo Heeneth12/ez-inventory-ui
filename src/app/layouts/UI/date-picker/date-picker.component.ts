@@ -28,7 +28,12 @@ export class DatePickerComponent implements OnInit {
   
   @Input() config: DatePickerConfig = { type: 'single', label: 'Select Date' };
   @Output() dateSelect = new EventEmitter<DateRangeEmit>();
-
+  @Output() reset = new EventEmitter<void>();
+  @Input() set triggerReset(value: any) {
+    if (value !== undefined && value !== null) {
+      this.performReset();  
+    }
+  }
   // State
   isOpen = false;
   currentViewDate: Date = new Date();
@@ -183,6 +188,16 @@ export class DatePickerComponent implements OnInit {
       return `${fromStr} - ${toStr}`;
     }
     return '';
+  }
+
+  public performReset() {
+    this.selectedFrom = null;
+    this.selectedTo = null;
+    this.currentViewDate = new Date();
+    this.generateCalendar();
+    this.emitData();
+    this.closeCalendar();
+    this.reset.emit();
   }
 }
 

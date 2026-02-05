@@ -16,9 +16,8 @@
             </div>
 
             <ng-container *ngIf="datePickerConfig">
-                <app-date-picker 
-                    [config]="datePickerConfig"
-                    (dateSelect)="handleDateSelect($event)">
+                <app-date-picker [config]="datePickerConfig" (dateSelect)="handleDateSelect($event)"
+                    [triggerReset]="triggerReset">
                 </app-date-picker>
             </ng-container>
 
@@ -29,6 +28,12 @@
                 <button (click)="selectedIds().clear(); selectionChange.emit([])"
                     class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
                     Clear
+                </button>
+            </div>
+            <div class="flex items-center gap-2">
+                <button (click)="resetFilters()"
+                    class="text-xs p-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 hover:text-indigo-800 font-medium">
+                    <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
                 </button>
             </div>
         </div>
@@ -42,9 +47,7 @@
             </button>
 
             <ng-container *ngFor="let btn of headerActions">
-                <button *ngIf="!btn.hidden"
-                    [class]="getBtnClasses(btn.variant)"
-                    (click)="handleHeaderAction(btn)">
+                <button *ngIf="!btn.hidden" [class]="getBtnClasses(btn.variant)" (click)="handleHeaderAction(btn)">
                     <lucide-icon *ngIf="btn.icon" [img]="btn.icon" class="w-4 h-4 font-bold"></lucide-icon>
                     <span>{{ btn.label }}</span>
                 </button>
