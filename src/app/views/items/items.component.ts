@@ -12,6 +12,7 @@ import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-u
 import { ITEMS_COLUMNS } from '../../layouts/config/tableConfig';
 import { CloudUpload } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
+import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
 
 @Component({
   selector: 'app-items',
@@ -38,6 +39,20 @@ export class ItemsComponent implements OnInit {
       variant: 'primary',
       key: 'create_route',
       action: () => this.bulkUploadItems()
+    }
+  ];
+
+  filterConfig: FilterOption[] = [
+    {
+      id: 'type',
+      label: 'Type',
+      type: 'checkbox',
+      searchable: true,
+      options: [
+        { label: 'PRODUCT', value: 'PRODUCT' },
+        { label: 'SERVICE', value: 'SERVICE' },
+        { label: 'OTHER', value: 'OTHER' }
+      ]
     }
   ];
 
@@ -112,6 +127,10 @@ export class ItemsComponent implements OnInit {
       "Bulk Data Management",
       'lg'
     )
+  }
+
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
   }
 
   onTableAction(event: TableAction) {

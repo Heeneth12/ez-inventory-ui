@@ -15,6 +15,12 @@
                     placeholder="Search..." />
             </div>
 
+            <ng-container *ngIf="filterConfig.length > 0">
+                <app-filter-dropdown [config]="filterConfig" (filterChanged)="handleFilterChange($event)"
+                [triggerReset]="triggerReset">
+                </app-filter-dropdown>
+            </ng-container>
+            
             <ng-container *ngIf="datePickerConfig">
                 <app-date-picker [config]="datePickerConfig" (dateSelect)="handleDateSelect($event)"
                     [triggerReset]="triggerReset">
@@ -39,19 +45,17 @@
         </div>
 
         <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-            <button
-                class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none"
-                (click)="showSettings.set(!showSettings())">
-                <lucide-icon [img]="Filter" class="w-4 h-4"></lucide-icon>
-                <span>Display</span>
-            </button>
-
             <ng-container *ngFor="let btn of headerActions">
                 <button *ngIf="!btn.hidden" [class]="getBtnClasses(btn.variant)" (click)="handleHeaderAction(btn)">
                     <lucide-icon *ngIf="btn.icon" [img]="btn.icon" class="w-4 h-4 font-bold"></lucide-icon>
                     <span>{{ btn.label }}</span>
                 </button>
             </ng-container>
+            <button
+                class="flex items-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none"
+                (click)="showSettings.set(!showSettings())">
+                <lucide-icon [img]="Settings" class="w-4 h-4"></lucide-icon>
+            </button>
         </div>
     </div>
 
