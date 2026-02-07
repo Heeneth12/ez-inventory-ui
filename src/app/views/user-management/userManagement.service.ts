@@ -76,6 +76,10 @@ export class UserManagementService {
         return this.httpService.postHttp(`${UserManagementService.USER_MANAG_BASE_URL}/role/create`, requestBody, successfn, errorfn);
     }
 
+    getUserTypes(successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${UserManagementService.USER_MANAG_BASE_URL}/user-types`, successfn, errorfn);
+    }
+
     getModulesByApplication(appId: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${UserManagementService.USER_MANAG_BASE_URL}/apps/${appId}/modules`, successfn, errorfn);
     }

@@ -24,12 +24,21 @@ export class UserFormComponent implements OnInit {
   isSubmitting = false;
 
   // Data Sources
-  roles: RoleModel[] = [];
+  roles: RoleModel[] = []; // Actual roles from database
   applications: ApplicationModel[] = [];
+  
+  // Default ADMIN role for vendors
+  private defaultAdminRole: RoleModel = {
+    id: -1,
+    roleName: 'ADMIN',
+    roleKey: 'ADMIN',
+    description: 'Administrator role for vendor users'
+  };
   appModulesMap: Map<number, ModuleModel[]> = new Map();
 
   // Enums for Template
   addressTypes = Object.values(AddressType);
+  userTypes: string[] = []; // Loaded from backend
 
   // Selection State
   selectedAppIds: Set<number> = new Set();
@@ -50,6 +59,7 @@ export class UserFormComponent implements OnInit {
       phone: [''],
       password: [''],
       isActive: [true],
+      userType: ['', Validators.required], // Will be set after loading user types
       address: this.fb.array([])
     });
   }
@@ -76,20 +86,37 @@ export class UserFormComponent implements OnInit {
     });
 
     this.loadDependencies();
+
+    // Listen to userType changes to auto-select ADMIN for vendors
+    this.userForm.get('userType')?.valueChanges.subscribe(userType => {
+      if (userType === 'VENDOR') {
+        this.autoSelectAdminRole();
+      }
+    });
   }
 
   loadDependencies() {
-    this.userService.getAllRoles((resRoles: any) => {
-      this.roles = resRoles.data;
+    // Load user types first
+    this.userService.getUserTypes((resTypes: any) => {
+      this.userTypes = resTypes.data;
+      
+      // Set default user type if creating new user
+      if (!this.isEditing && this.userTypes.length > 0) {
+        this.userForm.patchValue({ userType: this.userTypes[0] });
+      }
 
-      this.userService.getAllApplications((resApps: any) => {
-        this.applications = resApps.data;
+      this.userService.getAllRoles((resRoles: any) => {
+        this.roles = resRoles.data;
 
-        if (this.isEditing && this.userId) {
-          this.loadUserData(this.userId);
-        } else {
-          this.isLoading = false;
-        }
+        this.userService.getAllApplications((resApps: any) => {
+          this.applications = resApps.data;
+
+          if (this.isEditing && this.userId) {
+            this.loadUserData(this.userId);
+          } else {
+            this.isLoading = false;
+          }
+        }, (err: any) => this.handleError(err));
       }, (err: any) => this.handleError(err));
     }, (err: any) => this.handleError(err));
   }
@@ -110,7 +137,8 @@ export class UserFormComponent implements OnInit {
       fullName: user.fullName,
       email: user.email,
       phone: user.phone,
-      isActive: user.isActive
+      isActive: user.isActive,
+      userType: user.userType
     });
 
     // 2. Patch Roles
@@ -157,6 +185,11 @@ export class UserFormComponent implements OnInit {
       incomingAddresses.forEach((addr: any) => {
         this.addressArray.push(this.createAddressGroup(addr));
       });
+    }
+
+    // 5. If user is VENDOR, ensure ADMIN role is selected
+    if (user.userType === 'VENDOR') {
+      this.autoSelectAdminRole();
     }
   }
 
@@ -222,6 +255,7 @@ export class UserFormComponent implements OnInit {
       fullName: formVal.fullName,
       phone: formVal.phone,
       isActive: formVal.isActive,
+      userType: formVal.userType,
       roleIds: Array.from(this.selectedRoleIds),
       applicationIds: Array.from(this.selectedAppIds),
       privilegeMapping: privilegeMapping,
@@ -309,4 +343,43 @@ export class UserFormComponent implements OnInit {
     this.isLoading = false;
     this.toast.show('An error occurred', 'error');
   };
+
+  // Computed property to get roles based on user type
+  get displayedRoles(): RoleModel[] {
+    const userType = this.userForm.get('userType')?.value;
+    if (userType === 'VENDOR') {
+      // For vendors, only show the default ADMIN role
+      return [this.defaultAdminRole];
+    }
+    // For employees, show actual database roles
+    return this.roles;
+  }
+
+  autoSelectAdminRole() {
+    // For vendors, use the default ADMIN role
+    this.selectedRoleIds.clear();
+    this.selectedRoleIds.add(this.defaultAdminRole.id);
+  }
+
+  onUserTypeChange() {
+    const userType = this.userForm.get('userType')?.value;
+    if (userType === 'VENDOR') {
+      this.autoSelectAdminRole();
+    }
+  }
+
+  isRoleDisabled(role: RoleModel): boolean {
+    const userType = this.userForm.get('userType')?.value;
+    
+    // If only one role is available, disable it (keep it selected)
+    if (this.displayedRoles.length === 1) {
+      return true;
+    }
+    
+    if (userType === 'VENDOR') {
+      // Only allow ADMIN role for vendors
+      return role.roleKey !== 'ADMIN' && role.roleName.toUpperCase() !== 'ADMIN';
+    }
+    return false;
+  }
 }

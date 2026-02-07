@@ -1,9 +1,17 @@
-@if (authSvc.currentUser$ | async) {
-<app-inventory-layout>
-  <router-outlet></router-outlet>
-</app-inventory-layout>
+@if (authSvc.currentUser$ | async; as currentUser) {
+  @if (currentUser.userType === 'VENDOR') {
+    <app-vendor-layout>
+      <router-outlet></router-outlet>
+    </app-vendor-layout>
+  } @else if (currentUser.userType === 'EMPLOYEE') {
+    <app-inventory-layout>
+      <router-outlet></router-outlet>
+    </app-inventory-layout>
+  } @else {
+    <router-outlet></router-outlet>
+  }
 } @else {
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
 }
 <app-toast></app-toast>
 <app-banner-loader></app-banner-loader>

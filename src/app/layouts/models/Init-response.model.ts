@@ -18,6 +18,7 @@ export interface UserInitResponse {
     fullName: string;
     email: string;
     phone: string;
+    userType: string;
     isActive: boolean;
     tenantId: number;
     tenantName: string;
