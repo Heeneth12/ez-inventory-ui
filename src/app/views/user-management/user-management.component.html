@@ -295,7 +295,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-bold text-gray-900">{{ userData.fullName }}</h2>
-                        <p class="text-sm text-gray-500">{{ userData.email }}</p>
+                        <p class="text-sm text-gray-500">{{ userData.userType }}</p>
                     </div>
                 </div>
                 <button (click)="drawerService.close()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -336,6 +336,10 @@
                     <div>
                         <p class="text-gray-500 text-xs">Phone Number</p>
                         <p class="font-medium text-gray-800">{{ userData.phone || 'Not Provided' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs">Email</p>
+                        <p class="font-medium text-gray-800">{{ userData.email || 'Not Provided' }}</p>
                     </div>
                     <div>
                         <p class="text-gray-500 text-xs">User UUID</p>

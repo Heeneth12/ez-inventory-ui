@@ -1,10 +1,15 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './layouts/guards/auth.guard';
+import { RedirectGuard } from './layouts/guards/redirect.guard';
 import { ExampleComponent } from './views/example/example.component';
 import { AiChatComponent } from './views/ai-chat/ai-chat.component';
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    { 
+        path: '', 
+        canActivate: [RedirectGuard],
+        children: []
+    },
 
     // 1. DASHBOARD (Lazy load single component)
     {
@@ -13,6 +18,15 @@ export const routes: Routes = [
             .then(c => c.DashboardComponent),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_DASHBOARD' }
+    },
+
+    // 1.5. VENDOR DASHBOARD (Lazy load single component)
+    {
+        path: 'vendor/dashboard',
+        loadComponent: () => import('./views/dashboard/dashboard.component')
+            .then(c => c.DashboardComponent),
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_VENDOR' }
     },
 
     // 2. ITEMS (Lazy load route file)

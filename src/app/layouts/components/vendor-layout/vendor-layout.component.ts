@@ -104,25 +104,25 @@ export class VendorLayoutComponent implements OnInit {
       label: 'Dashboard',
       link: '/vendor/dashboard',
       icon: LayoutDashboard,
-      moduleKey: 'EZH_VENDOR_DASHBOARD'
+      moduleKey: 'EZH_INV_VENDOR'
     },
     {
       label: 'Vendors',
       link: '/vendor/list',
       icon: Users,
-      moduleKey: 'EZH_VENDOR_LIST'
+      moduleKey: 'EZH_INV_VENDOR'
     },
     {
       label: 'Reports',
       link: '/vendor/reports',
       icon: FileChartColumn,
-      moduleKey: 'EZH_VENDOR_REPORTS'
+      moduleKey: 'EZH_INV_VENDOR'
     },
     {
       label: 'Settings',
       link: '/vendor/settings',
       icon: Settings,
-      moduleKey: 'EZH_VENDOR_SETTINGS'
+      moduleKey: 'EZH_INV_VENDOR'
     }
   ];
 

@@ -1,1 +1,102 @@
-<p>forbidden works!</p>
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full">
+        <!-- Main Card -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <!-- Header Section -->
+            <div class="bg-slate-900 px-8 py-12 text-center relative overflow-hidden">
+                <!-- Background pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+                </div>
+                
+                <div class="relative z-10">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl mb-6">
+                        <lucide-icon [img]="ShieldAlert" class="w-10 h-10 text-white"></lucide-icon>
+                    </div>
+                    <h1 class="text-6xl font-bold text-white mb-2">403</h1>
+                    <p class="text-lg text-slate-300 font-medium">Access Forbidden</p>
+                </div>
+            </div>
+
+            <!-- Content Section -->
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-3">
+                        You Don't Have Permission
+                    </h2>
+                    <p class="text-slate-600 leading-relaxed max-w-md mx-auto">
+                        Sorry, you don't have the necessary permissions to access this page. 
+                        This area is restricted to authorized users only.
+                    </p>
+                </div>
+
+                <!-- Info Box -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-8">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-white rounded-lg border border-slate-200 flex-shrink-0">
+                            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-900 mb-2">Why am I seeing this?</p>
+                            <ul class="text-sm text-slate-600 space-y-1.5">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-slate-400 mt-0.5">•</span>
+                                    <span>Your account doesn't have the required role or permissions</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-slate-400 mt-0.5">•</span>
+                                    <span>The resource you're trying to access is restricted</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-slate-400 mt-0.5">•</span>
+                                    <span>Your session may have expired or been revoked</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+                    <button (click)="goBack()"
+                        class="flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm group">
+                        <lucide-icon [img]="ArrowLeft" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></lucide-icon>
+                        <span>Go Back</span>
+                    </button>
+
+                    <button (click)="goHome()"
+                        class="flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+                        <lucide-icon [img]="Home" class="w-4 h-4"></lucide-icon>
+                        <span>Home</span>
+                    </button>
+
+                    <button (click)="contactSupport()"
+                        class="flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm">
+                        <lucide-icon [img]="Mail" class="w-4 h-4"></lucide-icon>
+                        <span>Contact Support</span>
+                    </button>
+                </div>
+
+                <!-- Help Text -->
+                <div class="pt-6 border-t border-slate-200 text-center">
+                    <p class="text-sm text-slate-500">
+                        Need access? Contact your system administrator or 
+                        <a href="mailto:support@example.com" class="text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                            request permissions
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <div class="text-center mt-6">
+            <p class="text-xs text-slate-400 uppercase tracking-wider">
+                Error Code: <span class="font-mono font-semibold text-slate-500">403_FORBIDDEN</span>
+            </p>
+        </div>
+    </div>
+</div>
