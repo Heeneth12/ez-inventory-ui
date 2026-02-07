@@ -1,0 +1,100 @@
+<div class="relative inline-block text-left font-sans">
+    <button (click)="toggleDropdown()" [class.bg-blue-600]="isOpen()"
+        class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full font-semibold text-gray-700 transition-all hover:bg-gray-200 active:scale-95 shadow-sm cursor-pointer focus:ring-2 focus:ring-indigo-500/20 duration-200">
+        <div class="relative">
+            <lucide-icon [img]="Filter" class="w-4 h-4"></lucide-icon>
+            @if (totalSelectedCount() > 0) {
+            <span
+                class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white border-2 border-white">
+                {{ totalSelectedCount() }}
+            </span>
+            }
+        </div>
+        <span class="text-gray-600 text-mb">Filters</span>
+    </button>
+
+    @if (isOpen()) {
+    <div
+        class="absolute mt-2 w-[340px] bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-gray-100 z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+
+        <div class="px-5 py-4 flex justify-between items-center">
+            <h3 class="font-bold text-gray-900 text-lg">Filters</h3>
+            <button (click)="clearAll()" class="text-blue-600 text-sm font-semibold hover:underline">Save view</button>
+        </div>
+
+        <div class="px-5 pb-4">
+            <select
+                class="w-full bg-gray-50 border border-gray-200 text-gray-500 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500/20">
+                <option>Select a view</option>
+            </select>
+        </div>
+
+        <div class="max-h-[480px] overflow-y-auto custom-scrollbar">
+            @for (filter of config; track filter.id) {
+            <div class="border-t border-gray-50">
+                <button (click)="toggleCategory(filter.id)"
+                    class="w-full flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400 transition-transform"
+                        [class.rotate-90]="isCategoryExpanded(filter.id)" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                    <span class="font-bold text-gray-800 text-sm">{{ filter.label }}</span>
+                </button>
+
+                @if (isCategoryExpanded(filter.id)) {
+                <div class="bg-gray-50/50 px-5 pb-4 animate-in slide-in-from-top-2 duration-200">
+                    @if (filter.searchable) {
+                    <div class="relative mb-3">
+                        <input type="text" [placeholder]="'Search ' + filter.label.toLowerCase()"
+                            class="w-full bg-white border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-sm outline-none focus:border-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="absolute right-2.5 top-2.5 w-4 h-4 text-gray-400"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    }
+
+                    <div class="space-y-2">
+                        @for (opt of filter.options; track opt.value) {
+                        <label class="flex items-center group cursor-pointer">
+                            <div class="relative flex items-center">
+                                <input type="checkbox" [checked]="isSelected(filter.id, opt.value)"
+                                    (change)="selectOption(filter.id, opt.value, filter.type)"
+                                    class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-blue-600 checked:border-blue-600 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 left-0.5 pointer-events-none"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <span class="ml-3 text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+                                {{ opt.label }}
+                            </span>
+                        </label>
+                        }
+                    </div>
+
+                    <button class="mt-4 text-blue-600 text-sm font-semibold hover:underline">View all...</button>
+                </div>
+                }
+            </div>
+            }
+        </div>
+
+        <div class="p-4 bg-white border-t border-gray-100 flex gap-3">
+            <button (click)="clearAll()"
+                class="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-bold hover:bg-gray-50">
+                Clear
+            </button>
+            <button (click)="toggleDropdown()"
+                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-md shadow-blue-100">
+                Apply
+            </button>
+        </div>
+    </div>
+    }
+</div>
