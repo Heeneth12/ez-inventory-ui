@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators'; // Import operators
 import { UserInitResponse } from '../models/Init-response.model';
 import { BannerLoaderService } from '../components/banner-loader/banner-loader.service';
+import { DrawerService } from '../components/drawer/drawerService';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<UserInitResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private commonService: CommonService, private router: Router, private dannerLoaderSvc: BannerLoaderService) { }
+  constructor(private commonService: CommonService, private router: Router, private dannerLoaderSvc: BannerLoaderService, private drawerSvc: DrawerService) { }
 
   login(payload: any, success: (res: any) => void, error: (err: any) => void) {
     this.dannerLoaderSvc.show();
@@ -92,6 +93,7 @@ export class AuthService {
 
   logout() {
     localStorage.clear();
+    this.drawerSvc.close();
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
