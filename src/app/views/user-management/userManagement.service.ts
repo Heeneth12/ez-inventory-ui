@@ -50,6 +50,10 @@ export class UserManagementService {
         return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 
+    toggleUserStatus(id: number, successfn: any, errorfn: any) {
+        return this.httpService.putHttp(`${UserManagementService.USER_BASE_URL}/${id}/toggle-status`, {}, successfn, errorfn);
+    }
+
     getUserById(id: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${UserManagementService.USER_BASE_URL}/${id}`, successfn, errorfn);
     }
