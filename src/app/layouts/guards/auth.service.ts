@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators'; // Import operators
 import { UserInitResponse } from '../models/Init-response.model';
+import { BannerLoaderService } from '../components/banner-loader/banner-loader.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,10 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<UserInitResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private commonService: CommonService, private router: Router) { }
+  constructor(private commonService: CommonService, private router: Router, private dannerLoaderSvc: BannerLoaderService) { }
 
   login(payload: any, success: (res: any) => void, error: (err: any) => void) {
+    this.dannerLoaderSvc.show();
     this.commonService.signIn(payload,
       (res: any) => {
         localStorage.setItem('access_token', res.data.accessToken);
@@ -25,16 +27,21 @@ export class AuthService {
           next: (userInitData) => {
             // Navigate FIRST, then callback
             this.router.navigate(['/dashboard']).then(() => {
-                success(res); 
+              this.dannerLoaderSvc.hide();
+              success(res);
             });
           },
           error: (err) => {
+            this.dannerLoaderSvc.hide();
             this.logout();
             error(err);
           }
         });
       },
-      (err: any) => error(err)
+      (err: any) => {
+        this.dannerLoaderSvc.hide();
+        error(err)
+      }
     );
   }
 
@@ -99,16 +106,19 @@ export class AuthService {
 
   // Refactored to be cleaner for RxJS pipes
   validateToken(): Observable<boolean> {
+    this.dannerLoaderSvc.show();
     return new Observable<boolean>((observer) => {
       this.commonService.validateToken(
         (res: any) => {
           observer.next(true);
           observer.complete();
+          this.dannerLoaderSvc.hide();
         },
         (err: any) => {
           this.logout(); // Auto logout on invalid token
           observer.next(false);
           observer.complete();
+          this.dannerLoaderSvc.hide();
         }
       );
     });

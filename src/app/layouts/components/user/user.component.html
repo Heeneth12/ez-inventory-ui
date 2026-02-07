@@ -72,7 +72,7 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+    <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-white">
 
         @if (user.userApplications.length > 0) {
         <section>
@@ -80,7 +80,7 @@
             <div class="space-y-1">
                 @for (app of user.userApplications; track app.id) {
                 <div
-                    class="w-full flex flex-col px-3 py-2 text-sm rounded-lg bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all group cursor-pointer">
+                    class="w-full flex flex-col px-3 py-2 text-sm rounded-lg bg-white border border-gray-100 transition-all group cursor-pointer">
                     <span class="font-semibold text-slate-700">{{ app.appName }}</span>
                     <span class="text-[10px] text-gray-400">{{ app.appKey }}</span>
                 </div>
@@ -89,6 +89,37 @@
         </section>
         }
 
+        <section>
+            <div class="flex items-center justify-between px-2 mb-3">
+                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em]">Navigation</h3>
+                <span class="h-px flex-1 bg-slate-100 ml-3"></span>
+            </div>
+
+            <div class="space-y-2">
+                @for (item of navItems; track item.link) {
+                <a (click)="navigateTo(item.link)"
+                    class="group cursor-pointer flex items-center justify-between p-2 rounded-full transition-all duration-200 hover:bg-slate-50 active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-200 transition-colors"
+                            [ngClass]="item.borderClass">
+                            <lucide-icon [name]="item.icon" class="w-5 h-5 transition-colors"
+                                [ngClass]="item.colorClass">
+                            </lucide-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-700 transition-colors"
+                                [ngClass]="item.colorClass">
+                                {{ item.label }}
+                            </p>
+                            <p class="text-[10px] text-slate-400 font-medium">{{ item.sublabel }}</p>
+                        </div>
+                    </div>
+                    <lucide-icon [name]="ChevronRight"
+                        class="w-4 h-4 text-slate-300 group-hover:text-indigo-400 transform group-hover:translate-x-1 transition-all"></lucide-icon>
+                </a>
+                }
+            </div>
+        </section>
         <section>
             <h3 class="px-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">System</h3>
             <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -115,17 +146,16 @@
 
     <div class="p-4 bg-white border-t border-gray-200 mt-auto">
         <button (click)="onLogout()"
-            class="group w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium text-slate-700 hover:bg-red-50 hover:border-red-200 hover:text-red-700 transition-all shadow-sm">
+            class="group w-full flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium bg-red-50 border-red-200 text-red-700 transition-all shadow-sm">
             <span class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-red-500 transition-colors" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                     </path>
                 </svg>
                 Sign Out
             </span>
-            <span class="text-xs text-gray-400 group-hover:text-red-400">User ID: {{ user.id }}</span>
         </button>
     </div>
 

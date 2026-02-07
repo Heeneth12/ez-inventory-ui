@@ -193,18 +193,18 @@ export class InventoryLayoutComponent implements OnInit {
       icon: Folder,
       moduleKey: 'EZH_INV_DOCUMENTS'
     },
-    {
-      label: 'Admin',
-      link: '/admin',
-      icon: UserPlusIcon,
-      moduleKey: 'EZH_INV_USER_MGMT'
-    },
-    {
-      label: 'Settings',
-      link: '/settings',
-      icon: Settings,
-      moduleKey: 'EZH_INV_SETTINGS'
-    }
+    // {
+    //   label: 'Admin',
+    //   link: '/admin',
+    //   icon: UserPlusIcon,
+    //   moduleKey: 'EZH_INV_USER_MGMT'
+    // },
+    // {
+    //   label: 'Settings',
+    //   link: '/settings',
+    //   icon: Settings,
+    //   moduleKey: 'EZH_INV_SETTINGS'
+    // }
   ];
 
   constructor(

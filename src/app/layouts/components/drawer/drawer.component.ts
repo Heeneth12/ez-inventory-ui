@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, TemplateRef, Type, ViewChild, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, TemplateRef, Type, ViewChild, ViewContainerRef, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { DrawerService } from './drawerService';
 
@@ -8,7 +8,8 @@ import { DrawerService } from './drawerService';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './drawer.component.html',
-  styleUrl: './drawer.component.css'
+  styleUrl: './drawer.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DrawerComponent implements OnInit {
 

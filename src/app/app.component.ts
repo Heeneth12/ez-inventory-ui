@@ -4,11 +4,12 @@ import { RouterOutlet } from '@angular/router';
 import { InventoryLayoutComponent } from "./layouts/components/inventory-layout/inventory-layout.component";
 import { AuthService } from './layouts/guards/auth.service';
 import { ToastComponent } from "./layouts/components/toast/toast.component";
+import { BannerLoaderComponent } from "./layouts/components/banner-loader/banner-loader.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, InventoryLayoutComponent, ToastComponent],
+  imports: [CommonModule, RouterOutlet, InventoryLayoutComponent, ToastComponent, BannerLoaderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
