@@ -26,8 +26,8 @@ export class AuthService {
 
         this.fetchUserInit().subscribe({
           next: (userInitData) => {
-            // Navigate FIRST, then callback
-            this.router.navigate(['/dashboard']).then(() => {
+            // Navigate to root - RedirectGuard will handle user type-based routing
+            this.router.navigate(['/']).then(() => {
               this.dannerLoaderSvc.hide();
               success(res);
             });
@@ -77,7 +77,8 @@ export class AuthService {
         //Fetch User Details & Navigate
         this.fetchUserInit().subscribe({
           next: (userInitData) => {
-            this.router.navigate(['/dashboard']).then(() => {
+            // Navigate to root - RedirectGuard will handle user type-based routing
+            this.router.navigate(['/']).then(() => {
               success(res);
             });
           },
