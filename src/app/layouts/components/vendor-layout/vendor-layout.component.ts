@@ -12,7 +12,6 @@ import {
   LucideAngularModule,
   LayoutDashboard,
   PackagePlus,
-  Warehouse,
   ShoppingCart,
   Truck,
   Users,
@@ -36,7 +35,10 @@ import {
   MessageSquare,
   MessageSquareText,
   X,
-  UserPlusIcon
+  UserPlusIcon,
+  Newspaper,
+  Undo2,
+  ReceiptText
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -107,19 +109,25 @@ export class VendorLayoutComponent implements OnInit {
       moduleKey: 'EZH_INV_VENDOR'
     },
     {
-      label: 'Vendors',
+      label: 'New Orders',
       link: '/vendor/list',
-      icon: Users,
+      icon: Newspaper,
       moduleKey: 'EZH_INV_VENDOR'
     },
     {
-      label: 'Reports',
+      label: 'ASN Management',
       link: '/vendor/reports',
-      icon: FileChartColumn,
+      icon: ReceiptText,
       moduleKey: 'EZH_INV_VENDOR'
     },
     {
-      label: 'Settings',
+      label: 'Purchase Returns',
+      link: '/vendor/settings',
+      icon: Undo2,
+      moduleKey: 'EZH_INV_VENDOR'
+    },
+    {
+      label: 'Invoice Management',
       link: '/vendor/settings',
       icon: Settings,
       moduleKey: 'EZH_INV_VENDOR'
