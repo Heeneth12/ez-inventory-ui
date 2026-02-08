@@ -8,6 +8,7 @@ export class UserModel {
   isActive!: boolean;
   tenantId!: number;
   addresses?: UserAddressModel[];
+  userType!: UserType;
 }
 
 export class UserAddressModel {
@@ -26,7 +27,16 @@ export class UserAddressModel {
 
 export enum AddressType {
   HOME = 'HOME',
-  OFFICE = 'OFFICE'
+  OFFICE = 'OFFICE',
+  BILLING = 'BILLING',
+  SHIPPING = 'SHIPPING',
+  WAREHOUSE = 'WAREHOUSE'
+}
+
+export enum UserType {
+  EMPLOYEE = 'EMPLOYEE',
+  CUSTOMER = 'CUSTOMER',
+  VENDOR = 'VENDOR'
 }
 
 export class UserFilterModel {
@@ -36,4 +46,6 @@ export class UserFilterModel {
   email?: string;
   phone?: string;
   searchQuery?: string;
+  type?: UserType;
+  active?: boolean;
 }
