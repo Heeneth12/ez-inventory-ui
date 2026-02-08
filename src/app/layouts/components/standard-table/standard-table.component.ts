@@ -216,7 +216,7 @@ export class StandardTableComponent implements OnChanges {
 
     switch (variant) {
       case 'primary':
-        return `${base} bg-[#E86426] hover:bg-[#d5561b] text-white`;
+        return `${base} bg-[#D97706] hover:bg-[#d07207] text-white`;
       case 'outline':
         return `${base} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50`;
       case 'danger':

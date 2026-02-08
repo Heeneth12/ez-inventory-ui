@@ -52,6 +52,14 @@ export class UserComponent implements OnInit {
       icon: this.FolderOpen,
       colorClass: 'group-hover:text-amber-600',
       borderClass: 'group-hover:border-amber-200'
+    },
+    {
+      label: 'GST Config',
+      sublabel: 'System preferences',
+      link: '/gst-config',
+      icon: this.FolderOpen,
+      colorClass: 'group-hover:text-amber-600',
+      borderClass: 'group-hover:border-amber-200'
     }
   ];
 
