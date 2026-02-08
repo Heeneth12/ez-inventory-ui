@@ -26,7 +26,7 @@ export const NEW_ORDERS_ACTIONS: TableActionConfig[] = [
         label: 'Move to PO',
         icon: ArrowBigRight,
         color: 'primary',
-        condition: (row) => true
+        condition: (row) => row['status'] === 'PENDING'
     },
     {
         key: 'cancel_order',

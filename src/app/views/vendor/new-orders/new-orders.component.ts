@@ -13,6 +13,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LucideAngularModule, Search, ShoppingBag } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
+import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-new-orders',
@@ -51,6 +52,7 @@ export class NewOrdersComponent {
     private toastService: ToastService,
     private loaderSvc: LoaderService,
     private drawerService: DrawerService,
+    private confirmationModalService: ConfirmationModalService
   ) {
   }
 
@@ -105,13 +107,32 @@ export class NewOrdersComponent {
   }
 
   cancelOrderConfirmation(poId: any) {
-    this.modalService.openTemplate(
-      this.prqSummary,
-      'Cancel Order',
-    )
+    this.confirmationModalService.open({
+      title: 'Cancel Order',
+      message: 'Are you sure you want to cancel this order? This action cannot be undone.',
+      intent: 'danger',
+      confirmLabel: 'Yes, Cancel',
+      cancelLabel: 'No, Keep'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.cancelOrder(poId);
+      }
+    });
   }
 
   cancelOrder(poId: any) {
+    this.vendorService.updatePrqStatus( 
+      poId,
+      'REJECTED',
+      (response: any) => {
+        this.toastService.show('Order cancelled successfully', 'success');
+        this.getAllPRQ();
+      },
+      (error: any) => {
+        this.toastService.show('Failed to cancel order', 'error');
+        console.error('Error cancelling order:', error);
+      }
+    );
   }
 
   onFilterUpdate($event: Record<string, any>) {
@@ -125,7 +146,7 @@ export class NewOrdersComponent {
       this.viewPrqDetails(event.row.id);
     }
     if (event.type === 'custom' && event.key === 'cancel_order') {
-      this.cancelOrder(event.row.id);
+      this.cancelOrderConfirmation(event.row.id);
     }
   }
 
