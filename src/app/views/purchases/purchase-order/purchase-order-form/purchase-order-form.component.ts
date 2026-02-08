@@ -12,6 +12,7 @@ import { ContactModel } from '../../../contacts/contacts.model';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { LucideAngularModule, Search, ShoppingBag, XIcon, Check, ChevronRight, Eye, Mail, SaveIcon, FileText, Settings } from "lucide-angular";
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
+import { UserModel } from '../../../user-management/models/user.model';
 
 @Component({
   selector: 'app-purchase-order-form',
@@ -47,7 +48,7 @@ export class PurchaseOrderFormComponent implements OnInit {
   poStatus: 'OPEN' | 'DRAFT' | 'ISSUED' = 'ISSUED';
 
   // Data State
-  selectedSupplier: ContactModel | null = null;
+  selectedSupplier: UserModel | null = null;
   warehouseList: any[] = [{ id: 1, name: 'Main Warehouse' }];
 
   // Item Search State (Matching Reference Component)
@@ -193,7 +194,7 @@ export class PurchaseOrderFormComponent implements OnInit {
    * SUPPLIER LOGIC
    * Integrates with <app-invoice-header>
    */
-  selectSupplier(supplier: ContactModel) {
+  selectSupplier(supplier: UserModel) {
     this.selectedSupplier = supplier;
     this.poForm.patchValue({ supplierId: supplier.id });
   }

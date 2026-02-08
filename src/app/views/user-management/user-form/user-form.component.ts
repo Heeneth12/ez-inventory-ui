@@ -180,7 +180,7 @@ export class UserFormComponent implements OnInit {
 
     // 4. Patch Addresses
     this.addressArray.clear();
-    const incomingAddresses = user.userAddress || [];
+    const incomingAddresses = user.addresses || [];
     if (incomingAddresses.length > 0) {
       incomingAddresses.forEach((addr: any) => {
         this.addressArray.push(this.createAddressGroup(addr));

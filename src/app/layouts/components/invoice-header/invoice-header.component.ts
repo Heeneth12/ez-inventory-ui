@@ -2,12 +2,12 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, tap, finalize, of, catchError, Observable } from 'rxjs';
-import { ContactModel, ContactFilter, ContactType } from '../../../views/contacts/contacts.model';
-import { ContactService } from '../../../views/contacts/contacts.service';
 import { AuthService } from '../../guards/auth.service';
 import { UserInitResponse } from '../../models/Init-response.model';
 import { User, CheckCircle, Phone, Mail, MapPin, Search, Loader2, Building2, Store, LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
+import { UserFilterModel, UserModel, UserType } from '../../../views/user-management/models/user.model';
+import { UserManagementService } from '../../../views/user-management/userManagement.service';
 
 
 @Component({
@@ -18,19 +18,21 @@ import { Router } from '@angular/router';
 })
 export class InvoiceHeaderComponent implements OnInit {
 
-  // Inputs: Allow parent to pass in an existing contact (e.g. Edit Mode)
-  @Input() selectedContact: ContactModel | null = null;
-  @Input() searchType: 'CUSTOMER' | 'SUPPLIER' | 'BOTH' = 'BOTH'
+  // Inputs: Allow parent to pass in an existing user (e.g. Edit Mode)
+  @Input() selectedUser: UserModel | null = null;
+  @Input() searchType: 'CUSTOMER' | 'VENDOR' | 'EMPLOYEE' = 'VENDOR'
   
-  // Outputs: Tell parent when a contact is chosen or cleared
-  @Output() contactSelected = new EventEmitter<ContactModel>();
-  @Output() contactCleared = new EventEmitter<void>();
+  // Outputs: Tell parent when a user is chosen or cleared
+  @Output() userSelected = new EventEmitter<UserModel>();
+  @Output() userCleared = new EventEmitter<void>();
 
   // Search State
   searchTerm: string = '';
-  searchResults: ContactModel[] = [];
+  searchResults: UserModel[] = [];
   isSearching: boolean = false;
   showResults: boolean = false;
+
+  userFilterModel: UserFilterModel = new UserFilterModel(); 
 
   // Use Observable for AsyncPipe in template (Best Practice)
   userData$: Observable<UserInitResponse | null>;
@@ -52,7 +54,7 @@ export class InvoiceHeaderComponent implements OnInit {
 
   private searchSubject = new Subject<string>();
 
-  constructor(private contactService: ContactService, private authSvs: AuthService, private router: Router) {
+  constructor(private userService: UserManagementService, private authSvs: AuthService, private router: Router) {
     this.userData$ = this.authSvs.currentUser$;
   }
 
@@ -78,19 +80,21 @@ export class InvoiceHeaderComponent implements OnInit {
         this.showResults = true;
       }),
       switchMap(query => {
-        const filter = new ContactFilter();
-        filter.searchQuery = query;
+        this.userFilterModel.searchQuery = query;
 
-        if(this.searchType === 'SUPPLIER'){
-          filter.type = ContactType.SUPPLIER;
-        }else if(this.searchTerm === 'CUSTOMER') {
-          filter.type = ContactType.CUSTOMER;
+        if(this.searchType === 'VENDOR'){
+          this.userFilterModel.type = UserType.VENDOR;
+        }else if(this.searchType === 'CUSTOMER') {
+          this.userFilterModel.type = UserType.CUSTOMER;
+        }else if(this.searchType === 'EMPLOYEE') {
+          this.userFilterModel.type = UserType.EMPLOYEE;
         }
 
         // Convert Service Call to Observable
-        return new Promise<ContactModel[]>((resolve) => {
-          this.contactService.searchContacts(filter, 
-            (res: any) => resolve(res.data || []),
+        return new Promise<UserModel[]>((resolve) => {
+          this.userService.searchUsers(
+            this.userFilterModel, 
+            (res: any) => resolve(res?.data?.content || []),
             () => resolve([])
           );
         });
@@ -115,17 +119,17 @@ export class InvoiceHeaderComponent implements OnInit {
     this.searchSubject.next(value);
   }
 
-  selectContact(contact: ContactModel) {
-    this.selectedContact = contact;
+  selectUser(user: UserModel) {
+    this.selectedUser = user;
     this.showResults = false;
     this.searchTerm = '';
-    this.contactSelected.emit(contact);
+    this.userSelected.emit(user);
   }
 
-  clearContact() {
-    this.selectedContact = null;
+  clearUser() {
+    this.selectedUser = null;
     this.searchTerm = '';
-    this.contactCleared.emit();
+    this.userCleared.emit();
   }
 
   // --- Helpers ---
@@ -136,9 +140,9 @@ export class InvoiceHeaderComponent implements OnInit {
   }
 
   getFormattedAddress(): string {
-    if (!this.selectedContact?.addresses?.length) return '';
+    if (!this.selectedUser?.addresses?.length) return '';
     // Logic to find Billing address or default to first
-    const addr = this.selectedContact.addresses.find(a => a.type === 'BILLING') || this.selectedContact.addresses[0];
+    const addr = this.selectedUser.addresses.find(a => a.type === 'BILLING') || this.selectedUser.addresses[0];
     return `${addr.city}, ${addr.state}`;
   }
 

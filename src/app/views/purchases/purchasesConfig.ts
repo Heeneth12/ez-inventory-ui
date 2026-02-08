@@ -6,7 +6,7 @@ import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.compo
 export const PRQ_COLUMN: TableColumn[] = [
     { key: 'prqNumber', label: 'PRQ Number', width: '100px', type: 'link' },
     { key: 'createdAt', label: 'Order Date', width: '110px', type: 'date' },
-    { key: 'supplierName', label: 'Supplier', width: '110px', type: 'text' },
+    { key: 'vendorName', label: 'Supplier', width: '110px', type: 'text' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
     { key: 'totalEstimatedAmount', label: 'TotalAmount', width: '110px', type: 'currency', align: 'right' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }

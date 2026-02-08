@@ -5,8 +5,8 @@
 
         <div class="lg:col-span-8 space-y-6">
 
-          <app-invoice-header [selectedContact]="selectedSupplier" [searchType]="'BOTH'"
-            (contactSelected)="selectSupplier($event)" (contactCleared)="onSupplierCleared()">
+          <app-invoice-header [selectedUser]="selectedSupplier" [searchType]="'VENDOR'"
+            (userSelected)="selectSupplier($event)" (userCleared)="onSupplierCleared()">
           </app-invoice-header>
 
           <div class="bg-white rounded-lg border border-gray-300 flex flex-col overflow-hidden min-h-[600px]">

@@ -13,6 +13,8 @@ import { PurchaseService } from '../../purchase.service';
 import { CommonModule } from '@angular/common';
 import { InvoiceHeaderComponent } from '../../../../layouts/components/invoice-header/invoice-header.component';
 import { PrqStatus } from '../../models/prq.model';
+import { UserModel } from '../../../user-management/models/user.model';
+import { UserManagementService } from '../../../user-management/userManagement.service';
 
 @Component({
   selector: 'app-purchase-request-form',
@@ -46,7 +48,7 @@ export class PurchaseRequestFormComponent {
   prqStatus: 'OPEN' | 'DRAFT' | 'ISSUED' | 'PENDING' = 'PENDING';
 
   // Data State
-  selectedSupplier: ContactModel | null = null;
+  selectedVendor: UserModel | null = null;
   warehouseList: any[] = [{ id: 1, name: 'Main Warehouse' }];
 
   // Item Search State (Matching Reference Component)
@@ -59,6 +61,7 @@ export class PurchaseRequestFormComponent {
     private fb: FormBuilder,
     private purchaseService: PurchaseService,
     private contactService: ContactService,
+    private userService: UserManagementService,
     private itemService: ItemService,
     private router: Router,
     private route: ActivatedRoute,
@@ -75,7 +78,7 @@ export class PurchaseRequestFormComponent {
 
   private initForm() {
     this.prqForm = this.fb.group({
-      supplierId: [null, [Validators.required]],
+      vendorId: [null, [Validators.required]],
       warehouseId: [1, [Validators.required]],
       notes: [''],
       items: this.fb.array([], Validators.required)
@@ -179,17 +182,17 @@ export class PurchaseRequestFormComponent {
   }
 
   /**
-   * SUPPLIER LOGIC
+   * VENDOR LOGIC
    * Integrates with <app-invoice-header>
    */
-  selectSupplier(supplier: ContactModel) {
-    this.selectedSupplier = supplier;
-    this.prqForm.patchValue({ supplierId: supplier.id });
+  selectVendor(vendor: UserModel) {
+    this.selectedVendor = vendor;
+    this.prqForm.patchValue({ vendorId: vendor.id });
   }
 
-  onSupplierCleared() {
-    this.selectedSupplier = null;
-    this.prqForm.patchValue({ supplierId: null });
+  onVendorCleared() {
+    this.selectedVendor = null;
+    this.prqForm.patchValue({ vendorId: null });
   }
 
   /**
@@ -200,20 +203,20 @@ export class PurchaseRequestFormComponent {
     this.purchaseService.getPrqById(id, (res: any) => {
       const data = res.data;
       this.prqForm.patchValue({
-        supplierId: data.supplierId,
+        vendorId: data.vendorId,
         warehouseId: data.warehouseId,
         notes: data.notes
       });
       const itemControl = this.itemsFormArray;
       itemControl.clear();
       data.items.forEach((item: any) => itemControl.push(this.createItemGroup(item)));
-      this.fetchSupplier(data.supplierId);
+      this.fetchSupplier(data.vendorId);
       this.loaderSvc.hide();
     }, () => this.loaderSvc.hide());
   }
 
   private fetchSupplier(id: number) {
-    this.contactService.getContactById(id, (res: any) => this.selectedSupplier = res.data, () => { });
+    this.userService.getUserById(id, (res: any) => this.selectedVendor = res.data, () => { });
   }
 
   onSubmit() {
@@ -270,11 +273,11 @@ export class PurchaseRequestFormComponent {
   }
 
   onSendMail() {
-    if (!this.selectedSupplier?.email) {
+    if (!this.selectedVendor?.email) {
       this.toastService.show('Supplier email not found', 'warning');
       return;
     }
-    this.toastService.show(`Sending email to ${this.selectedSupplier.email}`, 'success');
+    this.toastService.show(`Sending email to ${this.selectedVendor.email}`, 'success');
   }
 
 }

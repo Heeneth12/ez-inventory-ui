@@ -4,16 +4,15 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
-import { ContactModel, AddressType, ContactFilter, ContactType } from '../../../contacts/contacts.model';
-import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
 import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
-import { ApprovalConsoleComponent } from '../../../approval-console/approval-console.component';
 import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/approval-console.model';
 import { ApprovalConsoleService } from '../../../approval-console/approval-console.service';
+import { UserModel, AddressType, UserType, UserFilterModel } from '../../../user-management/models/user.model';
+import { UserManagementService } from '../../../user-management/userManagement.service';
 
 @Component({
   selector: 'app-sales-order-form',
@@ -39,8 +38,8 @@ export class SalesOrderFormComponent implements OnInit {
   isLoading = false;
 
   // Customer Search
-  selectedCustomer: ContactModel | null = null;
-  contactFilter: ContactFilter = new ContactFilter();
+  selectedUser: UserModel | null = null;
+  userFilter: UserFilterModel = new UserFilterModel();
 
   // Item Search
   itemSearchResults: ItemModel[] = [];
@@ -61,13 +60,13 @@ export class SalesOrderFormComponent implements OnInit {
     private fb: FormBuilder,
     private salesOrderService: SalesOrderService,
     private approvalConsoleService:ApprovalConsoleService,
-    private contactService: ContactService,
+    private userService: UserManagementService,
     private itemService: ItemService,
     private toast: ToastService,
     private router: Router,
     private route: ActivatedRoute
   ) {
-    this.contactFilter.type = ContactType.SUPPLIER;
+    this.userFilter.type = UserType.VENDOR;
     this.orderForm = this.fb.group({
       id: [null],
       customerId: [1, Validators.required],
@@ -116,7 +115,7 @@ export class SalesOrderFormComponent implements OnInit {
           totalTax: order.totalTax          // Map Flat Tax
         });
         // 2. Set Customer Display
-        this.getCustomerById(order.customerId);
+        this.getUserById(order.customerId);
 
         // 3. Patch Items
         const itemArray = this.orderForm.get('items') as FormArray;
@@ -287,11 +286,11 @@ export class SalesOrderFormComponent implements OnInit {
   }
 
   //Customer Management
-  getCustomerById(customerId:any){
-    this.contactService.getContactById(
+  getUserById(customerId:any){
+    this.userService.getUserById(
       customerId,
       (response:any) => {
-        this.selectedCustomer = response.data;
+        this.selectedUser = response.data;
       },
       (err:any) => {
         console.log(err);
@@ -299,20 +298,20 @@ export class SalesOrderFormComponent implements OnInit {
     )
   }
 
-  onCustomerSelected(customer: ContactModel) {
-    this.selectedCustomer = customer;
-    this.orderForm.patchValue({ customerId: customer.id });
+  onUserSelected(user: UserModel) {
+    this.selectedUser = user;
+    this.orderForm.patchValue({ customerId: user.id });
   }
 
-  onCustomerCleared() {
-    this.selectedCustomer = null;
+  onUserCleared() {
+    this.selectedUser = null;
     this.orderForm.patchValue({ customerId: null });
   }
 
   getFormattedAddress(): string {
-    if (!this.selectedCustomer?.addresses?.length) return 'No address on file';
-    const addr = this.selectedCustomer.addresses.find(a => a.type === AddressType.BILLING)
-      || this.selectedCustomer.addresses[0];
+    if (!this.selectedUser?.addresses?.length) return 'No address on file';
+    const addr = this.selectedUser.addresses.find(a => a.type === AddressType.BILLING)
+      || this.selectedUser.addresses[0];
     return `${addr.city}, ${addr.state}`;
   }
 

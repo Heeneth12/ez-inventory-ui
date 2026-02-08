@@ -18,8 +18,8 @@ export interface PurchaseRequestItemModel {
 export interface PurchaseRequestModel {
     id: number;
     tenantId?: number;
-    supplierId?:number;
-    supplierName?:string;
+    vendorId?:number;
+    vendorName?:string;
     warehouseId?:string;
     requestedBy: number;
     department: string;

@@ -4,8 +4,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <div class="lg:col-span-8 space-y-6">
                     <div>
-                        <app-invoice-header [selectedContact]="selectedCustomer" [searchType]="'BOTH'"
-                            (contactSelected)="onCustomerSelected($event)" (contactCleared)="onCustomerCleared()">
+                        <app-invoice-header [selectedUser]="selectedUser" [searchType]="'CUSTOMER'"
+                            (userSelected)="onUserSelected($event)" (userCleared)="onUserCleared()">
                         </app-invoice-header>
                     </div>
                     <div class="bg-white rounded-lg border border-gray-300 flex flex-col overflow-hidden min-h-[700px]">

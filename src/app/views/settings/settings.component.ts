@@ -96,8 +96,8 @@ export class SettingsComponent implements OnInit {
     });
 
     // If you have address data, patch city here
-    if (user.userAddress?.[0]) {
-      this.generalForm.patchValue({ city: user.userAddress[0].city });
+    if (user.addresses?.[0]) {
+      this.generalForm.patchValue({ city: user.addresses[0].city });
     }
   }
 

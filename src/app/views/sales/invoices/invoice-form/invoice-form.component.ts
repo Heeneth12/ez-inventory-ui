@@ -4,10 +4,8 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
 import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
-import { AddressType, ContactModel } from '../../../contacts/contacts.model';
 import { SalesOrderService } from '../../sales-order/sales-order.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
-import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
@@ -15,6 +13,8 @@ import { LoaderService } from '../../../../layouts/components/loader/loaderServi
 import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
 import { InvoiceModal, InvoiceItemModal, InvoiceRequest, DeliveryOption } from '../invoice.modal';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
+import { AddressType, UserModel } from '../../../user-management/models/user.model';
+import { UserManagementService } from '../../../user-management/userManagement.service';
 
 @Component({
   selector: 'app-invoice-form',
@@ -50,8 +50,8 @@ export class InvoiceFormComponent implements OnInit {
   orderId: number | null = null;
   isLoading = false;
 
-  // Customer Search
-  selectedCustomer: ContactModel | null = null;
+  // User Search
+  selectedUser: UserModel | null = null;
 
   // Pending Orders
   pendingOrders: SalesOrderModal[] = [];
@@ -82,7 +82,7 @@ export class InvoiceFormComponent implements OnInit {
     private fb: FormBuilder,
     private invoiceService: InvoiceService,
     private salesOrderService: SalesOrderService,
-    private contactService: ContactService,
+    private userService: UserManagementService,
     private itemService: ItemService,
     private loaderSvc: LoaderService,
     private toast: ToastService,
@@ -148,7 +148,7 @@ export class InvoiceFormComponent implements OnInit {
         });
 
         //Set Customer
-        this.setCustomerById(order.customerId, order.customerName);
+        this.setUserById(order.customerId, order.customerName);
 
         //Apply Items (Reuse logic)
         this.applySalesOrder(order);
@@ -182,7 +182,7 @@ export class InvoiceFormComponent implements OnInit {
         });
 
         //Set Customer
-        this.setCustomerById(invoice.customerId, "Loading...");
+        this.setUserById(invoice.customerId, "Loading...");
 
         //Patch Items
         const itemArray = this.items;
@@ -203,14 +203,14 @@ export class InvoiceFormComponent implements OnInit {
     );
   }
 
-  private setCustomerById(customerId: number, fallbackName: string) {
-    this.contactService.getContactById(customerId,
-      (res: { data: ContactModel }) => {
-        this.selectedCustomer = res.data;
+  private setUserById(userId: number, fallbackName: string) {
+    this.userService.getUserById(userId,
+      (res: { data: UserModel }) => {
+        this.selectedUser = res.data;
       },
       (err: any) => {
         // Fallback if fetch fails
-        this.selectedCustomer = { id: customerId, name: fallbackName } as ContactModel;
+        this.selectedUser = { id: userId, fullName: fallbackName } as UserModel;
       }
     );
   }
@@ -494,33 +494,20 @@ export class InvoiceFormComponent implements OnInit {
     this.toast.show(err.error?.message || 'Operation failed', 'error');
   }
 
-  //CUSTOMER UTILS
-  getCustomerById(customerId:any){
-    this.contactService.getContactById(
-      customerId,
-      (response:any) => {
-        this.selectedCustomer = response.data;
-      },
-      (err:any) => {
-        console.log(err);
-      }
-    )
+  onUserSelected(user: UserModel) {
+    this.selectedUser = user;
+    this.invoiceForm.patchValue({ customerId: user.id });
   }
 
-  onCustomerSelected(customer: ContactModel) {
-    this.selectedCustomer = customer;
-    this.invoiceForm.patchValue({ customerId: customer.id });
-  }
-
-  onCustomerCleared() {
-    this.selectedCustomer = null;
+  onUserCleared() {
+    this.selectedUser = null;
     this.invoiceForm.patchValue({ customerId: null });
   }
 
   getFormattedAddress(): string {
-    if (!this.selectedCustomer?.addresses?.length) return 'No address on file';
-    const addr = this.selectedCustomer.addresses.find(a => a.type === AddressType.BILLING)
-      || this.selectedCustomer.addresses[0];
+    if (!this.selectedUser?.addresses?.length) return 'No address on file';
+    const addr = this.selectedUser.addresses.find(a => a.type === AddressType.BILLING)
+      || this.selectedUser.addresses[0];
     return `${addr.city}, ${addr.state}`;
   }
 
