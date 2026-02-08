@@ -6,11 +6,12 @@ import { AuthService } from './layouts/guards/auth.service';
 import { ToastComponent } from "./layouts/components/toast/toast.component";
 import { BannerLoaderComponent } from "./layouts/components/banner-loader/banner-loader.component";
 import { VendorLayoutComponent } from "./layouts/components/vendor-layout/vendor-layout.component";
+import { ConfirmationModalComponent } from "./layouts/UI/confirmation-modal/confirmation-modal.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, InventoryLayoutComponent, ToastComponent, BannerLoaderComponent, VendorLayoutComponent],
+  imports: [CommonModule, RouterOutlet, InventoryLayoutComponent, ToastComponent, BannerLoaderComponent, VendorLayoutComponent, ConfirmationModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
