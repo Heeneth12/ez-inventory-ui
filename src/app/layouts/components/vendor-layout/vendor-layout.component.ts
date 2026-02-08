@@ -110,7 +110,7 @@ export class VendorLayoutComponent implements OnInit {
     },
     {
       label: 'New Orders',
-      link: '/vendor/list',
+      link: '/vendor/new-orders',
       icon: Newspaper,
       moduleKey: 'EZH_INV_VENDOR'
     },
