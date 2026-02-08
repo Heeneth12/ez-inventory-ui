@@ -54,7 +54,7 @@ export class UserManagementComponent implements OnInit {
     { key: 'email', label: 'Email', width: '220px', type: 'link' },
     { key: 'phone', label: 'Phone', width: '100px', type: 'text' },
     { key: 'roles', label: 'Roles', width: '100px', type: 'text' },
-    { key: 'userType', label: 'User Type', width: '100px', type: 'text' },
+    { key: 'userType', label: 'User Type', width: '100px', type: 'badge' },
     { key: 'isActive', label: 'Active', width: '130px', type: 'toggle', align: 'center' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
   ];

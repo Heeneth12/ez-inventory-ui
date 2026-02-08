@@ -174,7 +174,7 @@ export class StandardTableComponent implements OnChanges {
     };
 
     // SUCCESS
-    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product', 'fully_invoiced', 'customer', 'delivered', 'sales_team'].includes(s)) {
+    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product', 'fully_invoiced', 'customer', 'delivered', 'sales_team', 'employee'].includes(s)) {
       return styles.success;
     }
 
@@ -189,7 +189,7 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // INFO / ROLES
-    if (['manager', 'lead', 'supplier', 'service', 'created', 'confirmed', 'moved_to_delivery', 'received', 'in_house_delivery', 'issued'].includes(s)) {
+    if (['manager', 'lead', 'supplier', 'service', 'created', 'confirmed', 'moved_to_delivery', 'received', 'in_house_delivery', 'issued', 'vendor'].includes(s)) {
       return styles.info;
     }
 
