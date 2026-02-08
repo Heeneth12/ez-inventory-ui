@@ -2,15 +2,16 @@ import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, Si
 import { CommonModule, DecimalPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig, HeaderAction } from './standard-table.model';
-import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight, RefreshCcw, RotateCcw } from 'lucide-angular';
+import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight, RefreshCcw, RotateCcw, Settings } from 'lucide-angular';
 import { StatusStepperComponent } from '../../UI/status-stepper/status-stepper.component';
 import { UserCardComponent } from "../../UI/user-card/user-card.component";
 import { DatePickerConfig, DateRangeEmit, DatePickerComponent } from '../../UI/date-picker/date-picker.component';
+import { FilterOption, FilterDropdownComponent } from '../../UI/filter-dropdown/filter-dropdown.component';
 
 @Component({
   selector: 'app-standard-table',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, StatusStepperComponent, UserCardComponent, DatePickerComponent],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, StatusStepperComponent, UserCardComponent, DatePickerComponent, FilterDropdownComponent],
   templateUrl: './standard-table.component.html',
   styleUrls: ['./standard-table.component.css'],
 })
@@ -23,6 +24,9 @@ export class StandardTableComponent implements OnChanges {
   @Input() isLoading: boolean = false;
   @Input() enableSelection: boolean = true; // New: Toggle selection column
   @Input() isServerSide: boolean = false;
+
+  @Input() filterConfig: FilterOption[] = [];
+  @Output() filterChanged = new EventEmitter<Record<string, any>>();
 
   @Input() datePickerConfig: DatePickerConfig | null = null;
   @Output() dateChange = new EventEmitter<DateRangeEmit>();
@@ -49,6 +53,7 @@ export class StandardTableComponent implements OnChanges {
   readonly MoreVertical = MoreVertical;
   readonly ArrowRight = ArrowRight;
   readonly RotateCcw = RotateCcw;
+  readonly Settings = Settings;
 
   // State Signals
   searchQuery = signal('');
@@ -349,6 +354,10 @@ export class StandardTableComponent implements OnChanges {
     if (this.pagination) {
       this.pageChange.emit(1);
     }
+  }
+
+  handleFilterChange(value: any) {
+    this.filterChanged.emit(value);
   }
 
   resetFilters() {
