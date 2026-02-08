@@ -63,7 +63,7 @@ export class UserManagementComponent implements OnInit {
     {
       label: 'Create User',
       icon: UserPenIcon,
-      variant: 'primary',
+      variant: 'outline',
       key: 'create_user',
       action: () => this.openCreateUser()
     },
@@ -71,7 +71,7 @@ export class UserManagementComponent implements OnInit {
       label: 'Create Role',
       icon: UserRoundCog,
       variant: 'primary',
-      key: 'create_user',
+      key: 'create_role',
       action: () => this.openCreateRole()
     }
   ];

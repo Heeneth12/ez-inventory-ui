@@ -23,8 +23,8 @@ export const routes: Routes = [
     // 1.5. VENDOR DASHBOARD (Lazy load single component)
     {
         path: 'vendor/dashboard',
-        loadComponent: () => import('./views/dashboard/dashboard.component')
-            .then(c => c.DashboardComponent),
+        loadComponent: () => import('./views/dashboard/vendor-dashboard/vendor-dashboard.component')
+            .then(c => c.VendorDashboardComponent),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_VENDOR' }
     },
