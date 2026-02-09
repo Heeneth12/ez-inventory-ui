@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, tap, finalize, of, catchError, Observable } from 'rxjs';
 import { AuthService } from '../../guards/auth.service';
 import { UserInitResponse } from '../../models/Init-response.model';
-import { User, CheckCircle, Phone, Mail, MapPin, Search, Loader2, Building2, Store, LucideAngularModule } from 'lucide-angular';
+import { User, CheckCircle, Phone, Mail, MapPin, Search, Loader2, Building2, Store, LucideAngularModule, ChevronRight } from 'lucide-angular';
 import { Router } from '@angular/router';
 import { UserFilterModel, UserModel, UserType } from '../../../views/user-management/models/user.model';
 import { UserManagementService } from '../../../views/user-management/userManagement.service';
+import { TenantModel } from '../../../views/user-management/models/tenant.model';
 
 
 @Component({
@@ -32,10 +33,11 @@ export class InvoiceHeaderComponent implements OnInit {
   isSearching: boolean = false;
   showResults: boolean = false;
 
-  userFilterModel: UserFilterModel = new UserFilterModel(); 
+  userFilterModel: UserFilterModel = new UserFilterModel();
 
   // Use Observable for AsyncPipe in template (Best Practice)
   userData$: Observable<UserInitResponse | null>;
+  tenantDetails: TenantModel | null = null;
 
   // Status Logic
   status: 'online' | 'away' | 'dnd' = 'online';
@@ -50,6 +52,7 @@ export class InvoiceHeaderComponent implements OnInit {
   readonly Loader2 = Loader2;
   readonly Building2 = Building2;
   readonly Store = Store;
+  readonly ChevronRight = ChevronRight;
 
 
   private searchSubject = new Subject<string>();
@@ -60,6 +63,14 @@ export class InvoiceHeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.setupSearchPipeline();
+    const tenantIdString = sessionStorage.getItem('tenantId');
+    if (tenantIdString) {
+      const tenantId = parseInt(tenantIdString, 10);
+      this.userService.fetchTenantObservable(tenantId).subscribe(data => {
+        this.tenantDetails = data;
+        console.log('Tenant Details are ready:', this.tenantDetails);
+      });
+    }
   }
 
   // --- Search Logic ---
@@ -82,18 +93,18 @@ export class InvoiceHeaderComponent implements OnInit {
       switchMap(query => {
         this.userFilterModel.searchQuery = query;
 
-        if(this.searchType === 'VENDOR'){
+        if (this.searchType === 'VENDOR') {
           this.userFilterModel.type = UserType.VENDOR;
-        }else if(this.searchType === 'CUSTOMER') {
+        } else if (this.searchType === 'CUSTOMER') {
           this.userFilterModel.type = UserType.CUSTOMER;
-        }else if(this.searchType === 'EMPLOYEE') {
+        } else if (this.searchType === 'EMPLOYEE') {
           this.userFilterModel.type = UserType.EMPLOYEE;
         }
 
         // Convert Service Call to Observable
         return new Promise<UserModel[]>((resolve) => {
           this.userService.searchUsers(
-            this.userFilterModel, 
+            this.userFilterModel,
             (res: any) => resolve(res?.data?.content || []),
             () => resolve([])
           );

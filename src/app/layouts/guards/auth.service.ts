@@ -51,6 +51,9 @@ export class AuthService {
       this.commonService.initUser(
         (res: any) => {
           const userData: UserInitResponse = res.data;
+          sessionStorage.setItem('tenantId', userData.tenantId.toString());
+          sessionStorage.setItem('userId', userData.id.toString()); 
+          sessionStorage.setItem('currentUserUuid', userData.userUuid);
           this.currentUserSubject.next(userData);
           observer.next(userData);
           observer.complete();

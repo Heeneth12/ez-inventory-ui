@@ -68,18 +68,42 @@
 
             <div *ngIf="showResults && searchResults.length > 0"
                 class="absolute top-[70px] left-0 right-0 z-50 mx-2 bg-white rounded-xl shadow-xl shadow-gray-200/50 border border-gray-100 max-h-64 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+
                 <div *ngFor="let cust of searchResults" (mousedown)="selectUser(cust)"
-                    class="px-4 py-3 hover:bg-indigo-50 cursor-pointer flex items-center justify-between group/item border-b border-gray-50 last:border-0 transition-colors">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xs font-bold group-hover/item:bg-white group-hover/item:text-indigo-600 transition-colors">
-                            {{ cust.fullName.charAt(0) }}
+                    class="group/item px-4 py-3 flex items-center gap-3 cursor-pointer border-b border-gray-50 last:border-0 hover:bg-indigo-50/80 transition-all duration-200">
+
+                    <div
+                        class="shrink-0 w-9 h-9 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xs font-bold border border-transparent group-hover/item:bg-white group-hover/item:text-indigo-600 group-hover/item:shadow-sm group-hover/item:border-indigo-100 transition-all">
+                        {{ cust.fullName.charAt(0) }}
+                    </div>
+
+                    <div class="flex flex-col flex-1 justify-center">
+
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <span
+                                class="font-semibold text-gray-900 text-sm group-hover/item:text-indigo-700 transition-colors">
+                                {{ cust.fullName }}
+                            </span>
+
+                            <span
+                                class="px-1.5 py-[1.5px] rounded-md text-[7px] font-semibold tracking-wide uppercase border"
+                                [ngClass]="{
+                                        'bg-blue-50 text-blue-700 border-blue-100': cust.userType === 'EMPLOYEE',
+                                        'bg-emerald-50 text-emerald-700 border-emerald-100': cust.userType === 'CUSTOMER',
+                                        'bg-amber-50 text-amber-700 border-amber-100': cust.userType === 'VENDOR'
+                                    }">
+                                {{ cust.userType }}
+                            </span>
                         </div>
-                        <div>
-                            <div class="font-semibold text-gray-900 text-sm group-hover/item:text-indigo-700">{{
-                                cust.fullName }}</div>
-                            <div class="text-xs text-gray-500">{{ cust.phone }}</div>
+
+                        <div class="text-xs text-gray-500 font-medium">
+                            {{ cust.phone }}
                         </div>
+                    </div>
+
+                    <div
+                        class="opacity-0 group-hover/item:opacity-100 -translate-x-2 group-hover/item:translate-x-0 transition-all duration-200 text-indigo-400">
+                          <lucide-icon [img]="ChevronRight" class="w-4 h-4 text-gray-400 transition-colors"></lucide-icon>
                     </div>
                 </div>
             </div>
@@ -113,12 +137,11 @@
                     <div class="mt-2 space-y-1.5">
                         <div class="flex items-center gap-2 text-sm text-gray-600">
                             <lucide-icon [img]="Phone" class="w-3.5 h-3.5 text-gray-400 shrink-0"></lucide-icon>
-                            <span>+91 98765 43210</span>
+                            <span>{{tenantDetails?.phone}}</span>
                         </div>
                         <div class="flex items-center gap-2 text-sm text-gray-600">
                             <lucide-icon [img]="Mail" class="w-3.5 h-3.5 text-gray-400 shrink-0"></lucide-icon>
-                            <span class="truncate">billing&#64;{{ ('business').toLowerCase().replace(' ', '')
-                                }}.com</span>
+                            <span class="truncate">{{tenantDetails?.email}}</span>
                         </div>
                         <div class="flex items-start gap-2 text-sm text-gray-600">
                             <lucide-icon [img]="MapPin" class="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5"></lucide-icon>

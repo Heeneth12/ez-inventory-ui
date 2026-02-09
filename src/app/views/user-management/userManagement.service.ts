@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpService } from "../../layouts/service/http-svc/http.service";
 import { CreateUserModel } from "./models/create-user.model";
 import { environment } from "../../../environments/environment.development";
+import { Observable } from "rxjs";
 
 
 @Injectable({
@@ -90,5 +91,27 @@ export class UserManagementService {
 
     getPrivilegesByModule(moduleId: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${UserManagementService.USER_MANAG_BASE_URL}/modules/${moduleId}/privileges`, successfn, errorfn);
+    }
+
+
+
+    //implementation of other methods as needed
+
+    /**
+     * get tenant details by tenant id and log the response or error.
+     * This is a utility method that can be used in components to fetch and display tenant details.
+     * 
+     * @param tenantId 
+     */
+    fetchTenantObservable(id: number): Observable<any> {
+        return new Observable(observer => {
+            this.getTenantById(id,
+                (res: any) => {
+                    observer.next(res.data);
+                    observer.complete();
+                },
+                (err: any) => observer.error(err)
+            );
+        });
     }
 }
