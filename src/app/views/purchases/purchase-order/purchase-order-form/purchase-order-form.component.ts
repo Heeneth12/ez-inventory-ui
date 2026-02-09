@@ -109,7 +109,7 @@ export class PurchaseOrderFormComponent implements OnInit {
         const filter = new ItemSearchFilter();
         filter.searchQuery = query;
         filter.active = true;
-        filter.itemType = 'PRODUCT';
+        filter.itemTypes = ['PRODUCT'];
 
         return new Promise(resolve => {
           this.itemService.searchItems(filter,

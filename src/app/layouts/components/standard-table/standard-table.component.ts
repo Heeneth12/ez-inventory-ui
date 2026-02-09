@@ -174,7 +174,7 @@ export class StandardTableComponent implements OnChanges {
     };
 
     // SUCCESS
-    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product', 'fully_invoiced', 'customer', 'delivered', 'sales_team', 'employee'].includes(s)) {
+    if (['active', 'in', 'paid', 'success', 'completed', 'approved', 'in stock', 'product', 'fully_invoiced', 'delivered', 'sales_team', 'employee'].includes(s)) {
       return styles.success;
     }
 
@@ -184,7 +184,7 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // WARNING
-    if (['pending', 'processing', 'hold', 'warning', 'partially_invoiced', 'customer_pickup', 'pending_approval',].includes(s)) {
+    if (['pending', 'processing', 'hold', 'warning', 'partially_invoiced', 'customer_pickup', 'pending_approval', 'customer' ].includes(s)) {
       return styles.warning;
     }
 

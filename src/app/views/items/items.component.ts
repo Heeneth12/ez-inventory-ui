@@ -131,8 +131,9 @@ export class ItemsComponent implements OnInit {
 
   onFilterUpdate($event: Record<string, any>) {
     console.log("Received filter update:", $event);
+    this.itemFilter.itemTypes = $event['type'] || null;
+    this.getAllItems();
   }
-
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
 

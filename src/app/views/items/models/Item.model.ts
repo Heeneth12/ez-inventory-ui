@@ -23,7 +23,7 @@ export class ItemModel {
 export class ItemSearchFilter {
     searchQuery?: string | null;
     active?: boolean | null;
-    itemType?: 'SERVICE' | 'PRODUCT' | null;
+    itemTypes?: ('SERVICE' | 'PRODUCT')[] | null;
     brand?: string | null;
     category?: string | null;
 }
