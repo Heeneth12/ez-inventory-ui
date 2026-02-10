@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../guards/auth.service';
 import { UserInitResponse } from '../../models/Init-response.model';
-import { Settings, ShieldCheck, Zap, LucideAngularModule, UserPlusIcon, FolderOpen, ChevronRight } from 'lucide-angular';
+import { Settings, ShieldCheck, Zap, LucideAngularModule, UserPlusIcon, FolderOpen, ChevronRight, Percent, AppWindow } from 'lucide-angular';
 import { RouterModule, Router } from '@angular/router';
 import { DrawerService } from '../drawer/drawerService';
 
@@ -27,6 +27,8 @@ export class UserComponent implements OnInit {
   readonly UserPlusIcon = UserPlusIcon;
   readonly FolderOpen = FolderOpen;
   readonly ChevronRight = ChevronRight;
+  readonly Percent = Percent;
+  readonly AppWindow = AppWindow;
 
   readonly navItems = [
     {
@@ -57,7 +59,7 @@ export class UserComponent implements OnInit {
       label: 'GST Config',
       sublabel: 'System preferences',
       link: '/gst-config',
-      icon: this.FolderOpen,
+      icon: this.Percent,
       colorClass: 'group-hover:text-amber-600',
       borderClass: 'group-hover:border-amber-200'
     }
