@@ -145,6 +145,9 @@ export class NewOrdersComponent {
     if (event.type === 'custom' && event.key === 'view_details') {
       this.viewPrqDetails(event.row.id);
     }
+    if (event.type === 'custom' && event.key === 'move_to_po') {
+      this.router.navigate(['/vendor/new-orders/form', event.row.id]);
+    }
     if (event.type === 'custom' && event.key === 'cancel_order') {
       this.cancelOrderConfirmation(event.row.id);
     }

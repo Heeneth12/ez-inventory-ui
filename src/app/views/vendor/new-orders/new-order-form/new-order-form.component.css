@@ -1,0 +1,66 @@
+/* Clean minimalist styling */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+}
+
+/* Remove number input arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+/* Smooth transitions */
+button,
+input,
+select,
+textarea {
+    transition: all 0.2s ease;
+}
+
+/* Custom scrollbar */
+.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+    background: #f9fafb;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+
+/* 1. Hide arrows by default for ALL number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    /* For Firefox */
+}
+
+/* 2. FORCE them to show ONLY for inputs with the .show-arrows class */
+input.show-arrows[type="number"]::-webkit-inner-spin-button,
+input.show-arrows[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: inner-spin-button !important;
+    opacity: 1 !important;
+    height: auto;
+}
+
+input.show-arrows[type="number"] {
+    -moz-appearance: number-input !important;
+    /* For Firefox */
+}

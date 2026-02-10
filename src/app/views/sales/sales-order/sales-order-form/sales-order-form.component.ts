@@ -66,7 +66,7 @@ export class SalesOrderFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    this.userFilter.type = UserType.VENDOR;
+    this.userFilter.userType = [UserType.VENDOR];
     this.orderForm = this.fb.group({
       id: [null],
       customerId: [1, Validators.required],
