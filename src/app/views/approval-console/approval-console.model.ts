@@ -50,3 +50,21 @@ export enum ApprovalType {
   SALES_REFUND = 'SALES_REFUND',
   ADVANCE_REFUND = 'ADVANCE_REFUND'
 }
+export class ApprovalFilterModel {
+  id?: number;
+  searchQuery?: string;
+  status?: string; // General purpose status
+  warehouseId?: number;
+  fromDate?: string | null;
+  toDate?: string | null;
+  approvalStatuses?: ApprovalStatus[];
+  approvalTypes?: ApprovalType[];
+  referenceCode?: string;
+}
+
+export class ApprovalStatsModel {
+  totalCount?: number;
+  approvedCount?: number;
+  pendingCount?: number;
+  rejectedCount?: number;
+}
