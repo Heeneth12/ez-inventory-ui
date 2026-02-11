@@ -20,6 +20,7 @@ import { StockService } from '../stock/stock.service';
 import { DatePickerConfig, DateRangeEmit } from '../../layouts/UI/date-picker/date-picker.component';
 import { StatCardConfig, StatGroupComponent } from '../../layouts/UI/stat-group/stat-group.component';
 import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
+import { ConfirmationModalService } from '../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-approval-console',
@@ -179,7 +180,8 @@ export class ApprovalConsoleComponent implements OnInit {
     private toastService: ToastService,
     private loaderSvc: LoaderService,
     private drawerService: DrawerService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private confirmationModalSvc: ConfirmationModalService
   ) { }
 
   ngOnInit(): void {
@@ -422,15 +424,29 @@ export class ApprovalConsoleComponent implements OnInit {
     };
   }
 
+  approvalConformation(status: 'APPROVED' | 'REJECTED', approvalId: number | string) {
+    const action = status === 'APPROVED' ? 'Approve' : 'Reject';
+    this.confirmationModalSvc.open({
+      title: `${action} Approval`,
+      message: `Are you sure you want to ${action.toLowerCase()} this approval request?`,
+      intent: status === 'APPROVED' ? 'success' : 'danger',
+      confirmLabel: 'Yes, Confirm',
+      cancelLabel: 'No, Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.processApproval(approvalId, status);
+      }
+    });
+  }
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'approve') {
-      this.processApproval(event.row.id, 'APPROVED');
+      this.approvalConformation('APPROVED', event.row.id);
       this.getAllApprovals();
 
     }
     if (event.type === 'custom' && event.key === 'reject') {
-      this.processApproval(event.row.id, 'REJECTED');
+      this.approvalConformation('REJECTED', event.row.id);
       this.getAllApprovals();
     }
     if (event.type === 'custom' && event.key === 'view') {
@@ -458,8 +474,8 @@ export class ApprovalConsoleComponent implements OnInit {
     console.log('Card Clicked:', card.title);
   }
 
-  onLoadMore() { 
-    
+  onLoadMore() {
+
   }
 
 
