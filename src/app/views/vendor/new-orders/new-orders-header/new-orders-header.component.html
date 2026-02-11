@@ -1,0 +1,80 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+    <div class="flex flex-col h-full">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                Invoice To
+            </span>
+        </div>
+        <div
+            class="bg-gray-50/50 border border-gray-200 rounded-xl p-5 h-full flex flex-col justify-center hover:bg-gray-50 transition-colors">
+            <div class="flex items-start gap-4">
+                <div
+                    class="w-12 h-12 bg-white rounded-full border border-gray-200 p-2 shrink-0 shadow-full flex items-center justify-center text-gary-600">
+                    <lucide-icon [img]="Building2" class="w-6 h-6"></lucide-icon>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    @if(userData$ | async; as user){
+                    <h4 class="font-bold text-gray-900 text-base truncate">{{user.tenantName}}</h4>
+
+                    <div class="mt-2 space-y-1.5">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <lucide-icon [img]="Phone" class="w-3.5 h-3.5 text-gray-400 shrink-0"></lucide-icon>
+                            <span>{{tenantDetails?.phone}}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <lucide-icon [img]="Mail" class="w-3.5 h-3.5 text-gray-400 shrink-0"></lucide-icon>
+                            <span class="truncate">{{tenantDetails?.email}}</span>
+                        </div>
+                        <div class="flex items-start gap-2 text-sm text-gray-600">
+                            <lucide-icon [img]="MapPin" class="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5"></lucide-icon>
+                            <span class="line-clamp-2">123 Market Street, Tech Park, Bangalore, KA - 560001</span>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="flex flex-col h-full">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                Invoice From
+            </span>
+        </div>
+
+        <div 
+            class="bg-white border border-indigo-100 rounded-xl p-5 shadow-sm shadow-indigo-100/50 relative group transition-all hover:border-indigo-300 h-full flex flex-col justify-center">
+            <div class="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <lucide-icon [img]="CheckCircle" class="w-4 h-4 text-indigo-500"></lucide-icon>
+            </div>
+
+            <div class="flex items-start gap-4">
+                <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-br from-gray-900 to-gray-700 text-white flex items-center justify-center font-bold text-lg shadow-md shrink-0 border-2 border-white ring-1 ring-gray-100">
+                    {{ currentUserDetails?.fullName?.substring(0,2)?.toUpperCase() }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-bold text-gray-900 text-base truncate">{{ currentUserDetails?.fullName }}</h4>
+
+                    <div class="mt-2 space-y-1.5">
+                        <div *ngIf="currentUserDetails?.phone" class="flex items-center gap-2 text-sm text-gray-600">
+                            <lucide-icon [img]="Phone" class="w-3.5 h-3.5 text-gray-400 shrink-0"></lucide-icon>
+                            <span>{{ currentUserDetails?.phone }}</span>
+                        </div>
+                        <div *ngIf="currentUserDetails?.email" class="flex items-center gap-2 text-sm text-gray-600">
+                            <lucide-icon [img]="Mail" class="w-3.5 h-3.5 text-gray-400 shrink-0"></lucide-icon>
+                            <span class="truncate">{{ currentUserDetails?.email }}</span>
+                        </div>
+                        <div *ngIf="getFormattedAddress()" class="flex items-start gap-2 text-sm text-gray-600">
+                            <lucide-icon [img]="MapPin" class="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5"></lucide-icon>
+                            <span class="line-clamp-2">{{ getFormattedAddress() }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
