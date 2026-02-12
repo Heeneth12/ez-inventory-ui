@@ -4,7 +4,8 @@
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="approvals" [pagination]="pagination"
             [isServerSide]="true" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
             [customActions]="approvalActions" (action)="onTableAction($event)" [headerActions]="myHeaderActions"
-            [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)"
+            [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)" [filterConfig]="filterConfig"
+            (filterChanged)="onFilterUpdate($event)"
             (action)="handleTableAction($event)">
         </app-standard-table>
     </div>

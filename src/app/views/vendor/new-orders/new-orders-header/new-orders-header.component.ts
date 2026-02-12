@@ -1,31 +1,25 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, tap, finalize, of, catchError, Observable } from 'rxjs';
-import { AuthService } from '../../guards/auth.service';
-import { UserInitResponse } from '../../models/Init-response.model';
-import { User, CheckCircle, Phone, Mail, MapPin, Search, Loader2, Building2, Store, LucideAngularModule, ChevronRight } from 'lucide-angular';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { UserFilterModel, UserModel, UserType } from '../../../user-management/models/user.model';
+import { UserInitResponse } from '../../../../layouts/models/Init-response.model';
+import { debounceTime, distinctUntilChanged, filter, finalize, Observable, Subject, switchMap, tap } from 'rxjs';
+import { TenantModel } from '../../../user-management/models/tenant.model';
 import { Router } from '@angular/router';
-import { UserFilterModel, UserModel, UserType } from '../../../views/user-management/models/user.model';
-import { UserManagementService } from '../../../views/user-management/userManagement.service';
-import { TenantModel } from '../../../views/user-management/models/tenant.model';
-
+import { User, CheckCircle, Phone, Mail, MapPin, Search, Loader2, Building2, Store, ChevronRight, LucideAngularModule } from 'lucide-angular';
+import { AuthService } from '../../../../layouts/guards/auth.service';
+import { UserManagementService } from '../../../user-management/userManagement.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-invoice-header',
+  selector: 'app-new-orders-header',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
-  templateUrl: './invoice-header.component.html'
+  imports: [CommonModule, LucideAngularModule],
+  templateUrl: './new-orders-header.component.html',
+  styleUrl: './new-orders-header.component.css'
 })
-export class InvoiceHeaderComponent implements OnInit {
-
-  // Inputs: Allow parent to pass in an existing user (e.g. Edit Mode)
-  @Input() selectedUser: UserModel | null = null;
-  @Input() searchType: 'CUSTOMER' | 'VENDOR' | 'EMPLOYEE' = 'VENDOR'
+export class NewOrdersHeaderComponent {
   
   // Outputs: Tell parent when a user is chosen or cleared
   @Output() userSelected = new EventEmitter<UserModel>();
-  @Output() userCleared = new EventEmitter<void>();
 
   // Search State
   searchTerm: string = '';
@@ -38,6 +32,7 @@ export class InvoiceHeaderComponent implements OnInit {
   // Use Observable for AsyncPipe in template (Best Practice)
   userData$: Observable<UserInitResponse | null>;
   tenantDetails: TenantModel | null = null;
+  currentUserDetails: UserModel | null = null;
 
   // Status Logic
   status: 'online' | 'away' | 'dnd' = 'online';
@@ -71,6 +66,15 @@ export class InvoiceHeaderComponent implements OnInit {
         console.log('Tenant Details are ready:', this.tenantDetails);
       });
     }
+
+    const currentUserDetails = sessionStorage.getItem('userId');
+    if (currentUserDetails) {
+      const userId = parseInt(currentUserDetails, 10);
+      this.userService.fetchUserObservable(userId).subscribe(data => {
+        this.currentUserDetails = data;
+        console.log('Tenant Details are ready:', this.tenantDetails);
+      });
+    }
   }
 
   // --- Search Logic ---
@@ -92,14 +96,6 @@ export class InvoiceHeaderComponent implements OnInit {
       }),
       switchMap(query => {
         this.userFilterModel.searchQuery = query;
-
-        if(this.searchType === 'VENDOR'){
-          this.userFilterModel.userType = [UserType.VENDOR];
-        }else if(this.searchType === 'CUSTOMER') {
-          this.userFilterModel.userType = [UserType.CUSTOMER];
-        }else if(this.searchType === 'EMPLOYEE') {
-          this.userFilterModel.userType = [UserType.EMPLOYEE];
-        }
 
         // Convert Service Call to Observable
         return new Promise<UserModel[]>((resolve) => {
@@ -130,19 +126,6 @@ export class InvoiceHeaderComponent implements OnInit {
     this.searchSubject.next(value);
   }
 
-  selectUser(user: UserModel) {
-    this.selectedUser = user;
-    this.showResults = false;
-    this.searchTerm = '';
-    this.userSelected.emit(user);
-  }
-
-  clearUser() {
-    this.selectedUser = null;
-    this.searchTerm = '';
-    this.userCleared.emit();
-  }
-
   // --- Helpers ---
 
   closeDropdown() {
@@ -151,9 +134,9 @@ export class InvoiceHeaderComponent implements OnInit {
   }
 
   getFormattedAddress(): string {
-    if (!this.selectedUser?.addresses?.length) return '';
+    if (!this.currentUserDetails?.addresses?.length) return '';
     // Logic to find Billing address or default to first
-    const addr = this.selectedUser.addresses.find(a => a.type === 'BILLING') || this.selectedUser.addresses[0];
+    const addr = this.currentUserDetails.addresses.find(a => a.type === 'BILLING') || this.currentUserDetails.addresses[0];
     return `${addr.city}, ${addr.state}`;
   }
 

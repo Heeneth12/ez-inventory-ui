@@ -114,4 +114,16 @@ export class UserManagementService {
             );
         });
     }
+
+    fetchUserObservable(id: number): Observable<any> {
+        return new Observable(observer => {
+            this.getUserById(id,
+                (res: any) => {
+                    observer.next(res.data);
+                    observer.complete();
+                },
+                (err: any) => observer.error(err)
+            );
+        });
+    }
 }

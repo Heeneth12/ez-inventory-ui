@@ -22,7 +22,7 @@ export class ApprovalConsoleService {
         return this.httpService.getHttp(`${ApprovalConsoleService.APPROVAL_BASE_URL}/requests/${approvalRequestId}`, successfn, errorfn);
     }
 
-    approvalProcess(payload:any, successfn:any, errorfn:any){
+    approvalProcess(payload: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${ApprovalConsoleService.APPROVAL_BASE_URL}/process`, payload, successfn, errorfn)
     }
 
@@ -42,4 +42,7 @@ export class ApprovalConsoleService {
         return this.httpService.postHttp(`${ApprovalConsoleService.APPROVAL_BASE_URL}/config/all?page${page}&size=${size}`, filter, successfn, errorfn);
     }
 
+    getApprovalStats(successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${ApprovalConsoleService.APPROVAL_BASE_URL}/stats`, successfn, errorfn);
+    }
 }

@@ -3,6 +3,7 @@
         <app-standard-table [title]="'Data Table'" [columns]="stockAdjColumn" [data]="stockAdjustmentDetails" [pagination]="pagination"
             (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)"
             (action)="handleTableAction($event)" [customActions]="soActions" [headerActions]="myHeaderActions"
+            [filterConfig]="filterConfig" (filterChanged)="onFilterUpdate($event)"
             [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)">
         </app-standard-table>
     </div>

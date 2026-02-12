@@ -11,7 +11,7 @@ import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingU
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
-import { ApprovalConfigModel, ApprovalRequestModel, ApprovalType } from './approval-console.model';
+import { ApprovalConfigModel, ApprovalFilterModel, ApprovalRequestModel, ApprovalStatsModel, ApprovalType } from './approval-console.model';
 import { APPROVAL_COLUMN } from '../../layouts/config/tableConfig';
 import { SalesOrderModal } from '../sales/sales-order/sales-order.modal';
 import { SalesOrderService } from '../sales/sales-order/sales-order.service';
@@ -19,6 +19,8 @@ import { StockAdjustmentDetailModel } from '../stock/models/stock-adjustment.mod
 import { StockService } from '../stock/stock.service';
 import { DatePickerConfig, DateRangeEmit } from '../../layouts/UI/date-picker/date-picker.component';
 import { StatCardConfig, StatGroupComponent } from '../../layouts/UI/stat-group/stat-group.component';
+import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
+import { ConfirmationModalService } from '../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-approval-console',
@@ -35,39 +37,41 @@ export class ApprovalConsoleComponent implements OnInit {
   @ViewChild('salesOrderDiscount') salesOrderDiscount!: TemplateRef<any>;
   salesOrderDetails: SalesOrderModal | null = null;
 
+
   @ViewChild('stockAdjustment') stockAdjustment!: TemplateRef<any>;
   stockAdjustmentDetails: StockAdjustmentDetailModel | null = null;
 
   approvals: ApprovalRequestModel[] = [];
   configs: ApprovalConfigModel[] = [];
+  approvalFilter: ApprovalFilterModel = new ApprovalFilterModel();
+  approvalStats: ApprovalStatsModel = new ApprovalStatsModel();
 
-  approvalFilter: any = {};
   approvalDashboardStats: StatCardConfig[] = [
     {
       key: 'pending_requests',
       label: 'Pending Approvals',
-      value: '14 Items',
+      value: '0 Items',
       icon: Clock,
       color: 'orange',
     },
     {
       key: 'approved_requests',
       label: 'Approved',
-      value: '128 Items',
+      value: '0 Items',
       icon: CheckCircle2,
       color: 'emerald',
     },
     {
       key: 'rejected_requests',
       label: 'Rejected',
-      value: '5 Items',
+      value: '0 Items',
       icon: XCircle,
       color: 'rose',
     },
     {
       key: 'total_requests',
       label: 'Total Requests',
-      value: '147 Items',
+      value: '0 Items',
       icon: FileText,
       color: 'blue',
     }
@@ -109,7 +113,7 @@ export class ApprovalConsoleComponent implements OnInit {
       label: 'Config',
       icon: Settings2Icon,
       variant: 'primary',
-      action: () => this.openApprovalConfig() // Calls the function properly
+      action: () => this.openApprovalConfig()
     },
   ];
 
@@ -119,7 +123,6 @@ export class ApprovalConsoleComponent implements OnInit {
       label: 'Approve',
       icon: CircleCheckBig,
       color: 'success',
-      // Only show if status is PENDING
       condition: (row) => row['status'] === 'PENDING'
     },
     {
@@ -127,7 +130,6 @@ export class ApprovalConsoleComponent implements OnInit {
       label: 'Reject',
       icon: CircleX,
       color: 'danger',
-      // Only show if status is PENDING
       condition: (row) => row['status'] === 'PENDING'
     },
     {
@@ -135,15 +137,37 @@ export class ApprovalConsoleComponent implements OnInit {
       label: 'View',
       icon: List,
       color: 'primary',
-      // Always show this action
       condition: (row) => true
+    }
+  ];
+
+  filterConfig: FilterOption[] = [
+    {
+      id: 'status',
+      label: 'Status',
+      type: 'checkbox',
+      searchable: true,
+      options: [
+        { label: 'PENDING', value: 'PENDING' },
+        { label: 'APPROVED', value: 'APPROVED' },
+        { label: 'REJECTED', value: 'REJECTED' }
+      ]
+    },
+    {
+      id: 'approval_type',
+      label: 'Approval Type',
+      type: 'checkbox',
+      searchable: true,
+      options: [
+        { label: 'Stock Adjustment', value: 'STOCK_ADJUSTMENT' },
+        { label: 'Sales Order Discount', value: 'SALES_ORDER_DISCOUNT' },
+      ]
     }
   ];
 
 
   dateConfig: DatePickerConfig = {
-    type: 'both', // or 'single'
-    // label: 'Filter Dates',
+    type: 'both',
     placeholder: 'Start - End'
   };
 
@@ -156,11 +180,13 @@ export class ApprovalConsoleComponent implements OnInit {
     private toastService: ToastService,
     private loaderSvc: LoaderService,
     private drawerService: DrawerService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private confirmationModalSvc: ConfirmationModalService
   ) { }
 
   ngOnInit(): void {
     this.getAllApprovals();
+    this.getApprovalStats();
   }
 
   getAllApprovals() {
@@ -170,9 +196,9 @@ export class ApprovalConsoleComponent implements OnInit {
     this.approvalConsoleService.getAllApprovals(
       apiPage,
       this.pagination.pageSize,
-      {},
+      this.approvalFilter,
       (response: any) => {
-        this.approvals = response.data.content; // Fixed: assign data to approvals
+        this.approvals = response.data.content;
         this.pagination = {
           ...this.pagination,
           totalItems: response.data.totalElements,
@@ -201,6 +227,35 @@ export class ApprovalConsoleComponent implements OnInit {
       (error: any) => {
         this.loaderSvc.hide();
         this.toastService.show('Failed to load configurations', 'error');
+      }
+    );
+  }
+
+
+  getApprovalStats() {
+    this.approvalConsoleService.getApprovalStats(
+      (response: any) => {
+        // Map response to stats config
+        this.approvalStats = response.data;
+        this.approvalDashboardStats.map(card => {
+          switch (card.key) {
+            case 'pending_requests':
+              card.value = `${this.approvalStats.pendingCount} Items`;
+              break;
+            case 'approved_requests':
+              card.value = `${this.approvalStats.approvedCount} Items`;
+              break;
+            case 'rejected_requests':
+              card.value = `${this.approvalStats.rejectedCount} Items`;
+              break;
+            case 'total_requests':
+              card.value = `${this.approvalStats.totalCount} Items`;
+              break;
+          }
+        });
+      },
+      (error: any) => {
+        this.toastService.show('Failed to load statistics', 'error');
       }
     );
   }
@@ -252,6 +307,13 @@ export class ApprovalConsoleComponent implements OnInit {
   toggleCreateNew() {
     this.isCreatingNew = !this.isCreatingNew;
     this.newConfig = this.getEmptyConfig(); // Reset form
+  }
+
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.approvalFilter.approvalStatuses = $event['status'] || null;
+    this.approvalFilter.approvalTypes = $event['approval_type'] || null;
+    this.getAllApprovals();
   }
 
   // Save (Works for both Create New and Edit Existing)
@@ -362,15 +424,29 @@ export class ApprovalConsoleComponent implements OnInit {
     };
   }
 
+  approvalConformation(status: 'APPROVED' | 'REJECTED', approvalId: number | string) {
+    const action = status === 'APPROVED' ? 'Approve' : 'Reject';
+    this.confirmationModalSvc.open({
+      title: `${action} Approval`,
+      message: `Are you sure you want to ${action.toLowerCase()} this approval request?`,
+      intent: status === 'APPROVED' ? 'success' : 'danger',
+      confirmLabel: 'Yes, Confirm',
+      cancelLabel: 'No, Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.processApproval(approvalId, status);
+      }
+    });
+  }
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'approve') {
-      this.processApproval(event.row.id, 'APPROVED');
+      this.approvalConformation('APPROVED', event.row.id);
       this.getAllApprovals();
 
     }
     if (event.type === 'custom' && event.key === 'reject') {
-      this.processApproval(event.row.id, 'REJECTED');
+      this.approvalConformation('REJECTED', event.row.id);
       this.getAllApprovals();
     }
     if (event.type === 'custom' && event.key === 'view') {
@@ -398,7 +474,9 @@ export class ApprovalConsoleComponent implements OnInit {
     console.log('Card Clicked:', card.title);
   }
 
-  onLoadMore() { }
+  onLoadMore() {
+
+  }
 
 
   selectedCardId: string | number = '1';
@@ -421,47 +499,4 @@ export class ApprovalConsoleComponent implements OnInit {
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
   }
-
-  stats: StatCardData[] = [
-    {
-      id: '1',
-      title: 'Total Approve',
-      value: '₹12,48,750',
-      trendText: '6% vs last month',
-      trendDirection: 'up',
-      icon: Package,
-      themeColor: 'blue'
-    },
-
-    {
-      id: '2',
-      title: 'Net Stock Movement',
-      value: '+320 Units',
-      trendText: 'Increased this month',
-      trendDirection: 'up',
-      icon: TrendingUp,
-      themeColor: 'emerald'
-    },
-
-    {
-      id: '3',
-      title: 'Out of Stock Items',
-      value: '14 Items',
-      trendText: '3 items added this week',
-      trendDirection: 'down',
-      icon: AlertCircle,
-      themeColor: 'purple'
-    },
-
-    {
-      id: '4',
-      title: 'Fast-Moving Items',
-      value: '9 Products',
-      trendText: 'Top sellers this month',
-      trendDirection: 'up',
-      icon: Zap,
-      themeColor: 'purple'
-    }
-  ];
-
-} 
+}   

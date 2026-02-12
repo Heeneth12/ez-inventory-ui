@@ -46,6 +46,6 @@ export class UserFilterModel {
   email?: string;
   phone?: string;
   searchQuery?: string;
-  type?: UserType;
+  userType?: UserType[];
   active?: boolean;
 }
