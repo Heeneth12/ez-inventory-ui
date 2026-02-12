@@ -1,6 +1,7 @@
 import { ArrowRight, ListRestart, ListCollapse, PenLineIcon } from "lucide-angular";
 import { TableActionConfig, TableColumn } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
+import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
 
 //PRQ
 export const PRQ_COLUMN: TableColumn[] = [
@@ -40,6 +41,21 @@ export const PRQ_DATE_CONFIG: DatePickerConfig = {
     type: 'both',
     placeholder: 'Start - End'
 };
+
+export const FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'PENDING', value: 'PENDING' },
+            { label: 'APPROVED', value: 'APPROVED' },
+            { label: 'REJECTED', value: 'REJECTED' }
+        ]
+    }
+];
+
 
 //PO
 export const PO_COLUMN: TableColumn[] = [
