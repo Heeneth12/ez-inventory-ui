@@ -11,6 +11,7 @@ import { STOCK_ADJUSTMENT_COLUMNS } from '../../../layouts/config/tableConfig';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { StockService } from '../stock.service';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 
 @Component({
   selector: 'app-stock-adjustment',
@@ -49,6 +50,21 @@ export class StockAdjustmentComponent implements OnInit {
       variant: 'primary',
       action: () => this.moveToCreateStockAdj() // Direct callback
     },
+  ];
+
+  filterConfig: FilterOption[] = [
+    {
+      id: 'type',
+      label: 'Type',
+      type: 'checkbox',
+      searchable: true,
+      options: [
+        { label: 'COMPLETED', value: 'COMPLETED' },
+        { label: 'PENDING APPROVAL', value: 'PENDING_APPROVAL' },
+        { label: 'DRAFT', value: 'DRAFT' },
+        { label: 'REJECTED', value: 'REJECTED' }
+      ]
+    }
   ];
 
   dateConfig: DatePickerConfig = {
@@ -168,6 +184,12 @@ export class StockAdjustmentComponent implements OnInit {
     this.stockAdjustmentFilter.toDate = range.to
       ? this.formatDate(range.to)
       : null;
+  }
+
+onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.stockAdjustmentFilter.status = $event['type'] || null;
+    this.getAllSalesAdjustments();
   }
 
   private formatDate(date: Date): string {
