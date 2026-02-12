@@ -1,46 +1,46 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, TemplateRef, Type, ViewChild, ViewContainerRef, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
+import {
+  Component,
+  OnInit,
+  ElementRef,
+  TemplateRef,
+  Type,
+  ViewChild,
+  ViewContainerRef,
+  ChangeDetectorRef,
+  CUSTOM_ELEMENTS_SCHEMA
+} from '@angular/core';
+import { combineLatest } from 'rxjs';
 import { DrawerService } from './drawerService';
+import '@tailwindplus/elements';
 
 @Component({
   selector: 'app-drawer',
   standalone: true,
   imports: [CommonModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './drawer.component.html',
-  styleUrl: './drawer.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './drawer.component.css'
 })
 export class DrawerComponent implements OnInit {
 
-  isOpen$!: Observable<boolean>;
-  content$!: Observable<TemplateRef<any> | Type<any> | null>;
-  title$!: Observable<string>;
-  width$!: Observable<'sm' | 'md' | 'lg' | 'xl' | 'full'>;
-
-  widthClass = 'w-full max-w-md';
-
-  // Store the current data to render
-  private currentContent: Type<any> | null = null;
-  private currentInputs: Record<string, any> | null = null;
-
-  // 1. Internal reference to the host
+  @ViewChild('drawerDialog') dialogRef!: ElementRef<HTMLDialogElement>;
   private _componentHost!: ViewContainerRef;
-
-  // 2. Use a Setter! 
-  // This triggers automatically when *ngIf renders the element.
-  @ViewChild('componentHost', { read: ViewContainerRef })
-  set componentHost(vcr: ViewContainerRef) {
-    this._componentHost = vcr;
-    // If we have a host AND content waiting, load it now
-    if (vcr && this.currentContent) {
-      this.loadDynamicComponent();
-    }
-  }
-
   get componentHost(): ViewContainerRef {
     return this._componentHost;
   }
+
+  @ViewChild('componentHost', { read: ViewContainerRef })
+  set componentHost(vcr: ViewContainerRef) {
+    this._componentHost = vcr;
+    if (this.currentContent) {
+      this.loadDynamicComponent();
+    }
+  }
+  widthClass = 'max-w-md';
+  title$ = this.drawer.drawerTitle$;
+  private currentContent: Type<any> | null = null;
+  private currentInputs: Record<string, any> | null = null;
 
   constructor(
     public drawer: DrawerService,
@@ -48,24 +48,29 @@ export class DrawerComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.isOpen$ = this.drawer.drawerState$;
-    this.content$ = this.drawer.drawerContent$;
-    this.title$ = this.drawer.drawerTitle$;
-    this.width$ = this.drawer.drawerWidth$;
+    this.drawer.drawerState$.subscribe(isOpen => {
+      if (this.dialogRef?.nativeElement) {
+        if (isOpen) {
+          if (!this.dialogRef.nativeElement.open) {
+            this.dialogRef.nativeElement.showModal();
+          }
+        } else {
+          this.dialogRef.nativeElement.close();
+        }
+      }
+    });
 
-    this.width$.subscribe(w => this.widthClass = this.getWidthClass(w));
+    this.drawer.drawerWidth$.subscribe(w => this.widthClass = this.getWidthClass(w));
 
-    // 3. Subscribe to data changes
     combineLatest([
       this.drawer.drawerContent$,
       this.drawer.drawerInputs$
     ]).subscribe(([content, inputs]) => {
 
-      // Save the data for later (in case the View isn't ready)
       if (this.isComponent(content)) {
-        this.currentContent = content;
+        this.currentContent = content as Type<any>;
         this.currentInputs = inputs;
-        this.loadDynamicComponent(); // Try to load immediately
+        this.loadDynamicComponent();
       } else {
         this.currentContent = null;
         this.currentInputs = null;
@@ -74,7 +79,6 @@ export class DrawerComponent implements OnInit {
     });
   }
 
-  // 4. Dedicated logic to create the component
   private loadDynamicComponent() {
     if (!this.componentHost || !this.currentContent) return;
 
@@ -87,31 +91,30 @@ export class DrawerComponent implements OnInit {
         componentRef.setInput(key, value);
       });
     }
-
-    // Force check to ensure inputs apply visually if inside OnPush
     componentRef.changeDetectorRef.detectChanges();
-  }
-
-  private getWidthClass(size: 'sm' | 'md' | 'lg' | 'xl' | 'full'): string {
-    switch (size) {
-      case 'sm': return 'w-full max-w-sm';
-      case 'md': return 'w-full max-w-md';
-      case 'lg': return 'w-full max-w-2xl';
-      case 'xl': return 'w-full max-w-4xl';
-      case 'full': return 'w-full';
-      default: return 'w-full max-w-md';
-    }
   }
 
   close() {
     this.drawer.close();
   }
 
-  isTemplateRef(content: any): content is TemplateRef<any> {
+  private getWidthClass(size: string): string {
+    switch (size) {
+      case 'sm': return 'max-w-sm';
+      case 'md': return 'max-w-md';
+      case 'lg': return 'max-w-2xl';
+      case 'xl': return 'max-w-4xl';
+      case 'full': return 'max-w-full';
+      default: return 'max-w-md';
+    }
+  }
+
+  // Type Guards
+  isTemplate(content: any): boolean {
     return content instanceof TemplateRef;
   }
 
-  isComponent(content: any): content is Type<any> {
+  isComponent(content: any): boolean {
     return typeof content === 'function';
   }
 }
