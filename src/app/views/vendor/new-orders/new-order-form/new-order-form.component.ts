@@ -81,6 +81,7 @@ export class NewOrderFormComponent implements OnInit {
 
   private initForm() {
     this.prqForm = this.fb.group({
+      prqId: [this.prqId, [Validators.required]], // this.prqId is null here
       vendorId: [this.selectedVendor?.id, [Validators.required]],
       warehouseId: [1, [Validators.required]],
       expectedDeliveryDate: [new Date().toISOString().substring(0, 10), [Validators.required]],
@@ -97,6 +98,7 @@ export class NewOrderFormComponent implements OnInit {
       if (id) {
         this.isEditMode = true;
         this.prqId = +id;
+        this.prqForm.patchValue({ prqId: this.prqId });
         this.loadPrqDetails(this.prqId);
       }
     });
@@ -149,12 +151,14 @@ export class NewOrderFormComponent implements OnInit {
   onSubmit() {
     if (this.prqForm.invalid) {
       this.prqForm.markAllAsTouched();
+      console.log('Form Raw Value:', this.prqForm.getRawValue()); 
       this.toastService.show('Please fix errors in the form', 'warning');
       return;
     }
 
     this.loaderSvc.show();
     const rawVal = this.prqForm.getRawValue();
+    console.log('Form Raw Value:', rawVal); 
     // Calculate Aggregates to send to Backend
     const calculatedTotalAmount = this.subTotal;
     const calculatedGrandTotal = this.grandTotal;
@@ -163,9 +167,10 @@ export class NewOrderFormComponent implements OnInit {
     // Total Tax = All Item Taxes + Flat Tax
     const calculatedTotalTax = this.sumItemTaxes + (rawVal.flatTax || 0);
 
-    // Prepare DTO
+    //Prepare DTO
     const payload: PurchaseOrderDto = {
       id: this.poId || undefined,
+      prqId: this.prqId ? this.prqId : undefined,
       vendorId: rawVal.vendorId,
       warehouseId: rawVal.warehouseId,
       expectedDeliveryDate: new Date(rawVal.expectedDeliveryDate).getTime(),
@@ -199,70 +204,30 @@ export class NewOrderFormComponent implements OnInit {
     };
 
     if (this.isEditMode && this.poId) {
-       // this.purchaseService.updatePo(this.poId, payload, cb, errCb);
+      // this.purchaseService.updatePo(this.poId, payload, cb, errCb);
     } else {
-       this.purchaseService.createPO(payload, cb, errCb);
+      this.purchaseService.createPO(payload, cb, errCb);
     }
   }
 
 
   // Updated form group to include both estimated and actual unit price
-createItemGroup(data?: any): FormGroup {
-  return this.fb.group({
-    itemId: [data?.itemId || null, Validators.required],
-    itemName: [data?.itemName || ''],
-    requestedQty: [data?.requestedQty || 0], 
-    orderedQty: [data?.orderedQty || data?.requestedQty || 1, [Validators.required, Validators.min(1)]],
-    
-    // Logic: Use estimatedUnitPrice as the default unitPrice
-    estimatedUnitPrice: [data?.estimatedUnitPrice || 0], 
-    unitPrice: [data?.unitPrice || data?.estimatedUnitPrice || 0, [Validators.required, Validators.min(0)]],
-    
-    discount: [data?.discount || 0, Validators.min(0)],
-    tax: [data?.tax || 0, Validators.min(0)]
-  });
-}
+  createItemGroup(data?: any): FormGroup {
+    return this.fb.group({
+      itemId: [data?.itemId || null, Validators.required],
+      itemName: [data?.itemName || ''],
+      requestedQty: [data?.requestedQty || 0],
+      orderedQty: [data?.orderedQty || data?.requestedQty || 1, [Validators.required, Validators.min(1)]],
 
-// loadPrqDetails(id: number) {
-//   this.loaderSvc.show();
-//   this.purchaseService.getPrqById(id, (res: any) => {
-//     const data = res.data;
-//     this.prqForm.patchValue({
-//       vendorId: data.vendorId,
-//       warehouseId: data.warehouseId || 1,
-//       notes: data.notes,
-//       flatDiscount: 0,
-//       flatTax: 0
-//     });
+      // Logic: Use estimatedUnitPrice as the default unitPrice
+      estimatedUnitPrice: [data?.estimatedUnitPrice || 0],
+      unitPrice: [data?.unitPrice || data?.estimatedUnitPrice || 0, [Validators.required, Validators.min(0)]],
 
-//     const itemControl = this.itemsFormArray;
-//     itemControl.clear();
-    
-//     if (data.items) {
-//       data.items.forEach((item: any) => {
-//         // Mapping PRQ items to PO form groups
-//         itemControl.push(this.createItemGroup({
-//           itemId: item.itemId,
-//           itemName: item.itemName,
-//           requestedQty: item.requestedQty,
-//           orderedQty: item.requestedQty, // Default ordered to requested
-//           estimatedUnitPrice: item.estimatedUnitPrice, // Keep as reference
-//           unitPrice: item.estimatedUnitPrice, // Initialize actual price with estimate
-//           discount: 0,
-//           tax: 0
-//         }));
-//       });
-//     }
-    
-//     this.fetchVendor(data.vendorId);
-//     this.loaderSvc.hide();
-//   }, () => this.loaderSvc.hide());
-// }
+      discount: [data?.discount || 0, Validators.min(0)],
+      tax: [data?.tax || 0, Validators.min(0)]
+    });
+  }
 
-
-
-
-  // === DATA LOADING ===
 
   loadPrqDetails(id: number) {
     this.loaderSvc.show();
@@ -279,7 +244,7 @@ createItemGroup(data?: any): FormGroup {
 
         const itemControl = this.itemsFormArray;
         itemControl.clear();
-        
+
         if (data.items) {
           data.items.forEach((item: any) => {
             itemControl.push(this.createItemGroup({
@@ -293,7 +258,7 @@ createItemGroup(data?: any): FormGroup {
             }));
           });
         }
-        
+
         this.fetchVendor(data.vendorId);
         this.loaderSvc.hide();
       },
@@ -345,22 +310,22 @@ createItemGroup(data?: any): FormGroup {
     this.itemSearchQuery = "";
     this.showItemResults = false;
   }
-  
+
   adjustQuantity(index: number, delta: number) {
-      const control = this.itemsFormArray.at(index).get('orderedQty');
-      const val = (control?.value || 0) + delta;
-      if (val >= 1) control?.setValue(val);
+    const control = this.itemsFormArray.at(index).get('orderedQty');
+    const val = (control?.value || 0) + delta;
+    if (val >= 1) control?.setValue(val);
   }
 
   removeItem(index: number) {
-      this.itemsFormArray.removeAt(index);
+    this.itemsFormArray.removeAt(index);
   }
 
   fetchVendor(id: number) {
-     if(!id) return;
-     this.userService.getUserById(id, (res:any) => this.selectedVendor = res.data, () => {});
+    if (!id) return;
+    this.userService.getUserById(id, (res: any) => this.selectedVendor = res.data, () => { });
   }
-  
+
   // File handlers
   onFileSelected(event: any) { /* ... */ }
   removeFile(index: number) { /* ... */ }

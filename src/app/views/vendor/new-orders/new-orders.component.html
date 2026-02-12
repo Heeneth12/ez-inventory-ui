@@ -3,8 +3,8 @@
     <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="purchaseRequestList" [pagination]="pagination"
       [isServerSide]="true" (pageChange)="onPageChange($event)" [customActions]="newOrdersActions" (loadMore)="onLoadMore()"
       [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)" (action)="onTableAction($event)"
-      [filterConfig]="filterConfig"  (filterChanged)="onFilterUpdate($event)"
-      (action)="handleTableAction($event)">
+      [filterConfig]="filterConfig"  (filterChanged)="onFilterUpdate($event)"  [headerActions]="headerActions"
+       (headerAction)="handleHeaderAction($event)" (action)="handleTableAction($event)">
     </app-standard-table>
   </div>
 </div>

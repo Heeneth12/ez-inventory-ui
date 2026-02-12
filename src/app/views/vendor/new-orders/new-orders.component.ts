@@ -1,7 +1,7 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { NEW_ORDERS_COLUMN, NEW_ORDERS_ACTIONS, NEW_ORDERS_DATE_CONFIG, filterConfig } from '../vendorConfig';
-import { TableColumn, TableActionConfig, PaginationConfig, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
+import { TableColumn, TableActionConfig, PaginationConfig, TableAction, HeaderAction } from '../../../layouts/components/standard-table/standard-table.model';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { PurchaseRequestModel } from '../../purchases/models/prq.model';
 import { VendorService } from '../vendor.service';
@@ -10,7 +10,7 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
-import { LucideAngularModule, Search, ShoppingBag } from 'lucide-angular';
+import { LucideAngularModule, PackagePlusIcon, Search, ShoppingBag } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
@@ -32,6 +32,15 @@ export class NewOrdersComponent {
   newOrdersActions: TableActionConfig[] = NEW_ORDERS_ACTIONS
   filterConfig: FilterOption[] = filterConfig
   dateConfig: DatePickerConfig = NEW_ORDERS_DATE_CONFIG
+  headerActions: HeaderAction[] = [
+    {
+      label: 'Create PO',
+      icon: PackagePlusIcon,
+      variant: 'primary',
+      key: 'create_route',
+      action: () => console.log('Create PO action triggered')
+    }
+  ];
 
 
   @ViewChild('prqSummary') prqSummary!: TemplateRef<any>;
@@ -43,6 +52,7 @@ export class NewOrdersComponent {
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
+
 
 
   constructor(
@@ -121,7 +131,7 @@ export class NewOrdersComponent {
   }
 
   cancelOrder(poId: any) {
-    this.vendorService.updatePrqStatus( 
+    this.vendorService.updatePrqStatus(
       poId,
       'REJECTED',
       (response: any) => {
@@ -172,6 +182,11 @@ export class NewOrdersComponent {
   }
 
   onLoadMore() {
+  }
+
+  handleHeaderAction(event: HeaderAction) {
+    if (event.key === 'create_route') {
+    }
   }
 
   onFilterDate(range: DateRangeEmit) {

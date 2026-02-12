@@ -1,4 +1,4 @@
-import { ListRestart, ListCollapse, PenLineIcon, ArrowBigRight, CircleX } from "lucide-angular";
+import { ListRestart, ListCollapse, PenLineIcon, ArrowBigRight, CircleX, CloudUpload } from "lucide-angular";
 import { TableActionConfig, TableColumn } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";

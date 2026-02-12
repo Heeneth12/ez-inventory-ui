@@ -23,6 +23,7 @@ export interface PurchaseOrderItemDto {
 
 export interface PurchaseOrderDto {
   id?: number;
+  prqId?: number;
   vendorId: number;
   vendorName?: string;
   warehouseId: number;

@@ -189,7 +189,7 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // INFO / ROLES
-    if (['manager', 'lead', 'supplier', 'service', 'created', 'confirmed', 'moved_to_delivery', 'received', 'in_house_delivery', 'issued', 'vendor'].includes(s)) {
+    if (['manager', 'lead', 'supplier', 'service', 'created', 'confirmed', 'moved_to_delivery', 'received', 'in_house_delivery', 'issued', 'vendor', 'converted'].includes(s)) {
       return styles.info;
     }
 
