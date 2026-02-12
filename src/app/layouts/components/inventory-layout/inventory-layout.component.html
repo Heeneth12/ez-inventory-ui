@@ -6,7 +6,7 @@
     }
 
     <aside id="app-sidebar"
-        class="fixed inset-y-0 left-0 z-30 bg-[#0f172a] border-r border-slate-800/60 flex flex-col transition-all duration-300 ease-in-out lg:static shadow-xl"
+        class="fixed inset-y-0 left-0 z-30 bg-[#0b1520] border-r border-slate-800/60 flex flex-col transition-all duration-300 ease-in-out lg:static shadow-xl"
         [ngClass]="{
             'translate-x-0': isMobileMenuOpen, 
             '-translate-x-full lg:translate-x-0': !isMobileMenuOpen,
@@ -41,7 +41,7 @@
             @if (!item.subItems) {
             <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i"
                 routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
-                class="group relative flex items-center rounded-xl p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 transition-all duration-300 cursor-pointer outline-none"
+                class="group relative flex items-center rounded-mb p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 transition-all duration-300 cursor-pointer outline-none"
                 [ngClass]="{'justify-center': isSidebarCollapsed,'opacity-50 cursor-not-allowed': item.isDisabled}">
 
                 <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300"
@@ -76,7 +76,7 @@
             @if (item.subItems) {
             <div class="space-y-1">
                 <div (click)="toggleDropdown(i)" [id]="'menu-item-' + i"
-                    class="group relative flex items-center justify-between rounded-xl p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 cursor-pointer transition-all duration-300 select-none"
+                    class="group relative flex items-center justify-between rounded-mb p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 cursor-pointer transition-all duration-300 select-none"
                     [ngClass]="{
                         'bg-slate-800/50 text-indigo-300 border-slate-700/50': isDropdownOpen(i),
                         'justify-center': isSidebarCollapsed
@@ -254,16 +254,6 @@
                     </div>
                 </div>
                 <div *ngIf="isQuickCreateOpen" (click)="isQuickCreateOpen = false" class="fixed inset-0 z-40"></div>
-
-                <!-- <button (click)="openNotification()" class="relative p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-                        </path>
-                    </svg>
-                    <span class="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-                </button> -->
-
                 <app-notifications></app-notifications>
 
                 <div class="flex items-center gap-3 border-l hover:transition-all duration-200 cursor-pointer border-gray-200 pl-4"
