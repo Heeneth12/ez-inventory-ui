@@ -236,7 +236,7 @@ export class PurchaseRequestFormComponent {
     const cb = () => {
       this.loaderSvc.hide();
       this.toastService.show(this.isEditMode ? 'PRQ Updated' : 'PRQ Created', 'success');
-      this.router.navigate(['purchases/request']); // Adjusted route
+      this.router.navigate(['purchases/prq']); // Adjusted route
     };
 
     if (this.isEditMode && this.prqId) {

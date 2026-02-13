@@ -3,6 +3,7 @@
     <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="purchaseOrderList" [pagination]="pagination"
       [isServerSide]="true" (pageChange)="onPageChange($event)" [customActions]="poActions" (loadMore)="onLoadMore()"
       [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)" (action)="onTableAction($event)"
+      [filterConfig]="filterOptions" (filterChanged)="onFilterUpdate($event)"
       (action)="handleTableAction($event)">
     </app-standard-table>
   </div>

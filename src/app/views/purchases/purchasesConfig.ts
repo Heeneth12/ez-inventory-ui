@@ -42,7 +42,7 @@ export const PRQ_DATE_CONFIG: DatePickerConfig = {
     placeholder: 'Start - End'
 };
 
-export const FILTER_OPTIONS: FilterOption[] = [
+export const PRQ_FILTER_OPTIONS: FilterOption[] = [
     {
         id: 'status',
         label: 'Status',
@@ -103,3 +103,17 @@ export const PO_DATE_CONFIG: DatePickerConfig = {
     type: 'both',
     placeholder: 'Start - End'
 };
+
+export const PO_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'PENDING', value: 'PENDING' },
+            { label: 'APPROVED', value: 'APPROVED' },
+            { label: 'REJECTED', value: 'REJECTED' }
+        ]
+    }
+];

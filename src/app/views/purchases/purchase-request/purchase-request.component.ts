@@ -9,7 +9,7 @@ import { PurchaseService } from '../purchase.service';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { PurchaseRequestModel } from '../models/prq.model';
-import { FILTER_OPTIONS, PRQ_ACTIONS, PRQ_COLUMN, PRQ_DATE_CONFIG } from '../purchasesConfig';
+import { PRQ_ACTIONS, PRQ_COLUMN, PRQ_DATE_CONFIG, PRQ_FILTER_OPTIONS } from '../purchasesConfig';
 import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component';
 import { Search, ShoppingBag, LucideAngularModule } from 'lucide-angular';
 
@@ -39,7 +39,7 @@ export class PurchaseRequestComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
-  filterOptions = FILTER_OPTIONS
+  filterOptions = PRQ_FILTER_OPTIONS
 
   constructor(
     private purchaseService: PurchaseService,

@@ -13,7 +13,8 @@ import { GoodsReceiptFormComponent } from '../goods-receipt/goods-receipt-form/g
 import { ArrowRight, ClipboardList, Download, PenIcon, ShareIcon, X } from 'lucide-angular';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { ButtonConfig, ButtonGroupComponent } from '../../../layouts/UI/button-group/button-group.component';
-import { PO_ACTIONS, PO_COLUMN, PO_DATE_CONFIG } from '../purchasesConfig';
+import { PO_ACTIONS, PO_COLUMN, PO_DATE_CONFIG, PO_FILTER_OPTIONS } from '../purchasesConfig';
+import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 
 @Component({
   selector: 'app-purchase-order',
@@ -28,6 +29,7 @@ export class PurchaseOrderComponent {
   columns: TableColumn[] = PO_COLUMN
   poActions: TableActionConfig[] = PO_ACTIONS
   dateConfig: DatePickerConfig = PO_DATE_CONFIG
+  filterOptions = PO_FILTER_OPTIONS
 
   @ViewChild('opSummary') opSummary!: TemplateRef<any>;
   purchaseOrderFilter: PurchaseOrderFilter = new PurchaseOrderFilter();
@@ -146,11 +148,10 @@ export class PurchaseOrderComponent {
 
   openGrnForm(poId: any) {
     this.modalService.openComponent(GoodsReceiptFormComponent, {
-      size: 'lg',
       data: {
         poId: poId
       }
-    })
+    }, 'lg');
   }
 
   viewPoDetails(poId: any) {
@@ -241,6 +242,11 @@ export class PurchaseOrderComponent {
     }
   }
 
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.purchaseOrderFilter.status = $event['status'] || null;
+    this.getAllPo();
+  }
 
   onFilterDate(range: DateRangeEmit) {
     console.log('Filter table by:', range.from, range.to);
