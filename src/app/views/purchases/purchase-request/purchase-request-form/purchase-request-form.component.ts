@@ -202,6 +202,11 @@ export class PurchaseRequestFormComponent {
     this.loaderSvc.show();
     this.purchaseService.getPrqById(id, (res: any) => {
       const data = res.data;
+      if(data.status === 'CONVERTED' || data.status === 'ACCEPTED'){
+        this.router.navigate(['purchases/prq']);
+        this.toastService.show('Cannot edit PRQ with status ' + data.status, 'warning');
+        return;
+      }
       this.prqForm.patchValue({
         vendorId: data.vendorId,
         warehouseId: data.warehouseId,

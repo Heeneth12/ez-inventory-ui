@@ -1,4 +1,4 @@
-import { ArrowRight, ListRestart, ListCollapse, PenLineIcon } from "lucide-angular";
+import { ArrowRight, ListRestart, ListCollapse, PenLineIcon, XCircle } from "lucide-angular";
 import { TableActionConfig, TableColumn } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
@@ -15,10 +15,10 @@ export const PRQ_COLUMN: TableColumn[] = [
 
 export const PRQ_ACTIONS: TableActionConfig[] = [
     {
-        key: 'review_PRQ',
+        key: 'review_prq',
         label: 'Review PRQ',
         icon: ListRestart,
-        color: 'danger',
+        color: 'success',
         condition: (row) => row['status'] === 'DRAFT'
     },
     {
@@ -34,6 +34,13 @@ export const PRQ_ACTIONS: TableActionConfig[] = [
         icon: PenLineIcon,
         color: 'primary',
         condition: (row) => row['status'] === 'PENDING'
+    },
+    {
+        key: 'delete_prq',
+        label: '',
+        icon: XCircle,
+        color: 'danger',
+        condition: (row) => row['status'] === 'DRAFT' || row['status'] === 'PENDING'
     }
 ];
 

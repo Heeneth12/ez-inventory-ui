@@ -8,10 +8,11 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PurchaseService } from '../purchase.service';
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
-import { PurchaseRequestModel } from '../models/prq.model';
+import { PurchaseRequestFilterModel, PurchaseRequestModel } from '../models/prq.model';
 import { PRQ_ACTIONS, PRQ_COLUMN, PRQ_DATE_CONFIG, PRQ_FILTER_OPTIONS } from '../purchasesConfig';
 import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component';
 import { Search, ShoppingBag, LucideAngularModule } from 'lucide-angular';
+import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-purchase-request',
@@ -34,7 +35,7 @@ export class PurchaseRequestComponent implements OnInit {
   @ViewChild('prqSummary') prqSummary!: TemplateRef<any>;
   purchaseRequestList: PurchaseRequestModel[] = [];
   purchaseRequestDetails: PurchaseRequestModel | null = null;
-  purchaseRequestfilter: any = {};
+  purchaseRequestfilter: PurchaseRequestFilterModel = new PurchaseRequestFilterModel();
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
@@ -48,6 +49,7 @@ export class PurchaseRequestComponent implements OnInit {
     private toastService: ToastService,
     private loaderSvc: LoaderService,
     private drawerService: DrawerService,
+    private confirmationModalService: ConfirmationModalService
   ) {
   }
 
@@ -61,7 +63,7 @@ export class PurchaseRequestComponent implements OnInit {
     this.purchaseService.getAllPrqs(
       apiPage,
       this.pagination.pageSize,
-      {},
+      this.purchaseRequestfilter,
       (response: any) => {
         this.purchaseRequestList = response.data.content;
         this.pagination = {
@@ -92,6 +94,35 @@ export class PurchaseRequestComponent implements OnInit {
     )
   }
 
+  updatePrqStatus(prqId: number, status: string) {
+    this.purchaseService.updatePrqStatus(
+      prqId,
+      status,
+      (response: any) => {
+        this.toastService.show("PRQ status updates to " + status, 'success');
+        this.getAllPRQ();
+      },
+      (error: any) => {
+        this.toastService.show("Failed to update PRQ status", 'error')
+      }
+    )
+  }
+
+  confirmAndUpdateStatus(prqId: any, status: string) {
+    const action = status === 'APPROVED' ? 'Approve' : 'Reject';
+    this.confirmationModalService.open({
+      title: `${action} PRQ`,
+      message: `Are you sure you want to ${action.toLowerCase()} this purchase request?`,
+      intent: status === 'APPROVED' ? 'success' : 'danger',
+      confirmLabel: `Yes, ${action}`,
+      cancelLabel: 'No, Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.updatePrqStatus(prqId, status);
+      }
+    });
+  }
+
   viewPrqDetails(poId: any) {
     this.getPrqById(poId);
     this.drawerService.openTemplate(
@@ -114,7 +145,11 @@ export class PurchaseRequestComponent implements OnInit {
     if (event.type === 'custom' && event.key === 'view_details') {
       this.viewPrqDetails(event.row.id);
     }
-    if (event.type === 'custom' && event.key === 'review_po') {
+    if (event.type === 'custom' && event.key === 'review_prq') {
+      this.openUpdatePrqForm(event.row.id);
+    }
+    if (event.type === 'custom' && event.key === 'delete_prq') {
+      this.confirmAndUpdateStatus(event.row.id, 'REJECTED');
     }
   }
 
@@ -156,7 +191,6 @@ export class PurchaseRequestComponent implements OnInit {
   onFilterUpdate($event: Record<string, any>) {
     console.log("Received filter update:", $event);
     this.purchaseRequestfilter.status = $event['status'] || null;
-    this.purchaseRequestfilter.approvalType = $event['approval_type'] || null;
     this.getAllPRQ();
   }
 
@@ -164,5 +198,4 @@ export class PurchaseRequestComponent implements OnInit {
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
   }
-
 }

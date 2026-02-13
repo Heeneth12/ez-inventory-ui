@@ -18,9 +18,9 @@ export interface PurchaseRequestItemModel {
 export interface PurchaseRequestModel {
     id: number;
     tenantId?: number;
-    vendorId?:number;
-    vendorName?:string;
-    warehouseId?:string;
+    vendorId?: number;
+    vendorName?: string;
+    warehouseId?: string;
     requestedBy: number;
     department: string;
     prqNumber?: string;
@@ -29,4 +29,13 @@ export interface PurchaseRequestModel {
     notes?: string;
     createdAt?: string;
     items: PurchaseRequestItemModel[];
+}
+
+export class PurchaseRequestFilterModel {
+    id?: number;
+    searchQuery?: string
+    status?: PrqStatus;
+    warehouseId?: number;
+    fromDate?: string | null;
+    toDate?: string | null;
 }
