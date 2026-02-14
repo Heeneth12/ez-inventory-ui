@@ -1,149 +1,191 @@
-<div class="flex flex-col h-full bg-white text-gray-800 font-sans w-full md:w-[650px] lg:w-[800px]">
+<div class="flex flex-col h-full bg-white text-gray-800 font-sans w-full md:w-[700px] lg:w-[900px]">
 
-    <div class="flex-none px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white z-30 shadow-sm">
+    <!-- Header -->
+    <div class="flex-none px-5 py-4 border-b border-gray-200 flex justify-between items-center bg-white z-30">
         <div class="flex items-center gap-3">
-            <div class="bg-red-50 p-2 rounded-lg text-red-600">
+            <div class="bg-red-50 p-2.5 rounded-lg text-red-600">
                 <i class="fas fa-undo-alt text-lg"></i>
             </div>
             <div>
                 <h2 class="text-lg font-bold text-gray-900 leading-tight">Purchase Return</h2>
-                <p class="text-xs text-gray-500">Create a return note for received goods</p>
+                <p class="text-xs text-gray-500 mt-0.5">Create a return note for received goods</p>
             </div>
         </div>
         <button (click)="close()"
-            class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-all">
+            class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-all">
             <i class="fas fa-times text-lg"></i>
         </button>
     </div>
 
+    <!-- Search State -->
     <div *ngIf="showSearch" class="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50">
         <div class="w-full max-w-md text-center">
             <div class="mb-6">
                 <div
-                    class="w-16 h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm mb-4">
-                    <i class="fas fa-search text-2xl text-emerald-600"></i>
+                    class="w-16 h-16 bg-white border-2 border-gray-200 rounded-xl flex items-center justify-center mx-auto shadow-sm mb-4">
+                    <i class="fas fa-search text-2xl text-gray-600"></i>
                 </div>
                 <h3 class="text-lg font-bold text-gray-900">Find Goods Receipt</h3>
-                <p class="text-sm text-gray-500">Enter the GRN ID to load items available for return.</p>
+                <p class="text-sm text-gray-500 mt-1">Enter the GRN ID to load items available for return</p>
             </div>
 
             <div class="relative flex items-center">
                 <input type="number" [(ngModel)]="grnSearchInput" (keyup.enter)="loadGrnDetails(grnSearchInput)"
-                    class="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm text-center font-mono text-lg"
+                    class="w-full pl-4 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 shadow-sm text-center font-mono text-lg transition-all"
                     placeholder="e.g. 1045">
                 <button (click)="loadGrnDetails(grnSearchInput)"
-                    class="absolute right-2 bg-gray-900 text-white p-2 rounded hover:bg-gray-800 transition-colors">
+                    class="absolute right-2 bg-gray-900 text-white px-3 py-2 rounded-md hover:bg-gray-800 transition-colors shadow-sm">
                     <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Form State -->
     <div *ngIf="!showSearch" class="flex flex-col flex-1 overflow-hidden" [formGroup]="returnForm">
 
-        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Returning From GRN</label>
-                <div class="flex items-center gap-2">
-                    <span
-                        class="font-mono font-bold text-gray-900 bg-white border border-gray-200 px-2 py-0.5 rounded text-sm">
-                        #{{ grnDetails?.id }}
-                    </span>
-                    <button type="button" (click)="resetSearch()"
-                        class="text-xs text-blue-600 hover:underline">Change</button>
+        <!-- Info Section -->
+        <div class="bg-gray-50 px-5 py-4 border-b border-gray-200 z-20">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <!-- GRN Info -->
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 tracking-wide">Returning From GRN</label>
+                    <div class="flex items-center gap-2">
+                        <span
+                            class="font-mono font-bold text-gray-900 bg-white border border-gray-300 px-2.5 py-1 rounded text-sm shadow-sm">
+                            #{{ grnDetails?.id }}
+                        </span>
+                        <button type="button" (click)="resetSearch()"
+                            class="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline">Change</button>
+                    </div>
+                </div>
+
+                <!-- Supplier Info -->
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 tracking-wide">Supplier</label>
+                    <div class="text-sm font-semibold text-gray-900 truncate">{{ grnDetails?.supplierName || 'N/A' }}</div>
+                </div>
+
+                <!-- Date Info -->
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 tracking-wide">GRN Date</label>
+                    <div class="text-sm font-semibold text-gray-900">{{ grnDetails?.createdAt | date:'mediumDate' }}</div>
                 </div>
             </div>
-            <div class="text-right">
-                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Supplier</label>
-                <div class="font-bold text-gray-900 text-sm truncate">{{ grnDetails?.id }}</div>
-            </div>
 
-            <div class="col-span-2">
-                <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Reason for Return <span
+            <!-- Reason Section -->
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1.5 tracking-wide">Reason for Return <span
                         class="text-red-500">*</span></label>
                 <textarea formControlName="reason" rows="2" placeholder="e.g. Internal fungus found in crate 2..."
-                    class="w-full text-sm border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 resize-none"></textarea>
-                <p *ngIf="returnForm.get('reason')?.touched && returnForm.get('reason')?.invalid"
-                    class="text-xs text-red-500 mt-1">
-                    A reason is required (min 5 chars).
-                </p>
+                    class="w-full text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 resize-none shadow-sm px-3 py-2"></textarea>
+                <div class="h-4 mt-0.5">
+                    <p *ngIf="returnForm.get('reason')?.touched && returnForm.get('reason')?.invalid"
+                        class="text-[10px] text-red-500 font-medium">
+                        A reason is required (min 5 chars).
+                    </p>
+                </div>
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto bg-white">
+        <!-- Items List -->
+        <div class="flex-1 overflow-y-auto bg-gray-50/50">
             <div
-                class="px-6 py-3 bg-white border-b border-gray-100 sticky top-0 z-10 flex justify-between items-center">
-                <h3 class="text-xs font-bold text-gray-500 uppercase">Items Available ({{ itemsFormArray.length }})</h3>
+                class="px-5 py-3 bg-white border-b border-gray-100 sticky top-0 z-10 flex justify-between items-center shadow-sm">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide">Items Available ({{ itemsFormArray.length }})</h3>
+                <span class="text-xs text-gray-400 font-medium">Specify quantities to return</span>
             </div>
 
-            <div formArrayName="items" class="divide-y divide-gray-100">
+            <div formArrayName="items" class="px-5 py-4 space-y-3">
                 <div *ngFor="let item of itemsFormArray.controls; let i = index" [formGroupName]="i"
-                    class="px-6 py-4 hover:bg-gray-50 transition-colors group">
+                    class="bg-white rounded-lg border border-gray-200 shadow-sm hover:border-gray-300 hover:shadow transition-all group">
 
-                    <div class="flex flex-col md:flex-row md:items-center gap-4">
+                    <div class="p-4 grid grid-cols-12 gap-4">
 
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-xs font-bold text-gray-400">#{{i+1}}</span>
-                                <p class="font-bold text-sm text-gray-900">{{ item.get('itemName')?.value }}</p>
+                        <!-- Item Info -->
+                        <div class="col-span-12 md:col-span-5 flex gap-3 border-b md:border-b-0 md:border-r border-gray-100 pb-3 md:pb-0 md:pr-4">
+                            <div
+                                class="flex-shrink-0 w-9 h-9 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center text-xs font-bold group-hover:bg-gray-200 transition-colors">
+                                {{ i + 1 }}
                             </div>
-                            <div class="flex gap-3 text-xs text-gray-500">
-                                <span class="bg-gray-100 px-1.5 rounded border border-gray-200 font-mono text-[10px]">
-                                    Batch: {{ item.get('batchNumber')?.value }}
-                                </span>
-                                <span>Recv: {{ item.get('receivedQty')?.value }}</span>
+                            <div class="overflow-hidden flex-1">
+                                <p class="font-semibold text-sm text-gray-900 truncate leading-tight"
+                                    title="{{ item.get('itemName')?.value }}">
+                                    {{ item.get('itemName')?.value }}
+                                </p>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    <span class="bg-gray-100 px-2 py-0.5 rounded border border-gray-200 font-mono text-[10px] text-gray-600">
+                                        <i class="fas fa-barcode text-gray-400 mr-1"></i>
+                                        {{ item.get('batchNumber')?.value || 'N/A' }}
+                                    </span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-200">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-1"></i>
+                                        Recv: {{ item.get('receivedQty')?.value }}
+                                    </span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-red-50 text-red-700 text-[10px] font-semibold border border-red-200">
+                                        <i class="fas fa-check-circle text-red-500 mr-1"></i>
+                                        Return: {{ item.get('returnedQty')?.value }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex items-end gap-3">
+                        <!-- Input Fields -->
+                        <div class="col-span-12 md:col-span-7 flex gap-4 items-center">
 
-                            <div class="w-24">
-                                <label class="block text-[10px] uppercase font-bold text-red-600 mb-1">Return
-                                    Qty</label>
+                            <!-- Return Qty -->
+                            <div class="flex-1">
+                                <label class="block text-[10px] text-center text-red-600 font-bold mb-1.5 tracking-wide">RETURN QTY</label>
                                 <input type="number" formControlName="returnQty" min="0"
-                                    [max]="item.get('receivedQty')?.value"
+                                    [max]="item.get('receivedQty')?.value - item.get('returnedQty')?.value"
                                     [class.border-red-300]="item.get('returnQty')?.value > 0"
                                     [class.bg-red-50]="item.get('returnQty')?.value > 0"
-                                    class="w-full text-center text-sm font-bold border-gray-300 rounded focus:ring-red-500 focus:border-red-500 transition-colors">
+                                    [class.text-red-700]="item.get('returnQty')?.value > 0"
+                                    [class.font-bold]="item.get('returnQty')?.value > 0"
+                                    class="w-full text-center text-sm border border-gray-200 rounded-lg py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all shadow-sm">
                             </div>
 
-                            <div class="w-28">
-                                <label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Refund
-                                    Price</label>
+                            <!-- Refund Price -->
+                            <div class="flex-1">
+                                <label class="block text-[10px] text-center text-gray-500 font-bold mb-1.5 tracking-wide">REFUND PRICE</label>
                                 <div class="relative">
-                                    <span class="absolute left-2 top-1.5 text-gray-400 text-xs">$</span>
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">₹</span>
                                     <input type="number" formControlName="refundPrice" min="0" step="0.01"
-                                        class="w-full pl-5 pr-2 py-1.5 text-sm border-gray-300 rounded focus:ring-emerald-500 focus:border-emerald-500">
+                                        class="w-full pl-7 pr-3 py-2 text-sm text-center border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 shadow-sm transition-all">
                                 </div>
                             </div>
                         </div>
 
                     </div>
 
+                    <!-- Error Message -->
                     <div *ngIf="item.get('returnQty')?.invalid && item.get('returnQty')?.touched"
-                        class="mt-2 text-xs text-red-500 text-right">
-                        Cannot return more than received quantity ({{ item.get('receivedQty')?.value }}).
+                        class="px-4 pb-3 text-[10px] text-red-600 font-medium flex items-center gap-1">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Cannot return more than available quantity ({{ item.get('receivedQty')?.value - item.get('returnedQty')?.value }})
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex-none px-6 py-4 bg-white border-t border-gray-200 z-30">
+        <!-- Footer -->
+        <div class="flex-none px-5 py-4 bg-white border-t border-gray-200 z-30 shadow-lg">
             <div class="flex items-center justify-between">
                 <div class="flex flex-col">
-                    <span class="text-[10px] uppercase font-bold text-gray-400">Est. Refund Amount</span>
-                    <span class="text-lg font-bold text-gray-900">{{ calculateTotalRefund() | currency }}</span>
+                    <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wide">Est. Refund Amount</span>
+                    <span class="text-lg font-bold text-gray-900 mt-0.5">{{ calculateTotalRefund() | currency:'INR' }}</span>
                 </div>
 
                 <div class="flex gap-3">
                     <button type="button" (click)="close()"
-                        class="px-5 py-2.5 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 hover:bg-gray-50">
+                        class="px-5 py-2.5 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all">
                         Cancel
                     </button>
                     <button type="button" (click)="onSubmit()" [disabled]="isSubmitting"
-                        class="px-6 py-2.5 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
+                        class="px-6 py-2.5 bg-gray-900 text-white text-sm font-bold rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm transition-all">
                         <i *ngIf="isSubmitting" class="fas fa-spinner fa-spin"></i>
-                        {{ isSubmitting ? 'Processing' : 'Create Return' }}
+                        <i *ngIf="!isSubmitting" class="fas fa-check-circle"></i>
+                        {{ isSubmitting ? 'Processing...' : 'Create Return' }}
                     </button>
                 </div>
             </div>

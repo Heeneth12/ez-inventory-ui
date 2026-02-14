@@ -28,7 +28,7 @@ export class PurchaseReturnsComponent implements OnInit {
   selectedItemIds: (string | number)[] = [];
 
   columns: TableColumn[] = [
-    { key: 'orderNumber', label: 'Order number', width: '100px', type: 'link' },
+    { key: 'prNumber', label: 'PR Number', width: '100px', type: 'link' },
     { key: 'supplierName', label: 'Supplier', width: '110px', type: 'text' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
     { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency' },

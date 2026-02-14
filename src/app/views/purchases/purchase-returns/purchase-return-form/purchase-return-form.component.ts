@@ -113,10 +113,11 @@ export class PurchaseReturnFormComponent implements OnInit {
       batchNumber: [item.batchNumber], // Required in payload
       // Validation: Cannot return more than received
       receivedQty: [item.receivedQty], // Display/Validation reference
-      unitPrice: [item.unitPrice || 0], // Reference for refund price
+      returnedQty: [item.returnedQty || 0], // Already returned quantity from previous returns
+      unitPrice: [item.poItemPrice || 0], // Reference for refund price
       // Inputs
       returnQty: [0],
-      refundPrice: [item.unitPrice || 0]
+      refundPrice: [item.poItemPrice || 0]
     });
   }
 

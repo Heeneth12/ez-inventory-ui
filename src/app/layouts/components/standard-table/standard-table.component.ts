@@ -194,7 +194,7 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // PURPLE / TECH
-    if (['engineer', 'developer', 'dev', 'partially_paid', 'partially_received', 'scheduled', 'direct_sales'].includes(s)) {
+    if (['engineer', 'developer', 'dev', 'partially_paid', 'partially_received', 'scheduled', 'direct_sales', 'partially_returned', 'fully_returned'].includes(s)) {
       return styles.purple;
     }
 

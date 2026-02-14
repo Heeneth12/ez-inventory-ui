@@ -35,8 +35,8 @@ export class GoodsReceiptComponent implements OnInit {
     { key: 'createdAt', label: 'GRN Date', width: '120px', type: 'date' },
     { key: 'purchaseOrderId', label: 'PO Reference', width: '150px', type: 'text' },
     { key: 'supplierInvoiceNo', label: 'Supplier', width: '200px', type: 'text' },
-    { key: 'receivedDate', label: 'Received Date', width: '120px', type: 'text' },
-    { key: 'status', label: 'Status', width: '100px', type: 'badge' },
+    { key: 'createdAt', label: 'Received Date', width: '120px', type: 'date' },
+    { key: 'displayStatus', label: 'Status', width: '100px', type: 'badge' },
     { key: 'actions', label: 'Actions', align: 'center', width: '100px', type: 'action', sortable: false }
   ];
 
@@ -47,7 +47,23 @@ export class GoodsReceiptComponent implements OnInit {
       icon: ArrowRight,
       color: 'danger',
       // Only show if status is Approved
-      condition: (row) => row['status'] === 'APPROVED'
+      condition: (row) => {
+        // Check if status is RECEIVED and has items with available quantity
+        if (row['status'] !== 'RECEIVED') return false;
+        
+        const items = row['items'] || [];
+        if (!items.length) return false;
+        
+        // Calculate total available quantity
+        const totalAvailableQty = items.reduce((sum: number, item: any) => {
+          const receivedQty = item.receivedQty || 0;
+          const returnedQty = item.returnedQty || 0;
+          const availableQty = receivedQty - returnedQty;
+          return sum + availableQty;
+        }, 0);
+        
+        return totalAvailableQty > 0;
+      }
     }
   ];
 
@@ -76,7 +92,12 @@ export class GoodsReceiptComponent implements OnInit {
       apiPage,
       this.pagination.pageSize,
       (response: any) => {
-        this.grnList = response.data.content;
+        this.grnList = response.data.content.map((grn: GrnModel) => {
+          return {
+            ...grn,
+            displayStatus: this.getComputedStatus(grn)
+          };
+        });
         this.pagination = {
           currentPage: this.pagination.currentPage,
           totalItems: response.data.totalElements,
@@ -90,6 +111,18 @@ export class GoodsReceiptComponent implements OnInit {
         console.error('Error fetching GRNs:', error);
       }
     );
+  }
+  getComputedStatus(grn: GrnModel) {
+    const items = grn.items || [];
+    if (!items.length) return grn.status;
+
+    const totalQty = items.reduce((sum, item) => sum + (item.receivedQty || 0), 0);
+    const returnedQty = items.reduce((sum, item) => sum + (item.returnedQty || 0), 0);
+    const pendingQty = totalQty - returnedQty;
+
+    if (returnedQty === 0) return grn.status; // No returns yet
+    if (pendingQty === 0) return 'FULLY_RETURNED'; // Fully returned
+    return 'PARTIALLY_RETURNED'; // Some items returned, some pending
   }
 
   onPageChange(newPage: number) {
@@ -167,7 +200,8 @@ export class GoodsReceiptComponent implements OnInit {
       case 'full':
       case 'completed':
         return 'bg-green-100 text-green-700 border border-green-200';
-      case 'partial':
+      case 'partially_returned':
+      case 'fully_returned':
         return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
       case 'rejected':
       case 'cancelled':

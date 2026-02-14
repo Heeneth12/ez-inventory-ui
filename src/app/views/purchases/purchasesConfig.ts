@@ -81,7 +81,7 @@ export const PO_ACTIONS: TableActionConfig[] = [
         label: 'Move to GRN',
         icon: ArrowRight,
         color: 'primary',
-        condition: (row) => row['status'] === 'ISSUED'
+        condition: (row) => row['status'] === 'ISSUED' || row['status'] === 'PARTIALLY_RECEIVED'
     },
     {
         key: 'view_grn_details',

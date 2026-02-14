@@ -10,6 +10,7 @@ export interface PurchaseReturnModel {
     id: number;
     supplierId: number;
     warehouseId: number;
+    prNumber: string;
     goodsReceiptId?: number;
     reason: string;
     items: PurchaseReturnItemModel[];

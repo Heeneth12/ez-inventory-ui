@@ -1,8 +1,10 @@
 export interface GrnItemModel {
     poItemId: number;
+    poItemPrice: number;
     itemId: number;
     receivedQty: number;
     rejectedQty: number;
+    returnedQty: number;
     batchNumber?: string;
     expiryDate?: number;
 }
@@ -16,4 +18,5 @@ export interface GrnModel {
     supplierInvoiceNo?: string;
     status: string;
     items: GrnItemModel[];
+    createdAt: Date;
 }
