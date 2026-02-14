@@ -81,6 +81,7 @@ export class PurchaseRequestFormComponent {
       vendorId: [null, [Validators.required]],
       warehouseId: [1, [Validators.required]],
       notes: [''],
+      expectedDeliveryDate: [null],
       items: this.fb.array([], Validators.required)
     });
   }
@@ -252,7 +253,7 @@ export class PurchaseRequestFormComponent {
   }
 
   onCancel() {
-    this.router.navigate(['purchases/order']);
+    this.router.navigate(['purchases/prq']);
   }
 
   updatePoStatus(prqId: number, status: string) {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { FilePen, FileText, LucideAngularModule, Pencil } from 'lucide-angular';
 import { TabCardComponent, TabItem } from '../../../layouts/UI/tab-card/tab-card.component';
@@ -19,7 +19,7 @@ import { TabCardComponent, TabItem } from '../../../layouts/UI/tab-card/tab-card
       </div>
     `
 })
-export class PurchaseRequestAdapterComponent {
+export class PurchaseRequestAdapterComponent implements OnInit {
 
   activeTab = signal<string>('prq');
   isLoading = signal<boolean>(false);
@@ -37,16 +37,25 @@ export class PurchaseRequestAdapterComponent {
     // Auto-detect active tab based on URL
     this.router.events.subscribe((event) => {
       if (!(event instanceof NavigationEnd)) return;
-      const url = this.router.url;
-
-      if (url.includes('/purchases/order/create')) {
-        this.activeTab.set('create');
-      } else if (url.includes('/purchases/order/edit')) {
-        this.activeTab.set('edit');
-      } else {
-        this.activeTab.set('prq');
-      }
+      this.updateActiveTabFromUrl();
     });
+  }
+
+  ngOnInit() {
+    // Set the correct tab on initial load/reload
+    this.updateActiveTabFromUrl();
+  }
+
+  private updateActiveTabFromUrl() {
+    const url = this.router.url;
+
+    if (url.includes('/purchases/prq/create')) {
+      this.activeTab.set('create');
+    } else if (url.includes('/purchases/prq/edit')) {
+      this.activeTab.set('edit');
+    } else {
+      this.activeTab.set('prq');
+    }
   }
 
   onTabChange(newTabId: string) {

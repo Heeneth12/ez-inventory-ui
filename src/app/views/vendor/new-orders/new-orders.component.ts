@@ -76,7 +76,9 @@ export class NewOrdersComponent {
     this.vendorService.getAllPrqs(
       apiPage,
       this.pagination.pageSize,
-      {},
+      {
+        statuses: ['PENDING', 'APPROVED', 'REJECTED', 'CONVERTED']
+      },
       (response: any) => {
         this.purchaseRequestList = response.data.content;
         this.pagination = {

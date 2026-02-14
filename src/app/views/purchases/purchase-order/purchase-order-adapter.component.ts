@@ -27,8 +27,8 @@ export class PurchaseOrderAdapterComponent {
 
     navigationTabs: TabItem[] = [
         { id: 'list', label: 'Purchase Orders', icon: FileText },
-        { id: 'create', label: 'Create PRQ', icon: FilePen },
-        { id: 'edit', label: 'Edit PRQ', icon: Pencil }
+        { id: 'create', label: 'Create PO', icon: FilePen },
+        { id: 'edit', label: 'Edit PO', icon: Pencil }
     ];
 
     constructor(
