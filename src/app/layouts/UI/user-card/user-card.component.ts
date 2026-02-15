@@ -1,18 +1,19 @@
 import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Phone, Mail, BadgeCheck, ExternalLink, X, FileText, MapPin, Loader2, User } from 'lucide-angular';
-import { ContactService } from '../../../views/contacts/contacts.service';
 import { ContactModel } from '../../../views/contacts/contacts.model';
 import { Router } from '@angular/router';
 
 export interface UserCardData {
   id: string | number;
   name: string;
+  userType: string;
+  userUuid: string;
   avatarUrl?: string;
-  role?: string;
+  email?: string;
+  phone?: string;
   isVerified?: boolean;
 }
-
 @Component({
   selector: 'app-user-card',
   standalone: true,
@@ -39,10 +40,11 @@ export class UserCardComponent {
   MapIcon = MapPin;
 
   constructor(
-    private contactService: ContactService,
-     private router: Router,
+    private router: Router,
     private elementRef: ElementRef
-  ) { }
+  ) { 
+    console.log('UserCardComponent initialized with data:', this.data);
+  }
 
   // Getter helper to quickly find the first address
   get primaryAddress() {
@@ -56,7 +58,6 @@ export class UserCardComponent {
       this.closeDropdown();
     } else {
       this.isOpen = true;
-      this.fetchData();
     }
   }
 
@@ -66,27 +67,7 @@ export class UserCardComponent {
     // this.contactDetails = null; 
   }
 
-  fetchData() {
-    // Prevent refetching if we already have data (Optional optimization)
-    if (this.contactDetails) return;
-
-    this.isLoading = true;
-    this.contactService.getContactById(
-      this.data.id,
-      (response: any) => {
-        this.isLoading = false;
-        // Assuming response structure matches { data: ContactModel }
-        this.contactDetails = response.data ? response.data : response;
-      },
-      (error: any) => {
-        this.isLoading = false;
-        console.error('Error fetching contact:', error);
-      }
-    );
-  }
-
   onViewFullProfile() {
-    //this.viewProfile.emit(this.data.id);
     this.router.navigate(['/contacts/profile', this.data.id])
     this.closeDropdown();
   }
