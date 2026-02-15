@@ -1,4 +1,4 @@
-import { ListRestart, ListCollapse, PenLineIcon, ArrowBigRight, CircleX, CloudUpload } from "lucide-angular";
+import { ListRestart, ListCollapse, PenLineIcon, ArrowBigRight, CircleX, CloudUpload, ArrowRight, MailIcon } from "lucide-angular";
 import { TableActionConfig, TableColumn } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
@@ -55,3 +55,50 @@ export const NEW_ORDERS_DATE_CONFIG: DatePickerConfig = {
     type: 'both',
     placeholder: 'Start - End'
 };
+
+// ASN
+export const ANS_COLUMN: TableColumn[] = [
+    { key: 'orderNumber', label: 'PO Number', width: '100px', type: 'link' },
+    { key: 'createdAt', label: 'Order Date', width: '110px', type: 'date' },
+    { key: 'expectedDeliveryDate', label: 'Delivery Date', width: '110px', type: 'date' },
+    { key: 'supplierName', label: 'Supplier', width: '110px', type: 'text' },
+    { key: 'status', label: 'status', width: '100px', type: 'badge' },
+    { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency', align: 'right' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];
+
+export const ASN_ACTIONS: TableActionConfig[] = [
+    {
+        key: 'send_asn',
+        label: 'Send ASN',
+        icon: MailIcon,
+        color: 'danger',
+        condition: (row) => row['status'] === 'PENDING'
+    },
+    {
+        key: 'view_details',
+        label: 'View Details',
+        icon: ListCollapse,
+        color: 'neutral',
+        condition: (row) => true
+    }
+];
+
+export const ASN_DATE_CONFIG: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+};
+
+export const ASN_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'PENDING', value: 'PENDING' },
+            { label: 'APPROVED', value: 'APPROVED' },
+            { label: 'REJECTED', value: 'REJECTED' }
+        ]
+    }
+];

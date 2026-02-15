@@ -13,4 +13,5 @@ export const vendorRoutes: Routes = [
     { path: 'asn', component: AsnComponent },
     { path: 'sales-returns', component: VPurchaseReturnComponent },
     { path: 'new-orders/form/:id', component: NewOrderFormComponent },
+    { path: 'new-orders/form', component: NewOrderFormComponent },
 ];
