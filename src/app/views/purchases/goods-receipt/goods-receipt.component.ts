@@ -11,6 +11,7 @@ import { GrnModel } from '../models/grn.model';
 import { PurchaseReturnFormComponent } from '../purchase-returns/purchase-return-form/purchase-return-form.component';
 import { ArrowRight } from 'lucide-angular';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { GRN_COLUMN, GRN_DATE_CONFIG } from '../purchasesConfig';
 
 @Component({
   selector: 'app-goods-receipt',
@@ -30,15 +31,7 @@ export class GoodsReceiptComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
 
   // Columns Definition
-  columns: TableColumn[] = [
-    { key: 'grnNumber', label: 'GRN Number', width: '180px', type: 'link', sortable: true },
-    { key: 'createdAt', label: 'GRN Date', width: '120px', type: 'date' },
-    { key: 'purchaseOrderId', label: 'PO Reference', width: '150px', type: 'text' },
-    { key: 'supplierInvoiceNo', label: 'Supplier', width: '200px', type: 'text' },
-    { key: 'createdAt', label: 'Received Date', width: '120px', type: 'date' },
-    { key: 'displayStatus', label: 'Status', width: '100px', type: 'badge' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '100px', type: 'action', sortable: false }
-  ];
+  columns: TableColumn[] = GRN_COLUMN;
 
   prActions: TableActionConfig[] = [
     {
@@ -50,10 +43,10 @@ export class GoodsReceiptComponent implements OnInit {
       condition: (row) => {
         // Check if status is RECEIVED and has items with available quantity
         if (row['status'] !== 'RECEIVED') return false;
-        
+
         const items = row['items'] || [];
         if (!items.length) return false;
-        
+
         // Calculate total available quantity
         const totalAvailableQty = items.reduce((sum: number, item: any) => {
           const receivedQty = item.receivedQty || 0;
@@ -61,17 +54,13 @@ export class GoodsReceiptComponent implements OnInit {
           const availableQty = receivedQty - returnedQty;
           return sum + availableQty;
         }, 0);
-        
+
         return totalAvailableQty > 0;
       }
     }
   ];
 
-  dateConfig: DatePickerConfig = {
-    type: 'both', // or 'single'
-    // label: 'Filter Dates',
-    placeholder: 'Start - End'
-  };
+  dateConfig: DatePickerConfig = GRN_DATE_CONFIG;
 
   constructor(
     private purchaseService: PurchaseService,

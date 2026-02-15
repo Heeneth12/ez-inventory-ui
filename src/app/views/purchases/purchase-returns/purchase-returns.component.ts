@@ -10,6 +10,7 @@ import { PurchaseReturnModel } from '../models/purchase-return.model';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { ArrowRight, FilePlusCorner } from 'lucide-angular';
+import { PR_COLUMN, PR_DATE_CONFIG } from '../purchasesConfig';
 
 @Component({
   selector: 'app-purchase-returns',
@@ -27,17 +28,11 @@ export class PurchaseReturnsComponent implements OnInit {
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
 
-  columns: TableColumn[] = [
-    { key: 'prNumber', label: 'PR Number', width: '100px', type: 'link' },
-    { key: 'supplierName', label: 'Supplier', width: '110px', type: 'text' },
-    { key: 'status', label: 'status', width: '100px', type: 'badge' },
-    { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency' },
-    { key: 'id', label: 'Grn', width: '150px', type: 'link' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
-  ];
+  columns: TableColumn[] = PR_COLUMN;
+  dateConfig: DatePickerConfig = PR_DATE_CONFIG;
   purchaseOrderList: any;
 
-  soActions: TableActionConfig[] = [
+  prActions: TableActionConfig[] = [
     {
       key: 'create_purchase_return',
       label: 'Create PR',
@@ -55,14 +50,6 @@ export class PurchaseReturnsComponent implements OnInit {
       action: () => console.log("heelo")
     },
   ];
-
-
-  dateConfig: DatePickerConfig = {
-    type: 'both', // or 'single'
-    // label: 'Filter Dates',
-    placeholder: 'Start - End'
-  };
-
 
   constructor(
     private purchaseService: PurchaseService,

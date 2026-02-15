@@ -1,3 +1,5 @@
+import { UserMiniModel } from "../../user-management/models/user.model";
+
 export interface PurchaseOrderItemModel {
     id: number;
     itemId: number;
@@ -9,18 +11,18 @@ export interface PurchaseOrderItemModel {
 export interface PurchaseOrderModel {
     id: number;
     orderNumber: number;
-    supplierId: number;
-    supplierName: string;
+    vendorId: number;
     warehouseId: number;
     expectedDeliveryDate: number;
     status: string;
     notes?: string;
     totalAmount: number;
+    vendorDetails: UserMiniModel;
     items: PurchaseOrderItemModel[];
 }
 export class PurchaseOrderFilter {
     id?: number;
-    supplierId?: number;
+    vendorId?: number;
     warehouseId?: number;
     searchQuery?: string;
     status?: PurchaseOrderStatus;

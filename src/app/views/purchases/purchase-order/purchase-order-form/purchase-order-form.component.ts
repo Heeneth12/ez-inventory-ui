@@ -48,7 +48,7 @@ export class PurchaseOrderFormComponent implements OnInit {
   poStatus: 'OPEN' | 'DRAFT' | 'ISSUED' = 'ISSUED';
 
   // Data State
-  selectedSupplier: UserModel | null = null;
+  selectedVendor: UserModel | null = null;
   warehouseList: any[] = [{ id: 1, name: 'Main Warehouse' }];
 
   // Item Search State (Matching Reference Component)
@@ -77,7 +77,7 @@ export class PurchaseOrderFormComponent implements OnInit {
 
   private initForm() {
     this.poForm = this.fb.group({
-      supplierId: [null, [Validators.required]],
+      vendorId: [null, [Validators.required]],
       warehouseId: [1, [Validators.required]],
       expectedDeliveryDate: [new Date().toISOString().substring(0, 10), [Validators.required]],
       notes: [''],
@@ -191,17 +191,17 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   /**
-   * SUPPLIER LOGIC
+   * vendor LOGIC
    * Integrates with <app-invoice-header>
    */
-  selectSupplier(supplier: UserModel) {
-    this.selectedSupplier = supplier;
-    this.poForm.patchValue({ supplierId: supplier.id });
+  selectvendor(vendor: UserModel) {
+    this.selectedVendor = vendor;
+    this.poForm.patchValue({ vendorId: vendor.id });
   }
 
-  onSupplierCleared() {
-    this.selectedSupplier = null;
-    this.poForm.patchValue({ supplierId: null });
+  onvendorCleared() {
+    this.selectedVendor = null;
+    this.poForm.patchValue({ vendorId: null });
   }
 
   /**
@@ -213,7 +213,7 @@ export class PurchaseOrderFormComponent implements OnInit {
       (res: any) => {
         const data = res.data;
         this.poForm.patchValue({
-          supplierId: data.supplierId,
+          vendorId: data.vendorId,
           warehouseId: data.warehouseId,
           expectedDeliveryDate: new Date(data.expectedDeliveryDate).toISOString().split('T')[0],
           notes: data.notes
@@ -223,17 +223,17 @@ export class PurchaseOrderFormComponent implements OnInit {
         itemControl.clear();
         data.items.forEach((item: any) => itemControl.push(this.createItemGroup(item)));
 
-        this.fetchSupplier(data.supplierId);
+        this.fetchvendor(data.vendorId);
         this.loaderSvc.hide();
       },
       () => this.loaderSvc.hide()
     );
   }
 
-  private fetchSupplier(id: number) {
+  private fetchvendor(id: number) {
     this.contactService.getContactById(id,
-      (res: any) => this.selectedSupplier = res.data,
-      () => this.selectedSupplier = null
+      (res: any) => this.selectedVendor = res.data,
+      () => this.selectedVendor = null
     );
   }
 
@@ -299,10 +299,10 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   onSendMail() {
-    if (!this.selectedSupplier?.email) {
-      this.toastService.show('Supplier email not found', 'warning');
+    if (!this.selectedVendor?.email) {
+      this.toastService.show('vendor email not found', 'warning');
       return;
     }
-    this.toastService.show(`Sending email to ${this.selectedSupplier.email}`, 'success');
+    this.toastService.show(`Sending email to ${this.selectedVendor.email}`, 'success');
   }
 }

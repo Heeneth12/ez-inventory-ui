@@ -1,3 +1,5 @@
+import { UserMiniModel } from "../../user-management/models/user.model";
+
 export interface GrnItemModel {
     poItemId: number;
     poItemPrice: number;
@@ -11,12 +13,12 @@ export interface GrnItemModel {
 
 export interface GrnModel {
     id: number;
-    supplierId: number;
-    supplierName: string;
+    vendorId: number;
     grnNumber: string;
     purchaseOrderId: number;
-    supplierInvoiceNo?: string;
+    vendorInvoiceNo?: string;
     status: string;
     items: GrnItemModel[];
+    vendorDetails: UserMiniModel;
     createdAt: Date;
 }

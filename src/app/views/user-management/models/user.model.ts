@@ -49,3 +49,12 @@ export class UserFilterModel {
   userType?: UserType[];
   active?: boolean;
 }
+
+export class UserMiniModel {
+  id!: number;
+  userUuid!: string;
+  name!: string;
+  email!: string;
+  phone!: string
+  userType!: UserType;  
+}

@@ -1,3 +1,5 @@
+import { UserMiniModel } from "../../user-management/models/user.model";
+
 export interface PurchaseReturnItemModel {
     id: number;
     itemId: number;
@@ -8,10 +10,11 @@ export interface PurchaseReturnItemModel {
 
 export interface PurchaseReturnModel {
     id: number;
-    supplierId: number;
+    vendorId: number;
     warehouseId: number;
     prNumber: string;
     goodsReceiptId?: number;
     reason: string;
+    vendorDetails: UserMiniModel;
     items: PurchaseReturnItemModel[];
 }

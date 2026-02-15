@@ -1,3 +1,5 @@
+import { UserMiniModel } from "../../user-management/models/user.model";
+
 export enum PrqStatus {
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',
@@ -19,7 +21,6 @@ export interface PurchaseRequestModel {
     id: number;
     tenantId?: number;
     vendorId?: number;
-    vendorName?: string;
     warehouseId?: string;
     requestedBy: number;
     department: string;
@@ -28,6 +29,7 @@ export interface PurchaseRequestModel {
     totalEstimatedAmount?: number;
     notes?: string;
     createdAt?: string;
+    vendorDetails: UserMiniModel;
     items: PurchaseRequestItemModel[];
 }
 
