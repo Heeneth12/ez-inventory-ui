@@ -57,7 +57,7 @@
             <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
             <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Suggested Supplier</label>
           </div>
-          <div class="text-base text-gray-900 font-semibold">{{ purchaseRequestDetails?.vendorName }}</div>
+          <div class="text-base text-gray-900 font-semibold">{{ purchaseRequestDetails?.vendorDetails?.name }}</div>
           <div class="text-xs text-gray-500 font-mono mt-1 bg-gray-100 inline-block px-2 py-0.5 rounded">ID: {{
             purchaseRequestDetails?.vendorId }}</div>
         </div>

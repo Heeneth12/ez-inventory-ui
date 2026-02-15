@@ -60,20 +60,20 @@ handleCardAction(card: StatCardData) {
 
 
 
- users: UserCardData[] = [
-    {
-      id: 1,
-      name: 'Talan Dias',
-      role: 'UX Designer',
-      isVerified: true
-    },
-    {
-      id: 2,
-      name: 'Lydia Gouse',
-      role: 'Product Owner',
-      isVerified: false
-    }
-  ];
+//  users: UserCardData[] = [
+//     {
+//       id: 1,
+//       name: 'Talan Dias',
+//       role: 'UX Designer',
+//       isVerified: true
+//     },
+//     {
+//       id: 2,
+//       name: 'Lydia Gouse',
+//       role: 'Product Owner',
+//       isVerified: false
+//     }
+//   ];
 
   handleProfileApiCall(userId: string | number) {
     console.log('API CALL triggered for user:', userId);
