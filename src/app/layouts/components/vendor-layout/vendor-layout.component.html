@@ -6,7 +6,7 @@
     }
 
     <aside id="app-sidebar"
-        class="fixed inset-y-0 left-0 z-30 bg-[#0f172a] border-r border-slate-800/60 flex flex-col transition-all duration-300 ease-in-out lg:static shadow-xl"
+        class="fixed inset-y-0 left-0 z-30 bg-[#0b1520] border-r border-slate-800/60 flex flex-col transition-all duration-300 ease-in-out lg:static shadow-xl"
         [ngClass]="{
             'translate-x-0': isMobileMenuOpen, 
             '-translate-x-full lg:translate-x-0': !isMobileMenuOpen,
@@ -41,7 +41,7 @@
             @if (!item.subItems) {
             <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i"
                 routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
-                class="group relative flex items-center rounded-xl p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 transition-all duration-300 cursor-pointer outline-none"
+                class="group relative flex items-center rounded-mb p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 transition-all duration-300 cursor-pointer outline-none"
                 [ngClass]="{'justify-center': isSidebarCollapsed,'opacity-50 cursor-not-allowed': item.isDisabled}">
 
                 <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300"
@@ -53,8 +53,8 @@
 
                 @if (item.badge) {
                 <span [ngClass]="{
-                        'bg-slate-500 text-white': item.badgeVariant === 'default',
-                        'bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold text-[10px]': item.badgeVariant === 'pro'
+                        'bg-slate-500 text-white': item.label === 'Approval',
+                        'bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold text-[10px]': item.label === 'AI Chat'
                     }" class="ml-auto px-2 py-0.5 rounded-full text-[11px] shadow-sm">
                     {{ item.badge }}
                 </span>
@@ -76,7 +76,7 @@
             @if (item.subItems) {
             <div class="space-y-1">
                 <div (click)="toggleDropdown(i)" [id]="'menu-item-' + i"
-                    class="group relative flex items-center justify-between rounded-xl p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 cursor-pointer transition-all duration-300 select-none"
+                    class="group relative flex items-center justify-between rounded-mb p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 cursor-pointer transition-all duration-300 select-none"
                     [ngClass]="{
                         'bg-slate-800/50 text-indigo-300 border-slate-700/50': isDropdownOpen(i),
                         'justify-center': isSidebarCollapsed
@@ -259,10 +259,10 @@
 
                 <div class="flex items-center gap-3 border-l hover:transition-all duration-200 cursor-pointer border-gray-200 pl-4"
                     (click)="toggleUserMenu()">
-                    <div class="text-right hidden sm:block">
+                    <!-- <div class="text-right hidden sm:block">
                         <div class="text-sm font-medium text-slate-900">{{ user.name }}</div>
                         <div class="text-xs text-gray-500">{{ user.role }}</div>
-                    </div>
+                    </div> -->
                     <div
                         class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold cursor-pointer hover:bg-slate-700 transition-colors">
                         {{ user.initials }}
@@ -281,6 +281,7 @@
 <app-modal></app-modal>
 <app-drawer></app-drawer>
 <app-loader></app-loader>
+<!-- <app-mcp-chat-bot></app-mcp-chat-bot> -->
 <app-search-modal></app-search-modal>
 <ng-template #userProfileTemplate>
     <app-user></app-user>

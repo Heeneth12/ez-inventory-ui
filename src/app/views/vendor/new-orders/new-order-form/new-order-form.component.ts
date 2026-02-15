@@ -54,6 +54,7 @@ export class NewOrderFormComponent implements OnInit {
   selectedVendor: UserModel | null = null;
   warehouseList: any[] = [{ id: 1, name: 'Main Warehouse' }];
   uploadedFiles: File[] = [];
+  userId: string = '';
 
   // Item Search State
   itemSearchResults: ItemModel[] = [];
@@ -71,6 +72,11 @@ export class NewOrderFormComponent implements OnInit {
     private toastService: ToastService,
     public loaderSvc: LoaderService
   ) {
+    // here userId id the Vendor's userId
+    this.userId = sessionStorage.getItem('userId') || '';
+    if (this.userId) {
+      this.fetchVendor(+this.userId);
+    }
     this.initForm();
   }
 
@@ -81,8 +87,8 @@ export class NewOrderFormComponent implements OnInit {
 
   private initForm() {
     this.prqForm = this.fb.group({
-      prqId: [this.prqId, [Validators.required]], // this.prqId is null here
-      vendorId: [this.selectedVendor?.id, [Validators.required]],
+      prqId: [this.prqId || null],  // this will be patched in edit mode
+      vendorId: [this.selectedVendor?.id || null, [Validators.required]],
       warehouseId: [1, [Validators.required]],
       expectedDeliveryDate: [new Date().toISOString().substring(0, 10), [Validators.required]],
       notes: [''],
@@ -151,14 +157,14 @@ export class NewOrderFormComponent implements OnInit {
   onSubmit() {
     if (this.prqForm.invalid) {
       this.prqForm.markAllAsTouched();
-      console.log('Form Raw Value:', this.prqForm.getRawValue()); 
+      console.log('Form Raw Value:', this.prqForm.getRawValue());
       this.toastService.show('Please fix errors in the form', 'warning');
       return;
     }
 
     this.loaderSvc.show();
     const rawVal = this.prqForm.getRawValue();
-    console.log('Form Raw Value:', rawVal); 
+    console.log('Form Raw Value:', rawVal);
     // Calculate Aggregates to send to Backend
     const calculatedTotalAmount = this.subTotal;
     const calculatedGrandTotal = this.grandTotal;
@@ -235,7 +241,7 @@ export class NewOrderFormComponent implements OnInit {
       (res: any) => {
         const data = res.data;
         this.prqForm.patchValue({
-          vendorId: data.vendorId,
+          vendorId: data.vendorId || this.selectedVendor?.id,
           warehouseId: data.warehouseId,
           notes: data.notes,
           flatDiscount: data.flatDiscount || 0,
@@ -258,8 +264,6 @@ export class NewOrderFormComponent implements OnInit {
             }));
           });
         }
-
-        this.fetchVendor(data.vendorId);
         this.loaderSvc.hide();
       },
       () => this.loaderSvc.hide()
@@ -323,7 +327,16 @@ export class NewOrderFormComponent implements OnInit {
 
   fetchVendor(id: number) {
     if (!id) return;
-    this.userService.getUserById(id, (res: any) => this.selectedVendor = res.data, () => { });
+    this.userService.getUserById(id,
+      (res: any) => {
+        this.selectedVendor = res.data;
+        // PATCH THE FORM HERE
+        if (this.prqForm) {
+          this.prqForm.patchValue({ vendorId: this.selectedVendor?.id });
+        }
+      },
+      (err: any) => { console.error(err); }
+    );
   }
 
   // File handlers

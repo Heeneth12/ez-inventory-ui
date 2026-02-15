@@ -116,13 +116,13 @@ export class VendorLayoutComponent implements OnInit {
     },
     {
       label: 'ASN Management',
-      link: '/vendor/reports',
+      link: '/vendor/asn',
       icon: ReceiptText,
       moduleKey: 'EZH_INV_VENDOR'
     },
     {
       label: 'Purchase Returns',
-      link: '/vendor/settings',
+      link: '/vendor/sales-returns',
       icon: Undo2,
       moduleKey: 'EZH_INV_VENDOR'
     },

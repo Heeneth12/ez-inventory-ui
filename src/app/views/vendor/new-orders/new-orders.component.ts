@@ -38,7 +38,7 @@ export class NewOrdersComponent {
       icon: PackagePlusIcon,
       variant: 'primary',
       key: 'create_route',
-      action: () => console.log('Create PO action triggered')
+      action: () => this.router.navigate(['/vendor/new-orders/form'])
     }
   ];
 
