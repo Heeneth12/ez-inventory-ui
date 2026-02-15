@@ -6,6 +6,7 @@ import { catchError, map } from 'rxjs/operators'; // Import operators
 import { UserInitResponse } from '../models/Init-response.model';
 import { BannerLoaderService } from '../components/banner-loader/banner-loader.service';
 import { DrawerService } from '../components/drawer/drawerService';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<UserInitResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private commonService: CommonService, private router: Router, private dannerLoaderSvc: BannerLoaderService, private drawerSvc: DrawerService) { }
+  constructor(private commonService: CommonService, private router: Router, private dannerLoaderSvc: BannerLoaderService, private drawerSvc: DrawerService, private permissionsService: NgxPermissionsService) { }
 
   login(payload: any, success: (res: any) => void, error: (err: any) => void) {
     this.dannerLoaderSvc.show();
@@ -52,8 +53,9 @@ export class AuthService {
         (res: any) => {
           const userData: UserInitResponse = res.data;
           sessionStorage.setItem('tenantId', userData.tenantId.toString());
-          sessionStorage.setItem('userId', userData.id.toString()); 
+          sessionStorage.setItem('userId', userData.id.toString());
           sessionStorage.setItem('currentUserUuid', userData.userUuid);
+          this.loadPermissionsIntoStore(userData);
           this.currentUserSubject.next(userData);
           observer.next(userData);
           observer.complete();
@@ -92,6 +94,33 @@ export class AuthService {
         });
       },
       (err: any) => error(err)
+    );
+  }
+
+  public loadPermissionsIntoStore(user: UserInitResponse) {
+    const allPermissions: string[] = [];
+    user.userApplications.forEach(app => {
+      if (app.modulePrivileges) {
+        // Extract all arrays from the modulePrivileges object and flatten them
+        Object.values(app.modulePrivileges).forEach((perms: any) => {
+          if (Array.isArray(perms)) {
+            allPermissions.push(...perms);
+          }
+        });
+      }
+    });
+    // This tells ngx-permissions what the user can do
+    this.permissionsService.loadPermissions(allPermissions);
+  }
+
+  hasPermission(permission: string): boolean {
+    const user = this.currentUserSubject.value;
+    if (!user) return false;
+    // This handles the nesting logic once and for all
+    return user.userApplications.some(app =>
+      Object.values(app.modulePrivileges || {}).some((perms: any) =>
+        perms.includes(permission)
+      )
     );
   }
 

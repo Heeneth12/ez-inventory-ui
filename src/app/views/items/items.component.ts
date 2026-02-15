@@ -13,6 +13,7 @@ import { ITEMS_COLUMNS } from '../../layouts/config/tableConfig';
 import { CloudUpload } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
+import { AuthService } from '../../layouts/guards/auth.service';
 
 @Component({
   selector: 'app-items',
@@ -38,7 +39,8 @@ export class ItemsComponent implements OnInit {
       icon: CloudUpload,
       variant: 'primary',
       key: 'create_route',
-      action: () => this.bulkUploadItems()
+      action: () => this.bulkUploadItems(),
+      hidden: !this.authService.hasPermission('EZH_INV_ITEMS_EXPORT')
     }
   ];
 
@@ -62,7 +64,8 @@ export class ItemsComponent implements OnInit {
     private toastService: ToastService,
     private loaderSvc: LoaderService,
     private drawerSvc: DrawerService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private authService: AuthService
   ) {
     this.itemFilter.active = true;
   }
