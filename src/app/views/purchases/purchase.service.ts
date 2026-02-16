@@ -79,11 +79,19 @@ export class PurchaseService {
         return this.httpService.postHttp(PurchaseService.PURCHASE_RETURN_BASE_URL, request, successfn, errorfn);
     }
 
+    updatePurchaseReturn(returnId: number, request: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PurchaseService.PURCHASE_RETURN_BASE_URL}/${returnId}/update`, request, successfn, errorfn);
+    }
+
+    updatePurchaseReturnStatus(returnId: number, status: string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PurchaseService.PURCHASE_RETURN_BASE_URL}/${returnId}/status?status=${status}`, {}, successfn, errorfn);
+    }
+
     getReturnById(returnId: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${PurchaseService.PURCHASE_RETURN_BASE_URL}/${returnId}`, successfn, errorfn);
     }
 
-    getAllReturns(page: number, size: number, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${PurchaseService.PURCHASE_RETURN_BASE_URL}?page=${page}&size=${size}`, successfn, errorfn);
+    getAllReturns(page: number, size: number, filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PurchaseService.PURCHASE_RETURN_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
     }
 }

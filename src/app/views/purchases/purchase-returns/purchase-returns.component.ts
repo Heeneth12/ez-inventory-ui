@@ -10,7 +10,8 @@ import { PurchaseReturnModel } from '../models/purchase-return.model';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { ArrowRight, FilePlusCorner } from 'lucide-angular';
-import { PR_COLUMN, PR_DATE_CONFIG } from '../purchasesConfig';
+import { PR_COLUMN, PR_DATE_CONFIG, PRQ_ACTIONS, PRQ_FILTER_OPTIONS } from '../purchasesConfig';
+import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 
 @Component({
   selector: 'app-purchase-returns',
@@ -30,17 +31,9 @@ export class PurchaseReturnsComponent implements OnInit {
 
   columns: TableColumn[] = PR_COLUMN;
   dateConfig: DatePickerConfig = PR_DATE_CONFIG;
+  prActions: TableActionConfig[] = PRQ_ACTIONS;
+  prFilterOptions: FilterOption[] = PRQ_FILTER_OPTIONS;
   purchaseOrderList: any;
-
-  prActions: TableActionConfig[] = [
-    {
-      key: 'create_purchase_return',
-      label: 'Create PR',
-      icon: ArrowRight,
-      color: 'primary',
-      condition: (row) => true
-    }
-  ];
 
   myHeaderActions: HeaderAction[] = [
     {
@@ -71,6 +64,7 @@ export class PurchaseReturnsComponent implements OnInit {
     this.purchaseService.getAllReturns(
       apiPage,
       this.pagination.pageSize,
+      this.purchaseReturnFilter,
       (response: any) => {
         this.purchaseReturnList = response.data.content;
         this.pagination = {
@@ -112,8 +106,20 @@ export class PurchaseReturnsComponent implements OnInit {
     }
   }
 
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'update_pr') {
+    }
+  }
+
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.purchaseReturnFilter.approvalStatuses = $event['status'] || null;
+    this.getPurchaseReturns();
+  }
+
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getPurchaseReturns();
   }
 
   onLoadMore() {

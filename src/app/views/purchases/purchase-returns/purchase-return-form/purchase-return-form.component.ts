@@ -48,7 +48,7 @@ export class PurchaseReturnFormComponent implements OnInit {
 
   private initForm() {
     this.returnForm = this.fb.group({
-      supplierId: [null, Validators.required],
+      vendorId: [null, Validators.required],
       warehouseId: [1, Validators.required],
       goodsReceiptId: [null, Validators.required],
       reason: ['', [Validators.required, Validators.minLength(5)]],
@@ -90,7 +90,7 @@ export class PurchaseReturnFormComponent implements OnInit {
   // --- Step 2: Populate Form ---
   populateForm(grn: any) {
     this.returnForm.patchValue({
-      supplierId: grn.supplierId,
+      vendorId: grn.vendorId,
       goodsReceiptId: grn.id,
       reason: ''
     });
@@ -164,7 +164,7 @@ export class PurchaseReturnFormComponent implements OnInit {
     }
 
     const payload = {
-      supplierId: this.returnForm.value.supplierId,
+      vendorId: this.returnForm.value.vendorId,
       warehouseId: this.returnForm.value.warehouseId,
       goodsReceiptId: this.returnForm.value.goodsReceiptId,
       reason: this.returnForm.value.reason,
