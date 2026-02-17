@@ -1,4 +1,4 @@
-import { ListRestart, ListCollapse, PenLineIcon, ArrowBigRight, CircleX, CloudUpload, ArrowRight, MailIcon } from "lucide-angular";
+import { ListRestart, ListCollapse, PenLineIcon, ArrowBigRight, CircleX, CloudUpload, ArrowRight, MailIcon, Eye, ListCheck } from "lucide-angular";
 import { TableActionConfig, TableColumn } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
@@ -90,6 +90,59 @@ export const ASN_DATE_CONFIG: DatePickerConfig = {
 };
 
 export const ASN_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'PENDING', value: 'PENDING' },
+            { label: 'APPROVED', value: 'APPROVED' },
+            { label: 'REJECTED', value: 'REJECTED' }
+        ]
+    }
+];
+
+// V-PR
+export const V_PR_COLUMN: TableColumn[] = [
+    { key: 'vendorDetails', label: 'Vendor', width: '100px', type: 'fullProfile' },
+    { key: 'prNumber', label: 'PR Number', width: '100px', type: 'link' },
+    { key: 'status', label: 'status', width: '100px', type: 'badge' },
+    { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency' },
+    { key: 'id', label: 'Grn', width: '150px', type: 'link' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];
+
+export const V_PR_ACTIONS: TableActionConfig[] = [
+    {
+        key: 'accept_pr',
+        label: 'Accept PR',
+        icon: ArrowRight,
+        color: 'success',
+        condition: (row) => row['status'] === 'PENDING'
+    },
+      {
+        key: 'view_pr',
+        label: '',
+        icon: ListCheck,
+        color: 'primary',
+        condition: (row) => true
+    },
+    {
+        key: 'cancel_pr',
+        label: '',
+        icon: CircleX,
+        color: 'danger',
+        condition: (row) => row['status'] === 'PENDING'
+    },
+];
+
+export const V_PR_DATE_CONFIG: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+};
+
+export const V_PR_FILTER_OPTIONS: FilterOption[] = [
     {
         id: 'status',
         label: 'Status',

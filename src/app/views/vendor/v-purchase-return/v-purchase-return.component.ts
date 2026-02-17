@@ -9,9 +9,13 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { PurchaseReturnModel } from '../../purchases/models/purchase-return.model';
 import { PurchaseService } from '../../purchases/purchase.service';
-import { PR_COLUMN, PR_DATE_CONFIG, PRQ_ACTIONS } from '../../purchases/purchasesConfig';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { PurchaseRequestFilterModel } from '../../purchases/models/prq.model';
+import { UserInitResponse } from '../../../layouts/models/Init-response.model';
+import { Observable } from 'rxjs';
+import { AuthService } from '../../../layouts/guards/auth.service';
+import { V_PR_ACTIONS, V_PR_COLUMN, V_PR_DATE_CONFIG, V_PR_FILTER_OPTIONS } from '../vendorConfig';
+import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 
 @Component({
   selector: 'app-v-purchase-return',
@@ -28,10 +32,13 @@ export class VPurchaseReturnComponent {
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
+  userData$: Observable<UserInitResponse | null>;
 
-  columns: TableColumn[] = PR_COLUMN;
-  dateConfig: DatePickerConfig = PR_DATE_CONFIG;
-  prActions: TableActionConfig[] = PRQ_ACTIONS;
+  columns: TableColumn[] = V_PR_COLUMN;
+  dateConfig: DatePickerConfig = V_PR_DATE_CONFIG;
+  prActions: TableActionConfig[] = V_PR_ACTIONS;
+  filterConfig: FilterOption[] = V_PR_FILTER_OPTIONS;
+
   purchaseOrderList: any;
 
   myHeaderActions: HeaderAction[] = [
@@ -48,8 +55,15 @@ export class VPurchaseReturnComponent {
     private router: Router,
     private modalService: ModalService,
     private toastService: ToastService,
-    private loaderSvc: LoaderService
+    private loaderSvc: LoaderService,
+    private authSvs: AuthService
   ) {
+    this.userData$ = this.authSvs.currentUser$;
+    this.userData$.subscribe(user => {
+      if (user && user.id) {
+        this.purchaseReturnFilter.vendorId = user.id;
+      }
+    });
   }
 
 
@@ -81,6 +95,18 @@ export class VPurchaseReturnComponent {
     );
   }
 
+  updateStatusPurchseReturn(prId: any, status: string) {
+    this.purchaseService.updatePurchaseReturnStatus(prId, status,
+      (response: any) => {
+        this.toastService.show('Purchase Return updated successfully', 'success');
+        this.getPurchaseReturns();
+      },
+      (error: any) => {
+        this.toastService.show('Failed to update Purchase Return', 'error');
+        console.error('Error updating Purchase Return:', error);
+      }
+    );
+  }
 
   onSelectionChange(selectedIds: (string | number)[]) {
     this.selectedItemIds = selectedIds;
@@ -107,15 +133,25 @@ export class VPurchaseReturnComponent {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'update_pr') {
+
+    }
+    if(event.type === 'custom' && event.key === 'accept_pr') {
+      this.updateStatusPurchseReturn(event.row.id, 'APPROVED');
     }
 
   }
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getPurchaseReturns();
   }
 
   onLoadMore() {
+  }
+
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.getPurchaseReturns();
   }
 
   onFilterDate(range: DateRangeEmit) {

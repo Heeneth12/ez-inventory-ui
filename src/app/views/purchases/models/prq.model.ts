@@ -35,6 +35,7 @@ export interface PurchaseRequestModel {
 
 export class PurchaseRequestFilterModel {
     id?: number;
+    vendorId?: number;
     searchQuery?: string
     status?: PrqStatus;
     warehouseId?: number;
