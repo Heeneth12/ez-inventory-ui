@@ -5,6 +5,7 @@ import { TenantsComponent } from './tenants/tenants.component';
 import { ApplicationsComponent } from './applications/applications.component';
 import { UserManagementComponent } from './user-management.component';
 import { TenantFormComponent } from './tenants/tenant-form/tenant-form.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
 
 export const UserManagementRoutes: Routes = [
     {
@@ -24,6 +25,7 @@ export const UserManagementRoutes: Routes = [
                 path: 'users',
                 children: [
                     { path: '', component: UserManagementComponent },
+                    { path:'profile', component: UserProfileComponent },
                     { path: 'form', component: UserFormComponent },
                     { path: 'form/:id', component: UserFormComponent },
 
