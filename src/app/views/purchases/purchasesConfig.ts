@@ -6,7 +6,7 @@ import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.c
 //PRQ
 export const PRQ_COLUMN: TableColumn[] = [
     { key: 'vendorDetails', label: 'Vendor', width: '100px', type: 'fullProfile' },
-    { key: 'prqNumber', label: 'PRQ Number', width: '100px', type: 'link' },
+    { key: 'prqNumber', label: 'PRQ Number', width: '100px', type: 'link', align:'left' },
     { key: 'source', label: 'Source', width: '100px', type: 'badge' },
     { key: 'createdAt', label: 'Order Date', width: '110px', type: 'date' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },

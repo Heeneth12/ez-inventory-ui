@@ -13,14 +13,14 @@ export const UserManagementRoutes: Routes = [
         component: UserManagementAdapterComponent,
         children: [
             { path: '', redirectTo: 'users', pathMatch: 'full' },
-            {
-                path: 'tenants',
-                children: [
-                    { path: '', component: TenantsComponent },
-                    { path: 'form', component: TenantFormComponent },
-                    { path: 'form/:id', component: TenantFormComponent }
-                ]
-            },
+            // {
+            //     path: 'tenants',
+            //     children: [
+            //         { path: '', component: TenantsComponent },
+            //         { path: 'form', component: TenantFormComponent },
+            //         { path: 'form/:id', component: TenantFormComponent }
+            //     ]
+            // },
             {
                 path: 'users',
                 children: [

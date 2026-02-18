@@ -4,8 +4,9 @@ import { Router } from '@angular/router';
 import { PaginationConfig, TableColumn, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { StockService } from '../stock.service';
-import { StockLedger } from '../models/stock-ledger.model';
+import { StockLedger, StockLedgerFilter } from '../models/stock-ledger.model';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
+import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 
 
 @Component({
@@ -19,6 +20,7 @@ export class StockLedgerComponent {
 
 
   stockLedgerList: StockLedger[] = [];
+  stockLedgerFilter: StockLedgerFilter = new StockLedgerFilter();
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
@@ -35,7 +37,30 @@ export class StockLedgerComponent {
     { key: 'referenceId', label: 'Ref ID', width: '110px', type: 'text' },
   ];
 
-
+  filterConfig: FilterOption[] = [
+    {
+      id: 'referenceType',
+      label: 'Reference Type',
+      type: 'checkbox',
+      searchable: true,
+      options: [
+        { label: 'GRN', value: 'GRN' },
+        { label: 'SALE', value: 'SALE' },
+        { label: 'RETURN', value: 'RETURN' },
+        { label: 'TRANSFER', value: 'TRANSFER' }
+      ]
+    },
+    {
+      id: 'transactionType',
+      label: 'Transaction Type',
+      type: 'checkbox',
+      searchable: true,
+      options: [
+        { label: 'IN', value: 'IN' },
+        { label: 'OUT', value: 'OUT' }
+      ]
+    }
+  ];
 
   page: number = 0;
   size: number = 10;
@@ -59,7 +84,7 @@ export class StockLedgerComponent {
     this.stockService.getStockTransactions(
       apiPage,
       this.pagination.pageSize,
-      {},
+      this.stockLedgerFilter,
       (response: any) => {
         this.stockLedgerList = response.data.content;
         this.pagination = {
@@ -85,6 +110,14 @@ export class StockLedgerComponent {
   }
   onTableAction($event: TableAction) {
     console.log('Table action:', $event);
+  }
+
+  
+  onFilterUpdate($event: Record<string, any>) {
+    this.stockLedgerFilter = $event;
+    this.stockLedgerFilter.transactionTypes = $event['transactionType'] || null;
+    this.stockLedgerFilter.referenceTypes = $event['referenceType'] || null;
+    this.getCurrentStock();
   }
 
 }
