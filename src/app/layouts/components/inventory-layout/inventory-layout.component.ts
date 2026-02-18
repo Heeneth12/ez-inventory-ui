@@ -300,6 +300,10 @@ export class InventoryLayoutComponent implements OnInit {
     }
   }
 
+  openUserCalendar(){
+    this.router.navigate(['/admin/user/calendar']);
+  }
+
   openCatalystWelcomeModal(hasSeenTour: string | null) {
     if (hasSeenTour !== 'true') {
       console.log("open")

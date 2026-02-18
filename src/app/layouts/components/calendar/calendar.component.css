@@ -1,0 +1,12 @@
+.diagonal-stripes {
+    background-color: #f8fafc;
+    background-image: repeating-linear-gradient(45deg,
+            #e2e8f0,
+            #e2e8f0 1px,
+            transparent 1px,
+            transparent 10px);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: #e2e8f0; border-radius: 20px; }

@@ -6,6 +6,7 @@ import { ApplicationsComponent } from './applications/applications.component';
 import { UserManagementComponent } from './user-management.component';
 import { TenantFormComponent } from './tenants/tenant-form/tenant-form.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { CalendarComponent } from '../../layouts/components/calendar/calendar.component';
 
 export const UserManagementRoutes: Routes = [
     {
@@ -32,6 +33,13 @@ export const UserManagementRoutes: Routes = [
                 ]
             },
             { path: 'apps', component: ApplicationsComponent },
+        ]
+    },
+    {
+        path: 'user',
+        children: [
+            { path: 'calendar', component: CalendarComponent },
+            { path:'profile', component: UserProfileComponent },
         ]
     },
 ];
