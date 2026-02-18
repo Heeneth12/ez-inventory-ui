@@ -7,6 +7,7 @@ import { StockService } from '../stock.service';
 import { StockLedger, StockLedgerFilter } from '../models/stock-ledger.model';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
+import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 
 
 @Component({
@@ -61,6 +62,11 @@ export class StockLedgerComponent {
       ]
     }
   ];
+    dateConfig: DatePickerConfig = {
+      type: 'both',
+      placeholder: 'Start - End'
+    };
+  
 
   page: number = 0;
   size: number = 10;
@@ -119,5 +125,20 @@ export class StockLedgerComponent {
     this.stockLedgerFilter.referenceTypes = $event['referenceType'] || null;
     this.getCurrentStock();
   }
+
+    onFilterDate(range: DateRangeEmit) {
+      console.log('Filter table by:', range.from, range.to);
+      this.stockLedgerFilter.fromDate = range.from
+        ? this.formatDate(range.from)
+        : null;
+  
+      this.stockLedgerFilter.toDate = range.to
+        ? this.formatDate(range.to)
+        : null;
+    }
+  
+    private formatDate(date: Date): string {
+      return date.toISOString().split('T')[0];
+    }
 
 }

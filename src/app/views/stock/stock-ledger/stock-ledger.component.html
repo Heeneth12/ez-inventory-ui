@@ -3,6 +3,7 @@
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="stockLedgerList" [isServerSide]="true"
             [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
             [filterConfig]="filterConfig" (filterChanged)="onFilterUpdate($event)"
+            [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)"
             (action)="onTableAction($event)">
         </app-standard-table>
     </div>
