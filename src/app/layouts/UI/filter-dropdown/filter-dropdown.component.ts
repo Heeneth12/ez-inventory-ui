@@ -35,9 +35,13 @@ export class FilterDropdownComponent {
 
   constructor(private eRef: ElementRef) { }
 
-  // Computed count for the badge
+
+  // Replace this block
   totalSelectedCount = computed(() => {
-    return Object.values(this.selectedFilters()).reduce((acc, curr) => acc + curr.length, 0);
+    return Object.values(this.selectedFilters()).reduce((acc, curr) => {
+      // Add safe navigation (?.) and a fallback (|| 0)
+      return acc + (curr?.length || 0);
+    }, 0);
   });
 
   @HostListener('document:click', ['$event'])
