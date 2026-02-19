@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, tap, finalize, of, catchError, Observable } from 'rxjs';
@@ -17,12 +17,15 @@ import { TenantModel } from '../../../views/user-management/models/tenant.model'
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './invoice-header.component.html'
 })
-export class InvoiceHeaderComponent implements OnInit {
+export class InvoiceHeaderComponent implements OnInit, AfterViewInit {
+
+  @ViewChild('searchInput') searchInput!: ElementRef;
 
   // Inputs: Allow parent to pass in an existing user (e.g. Edit Mode)
   @Input() selectedUser: UserModel | null = null;
   @Input() searchType: 'CUSTOMER' | 'VENDOR' | 'EMPLOYEE' = 'VENDOR'
-  
+  @Input() autoFocus: boolean = false;
+
   // Outputs: Tell parent when a user is chosen or cleared
   @Output() userSelected = new EventEmitter<UserModel>();
   @Output() userCleared = new EventEmitter<void>();
@@ -32,6 +35,8 @@ export class InvoiceHeaderComponent implements OnInit {
   searchResults: UserModel[] = [];
   isSearching: boolean = false;
   showResults: boolean = false;
+
+  activeIndex: number = -1;
 
   userFilterModel: UserFilterModel = new UserFilterModel();
 
@@ -73,6 +78,12 @@ export class InvoiceHeaderComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit() {
+    if (this.autoFocus) {
+      this.searchInput.nativeElement.focus();
+    }
+  }
+
   // --- Search Logic ---
   private setupSearchPipeline() {
     this.searchSubject.pipe(
@@ -93,11 +104,11 @@ export class InvoiceHeaderComponent implements OnInit {
       switchMap(query => {
         this.userFilterModel.searchQuery = query;
 
-        if(this.searchType === 'VENDOR'){
+        if (this.searchType === 'VENDOR') {
           this.userFilterModel.userType = [UserType.VENDOR];
-        }else if(this.searchType === 'CUSTOMER') {
+        } else if (this.searchType === 'CUSTOMER') {
           this.userFilterModel.userType = [UserType.CUSTOMER];
-        }else if(this.searchType === 'EMPLOYEE') {
+        } else if (this.searchType === 'EMPLOYEE') {
           this.userFilterModel.userType = [UserType.EMPLOYEE];
         }
 
@@ -123,10 +134,9 @@ export class InvoiceHeaderComponent implements OnInit {
     });
   }
 
-  // --- UI Actions ---
-
   onSearchInput(value: string) {
     this.searchTerm = value;
+    this.activeIndex = -1;
     this.searchSubject.next(value);
   }
 
@@ -155,6 +165,40 @@ export class InvoiceHeaderComponent implements OnInit {
     // Logic to find Billing address or default to first
     const addr = this.selectedUser.addresses.find(a => a.type === 'BILLING') || this.selectedUser.addresses[0];
     return `${addr.city}, ${addr.state}`;
+  }
+
+  onKeyDown(event: KeyboardEvent) {
+    if (!this.showResults || this.searchResults.length === 0) return;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault(); // Prevent cursor moving in input
+        this.activeIndex = (this.activeIndex + 1) % this.searchResults.length;
+        this.scrollToActive();
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.activeIndex = (this.activeIndex - 1 + this.searchResults.length) % this.searchResults.length;
+        this.scrollToActive();
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (this.activeIndex >= 0 && this.activeIndex < this.searchResults.length) {
+          this.selectUser(this.searchResults[this.activeIndex]);
+        }
+        break;
+      case 'Escape':
+        this.showResults = false;
+        break;
+    }
+  }
+
+  private scrollToActive() {
+    const container = document.querySelector('.results-container');
+    const activeItem = document.querySelector('.active-item') as HTMLElement;
+    if (container && activeItem) {
+      activeItem.scrollIntoView({ block: 'nearest' });
+    }
   }
 
   moveToContactPage() {

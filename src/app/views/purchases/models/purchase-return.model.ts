@@ -18,3 +18,14 @@ export interface PurchaseReturnModel {
     vendorDetails: UserMiniModel;
     items: PurchaseReturnItemModel[];
 }
+
+export class PurchaseReturnFilterModel {
+    id!: number;
+    searchQuery!: string;
+    statuses?: string[];
+    warehouseId?: number;
+    fromDate?: string;
+    toDate?: string;
+    purchaseReturnStatuses?: any[];
+    vendorId?: number;
+}

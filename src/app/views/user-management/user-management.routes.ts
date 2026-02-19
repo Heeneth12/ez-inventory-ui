@@ -5,6 +5,8 @@ import { TenantsComponent } from './tenants/tenants.component';
 import { ApplicationsComponent } from './applications/applications.component';
 import { UserManagementComponent } from './user-management.component';
 import { TenantFormComponent } from './tenants/tenant-form/tenant-form.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
+import { CalendarComponent } from '../../layouts/components/calendar/calendar.component';
 
 export const UserManagementRoutes: Routes = [
     {
@@ -12,24 +14,32 @@ export const UserManagementRoutes: Routes = [
         component: UserManagementAdapterComponent,
         children: [
             { path: '', redirectTo: 'users', pathMatch: 'full' },
-            {
-                path: 'tenants',
-                children: [
-                    { path: '', component: TenantsComponent },
-                    { path: 'form', component: TenantFormComponent },
-                    { path: 'form/:id', component: TenantFormComponent }
-                ]
-            },
+            // {
+            //     path: 'tenants',
+            //     children: [
+            //         { path: '', component: TenantsComponent },
+            //         { path: 'form', component: TenantFormComponent },
+            //         { path: 'form/:id', component: TenantFormComponent }
+            //     ]
+            // },
             {
                 path: 'users',
                 children: [
                     { path: '', component: UserManagementComponent },
+                    { path:'profile', component: UserProfileComponent },
                     { path: 'form', component: UserFormComponent },
                     { path: 'form/:id', component: UserFormComponent },
 
                 ]
             },
             { path: 'apps', component: ApplicationsComponent },
+        ]
+    },
+    {
+        path: 'user',
+        children: [
+            { path: 'calendar', component: CalendarComponent },
+            { path:'profile', component: UserProfileComponent },
         ]
     },
 ];

@@ -6,6 +6,7 @@
         <div class="lg:col-span-8 space-y-6">
 
           <app-invoice-header [selectedUser]="selectedVendor" [searchType]="'VENDOR'"
+            [autoFocus]="true"
             (userSelected)="selectVendor($event)" (userCleared)="onVendorCleared()">
           </app-invoice-header>
 

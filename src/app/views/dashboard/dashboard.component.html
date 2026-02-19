@@ -1,296 +1,87 @@
-<div class="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-50 p-4 sm:p-6 lg:p-8">
-  <div class="max-w-[1600px] mx-auto space-y-6">
+<div class="bg-[#F3F4F6] p-6 lg:p-10 font-sans antialiased text-[#1A1C1E]">
+  <div class="max-w-[1750px] mx-auto space-y-8">
 
-    <!-- Header -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">Dashboard</h1>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-3">
-        <button
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all shadow-sm">
-          <lucide-icon [img]="icons.chevronDown" class="w-4 h-4"></lucide-icon>
-          Jan 1, 2025 - Feb 1, 2025
-        </button>
-
-        <button
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all shadow-sm">
-          Last 30 days
-          <lucide-icon [img]="icons.chevronDown" class="w-4 h-4"></lucide-icon>
-        </button>
-
-        <button
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-all shadow-sm">
-          <lucide-icon [img]="icons.plus" class="w-4 h-4"></lucide-icon>
-          Add widget
-        </button>
-
-        <button
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all shadow-sm">
-          <lucide-icon [img]="icons.download" class="w-4 h-4"></lucide-icon>
-          Export
-        </button>
-      </div>
-    </div>
-
-    <!-- Top Metrics -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div *ngFor="let metric of metrics"
-        class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200">
-        <div class="flex items-start justify-between mb-3">
-          <div class="p-2 bg-slate-50 rounded-lg">
-            <lucide-icon [img]="metric.icon" class="w-5 h-5 text-slate-600"></lucide-icon>
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-6 border border-white/60">
+        <div class="flex justify-between items-start">
+          <div class="space-y-1">
+            <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Sale</h2>
+            <h1 class="text-5xl font-extrabold tracking-tight text-slate-900">$1.992,34</h1>
+            <div class="flex items-center gap-2 pt-3">
+              <span
+                class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold">
+                <lucide-icon [img]="icons.trendingUp" class="w-3 h-3 mr-1"></lucide-icon>
+                +19%
+              </span>
+              <p class="text-[14px] text-slate-400">
+                Yeay! your sales have surged by <span class="font-bold text-slate-700">$723.12</span> from last month!
+              </p>
+            </div>
           </div>
-          <button class="p-1 hover:bg-slate-100 rounded transition-colors">
-            <lucide-icon [img]="icons.more" class="w-4 h-4 text-slate-400"></lucide-icon>
+
+          <button
+            class="group flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+            Last 7 days
+            <lucide-icon [img]="icons.chevronDown"
+              class="w-4 h-4 text-slate-400 group-hover:text-slate-600"></lucide-icon>
           </button>
         </div>
 
-        <div class="space-y-1">
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">{{ metric.label }}</p>
-          <div class="flex items-end gap-2">
-            <h3 class="text-2xl font-bold text-slate-900">{{ metric.value }}</h3>
-            <span
-              [class]="'flex items-center text-xs font-semibold mb-1 ' + (metric.isPositive ? 'text-emerald-600' : 'text-rose-600')">
-              <lucide-icon [img]="metric.isPositive ? icons.trendingUp : icons.trendingDown"
-                class="w-3 h-3 mr-0.5"></lucide-icon>
-              {{ metric.change }}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          <div
+            class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group  hover:border-slate-300 transition-colors">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+              <span class="text-[11px] font-black text-slate-500 uppercase">In-Stores Sales</span>
+            </div>
+            <div class="text-2xl font-bold text-slate-900">$5,045.00</div>
+          </div>
+
+          <div
+            class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group hover:border-slate-300 transition-colors">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
+              <span class="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Online Sales</span>
+            </div>
+            <div class="text-2xl font-bold text-slate-900">$1,001.00</div>
+          </div>
+
+          <div
+            class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group hover:border-slate-300 transition-colors">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+              <span class="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Total Sales</span>
+            </div>
+            <div class="text-2xl font-bold text-slate-900">$6,460.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="col-span-12 lg:col-span-4 bg-white rounded-lg p-6 border border-white/60 flex flex-col justify-between overflow-hidden">
+        <div>
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Orders</h2>
+            <button
+              class="w-10 h-10 flex items-center justify-center bg-slate-900 text-white rounded-full shadow-lg  hover:scale-105 transition-transform">
+              <lucide-icon [img]="icons.eye" class="w-4 h-4"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="flex items-baseline gap-3">
+            <h1 class="text-5xl font-extrabold text-slate-900">352</h1>
+            <span class="text-emerald-500 font-bold text-sm flex items-center">
+              <lucide-icon [img]="icons.trendingUp" class="w-4 h-4 mr-0.5"></lucide-icon>
+              +23%
             </span>
           </div>
-          <p class="text-xs text-slate-400">{{ metric.comparison }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Total Profit Chart -->
-      <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Total Profit</h3>
-            <div class="flex items-baseline gap-3">
-              <span class="text-3xl font-bold text-slate-900">$446.7K</span>
-              <span class="flex items-center text-sm font-semibold text-emerald-600">
-                <lucide-icon [img]="icons.trendingUp" class="w-4 h-4 mr-1"></lucide-icon>
-                +24.4%
-              </span>
-              <span class="text-sm text-slate-400">vs last period</span>
-            </div>
-          </div>
-          <button class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-            <lucide-icon [img]="icons.more" class="w-5 h-5 text-slate-400"></lucide-icon>
-          </button>
+          <p class="text-sm text-slate-400 mt-4 leading-relaxed max-w-[200px]">
+            Year! your order have surged by <span class="font-bold text-slate-700">25</span> from last month!
+          </p>
         </div>
 
-        <div class="h-64 relative">
-          <canvas #profitChart></canvas>
-        </div>
-      </div>
-
-      <!-- Most Day Active -->
-      <!-- Most Day Active -->
-      <div
-        class="group bg-gradient-to-br from-white to-slate-50/30 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
-        <div class="p-6 pb-5 flex items-center justify-between border-b border-slate-100">
-          <div>
-            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Most Day Active</h3>
-            <p class="text-xs text-slate-500 font-medium">Weekly visitor statistics</p>
-          </div>
-          <button
-            class="p-2 hover:bg-slate-100 rounded-lg transition-all duration-200 opacity-60 group-hover:opacity-100">
-            <lucide-icon [img]="icons.more" class="w-5 h-5 text-slate-500"></lucide-icon>
-          </button>
-        </div>
-
-        <div class="p-6">
-          <div class="flex items-end justify-between h-64 gap-3 relative">
-            <!-- Grid lines -->
-            <div class="absolute inset-0 flex flex-col justify-between pointer-events-none py-2">
-              <div class="border-b border-slate-100"></div>
-              <div class="border-b border-slate-100"></div>
-              <div class="border-b border-slate-100"></div>
-              <div class="border-b border-slate-100"></div>
-            </div>
-
-            <div *ngFor="let day of dailyActivity; let i = index"
-              class="flex-1 flex flex-col items-center gap-3 relative z-10" (mouseenter)="setHoveredDay(i)"
-              (mouseleave)="setHoveredDay(null)">
-
-              <!-- Bar -->
-              <div class="w-full rounded-t-xl transition-all duration-500 ease-out cursor-pointer relative group/bar"
-                [style.height.%]="getActivityHeight(day.value)"
-                [class]="'transform ' + (hoveredDayIndex === i ? 'scale-105' : '')">
-
-                <!-- Bar gradient background -->
-                <div [class]="'absolute inset-0 rounded-t-xl transition-all duration-500 ' + 
-                  (day.isHighest || hoveredDayIndex === i 
-                    ? 'bg-gradient-to-t from-blue-600 via-blue-500 to-indigo-400 shadow-xl shadow-blue-500/40' 
-                    : 'bg-gradient-to-t from-slate-300 via-slate-250 to-slate-200')">
-                </div>
-
-                <!-- Shimmer effect on hover -->
-                <div *ngIf="hoveredDayIndex === i" class="absolute inset-0 rounded-t-xl overflow-hidden">
-                  <div
-                    class="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent">
-                  </div>
-                </div>
-
-                <!-- Glow effect for highest/hovered -->
-                <div *ngIf="day.isHighest || hoveredDayIndex === i"
-                  class="absolute -inset-1 bg-blue-400 rounded-t-xl blur-md opacity-30 -z-10">
-                </div>
-
-                <!-- Value label on top of bar -->
-                <div
-                  [class]="'absolute -top-10 left-1/2 transform -translate-x-1/2 transition-all duration-300 ' +
-                  (hoveredDayIndex === i || day.isHighest ? 'opacity-100 -translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-90')">
-                  <div
-                    class="bg-gradient-to-br from-slate-900 to-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-2xl whitespace-nowrap border border-slate-700">
-                    {{ day.value.toLocaleString() }}
-                    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
-                      <div class="border-[5px] border-transparent border-t-slate-900"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Floating tooltip on hover -->
-                <div *ngIf="hoveredDayIndex === i"
-                  class="absolute -top-24 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200/80 shadow-2xl rounded-2xl p-4 whitespace-nowrap animate-[fadeIn_0.2s_ease-out] backdrop-blur-sm">
-                  <div class="text-xs text-slate-500 font-semibold mb-1">{{ day.fullDay }}</div>
-                  <div
-                    class="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-0.5">
-                    {{ day.value.toLocaleString() }}
-                  </div>
-                  <div class="text-xs text-slate-400">{{ day.date }} • visits</div>
-                  <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
-                    <div class="border-[6px] border-transparent border-t-white"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Day label -->
-              <span [class]="'text-xs font-bold transition-all duration-300 ' + 
-                (hoveredDayIndex === i || day.isHighest 
-                  ? 'text-blue-600 scale-110' 
-                  : 'text-slate-500')">
-                {{ day.day }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Stats Summary -->
-          <div class="mt-8 pt-6 border-t border-slate-100 grid grid-cols-3 gap-4">
-            <div
-              class="text-center group/stat cursor-pointer hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 rounded-xl p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-              <div class="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wide">Peak Day</div>
-              <div
-                class="text-2xl font-bold text-blue-600 group-hover/stat:scale-110 transition-transform duration-300">
-                Mon</div>
-              <div class="text-xs text-slate-500 mt-1 font-medium">8,162 visits</div>
-            </div>
-
-            <div
-              class="text-center group/stat cursor-pointer hover:bg-gradient-to-br hover:from-slate-50 hover:to-slate-100/50 rounded-xl p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-              <div class="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wide">Average</div>
-              <div
-                class="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover/stat:scale-110 transition-transform duration-300">
-                5,148</div>
-              <div class="text-xs text-emerald-600 flex items-center justify-center gap-1 mt-1 font-bold">
-                <lucide-icon [img]="icons.trendingUp" class="w-3.5 h-3.5"></lucide-icon>
-                +12.3%
-              </div>
-            </div>
-
-            <div
-              class="text-center group/stat cursor-pointer hover:bg-gradient-to-br hover:from-slate-50 hover:to-slate-100/50 rounded-xl p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-              <div class="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wide">Total Week</div>
-              <div
-                class="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover/stat:scale-110 transition-transform duration-300">
-                36.0K</div>
-              <div class="text-xs text-slate-500 mt-1 font-medium">visitors</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bottom gradient accent -->
-        <div
-          class="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Bottom Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Customers -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Customers</h3>
-          <button class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-            <lucide-icon [img]="icons.more" class="w-5 h-5 text-slate-400"></lucide-icon>
-          </button>
-        </div>
-
-        <div class="space-y-4">
-          <div *ngFor="let stat of customerStats" class="space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-medium text-slate-600">{{ stat.label }}</span>
-              <span class="text-lg font-bold text-slate-900">{{ stat.value }}</span>
-            </div>
-            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div [class]="'h-full rounded-full transition-all duration-1000 ' + stat.barColor" [style.width]="'75%'">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Best Selling Products -->
-      <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-6 pb-4 flex items-center justify-between border-b border-slate-100">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Best Selling Products</h3>
-          <button class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-            <lucide-icon [img]="icons.more" class="w-5 h-5 text-slate-400"></lucide-icon>
-          </button>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="text-xs font-semibold text-slate-500 uppercase tracking-wide border-b border-slate-100">
-                <th class="text-left px-6 py-3">ID</th>
-                <th class="text-left px-6 py-3">Name</th>
-                <th class="text-left px-6 py-3">Sold</th>
-                <th class="text-left px-6 py-3">Revenue</th>
-                <th class="text-left px-6 py-3">Rating</th>
-              </tr>
-            </thead>
-            <tbody class="text-sm">
-              <tr *ngFor="let product of products" class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4 text-slate-500 font-medium">{{ product.id }}</td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-xl">
-                      {{ product.image }}
-                    </div>
-                    <span class="font-medium text-slate-900">{{ product.name }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4 text-slate-600">{{ product.sold }}</td>
-                <td class="px-6 py-4 font-semibold text-emerald-600">{{ product.revenue }}</td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-1">
-                    <lucide-icon [img]="icons.star" class="w-4 h-4 fill-amber-400 text-amber-400"></lucide-icon>
-                    <span class="text-slate-900 font-medium">{{ product.rating }}</span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="h-32 -mx-4 -mb-4 opacity-80">
+          <canvas #activityChart></canvas>
         </div>
       </div>
     </div>
