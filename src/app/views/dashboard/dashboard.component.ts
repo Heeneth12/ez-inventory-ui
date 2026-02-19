@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { 
-  LucideAngularModule, 
-  Eye, Users, MousePointerClick, ShoppingCart, TrendingUp, 
+import {
+  LucideAngularModule,
+  Eye, Users, MousePointerClick, ShoppingCart, TrendingUp,
   TrendingDown, MoreVertical, Download, Plus, ChevronDown,
   Star, Send, Calendar
 } from 'lucide-angular';
@@ -19,7 +19,7 @@ Chart.register(...registerables);
 export class DashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('profitChart') profitChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('activityChart') activityChartRef!: ElementRef<HTMLCanvasElement>;
-  
+
   private profitChart: Chart | null = null;
   private activityChart: Chart | null = null;
 
@@ -43,35 +43,35 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   // Top Metrics
   metrics = [
-    { 
-      label: 'Page Views', 
-      value: '16,431', 
-      change: '+15.3%', 
-      isPositive: true, 
+    {
+      label: 'Page Views',
+      value: '16,431',
+      change: '+15.3%',
+      isPositive: true,
       icon: Eye,
       comparison: 'vs 14,215 last period'
     },
-    { 
-      label: 'Visitors', 
-      value: '6,225', 
-      change: '+8.6%', 
-      isPositive: true, 
+    {
+      label: 'Visitors',
+      value: '6,225',
+      change: '+8.6%',
+      isPositive: true,
       icon: Users,
       comparison: 'vs 5,734 last period'
     },
-    { 
-      label: 'Click', 
-      value: '2,832', 
-      change: '-10.5%', 
-      isPositive: false, 
+    {
+      label: 'Click',
+      value: '2,832',
+      change: '-10.5%',
+      isPositive: false,
       icon: MousePointerClick,
       comparison: 'vs 3,167 last period'
     },
-    { 
-      label: 'Orders', 
-      value: '1,224', 
-      change: '+4.4%', 
-      isPositive: true, 
+    {
+      label: 'Orders',
+      value: '1,224',
+      change: '+4.4%',
+      isPositive: true,
       icon: ShoppingCart,
       comparison: 'vs 1,172 last period'
     }
@@ -84,49 +84,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     { label: 'Unsubscribed', value: '562', color: 'bg-orange-500', barColor: 'bg-orange-500', percentage: 15 }
   ];
 
-  // Best Selling Products
-  products = [
-    { 
-      id: '#S3009', 
-      name: 'Hybrid Active Noise Cancel...', 
-      sold: '2,516 sold', 
-      revenue: '$124,839', 
-      rating: 5.0,
-      image: '🎧'
-    },
-    { 
-      id: '#S3001', 
-      name: 'Casio G-Shock Shock Resi...', 
-      sold: '1,236 sold', 
-      revenue: '$92,562', 
-      rating: 4.8,
-      image: '⌚'
-    },
-    { 
-      id: '#S3004', 
-      name: 'SAMSUNG Galaxy S25 Ultr...', 
-      sold: '832 sold', 
-      revenue: '$74,048', 
-      rating: 4.7,
-      image: '📱'
-    },
-    { 
-      id: '#S3002', 
-      name: 'Xbox Wireless Gaming Co...', 
-      sold: '645 sold', 
-      revenue: '$62,820', 
-      rating: 4.5,
-      image: '🎮'
-    },
-    { 
-      id: '#S3002', 
-      name: 'Timex Men\'s Easy Reader ...', 
-      sold: '572 sold', 
-      revenue: '$48,724', 
-      rating: 4.5,
-      image: '⌚'
-    }
-  ];
+
 
   // Daily Activity Data with actual values
   dailyActivity = [
@@ -141,7 +99,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   maxActivity = Math.max(...this.dailyActivity.map(d => d.value));
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   ngAfterViewInit() {
     // Wait for DOM to be fully ready
@@ -231,12 +189,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         },
         scales: {
           x: {
-            grid: { 
+            grid: {
               display: false,
             },
-            ticks: { 
+            ticks: {
               color: '#94a3b8',
-              font: { 
+              font: {
                 size: 12,
               },
               padding: 8
@@ -244,13 +202,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           },
           y: {
             border: { display: false },
-            grid: { 
+            grid: {
               color: '#f1f5f9',
               drawTicks: false,
             },
-            ticks: { 
+            ticks: {
               color: '#94a3b8',
-              font: { 
+              font: {
                 size: 12,
               },
               callback: (value) => `$${Number(value) / 1000}k`,
@@ -302,7 +260,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           label: 'Activity',
           data: activityData.values,
           backgroundColor: gradient,
-          borderRadius: 12,
+          borderRadius: 4,
           borderSkipped: false,
           hoverBackgroundColor: '#2563eb',
           barThickness: 32
@@ -338,12 +296,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         },
         scales: {
           x: {
-            grid: { 
+            grid: {
               display: false,
             },
-            ticks: { 
+            ticks: {
               color: '#94a3b8',
-              font: { 
+              font: {
                 size: 12,
               },
               padding: 8
