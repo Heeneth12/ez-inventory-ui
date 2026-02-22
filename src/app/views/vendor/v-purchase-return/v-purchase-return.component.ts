@@ -95,7 +95,7 @@ export class VPurchaseReturnComponent {
     );
   }
 
-  updateStatusPurchseReturn(prId: any, status: string) {
+  updateStatusPurchseReturn(prId: any, status: ReturnStatus) {
     this.purchaseService.updatePurchaseReturnStatus(prId, status,
       (response: any) => {
         this.toastService.show('Purchase Return updated successfully', 'success');
@@ -135,8 +135,8 @@ export class VPurchaseReturnComponent {
     if (event.type === 'custom' && event.key === 'update_pr') {
 
     }
-    if(event.type === 'custom' && event.key === 'accept_pr') {
-      this.updateStatusPurchseReturn(event.row.id, 'APPROVED');
+    if (event.type === 'custom' && event.key === 'accept_pr') {
+      this.updateStatusPurchseReturn(event.row.id, ReturnStatus.ACCEPTED);
     }
 
   }
@@ -169,4 +169,13 @@ export class VPurchaseReturnComponent {
     return date.toISOString().split('T')[0];
   }
 
+}
+
+enum ReturnStatus {
+  DRAFT = 'DRAFT',
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  PENDING_APPROVAL = "PENDING_APPROVAL",
+  CANCELLED = "CANCELLED",
+  COMPLETED = "COMPLETED"
 }
