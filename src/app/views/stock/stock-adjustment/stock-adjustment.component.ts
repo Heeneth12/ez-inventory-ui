@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'; // Added TemplateRef, ViewChild
-import { StockAdjustmentDetailModel, StockAdjustmentModel } from '../models/stock-adjustment.model';
+import { StockAdjustmentDetailModel, StockAdjustmentFilter, StockAdjustmentModel } from '../models/stock-adjustment.model';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
 import { ArrowRight, Eye, FilePlusCorner, Printer, Receipt } from 'lucide-angular';
@@ -31,7 +31,7 @@ export class StockAdjustmentComponent implements OnInit {
 
   stockAdjustmentDetails: StockAdjustmentModel[] = [];
   stockAdjustmentSummary: StockAdjustmentDetailModel | null = null;
-  stockAdjustmentFilter: any = {};
+  stockAdjustmentFilter: StockAdjustmentFilter =  new StockAdjustmentFilter();
   stockAdjColumn: any = STOCK_ADJUSTMENT_COLUMNS;
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
@@ -197,7 +197,7 @@ export class StockAdjustmentComponent implements OnInit {
   }
 
   onFilterUpdate($event: Record<string, any>) {
-    this.stockAdjustmentFilter.status = $event['type'] || null;
+    this.stockAdjustmentFilter.statuses = $event['type'] || null;
     this.pagination.currentPage = 1;
     this.tableRefresh$.next();
   }

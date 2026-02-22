@@ -29,3 +29,12 @@ export class PurchaseReturnFilterModel {
     purchaseReturnStatuses?: any[];
     vendorId?: number;
 }
+
+export enum ReturnStatus {
+    DRAFT = 'DRAFT',
+    PENDING = "PENDING",
+    ACCEPTED = "ACCEPTED",
+    PENDING_APPROVAL = "PENDING_APPROVAL",
+    CANCELLED = "CANCELLED",
+    COMPLETED = "COMPLETED"
+}

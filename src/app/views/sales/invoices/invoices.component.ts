@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { InvoiceService } from './invoice.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
@@ -27,6 +27,7 @@ import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-gro
 })
 export class InvoicesComponent {
 
+  @Input() customerId?: number;
   invoicesList: InvoiceModal[] = [];
   invoicesFilter: InvoiceFilterModal = new InvoiceFilterModal();
   paymentSummary: InvoicePaymentSummaryModal[] = [];
@@ -82,6 +83,9 @@ export class InvoicesComponent {
   }
 
   ngOnInit(): void {
+    if (this.customerId) {
+      this.invoicesFilter.customerId = this.customerId;
+    }
     this.getAllInvoices();
   }
 
@@ -245,7 +249,7 @@ export class InvoicesComponent {
     {
       key: 'totalInvoices',
       label: 'Total Invoice Value',
-      value: '$45,780',              // 💰 Sum of all invoices
+      value: '$45,780',
       icon: Banknote,
       color: 'gray',
       trend: { value: '+$2,350', isUp: true }
@@ -253,7 +257,7 @@ export class InvoicesComponent {
     {
       key: 'collected',
       label: 'Collected Amount',
-      value: '$32,420',              // ✅ Amount already paid
+      value: '$32,420',
       icon: PieChart,
       color: 'gray',
       trend: { value: '+$1,120', isUp: true }
@@ -261,7 +265,7 @@ export class InvoicesComponent {
     {
       key: 'uncollected',
       label: 'Uncollected Amount',
-      value: '$13,360',              // ❌ Pending + overdue
+      value: '$13,360',
       icon: ShoppingCart,
       color: 'gray',
       trend: { value: '-$540', isUp: false }
@@ -269,7 +273,7 @@ export class InvoicesComponent {
     {
       key: 'pendingInvoices',
       label: 'Pending Invoices',
-      value: '28',                   // 🕒 Count of unpaid invoices
+      value: '28',
       icon: Users,
       color: 'gray',
       trend: { value: '+4', isUp: true }

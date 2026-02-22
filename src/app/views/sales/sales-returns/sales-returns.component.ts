@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ArrowRight } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
@@ -19,7 +19,7 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
 })
 export class SalesReturnsComponent {
 
-
+  @Input() customerId?: number;
   readonly ArrowRight = ArrowRight;
 
   salesReturns: SalesReturnModal[] = [];
@@ -50,6 +50,9 @@ export class SalesReturnsComponent {
   }
 
   ngOnInit(): void {
+    if (this.customerId) {
+      //this.salesOrderFilter.customerId = this.customerId;
+    }
     this.getAllSalesReturns();
   }
 
