@@ -7,7 +7,7 @@ import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PaginationConfig, TableColumn, TableActionConfig, HeaderAction, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
-import { PurchaseReturnModel } from '../../purchases/models/purchase-return.model';
+import { PurchaseReturnModel } from '../../purchases/models/pr.model';
 import { PurchaseService } from '../../purchases/purchase.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { PurchaseRequestFilterModel } from '../../purchases/models/prq.model';
