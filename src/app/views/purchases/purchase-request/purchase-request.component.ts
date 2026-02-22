@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
@@ -22,6 +22,8 @@ import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal
   styleUrl: './purchase-request.component.css'
 })
 export class PurchaseRequestComponent implements OnInit {
+  
+  @Input() vendorId?: number;
 
   //icons
   readonly ShoppingBag = ShoppingBag;
@@ -31,6 +33,7 @@ export class PurchaseRequestComponent implements OnInit {
   columns: TableColumn[] = PRQ_COLUMN
   prqActions: TableActionConfig[] = PRQ_ACTIONS
   dateConfig: DatePickerConfig = PRQ_DATE_CONFIG
+  filterOptions = PRQ_FILTER_OPTIONS
 
   @ViewChild('prqSummary') prqSummary!: TemplateRef<any>;
   purchaseRequestList: PurchaseRequestModel[] = [];
@@ -40,7 +43,6 @@ export class PurchaseRequestComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
-  filterOptions = PRQ_FILTER_OPTIONS
 
   constructor(
     private purchaseService: PurchaseService,
@@ -54,6 +56,9 @@ export class PurchaseRequestComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.vendorId) {
+      this.purchaseRequestfilter.vendorId = this.vendorId;
+    }
     this.getAllPRQ();
   }
 

@@ -68,7 +68,7 @@ export class UserCardComponent {
   }
 
   onViewFullProfile() {
-    this.router.navigate(['/contacts/profile', this.data.id])
+    this.router.navigate(['admin/user/profile', this.data.id])
     this.closeDropdown();
   }
 
