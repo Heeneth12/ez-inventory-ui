@@ -1,4 +1,4 @@
-import { ArrowRight, ListRestart, ListCollapse, PenLineIcon, XCircle } from "lucide-angular";
+import { ArrowRight, ListRestart, ListCollapse, PenLineIcon, XCircle, Undo2 } from "lucide-angular";
 import { TableActionConfig, TableColumn } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
@@ -35,6 +35,13 @@ export const PRQ_ACTIONS: TableActionConfig[] = [
         icon: PenLineIcon,
         color: 'primary',
         condition: (row) => row['status'] === 'PENDING'
+    },
+     {
+        key: 'return_items',
+        label: 'Return',
+        icon: Undo2,
+        color: 'danger',
+        condition: (row) => row['status'] === 'ACCEPTED'
     },
     {
         key: 'delete_prq',

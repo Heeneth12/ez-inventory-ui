@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { PurchaseService } from '../purchase.service';
@@ -24,6 +24,8 @@ import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdow
   styleUrl: './purchase-order.component.css'
 })
 export class PurchaseOrderComponent {
+
+  @Input() vendorId?: number;
 
   //config
   columns: TableColumn[] = PO_COLUMN
@@ -96,6 +98,9 @@ export class PurchaseOrderComponent {
   }
 
   ngOnInit(): void {
+    if (this.vendorId) {
+      this.purchaseOrderFilter.vendorId = this.vendorId;
+    }
     this.getAllPo();
   }
 
@@ -244,7 +249,7 @@ export class PurchaseOrderComponent {
 
   onFilterUpdate($event: Record<string, any>) {
     console.log("Received filter update:", $event);
-    this.purchaseOrderFilter.status = $event['status'] || null;
+    this.purchaseOrderFilter.poStatuses = $event['status'] || null;
     this.getAllPo();
   }
 

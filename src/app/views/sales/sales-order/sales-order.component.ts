@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +25,7 @@ import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-gro
 })
 export class SalesOrderComponent implements OnInit {
 
+  @Input() customerId?: number;
   @ViewChild('soDetails') soDetails!: TemplateRef<any>;
   readonly ArrowRight = ArrowRight;
   salesOrders: SalesOrderModal[] = [];
@@ -98,6 +99,9 @@ export class SalesOrderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if(this.customerId){
+      this.salesOrderFilter.customerId = this.customerId;
+    }
     this.getAllSalesOrders();
   }
 

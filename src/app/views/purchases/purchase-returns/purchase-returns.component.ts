@@ -1,17 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PurchaseService } from '../purchase.service';
-import { PurchaseReturnModel } from '../models/purchase-return.model';
+import { PurchaseReturnModel, ReturnStatus } from '../models/purchase-return.model';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
-import { ArrowRight, FilePlusCorner } from 'lucide-angular';
+import { FilePlusCorner } from 'lucide-angular';
 import { PR_COLUMN, PR_DATE_CONFIG, PRQ_ACTIONS, PRQ_FILTER_OPTIONS } from '../purchasesConfig';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
+import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-purchase-returns',
@@ -21,6 +22,8 @@ import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdow
   styleUrl: './purchase-returns.component.css'
 })
 export class PurchaseReturnsComponent implements OnInit {
+  
+  @Input() vendorId?: number;
 
   purchaseReturnList: PurchaseReturnModel[] = [];
   purchaseReturnFilter: any = {};
@@ -49,12 +52,16 @@ export class PurchaseReturnsComponent implements OnInit {
     private router: Router,
     private modalService: ModalService,
     private toastService: ToastService,
+    private confirmationModalSvc: ConfirmationModalService,
     private loaderSvc: LoaderService
   ) {
   }
 
 
   ngOnInit(): void {
+    if (this.vendorId) {
+      this.purchaseReturnFilter.vendorId = this.vendorId;
+    }
     this.getPurchaseReturns();
   }
 
@@ -82,6 +89,37 @@ export class PurchaseReturnsComponent implements OnInit {
     );
   }
 
+  confirmAndProcessReturn(prId: any) {
+    this.confirmationModalSvc.open({
+      title: `Confirm Purchase Return`,
+      message: `
+      Warning: This action is irreversible. 
+      Once the vendor accepts, items will be permanently removed from stock. 
+      Do you wish to proceed?`,
+      intent: 'danger',
+      confirmLabel: 'Yes, Return Items',
+      cancelLabel: 'No, Keep Stock'
+    }).then((confirmed: any) => {
+      if (confirmed) {
+        this.executeReturnStatusUpdate(prId, ReturnStatus.COMPLETED);
+      }
+    });
+  }
+
+  private executeReturnStatusUpdate(prId: any, status: ReturnStatus) {
+    this.purchaseService.updatePurchaseReturnStatus(
+      prId,
+      status,
+      (response: any) => {
+        this.toastService.show('Stock updated and items returned successfully', 'success');
+        this.getPurchaseReturns();
+      },
+      (error: any) => {
+        this.toastService.show('Failed to process return', 'error');
+        console.error('Error updating Purchase Return:', error);
+      }
+    );
+  }
 
   onSelectionChange(selectedIds: (string | number)[]) {
     this.selectedItemIds = selectedIds;
@@ -108,6 +146,9 @@ export class PurchaseReturnsComponent implements OnInit {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'update_pr') {
+    }
+    if (event.type === 'custom' && event.key === 'return_items') {
+      this.confirmAndProcessReturn(event.row.id);
     }
   }
 

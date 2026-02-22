@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
@@ -22,6 +22,7 @@ import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-gro
 })
 export class PaymentsComponent {
 
+  @Input() customerId?: number;
   paymentList: PaymentModal[] = [];
   paymentDetails: PaymentModal | null = null;
 
@@ -53,6 +54,9 @@ export class PaymentsComponent {
   }
 
   ngOnInit(): void {
+    if(this.customerId){
+      //this.salesOrderFilter.customerId = this.customerId;
+    }
     this.getAllPayments();
   }
 

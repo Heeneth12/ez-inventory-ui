@@ -39,7 +39,7 @@ export const UserManagementRoutes: Routes = [
         path: 'user',
         children: [
             { path: 'calendar', component: CalendarComponent },
-            { path:'profile', component: UserProfileComponent },
+            { path:'profile/:id', component: UserProfileComponent },
         ]
     },
 ];

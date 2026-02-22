@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'; // Added TemplateRef, ViewChild
-import { StockAdjustmentDetailModel, StockAdjustmentModel } from '../models/stock-adjustment.model';
+import { StockAdjustmentDetailModel, StockAdjustmentFilter, StockAdjustmentModel } from '../models/stock-adjustment.model';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
 import { ArrowRight, Eye, FilePlusCorner, Printer, Receipt } from 'lucide-angular';
@@ -12,6 +12,8 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
 import { StockService } from '../stock.service';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
+import { Subject } from 'rxjs/internal/Subject';
+import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-stock-adjustment',
@@ -22,12 +24,14 @@ import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdow
 })
 export class StockAdjustmentComponent implements OnInit {
 
+  private tableRefresh$ = new Subject<void>();
+
   // Get reference to the HTML template
   @ViewChild('stockAdjestemnt') stockAdjTemplate!: TemplateRef<any>;
 
   stockAdjustmentDetails: StockAdjustmentModel[] = [];
   stockAdjustmentSummary: StockAdjustmentDetailModel | null = null;
-  stockAdjustmentFilter: any = {};
+  stockAdjustmentFilter: StockAdjustmentFilter =  new StockAdjustmentFilter();
   stockAdjColumn: any = STOCK_ADJUSTMENT_COLUMNS;
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
@@ -82,7 +86,16 @@ export class StockAdjustmentComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.getAllSalesAdjustments();
+    this.setupTablePipeline();
+    this.tableRefresh$.next();
+  }
+
+  private setupTablePipeline() {
+    this.tableRefresh$.pipe(
+      debounceTime(400)
+    ).subscribe(() => {
+      this.getAllSalesAdjustments();
+    });
   }
 
   getAllSalesAdjustments() {
@@ -95,7 +108,7 @@ export class StockAdjustmentComponent implements OnInit {
       (response: any) => {
         this.stockAdjustmentDetails = response.data.content;
         this.pagination = {
-          currentPage: this.pagination.currentPage,
+          ...this.pagination, // Keep current state
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
@@ -168,28 +181,25 @@ export class StockAdjustmentComponent implements OnInit {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getAllSalesAdjustments();
+    this.tableRefresh$.next();
   }
 
   onLoadMore() {
     console.log('Load more triggered');
+    this.tableRefresh$.next();
   }
 
   onFilterDate(range: DateRangeEmit) {
-    console.log('Filter table by:', range.from, range.to);
-    this.stockAdjustmentFilter.fromDate = range.from
-      ? this.formatDate(range.from)
-      : null;
-
-    this.stockAdjustmentFilter.toDate = range.to
-      ? this.formatDate(range.to)
-      : null;
+    this.stockAdjustmentFilter.fromDate = range.from ? this.formatDate(range.from) : null;
+    this.stockAdjustmentFilter.toDate = range.to ? this.formatDate(range.to) : null;
+    this.pagination.currentPage = 1;
+    this.tableRefresh$.next();
   }
 
-onFilterUpdate($event: Record<string, any>) {
-    console.log("Received filter update:", $event);
-    this.stockAdjustmentFilter.status = $event['type'] || null;
-    this.getAllSalesAdjustments();
+  onFilterUpdate($event: Record<string, any>) {
+    this.stockAdjustmentFilter.statuses = $event['type'] || null;
+    this.pagination.currentPage = 1;
+    this.tableRefresh$.next();
   }
 
   private formatDate(date: Date): string {

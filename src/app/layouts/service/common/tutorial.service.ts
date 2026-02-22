@@ -1,35 +1,39 @@
 import { Injectable } from '@angular/core';
-import { driver, Driver, Config } from 'driver.js';
+import { driver, Driver, Config, DriveStep } from 'driver.js';
 import 'driver.js/dist/driver.css';
+type ModuleKey = 'items' | 'general';
 
 @Injectable({
     providedIn: 'root'
 })
 export class TutorialService {
-    private driverObj: Driver;
+    private driverObj?: Driver;
 
-    constructor() {
-        // Initialize the driver with the configuration below
-        this.driverObj = driver(tourConfig);
-    }
+    constructor() { }
 
-    startTour() {
-        
+    startTour(moduleKey: ModuleKey = 'general') {
+
+        if (this.driverObj) {
+            this.driverObj.destroy();
+        }
+
+        this.driverObj = driver({
+            showProgress: true,
+            animate: true,
+            popoverClass: 'driverjs-theme',
+            steps: MODULE_STEPS[moduleKey] || MODULE_STEPS['general']
+        });
+
         this.driverObj.drive();
     }
 
     closeTour() {
-        if (this.driverObj) {
-            this.driverObj.destroy();
-        }
+        this.driverObj?.destroy();
     }
 }
 
-const tourConfig: Config = {
-    showProgress: true,
-    animate: true,
-    popoverClass: 'driverjs-theme',
-    steps: [
+const MODULE_STEPS: Record<string, DriveStep[]> = {
+    'general': [
         {
             element: '#app-sidebar',
             popover: {
@@ -51,6 +55,14 @@ const tourConfig: Config = {
             element: '#quick-create-btn',
             popover: {
                 title: 'Quick Actions',
+                description: 'Need to create an invoice fast? Click this bolt icon for instant access to common tasks.',
+                side: 'left'
+            }
+        },
+        {
+            element: '#help-center-btn',
+            popover: {
+                title: 'Help Center',
                 description: 'Need to create an invoice fast? Click this bolt icon for instant access to common tasks.',
                 side: 'left'
             }
@@ -79,5 +91,32 @@ const tourConfig: Config = {
                 side: 'right'
             }
         },
-    ]
+    ],
+    
+    'items': [
+        {
+            element: '#menu-item-1',
+            popover: {
+                title: 'Item Catalog',
+                description: 'This is where you manage your products and services.',
+                side: 'right'
+            }
+        },
+        {
+            element: '#add-item-btn',
+            popover: {
+                title: 'Add New Product',
+                description: 'Click here to define a new SKU or service in your inventory.',
+                side: 'left'
+            }
+        },
+        {
+            element: '#inventory-table',
+            popover: {
+                title: 'Stock Overview',
+                description: 'Monitor real-time stock levels and warehouse locations.',
+                side: 'top'
+            }
+        }
+    ],
 };

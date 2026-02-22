@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Route, Router, RouterModule } from "@angular/router";
 import { DrawerComponent } from "../drawer/drawer.component";
-import { ToastComponent } from "../toast/toast.component";
 import { ModalComponent } from "../modal/modal.component";
 import { DrawerService } from '../drawer/drawerService';
 import { UserComponent } from '../user/user.component';
@@ -36,21 +35,24 @@ import {
   MessageSquare,
   MessageSquareText,
   X,
-  UserPlusIcon
+  BookOpen,
+  HelpCircle,
+  LifeBuoy,
+  Headset,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
-import { McpChatBotComponent } from "../mcp-chat-bot/mcp-chat-bot.component";
 import { TutorialService } from '../../service/common/tutorial.service';
 import { PromoModalComponent } from "../promo-modal/promo-modal.component";
 import { ModalService } from '../modal/modalService';
 import { NotificationsComponent } from '../notifications/notifications.component';
 import { NotificationService } from '../notifications/notification.service';
+import { DropdownMenuItem, CustomDropdownComponent } from '../../UI/custom-dropdown/custom-dropdown.component';
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, DrawerComponent, ToastComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, McpChatBotComponent, PromoModalComponent, NotificationsComponent],
+  imports: [CommonModule, RouterModule, DrawerComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, NotificationsComponent, CustomDropdownComponent],
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css'
 })
@@ -78,26 +80,67 @@ export class InventoryLayoutComponent implements OnInit {
   readonly Settings = SettingsIcon;
   readonly MessageSquareText = MessageSquareText;
   readonly XIcon = X;
+  readonly plusIcon = Plus;
+  readonly helpIcon = HelpCircle;
 
   isQuickCreateOpen = false;
-  quickCreateItems = [
+
+  quickCreateItems: DropdownMenuItem[] = [
+  {
+    label: 'New Invoice',
+    subLabel: 'Generate customer billing',
+    icon: FileText,
+    // Formal Navy/Slate: Trustworthy and standard for finance
+    iconBgClass: 'bg-slate-100', 
+    colorClass: 'text-slate-700',
+    action: () => this.router.navigate(['sales/invoice/create'])
+  },
+  {
+    label: 'Sales Order',
+    subLabel: 'Create a new customer order',
+    icon: ShoppingCart,
+    // Deep Indigo: Modern SaaS standard for primary actions
+    iconBgClass: 'bg-indigo-50',
+    colorClass: 'text-indigo-700',
+    action: () => this.router.navigate(['sales/order/create'])
+  },
+  {
+    label: 'Record Payment',
+    subLabel: 'Log a received payment',
+    icon: CreditCard,
+    // Muted Teal: Professional for money-related success actions
+    iconBgClass: 'bg-teal-50',
+    colorClass: 'text-teal-700',
+    action: () => this.router.navigate(['sales/payments/record'])
+  }
+];
+
+
+  helpCenterItems: DropdownMenuItem[] = [
     {
-      label: 'New Invoice',
-      icon: FileText,
-      action: () => {
-        this.router.navigate(['sales/invoice/create']);
-        this.isQuickCreateOpen = false;
-      }
+      label: 'Knowledge Base',
+      subLabel: 'Guides for EZH Inventory',
+      icon: BookOpen,
+      iconBgClass: 'bg-slate-50',
+      colorClass: 'text-slate-600',
+      action: () => window.open('https://docs.ezh.com', '_blank')
     },
     {
-      label: 'Sales Order',
-      icon: ShoppingCart,
-      action: () => this.router.navigate(['sales/ invoice/create'])
+      label: 'Contact Support',
+      subLabel: 'Open a manual ticket',
+      icon: MessageSquare,
+      iconBgClass: 'bg-slate-50',
+      colorClass: 'text-slate-600',
+      action: () => console.log("h")
     },
     {
-      label: 'Record Payment',
-      icon: CreditCard,
-      action: () => this.router.navigate(['sales/invoice/create'])
+      label: 'Page Tours',
+      subLabel: 'Module guide acts as a roadmap',
+      icon: Headset,
+      iconBgClass: 'bg-slate-50',
+      colorClass: 'text-slate-600',
+      routerLink: '/system-status'
+      
     }
   ];
 
@@ -214,7 +257,7 @@ export class InventoryLayoutComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private tutorialService: TutorialService,
-    private notificationSvc:NotificationService
+    private notificationSvc: NotificationService
   ) { }
 
   ngOnInit() {
@@ -300,7 +343,7 @@ export class InventoryLayoutComponent implements OnInit {
     }
   }
 
-  openUserCalendar(){
+  openUserCalendar() {
     this.router.navigate(['/admin/user/calendar']);
   }
 

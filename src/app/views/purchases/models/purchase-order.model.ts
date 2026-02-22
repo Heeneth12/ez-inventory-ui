@@ -25,7 +25,7 @@ export class PurchaseOrderFilter {
     vendorId?: number;
     warehouseId?: number;
     searchQuery?: string;
-    status?: PurchaseOrderStatus;
+    poStatuses?: PurchaseOrderStatus[];
     fromDate?: Date | string | null;
     toDate?: Date | string | null;
 }

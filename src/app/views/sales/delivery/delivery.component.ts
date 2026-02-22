@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { DeliveryFilterModel, DeliveryModel, RouteCreateRequest, ShipmentStatus } from './delivery.model';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
@@ -21,6 +21,7 @@ import { StatCardData, StatCardComponent } from '../../../layouts/UI/stat-card/s
 })
 export class DeliveryComponent implements OnInit {
 
+  @Input() customerId?: number;
   deliveryDetails: DeliveryModel[] = [];
   deliveryFilter: DeliveryFilterModel = new DeliveryFilterModel();
 
@@ -69,6 +70,9 @@ export class DeliveryComponent implements OnInit {
   ) {
   }
   ngOnInit(): void {
+    if(this.customerId){
+      //this.salesOrderFilter.customerId = this.customerId;
+    }
     this.getAllDeliveries();
     this.getSummaryStats(); 
   }

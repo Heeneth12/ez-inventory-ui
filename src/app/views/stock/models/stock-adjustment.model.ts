@@ -30,6 +30,7 @@ export interface StockAdjustmentModel {
 }
 
 
+
 export enum AdjustmentType {
     DAMAGE = 'DAMAGE',
     EXPIRED = 'EXPIRED',
@@ -44,4 +45,13 @@ export enum AdjustmentStatus {
     CANCELLED = 'CANCELLED',
     REJECTED = 'REJECTED',
     PENDING_APPROVAL = 'PENDING_APPROVAL'
+}
+export class StockAdjustmentFilter {
+    id?: number;
+    itemId?: number;
+    searchQuery?: string;
+    statuses?: string[];
+    warehouseId?: number;
+    fromDate?: string | null;
+    toDate?: string | null;
 }

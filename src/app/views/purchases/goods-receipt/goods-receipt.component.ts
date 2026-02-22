@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component'; // Adjust path
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model'; // Adjust path
@@ -21,6 +21,8 @@ import { GRN_COLUMN, GRN_DATE_CONFIG } from '../purchasesConfig';
   styleUrl: './goods-receipt.component.css'
 })
 export class GoodsReceiptComponent implements OnInit {
+
+  @Input() vendorId?: number;
 
   @ViewChild('grnSummary') grnSummary!: TemplateRef<any>;
 
@@ -71,6 +73,9 @@ export class GoodsReceiptComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    if (this.vendorId) {
+      this.grnFilter.vendorId = this.vendorId;
+    }
     this.getAllGrn();
   }
 
@@ -89,6 +94,7 @@ export class GoodsReceiptComponent implements OnInit {
         });
         this.pagination = {
           currentPage: this.pagination.currentPage,
+
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
