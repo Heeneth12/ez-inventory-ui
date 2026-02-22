@@ -127,9 +127,13 @@ export const PO_FILTER_OPTIONS: FilterOption[] = [
         type: 'checkbox',
         searchable: true,
         options: [
+            { label: 'DRAFT', value: 'DRAFT' },
+            { label: 'ISSUED', value: 'ISSUED'},
+            { label: 'PARTIALLY_RECEIVED', value: 'PARTIALLY_RECEIVED'},
+            { label: 'COMPLETED', value: 'COMPLETED'},
             { label: 'PENDING', value: 'PENDING' },
-            { label: 'APPROVED', value: 'APPROVED' },
-            { label: 'REJECTED', value: 'REJECTED' }
+            { label: 'ASN_CONFIRMED', value: 'ASN_CONFIRMED'},
+            { label: 'ASN_PENDING', value: 'ASN_PENDING'}
         ]
     }
 ];

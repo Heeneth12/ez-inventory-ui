@@ -1,3 +1,4 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
 import { UserMiniModel } from "../../user-management/models/user.model";
 
 export interface PurchaseOrderItemModel {
@@ -20,14 +21,9 @@ export interface PurchaseOrderModel {
     vendorDetails: UserMiniModel;
     items: PurchaseOrderItemModel[];
 }
-export class PurchaseOrderFilter {
-    id?: number;
+export class PurchaseOrderFilter extends CommonFilterModel {
     vendorId?: number;
-    warehouseId?: number;
-    searchQuery?: string;
     poStatuses?: PurchaseOrderStatus[];
-    fromDate?: Date | string | null;
-    toDate?: Date | string | null;
 }
 
 export enum PurchaseOrderStatus {
@@ -35,5 +31,8 @@ export enum PurchaseOrderStatus {
     ISSUED = 'ISSUED',
     PARTIALLY_RECEIVED = 'PARTIALLY_RECEIVED',
     COMPLETED = 'COMPLETED',
-    CANCELLED = 'CANCELLED'
+    CANCELLED = 'CANCELLED',
+    PENDING = 'PENDING',
+    ASN_CONFIRMED = 'ASN_CONFIRMED',
+    ASN_PENDING = 'ASN_PENDING'
 }

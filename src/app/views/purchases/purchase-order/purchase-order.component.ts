@@ -6,7 +6,7 @@ import { PurchaseService } from '../purchase.service';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
-import { PurchaseOrderFilter, PurchaseOrderModel } from '../models/purchase-order.model';
+import { PurchaseOrderFilter, PurchaseOrderModel } from '../models/po.model';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { GoodsReceiptFormComponent } from '../goods-receipt/goods-receipt-form/goods-receipt-form.component';
@@ -14,7 +14,6 @@ import { ArrowRight, ClipboardList, Download, PenIcon, ShareIcon, X } from 'luci
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { ButtonConfig, ButtonGroupComponent } from '../../../layouts/UI/button-group/button-group.component';
 import { PO_ACTIONS, PO_COLUMN, PO_DATE_CONFIG, PO_FILTER_OPTIONS } from '../purchasesConfig';
-import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 
 @Component({
   selector: 'app-purchase-order',
