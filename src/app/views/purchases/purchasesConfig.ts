@@ -6,7 +6,7 @@ import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.c
 //PRQ
 export const PRQ_COLUMN: TableColumn[] = [
     { key: 'vendorDetails', label: 'Vendor', width: '100px', type: 'fullProfile' },
-    { key: 'prqNumber', label: 'PRQ Number', width: '100px', type: 'link', align:'left' },
+    { key: 'prqNumber', label: 'PRQ Number', width: '100px', type: 'link', align: 'left' },
     { key: 'source', label: 'Source', width: '100px', type: 'badge' },
     { key: 'createdAt', label: 'Order Date', width: '110px', type: 'date' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
@@ -36,7 +36,7 @@ export const PRQ_ACTIONS: TableActionConfig[] = [
         color: 'primary',
         condition: (row) => row['status'] === 'PENDING'
     },
-     {
+    {
         key: 'return_items',
         label: 'Return',
         icon: Undo2,
@@ -66,7 +66,8 @@ export const PRQ_FILTER_OPTIONS: FilterOption[] = [
         options: [
             { label: 'PENDING', value: 'PENDING' },
             { label: 'APPROVED', value: 'APPROVED' },
-            { label: 'REJECTED', value: 'REJECTED' }
+            { label: 'REJECTED', value: 'REJECTED' },
+            { label: 'CONVERTED', value: 'CONVERTED' }
         ]
     }
 ];
@@ -126,9 +127,13 @@ export const PO_FILTER_OPTIONS: FilterOption[] = [
         type: 'checkbox',
         searchable: true,
         options: [
+            { label: 'DRAFT', value: 'DRAFT' },
+            { label: 'ISSUED', value: 'ISSUED' },
+            { label: 'PARTIALLY_RECEIVED', value: 'PARTIALLY_RECEIVED' },
+            { label: 'COMPLETED', value: 'COMPLETED' },
             { label: 'PENDING', value: 'PENDING' },
-            { label: 'APPROVED', value: 'APPROVED' },
-            { label: 'REJECTED', value: 'REJECTED' }
+            { label: 'ASN_CONFIRMED', value: 'ASN_CONFIRMED' },
+            { label: 'ASN_PENDING', value: 'ASN_PENDING' }
         ]
     }
 ];
@@ -151,7 +156,21 @@ export const GRN_DATE_CONFIG: DatePickerConfig = {
     placeholder: 'Start - End'
 };
 
-export const GRN_FILTER_OPTIONS: FilterOption[] = [];
+export const GRN_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'DRAFT', value: 'DRAFT' },
+            { label: 'PARTIALLY_RETURNED', value: 'PARTIALLY_RETURNED' },
+            { label: 'PENDING_QA', value: 'PENDING_QA' },
+            { label: 'RECEIVED', value: 'RECEIVED' },
+            { label: 'CANCELLED', value: 'CANCELLED' },
+        ]
+    }
+];
 
 //PR
 export const PR_COLUMN: TableColumn[] = [
@@ -192,9 +211,12 @@ export const PR_FILTER_OPTIONS: FilterOption[] = [
         type: 'checkbox',
         searchable: true,
         options: [
+            { label: 'DRAFT', value: 'DRAFT' },
             { label: 'PENDING', value: 'PENDING' },
+            { label: 'COMPLETED', value: 'COMPLETED' },
             { label: 'APPROVED', value: 'APPROVED' },
-            { label: 'REJECTED', value: 'REJECTED' }
+            { label: 'PENDING_APPROVAL', value: 'PENDING_APPROVAL' },
+            { label: 'CANCELLED', value: 'CANCELLED' }
         ]
     }
 ];

@@ -5,14 +5,12 @@ import { Search, ShoppingBag, XIcon, Check, ChevronRight, SaveIcon, Eye, Mail, F
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
-import { ContactModel } from '../../../contacts/contacts.model';
 import { ContactService } from '../../../contacts/contacts.service';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { PurchaseService } from '../../purchase.service';
 import { CommonModule } from '@angular/common';
 import { InvoiceHeaderComponent } from '../../../../layouts/components/invoice-header/invoice-header.component';
-import { PrqStatus } from '../../models/prq.model';
 import { UserModel } from '../../../user-management/models/user.model';
 import { UserManagementService } from '../../../user-management/userManagement.service';
 

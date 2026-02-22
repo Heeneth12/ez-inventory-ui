@@ -6,7 +6,7 @@ import { ModalService } from '../../../layouts/components/modal/modalService';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { PurchaseService } from '../purchase.service';
-import { PurchaseReturnModel, ReturnStatus } from '../models/purchase-return.model';
+import { PurchaseReturnFilterModel, PurchaseReturnModel, ReturnStatus } from '../models/pr.model';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { FilePlusCorner } from 'lucide-angular';
@@ -22,11 +22,11 @@ import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal
   styleUrl: './purchase-returns.component.css'
 })
 export class PurchaseReturnsComponent implements OnInit {
-  
+
   @Input() vendorId?: number;
 
   purchaseReturnList: PurchaseReturnModel[] = [];
-  purchaseReturnFilter: any = {};
+  purchaseReturnFilter: PurchaseReturnFilterModel = new PurchaseReturnFilterModel();
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
@@ -154,7 +154,7 @@ export class PurchaseReturnsComponent implements OnInit {
 
   onFilterUpdate($event: Record<string, any>) {
     console.log("Received filter update:", $event);
-    this.purchaseReturnFilter.approvalStatuses = $event['status'] || null;
+    this.purchaseReturnFilter.prStatuses = $event['status'] || null;
     this.getPurchaseReturns();
   }
 

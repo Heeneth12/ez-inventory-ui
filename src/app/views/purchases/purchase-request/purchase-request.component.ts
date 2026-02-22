@@ -22,7 +22,7 @@ import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal
   styleUrl: './purchase-request.component.css'
 })
 export class PurchaseRequestComponent implements OnInit {
-  
+
   @Input() vendorId?: number;
 
   //icons
@@ -177,6 +177,7 @@ export class PurchaseRequestComponent implements OnInit {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
+    this.getAllPRQ();
   }
 
   onLoadMore() {
@@ -195,7 +196,7 @@ export class PurchaseRequestComponent implements OnInit {
 
   onFilterUpdate($event: Record<string, any>) {
     console.log("Received filter update:", $event);
-    this.purchaseRequestfilter.status = $event['status'] || null;
+    this.purchaseRequestfilter.prqStatuses = $event['status'] || null;
     this.getAllPRQ();
   }
 

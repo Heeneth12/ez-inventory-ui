@@ -1,12 +1,5 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
 import { UserMiniModel } from "../../user-management/models/user.model";
-
-export enum PrqStatus {
-    PENDING = 'PENDING',
-    APPROVED = 'APPROVED',
-    REJECTED = 'REJECTED',
-    CONVERTED = 'CONVERTED'
-}
-
 
 export interface PurchaseRequestItemModel {
     id?: number;
@@ -33,12 +26,14 @@ export interface PurchaseRequestModel {
     items: PurchaseRequestItemModel[];
 }
 
-export class PurchaseRequestFilterModel {
-    id?: number;
+export class PurchaseRequestFilterModel extends CommonFilterModel {
     vendorId?: number;
-    searchQuery?: string
-    status?: PrqStatus;
-    warehouseId?: number;
-    fromDate?: string | null;
-    toDate?: string | null;
+    prqStatuses?: PrqStatus[];
+}
+
+export enum PrqStatus {
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    REJECTED = 'REJECTED',
+    CONVERTED = 'CONVERTED'
 }

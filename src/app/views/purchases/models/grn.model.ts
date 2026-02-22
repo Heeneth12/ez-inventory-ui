@@ -1,3 +1,4 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
 import { UserMiniModel } from "../../user-management/models/user.model";
 
 export interface GrnItemModel {
@@ -21,4 +22,16 @@ export interface GrnModel {
     items: GrnItemModel[];
     vendorDetails: UserMiniModel;
     createdAt: Date;
+}
+
+export class GrnFilterModel extends CommonFilterModel {
+    vendorId?: number;
+    grnStatuses?: GrnStatus[];
+}
+
+export enum GrnStatus {
+    DRAFT = 'DRAFT',
+    PENDING_QA = 'PENDING_QA',
+    RECEIVED = 'RECEIVED',
+    CANCELLED = 'CANCELLED'
 }
