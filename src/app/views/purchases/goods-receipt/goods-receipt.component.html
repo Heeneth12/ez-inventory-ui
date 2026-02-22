@@ -3,6 +3,7 @@
     <app-standard-table [title]="'Goods Receipt Notes'" [columns]="columns" [data]="grnList" [pagination]="pagination"
       [isServerSide]="true" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
       [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)"
+       [filterConfig]="filterOptions" (filterChanged)="onFilterUpdate($event)"
       (action)="onTableAction($event)" [customActions]="prActions" (action)="handleTableAction($event)">
     </app-standard-table>
   </div>

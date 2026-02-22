@@ -4,7 +4,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { PurchaseService } from '../../purchase.service';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
-import { PurchaseOrderModel } from '../../models/purchase-order.model';
+import { PurchaseOrderModel } from '../../models/po.model';
 import { ModalService } from '../../../../layouts/components/modal/modalService';
 
 @Component({

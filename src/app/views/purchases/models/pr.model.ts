@@ -1,3 +1,4 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
 import { UserMiniModel } from "../../user-management/models/user.model";
 
 export interface PurchaseReturnItemModel {
@@ -19,14 +20,8 @@ export interface PurchaseReturnModel {
     items: PurchaseReturnItemModel[];
 }
 
-export class PurchaseReturnFilterModel {
-    id!: number;
-    searchQuery!: string;
-    statuses?: string[];
-    warehouseId?: number;
-    fromDate?: string;
-    toDate?: string;
-    purchaseReturnStatuses?: any[];
+export class PurchaseReturnFilterModel extends CommonFilterModel {
+    prStatuses?: ReturnStatus[];
     vendorId?: number;
 }
 

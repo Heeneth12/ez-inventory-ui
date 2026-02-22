@@ -1,17 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component'; // Adjust path
-import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model'; // Adjust path
+import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component';
+import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PurchaseService } from '../purchase.service';
-import { GrnModel } from '../models/grn.model';
+import { GrnFilterModel, GrnModel } from '../models/grn.model';
 import { PurchaseReturnFormComponent } from '../purchase-returns/purchase-return-form/purchase-return-form.component';
 import { ArrowRight } from 'lucide-angular';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
-import { GRN_COLUMN, GRN_DATE_CONFIG } from '../purchasesConfig';
+import { GRN_COLUMN, GRN_DATE_CONFIG, GRN_FILTER_OPTIONS } from '../purchasesConfig';
 
 @Component({
   selector: 'app-goods-receipt',
@@ -27,8 +27,9 @@ export class GoodsReceiptComponent implements OnInit {
   @ViewChild('grnSummary') grnSummary!: TemplateRef<any>;
 
   grnList: GrnModel[] = [];
-  grnFilter: any = {};
   selectedGrn: GrnModel | null = null;
+  grnFilter: GrnFilterModel = new GrnFilterModel();
+  filterOptions = GRN_FILTER_OPTIONS;
   readonly ArrowRight = ArrowRight;
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
 
@@ -85,6 +86,7 @@ export class GoodsReceiptComponent implements OnInit {
     this.purchaseService.getAllGrn(
       apiPage,
       this.pagination.pageSize,
+      this.grnFilter,
       (response: any) => {
         this.grnList = response.data.content.map((grn: GrnModel) => {
           return {
@@ -171,7 +173,6 @@ export class GoodsReceiptComponent implements OnInit {
   }
 
   onFilterDate(range: DateRangeEmit) {
-    console.log('Filter table by:', range.from, range.to);
     this.grnFilter.fromDate = range.from
       ? this.formatDate(range.from)
       : null;
@@ -185,6 +186,12 @@ export class GoodsReceiptComponent implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
+  
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.grnFilter.grnStatuses = $event['status'] || null;
+    this.getAllGrn();
+  }
 
   getStatusColor(status: string | undefined): string {
     if (!status) return 'bg-gray-100 text-gray-600';
