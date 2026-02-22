@@ -9,7 +9,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { ButtonConfig, ButtonGroupComponent } from '../../../layouts/UI/button-group/button-group.component';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { GoodsReceiptFormComponent } from '../../purchases/goods-receipt/goods-receipt-form/goods-receipt-form.component';
-import { PurchaseOrderFilter, PurchaseOrderModel } from '../../purchases/models/purchase-order.model';
+import { PurchaseOrderFilter, PurchaseOrderModel } from '../../purchases/models/po.model';
 import { PurchaseService } from '../../purchases/purchase.service';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';
@@ -237,7 +237,7 @@ export class AsnComponent {
 
   onFilterUpdate($event: Record<string, any>) {
     console.log("Received filter update:", $event);
-    this.purchaseOrderFilter.status = $event['status'] || null;
+    this.purchaseOrderFilter.poStatuses = $event['status'] || null;
     this.getAllPo();
   }
 
