@@ -87,10 +87,12 @@ export class UserFormComponent implements OnInit {
 
     this.loadDependencies();
 
-    // Listen to userType changes to auto-select ADMIN for vendors
+    // Listen to userType changes to auto-manage roles for vendors/customers
     this.userForm.get('userType')?.valueChanges.subscribe(userType => {
       if (userType === 'VENDOR') {
         this.autoSelectAdminRole();
+      } else if (userType === 'CUSTOMER') {
+        this.autoSelectCustomerRole();
       }
     });
   }
@@ -365,6 +367,22 @@ export class UserFormComponent implements OnInit {
     const userType = this.userForm.get('userType')?.value;
     if (userType === 'VENDOR') {
       this.autoSelectAdminRole();
+    } else if (userType === 'CUSTOMER') {
+      this.autoSelectCustomerRole();
+    }
+  }
+
+  private autoSelectCustomerRole() {
+    // Try to find a CUSTOMER role from loaded roles
+    const customerRole = this.roles.find(
+      r =>
+        r.roleKey?.toUpperCase() === 'CUSTOMER' ||
+        r.roleName?.toUpperCase().includes('CUSTOMER')
+    );
+
+    if (customerRole) {
+      this.selectedRoleIds.clear();
+      this.selectedRoleIds.add(customerRole.id);
     }
   }
 
