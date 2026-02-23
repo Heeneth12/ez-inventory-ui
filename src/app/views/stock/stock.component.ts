@@ -11,6 +11,7 @@ import { AlertCircle, CloudDownloadIcon, List, Package, TrendingUp, Zap, LucideA
 import { STOCK_COLUMNS } from '../../layouts/config/tableConfig';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
+import { LoaderService } from '../../layouts/components/loader/loaderService';
 
 @Component({
   selector: 'app-stock',
@@ -50,7 +51,7 @@ export class StockComponent implements OnInit {
       key: 'bulk_download',
       action: () => this.downloadCurrentStockReport()
     },
-     {
+    {
       label: 'Warehouse',
       icon: Building2,
       variant: 'outline',
@@ -73,7 +74,8 @@ export class StockComponent implements OnInit {
     private stockService: StockService,
     private router: Router,
     public drawerSvc: DrawerService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private loaderSvc: LoaderService
   ) { }
 
   ngOnInit(): void {
@@ -131,11 +133,14 @@ export class StockComponent implements OnInit {
   }
 
   getCurrentStock() {
+    this.loaderSvc.show();
     this.stockService.getCurrentStock(this.page, this.size, {},
       (response: any) => {
         this.stockList = response.data.content;
+        this.loaderSvc.hide();
       }, (error: any) => {
         this.toastService.show('Error fetching stock data', 'error');
+        this.loaderSvc.hide();
       }
     );
   }
@@ -227,7 +232,6 @@ export class StockComponent implements OnInit {
   }
 
   onPageChange(page: number) {
-    this.page = page;
     this.getCurrentStock();
   }
   onLoadMore() {

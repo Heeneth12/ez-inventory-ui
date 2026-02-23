@@ -20,6 +20,6 @@ export class StockLedgerFilter {
     warehouseId?: number;
     fromDate?: string | null; // ISO string format
     toDate?: string | null; // ISO string format
-    transactionTypes?: string[]; // IN / OUT
-    referenceTypes?: string[]; // GRN / SALE / TRANSFER / RETURN        
+    transactionTypes?: string[] | null; // IN / OUT
+    referenceTypes?: string[] | null; // GRN / SALE / TRANSFER / RETURN        
 }

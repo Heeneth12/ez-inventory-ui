@@ -64,6 +64,7 @@ export const PRQ_FILTER_OPTIONS: FilterOption[] = [
         type: 'checkbox',
         searchable: true,
         options: [
+            { label: 'DRAFT', value: 'DRAFT' },
             { label: 'PENDING', value: 'PENDING' },
             { label: 'APPROVED', value: 'APPROVED' },
             { label: 'REJECTED', value: 'REJECTED' },

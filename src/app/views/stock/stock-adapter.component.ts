@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-// Updated Icons: Package (Stock), ScrollText (Ledger), ClipboardPen (Adjustment)
 import { LucideAngularModule, Package2, ScrollText, ClipboardPen } from 'lucide-angular';
 import { TabCardComponent, TabItem } from "../../layouts/UI/tab-card/tab-card.component";
 

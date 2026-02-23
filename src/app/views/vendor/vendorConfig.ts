@@ -37,16 +37,18 @@ export const NEW_ORDERS_ACTIONS: TableActionConfig[] = [
     }
 ];
 
-export const filterConfig: FilterOption[] = [
+export const NEW_ORDERS_FILTER_CONFIG: FilterOption[] = [
     {
         id: 'status',
         label: 'Status',
         type: 'checkbox',
-        searchable: true,   
+        searchable: true,
         options: [
+            { label: 'DRAFT', value: 'DRAFT' },
             { label: 'PENDING', value: 'PENDING' },
-            { label: 'CANCELLED', value: 'CANCELLED' },
-            { label: 'OTHER', value: 'OTHER' }
+            { label: 'APPROVED', value: 'APPROVED' },
+            { label: 'REJECTED', value: 'REJECTED' },
+            { label: 'CONVERTED', value: 'CONVERTED' }
         ]
     }
 ];
@@ -121,7 +123,7 @@ export const V_PR_ACTIONS: TableActionConfig[] = [
         color: 'success',
         condition: (row) => row['status'] === 'PENDING'
     },
-      {
+    {
         key: 'view_pr',
         label: '',
         icon: ListCheck,
