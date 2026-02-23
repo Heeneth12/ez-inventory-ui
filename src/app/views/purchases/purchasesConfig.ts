@@ -176,6 +176,7 @@ export const GRN_FILTER_OPTIONS: FilterOption[] = [
 export const PR_COLUMN: TableColumn[] = [
     { key: 'vendorDetails', label: 'Vendor', width: '100px', type: 'fullProfile' },
     { key: 'prNumber', label: 'PR Number', width: '100px', type: 'link' },
+    { key: 'createdAt', label: 'PR Date', width: '110px', type: 'date' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
     { key: 'totalAmount', label: 'TotalAmount', width: '110px', type: 'currency' },
     { key: 'id', label: 'Grn', width: '150px', type: 'link' },
@@ -213,8 +214,10 @@ export const PR_FILTER_OPTIONS: FilterOption[] = [
         options: [
             { label: 'DRAFT', value: 'DRAFT' },
             { label: 'PENDING', value: 'PENDING' },
-            { label: 'COMPLETED', value: 'COMPLETED' },
+            { label: 'RETURNED', value: 'RETURNED' },
             { label: 'APPROVED', value: 'APPROVED' },
+            { label: 'ACCEPTED', value: 'ACCEPTED' },
+            { label: 'REJECTED', value: 'REJECTED' },
             { label: 'PENDING_APPROVAL', value: 'PENDING_APPROVAL' },
             { label: 'CANCELLED', value: 'CANCELLED' }
         ]
