@@ -39,6 +39,10 @@ import {
   HelpCircle,
   LifeBuoy,
   Headset,
+  Package,
+  ClipboardList,
+  Receipt,
+  UserPlus,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -86,34 +90,47 @@ export class InventoryLayoutComponent implements OnInit {
   isQuickCreateOpen = false;
 
   quickCreateItems: DropdownMenuItem[] = [
-  {
-    label: 'New Invoice',
-    subLabel: 'Generate customer billing',
-    icon: FileText,
-    // Formal Navy/Slate: Trustworthy and standard for finance
-    iconBgClass: 'bg-slate-100', 
-    colorClass: 'text-slate-700',
-    action: () => this.router.navigate(['sales/invoice/create'])
-  },
-  {
-    label: 'Sales Order',
-    subLabel: 'Create a new customer order',
-    icon: ShoppingCart,
-    // Deep Indigo: Modern SaaS standard for primary actions
-    iconBgClass: 'bg-indigo-50',
-    colorClass: 'text-indigo-700',
-    action: () => this.router.navigate(['sales/order/create'])
-  },
-  {
-    label: 'Record Payment',
-    subLabel: 'Log a received payment',
-    icon: CreditCard,
-    // Muted Teal: Professional for money-related success actions
-    iconBgClass: 'bg-teal-50',
-    colorClass: 'text-teal-700',
-    action: () => this.router.navigate(['sales/payments/record'])
-  }
-];
+    {
+      label: 'New Item',
+      subLabel: 'Add a new product or service',
+      icon: Package,
+      iconBgClass: 'bg-amber-50',
+      colorClass: 'text-amber-700',
+      action: () => this.router.navigate(['items/create'])
+    },
+    {
+      label: 'Purchase Request',
+      subLabel: 'Create a new internal PRQ',
+      icon: ClipboardList,
+      iconBgClass: 'bg-blue-50',
+      colorClass: 'text-blue-700',
+      action: () => this.router.navigate(['purchases/prq/create'])
+    },
+    {
+      label: 'Sales Order',
+      subLabel: 'Create a new customer order',
+      icon: ShoppingCart,
+      iconBgClass: 'bg-indigo-50',
+      colorClass: 'text-indigo-700',
+      action: () => this.router.navigate(['sales/order/create'])
+    },
+    {
+      label: 'New Invoice',
+      subLabel: 'Generate customer billing',
+      icon: Receipt,
+      iconBgClass: 'bg-slate-100',
+      colorClass: 'text-slate-700',
+      action: () => this.router.navigate(['sales/invoice/create'])
+    },
+    {
+      label: 'Add User',
+      subLabel: 'Register a new system user',
+      icon: UserPlus,
+      iconBgClass: 'bg-violet-50',
+      colorClass: 'text-violet-700',
+      action: () => this.router.navigate(['admin/users/form'])
+    }
+  ];
 
 
   helpCenterItems: DropdownMenuItem[] = [
