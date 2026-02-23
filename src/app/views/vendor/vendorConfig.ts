@@ -6,8 +6,8 @@ import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.c
 //NEW ORDERS
 export const NEW_ORDERS_COLUMN: TableColumn[] = [
     { key: 'prqNumber', label: 'PRQ Number', width: '100px', type: 'link' },
+    { key: 'source', label: 'Source', width: '100px', type: 'badge' },
     { key: 'createdAt', label: 'Order Date', width: '110px', type: 'date' },
-    { key: 'vendorName', label: 'Supplier', width: '110px', type: 'text' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
     { key: 'totalEstimatedAmount', label: 'TotalAmount', width: '110px', type: 'currency', align: 'right' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }

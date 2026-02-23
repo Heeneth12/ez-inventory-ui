@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { PurchasesOrderRoutes } from './purchase-order/purchase-order.routes';
-import { GoodsReceiptRoutes } from './goods-receipt/purchase-return.routes';
+import { GoodsReceiptRoutes } from './goods-receipt/goods-receipt.routes';
 import { PurchaseReturnRoutes } from './purchase-returns/purchase-return.routes';
 import { PurchasesRequestRoutes } from './purchase-request/purchase-request.routes';
 
