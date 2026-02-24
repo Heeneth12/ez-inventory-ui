@@ -83,13 +83,13 @@ export class DatePickerComponent implements OnInit {
 
     // Fill padding days from previous month
     for (let i = 0; i < firstDayOfMonth.getDay(); i++) {
-      const d = new Date(year, month, 1 - (firstDayOfMonth.getDay() - i));
+      const d = new Date(year, month, 1 - (firstDayOfMonth.getDay() - i), 12, 0, 0);
       days.push(d);
     }
 
     // Fill actual days
     for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
-      days.push(new Date(year, month, i));
+      days.push(new Date(year, month, i, 12, 0, 0));
     }
 
     this.daysInMonth = days;
@@ -107,7 +107,7 @@ export class DatePickerComponent implements OnInit {
   // --- Selection Logic ---
   selectDate(date: Date) {
     // Reset time to 00:00:00 for accurate comparison
-    const cleanDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const cleanDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
 
     if (this.config.type === 'single') {
       this.selectedFrom = cleanDate;

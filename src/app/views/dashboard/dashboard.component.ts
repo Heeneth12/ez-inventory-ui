@@ -4,7 +4,8 @@ import {
   LucideAngularModule,
   Eye, Users, MousePointerClick, ShoppingCart, TrendingUp,
   TrendingDown, MoreVertical, Download, Plus, ChevronDown,
-  Star, Send, Calendar
+  Star, Send, Calendar,
+  Bell
 } from 'lucide-angular';
 import { Chart, registerables } from 'chart.js';
 
@@ -17,6 +18,9 @@ Chart.register(...registerables);
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
+
+  currentTab: 'dashboard' | 'tasks' | 'calender' = 'dashboard';
+  allTabs = ['dashboard', 'tasks', 'calender'] as const;
   @ViewChild('profitChart') profitChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('activityChart') activityChartRef!: ElementRef<HTMLCanvasElement>;
 
@@ -36,7 +40,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     chevronDown: ChevronDown,
     star: Star,
     send: Send,
-    calendar: Calendar
+    calendar: Calendar,
+    bell: Bell
   };
 
   hoveredDayIndex: number | null = null;
@@ -322,6 +327,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   setHoveredDay(index: number | null) {
     this.hoveredDayIndex = index;
+  }
+
+  handleTabChange(tab: 'dashboard' | 'tasks' | 'calender') {
+    this.currentTab = tab;
   }
 
   ngOnDestroy() {

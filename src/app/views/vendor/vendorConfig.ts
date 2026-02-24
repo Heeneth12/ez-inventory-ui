@@ -6,8 +6,8 @@ import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.c
 //NEW ORDERS
 export const NEW_ORDERS_COLUMN: TableColumn[] = [
     { key: 'prqNumber', label: 'PRQ Number', width: '100px', type: 'link' },
+    { key: 'source', label: 'Source', width: '100px', type: 'badge' },
     { key: 'createdAt', label: 'Order Date', width: '110px', type: 'date' },
-    { key: 'vendorName', label: 'Supplier', width: '110px', type: 'text' },
     { key: 'status', label: 'status', width: '100px', type: 'badge' },
     { key: 'totalEstimatedAmount', label: 'TotalAmount', width: '110px', type: 'currency', align: 'right' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
@@ -37,16 +37,18 @@ export const NEW_ORDERS_ACTIONS: TableActionConfig[] = [
     }
 ];
 
-export const filterConfig: FilterOption[] = [
+export const NEW_ORDERS_FILTER_CONFIG: FilterOption[] = [
     {
         id: 'status',
         label: 'Status',
         type: 'checkbox',
-        searchable: true,   
+        searchable: true,
         options: [
+            { label: 'DRAFT', value: 'DRAFT' },
             { label: 'PENDING', value: 'PENDING' },
-            { label: 'CANCELLED', value: 'CANCELLED' },
-            { label: 'OTHER', value: 'OTHER' }
+            { label: 'APPROVED', value: 'APPROVED' },
+            { label: 'REJECTED', value: 'REJECTED' },
+            { label: 'CONVERTED', value: 'CONVERTED' }
         ]
     }
 ];
@@ -121,7 +123,7 @@ export const V_PR_ACTIONS: TableActionConfig[] = [
         color: 'success',
         condition: (row) => row['status'] === 'PENDING'
     },
-      {
+    {
         key: 'view_pr',
         label: '',
         icon: ListCheck,

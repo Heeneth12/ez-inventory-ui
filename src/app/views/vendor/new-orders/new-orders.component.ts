@@ -1,9 +1,9 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { NEW_ORDERS_COLUMN, NEW_ORDERS_ACTIONS, NEW_ORDERS_DATE_CONFIG, filterConfig } from '../vendorConfig';
+import { NEW_ORDERS_COLUMN, NEW_ORDERS_ACTIONS, NEW_ORDERS_DATE_CONFIG, NEW_ORDERS_FILTER_CONFIG } from '../vendorConfig';
 import { TableColumn, TableActionConfig, PaginationConfig, TableAction, HeaderAction } from '../../../layouts/components/standard-table/standard-table.model';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
-import { PurchaseRequestModel } from '../../purchases/models/prq.model';
+import { PurchaseRequestFilterModel, PurchaseRequestModel } from '../../purchases/models/prq.model';
 import { VendorService } from '../vendor.service';
 import { Router } from '@angular/router';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
@@ -28,10 +28,10 @@ export class NewOrdersComponent {
   readonly SearchIcon = Search;
 
   //config
-  columns: TableColumn[] = NEW_ORDERS_COLUMN
-  newOrdersActions: TableActionConfig[] = NEW_ORDERS_ACTIONS
-  filterConfig: FilterOption[] = filterConfig
-  dateConfig: DatePickerConfig = NEW_ORDERS_DATE_CONFIG
+  columns: TableColumn[] = NEW_ORDERS_COLUMN;
+  newOrdersActions: TableActionConfig[] = NEW_ORDERS_ACTIONS;
+  filterConfig: FilterOption[] = NEW_ORDERS_FILTER_CONFIG;
+  dateConfig: DatePickerConfig = NEW_ORDERS_DATE_CONFIG;
   headerActions: HeaderAction[] = [
     {
       label: 'Create PO',
@@ -47,7 +47,7 @@ export class NewOrdersComponent {
   @ViewChild('conformationModal') conformationModal!: TemplateRef<any>;
   purchaseRequestList: PurchaseRequestModel[] = [];
   purchaseRequestDetails: PurchaseRequestModel | null = null;
-  purchaseRequestfilter: any = {};
+  purchaseRequestfilter: PurchaseRequestFilterModel = new PurchaseRequestFilterModel();
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
@@ -76,9 +76,7 @@ export class NewOrdersComponent {
     this.vendorService.getAllPrqs(
       apiPage,
       this.pagination.pageSize,
-      {
-        statuses: ['PENDING', 'APPROVED', 'REJECTED', 'CONVERTED']
-      },
+      this.purchaseRequestfilter || {},
       (response: any) => {
         this.purchaseRequestList = response.data.content;
         this.pagination = {
@@ -149,6 +147,8 @@ export class NewOrdersComponent {
 
   onFilterUpdate($event: Record<string, any>) {
     console.log("Received filter update:", $event);
+    this.purchaseRequestfilter.prqStatuses = $event['status'] || null;
+    this.getAllPRQ();
   }
 
   handleTableAction(event: TableAction) {

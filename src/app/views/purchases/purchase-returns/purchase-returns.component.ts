@@ -10,7 +10,7 @@ import { PurchaseReturnFilterModel, PurchaseReturnModel, ReturnStatus } from '..
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { FilePlusCorner } from 'lucide-angular';
-import { PR_COLUMN, PR_DATE_CONFIG, PRQ_ACTIONS, PRQ_FILTER_OPTIONS } from '../purchasesConfig';
+import { PR_ACTIONS, PR_COLUMN, PR_DATE_CONFIG, PR_FILTER_OPTIONS} from '../purchasesConfig';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
@@ -28,15 +28,14 @@ export class PurchaseReturnsComponent implements OnInit {
   purchaseReturnList: PurchaseReturnModel[] = [];
   purchaseReturnFilter: PurchaseReturnFilterModel = new PurchaseReturnFilterModel();
 
+  columns: TableColumn[] = PR_COLUMN;
+  dateConfig: DatePickerConfig = PR_DATE_CONFIG;
+  prActions: TableActionConfig[] = PR_ACTIONS;
+  prFilterOptions: FilterOption[] = PR_FILTER_OPTIONS;
+
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
   selectedItemIds: (string | number)[] = [];
-
-  columns: TableColumn[] = PR_COLUMN;
-  dateConfig: DatePickerConfig = PR_DATE_CONFIG;
-  prActions: TableActionConfig[] = PRQ_ACTIONS;
-  prFilterOptions: FilterOption[] = PRQ_FILTER_OPTIONS;
-  purchaseOrderList: any;
 
   myHeaderActions: HeaderAction[] = [
     {

@@ -17,6 +17,7 @@ export interface PurchaseReturnModel {
     goodsReceiptId?: number;
     reason: string;
     vendorDetails: UserMiniModel;
+    createdAt: Date | string;
     items: PurchaseReturnItemModel[];
 }
 

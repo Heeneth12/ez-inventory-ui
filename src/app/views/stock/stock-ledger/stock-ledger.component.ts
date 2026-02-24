@@ -47,7 +47,8 @@ export class StockLedgerComponent {
       options: [
         { label: 'GRN', value: 'GRN' },
         { label: 'SALE', value: 'SALE' },
-        { label: 'RETURN', value: 'RETURN' },
+        { label: 'PURCHASE_RETURN', value: 'PURCHASE_RETURN' },
+        { label: 'ADJUSTMENT', value: 'ADJUSTMENT' },
         { label: 'TRANSFER', value: 'TRANSFER' }
       ]
     },
@@ -62,11 +63,11 @@ export class StockLedgerComponent {
       ]
     }
   ];
-    dateConfig: DatePickerConfig = {
-      type: 'both',
-      placeholder: 'Start - End'
-    };
-  
+  dateConfig: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+  };
+
 
   page: number = 0;
   size: number = 10;
@@ -118,7 +119,7 @@ export class StockLedgerComponent {
     console.log('Table action:', $event);
   }
 
-  
+
   onFilterUpdate($event: Record<string, any>) {
     this.stockLedgerFilter = $event;
     this.stockLedgerFilter.transactionTypes = $event['transactionType'] || null;
@@ -126,19 +127,19 @@ export class StockLedgerComponent {
     this.getCurrentStock();
   }
 
-    onFilterDate(range: DateRangeEmit) {
-      console.log('Filter table by:', range.from, range.to);
-      this.stockLedgerFilter.fromDate = range.from
-        ? this.formatDate(range.from)
-        : null;
-  
-      this.stockLedgerFilter.toDate = range.to
-        ? this.formatDate(range.to)
-        : null;
-    }
-  
-    private formatDate(date: Date): string {
-      return date.toISOString().split('T')[0];
-    }
+  onFilterDate(range: DateRangeEmit) {
+    console.log('Filter table by:', range.from, range.to);
+    this.stockLedgerFilter.fromDate = range.from
+      ? this.formatDate(range.from)
+      : null;
+
+    this.stockLedgerFilter.toDate = range.to
+      ? this.formatDate(range.to)
+      : null;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
 
 }
