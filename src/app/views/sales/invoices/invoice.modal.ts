@@ -1,3 +1,4 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
 import { ContactMiniModel } from "../../contacts/contacts.model";
 
 export interface InvoiceModal {
@@ -73,15 +74,11 @@ export interface InvoiceItemRequest {
   batchNumber: string;
 }
 
-export class InvoiceFilterModal {
-  id?: number | null;
-  searchQuery!: string;
-  salesOrderId?: number | null;
-  status?: string | null;
+export class InvoiceFilterModal extends CommonFilterModel {
   customerId?: number | null;
-  warehouseId?: number | null;
-  fromDate!: string | null;
-  toDate!: string | null;
+  salesOrderId?: number | null;
+  invStatuses?: InvoiceStatus[] | null;
+  paymentStatus?: InvoicePaymentStatus[] | null;
 }
 
 export enum InvoiceStatus {
@@ -92,6 +89,12 @@ export enum InvoiceStatus {
   PARTIALLY_PAID = 'PARTIALLY_PAID',     // Some payment received
   PAID = 'PAID',               // Fully paid
   CANCELLED = 'CANCELLED'           // Invoice cancelled
+}
+
+export enum InvoicePaymentStatus {
+  UNPAID = 'UNPAID',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  PAID = 'PAID'
 }
 
 

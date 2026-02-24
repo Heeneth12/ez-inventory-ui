@@ -263,11 +263,11 @@
             }@else if(activeTab === 'purchase_return'){
             <app-purchase-returns [vendorId]="userId"></app-purchase-returns>
             }@else if (activeTab === 'sales_orders') {
-            <app-sales-order [customerId]="userId"></app-sales-order>
+            <app-sales-order [customerId]="userId" [statGroup]="false"></app-sales-order>
             }@else if (activeTab === 'invoices') {
-            <app-invoices [customerId]="userId"></app-invoices>
+            <app-invoices [customerId]="userId" [statGroup]="false"></app-invoices>
             }@else if (activeTab === 'payments') {
-            <app-payments [customerId]="userId"></app-payments>
+            <app-payments [customerId]="userId" ></app-payments>
             }@else if (activeTab === 'delivery') {
             <app-delivery [customerId]="userId"></app-delivery>
             }@else if (activeTab === 'sales_return') {

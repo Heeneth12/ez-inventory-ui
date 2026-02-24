@@ -32,4 +32,8 @@ export class SalesOrderService {
     searchSalesOrders(query: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/search`, query, successfn, errorfn);
     }
+
+    updateSalesOrderStatus(id: number, status: string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/${id}/status?status=${status}`, null, successfn, errorfn);
+    }
 }

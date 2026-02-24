@@ -15,6 +15,7 @@ import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
 import { SALES_ORDER_ACTIONS, SALES_ORDER_COLUMNS, SALES_ORDER_DATE_CONFIG, SALES_ORDER_FILTER_OPTIONS } from '../salesConfig';
+import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-sales-order',
@@ -79,7 +80,8 @@ export class SalesOrderComponent implements OnInit {
     public drawerService: DrawerService,
     private toastSvc: ToastService,
     private router: Router,
-    private loaderSvc: LoaderService
+    private loaderSvc: LoaderService,
+    private confirmationModalService: ConfirmationModalService
   ) {
   }
 
@@ -129,6 +131,40 @@ export class SalesOrderComponent implements OnInit {
     );
   }
 
+  confirmAndUpdateStatus(salesOrderId: any, status: string) {
+    const action = status === 'APPROVED' ? 'Approve' : 'Reject';
+    this.confirmationModalService.open({
+      title: `${action} Sales Order`,
+      message: `Are you sure you want to ${action.toLowerCase()} this sales order?`,
+      intent: status === 'APPROVED' ? 'success' : 'danger',
+      confirmLabel: `Yes, ${action}`,
+      cancelLabel: 'No, Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.updateSalesOrderStatus(salesOrderId, status);
+      }
+    });
+  }
+
+  updateSalesOrderStatus(salesOrderId: any, status: string) {
+    this.loaderSvc.show();
+    this.salesOrderService.updateSalesOrderStatus(
+      salesOrderId,
+      status,
+      (response: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Sales Order status updated to ' + status, 'success');
+        this.getAllSalesOrders();
+      }
+      ,
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Failed to update Sales Order status', 'error');
+        console.error('Error updating Sales Order status:', error);
+      }
+    );
+  }
+
   viewSalesOrderDetail(id: number | string) {
     this.getSalesOrderById(id);
     this.drawerService.openComponent(
@@ -150,8 +186,8 @@ export class SalesOrderComponent implements OnInit {
         queryParams: { salesOrderId: event.row.id }
       });
     }
-    if (event.type === 'edit') {
-      // Standard edit logic
+    if (event.type === 'custom' && event.key === 'move_to_cancle') {
+      this.confirmAndUpdateStatus(event.row.id, 'REJECTED');
     }
   }
 
@@ -168,7 +204,6 @@ export class SalesOrderComponent implements OnInit {
         break;
       case 'delete':
         console.log("Delete:", row.id);
-
         break;
       case 'toggle':
         break;

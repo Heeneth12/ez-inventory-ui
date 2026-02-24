@@ -14,9 +14,10 @@ import { PaymentService } from '../payments/payment.service';
 import { InvoicePaymentSummaryModal } from '../payments/payment.modal';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PaymentSymmaryComponent } from '../payments/payment-symmary/payment-symmary.component';
-import { INVOICE_COLUMNS } from '../../../layouts/config/tableConfig';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
+import { INVOICE_ACTIONS, INVOICE_COLUMNS, INVOICE_DATE_CONFIG, INVOICE_FILTER_OPTIONS } from '../salesConfig';
+import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-invoices',
@@ -27,49 +28,19 @@ import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-gro
 })
 export class InvoicesComponent {
 
+  @Input() statGroup?: boolean = true;
   @Input() customerId?: number;
   invoicesList: InvoiceModal[] = [];
   invoicesFilter: InvoiceFilterModal = new InvoiceFilterModal();
   paymentSummary: InvoicePaymentSummaryModal[] = [];
 
-  readonly Truck = Truck;
-
-  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
-
   columns: TableColumn[] = INVOICE_COLUMNS;
+  paymentDetailsActions = INVOICE_ACTIONS;
+  invFilterOptions = INVOICE_FILTER_OPTIONS;
+  dateConfig = INVOICE_DATE_CONFIG;
 
-  paymentDetailsActions: TableActionConfig[] = [
-    {
-      key: 'payment_details',
-      label: 'Payment details',
-      icon: ScrollText,
-      color: 'success',
-      // Only show if status is Approved
-      condition: (row) => row['paymentStatus'] === 'PAID'
-    },
-    {
-      key: 'receive_payment',
-      label: 'Receive Payment',
-      icon: ReceiptIndianRupee,
-      color: 'primary',
-      // Only show if status is Approved
-      condition: (row) => row['paymentStatus'] === 'UNPAID' || row['paymentStatus'] === 'PARTIALLY_PAID'
-    },
-    {
-      key: 'download_invoice',
-      label: '',
-      icon: FileDown,
-      color: 'neutral',
-      // Only show if status is Approved
-      condition: (row) => true
-    }
-  ];
-
-  dateConfig: DatePickerConfig = {
-    type: 'both', // or 'single'
-    // label: 'Filter Dates',
-    placeholder: 'Start - End'
-  };
+  readonly Truck = Truck;
+  pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   constructor(
     private invoiceService: InvoiceService,
@@ -78,7 +49,8 @@ export class InvoicesComponent {
     private toastSvc: ToastService,
     private router: Router,
     private loaderSvc: LoaderService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private confirmationModalService: ConfirmationModalService
   ) {
   }
 
@@ -182,15 +154,30 @@ export class InvoicesComponent {
     );
   }
 
-  updateInvoiceStatus(invoiceId: any, status: InvoiceStatus) {
+
+  confirmAndUpdateStatus(invoiceId: any, status: string) {
+    const action = status === 'APPROVED' ? 'Approve' : 'Reject';
+    this.confirmationModalService.open({
+      title: `${action} Invoice`,
+      message: `Are you sure you want to ${action.toLowerCase()} this invoice?`,
+      intent: status === 'APPROVED' ? 'success' : 'danger',
+      confirmLabel: `Yes, ${action}`,
+      cancelLabel: 'No, Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.updateInvoiceStatus(invoiceId, status);
+      }
+    });
+  }
+
+  updateInvoiceStatus(invoiceId: any, status: string) {
     this.loaderSvc.show();
     this.invoiceService.updateInvoiceStatus(
-      {
-        "invoiceId": invoiceId,
-        "status": status
-      },
+      invoiceId,
+      status,
       (response: any) => {
         this.loaderSvc.hide();
+        this.toastSvc.show('Invoice status updated to ' + status, 'success');
         this.getAllInvoices();
       },
       (error: any) => {
@@ -244,6 +231,14 @@ export class InvoicesComponent {
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
   }
+
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.invoicesFilter.invStatuses = $event['status'] || null;
+    this.invoicesFilter.paymentStatus = $event['paymentStatus'] || null;
+    this.getAllInvoices();
+  }
+
 
   invoiceDashboardStats: StatCardConfig[] = [
     {

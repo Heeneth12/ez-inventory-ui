@@ -1,7 +1,8 @@
-import { ListRestart, ListCollapse, PenLineIcon, Undo2, XCircle, ArrowRight, CircleX } from "lucide-angular";
+import { ListRestart, ListCollapse, PenLineIcon, Undo2, XCircle, ArrowRight, CircleX, FileDown, ReceiptIndianRupee, ScrollText } from "lucide-angular";
 import { TableColumn, TableActionConfig } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
+import { InvoicePaymentStatus } from "./invoices/invoice.modal";
 
 //SO
 export const SALES_ORDER_COLUMNS: TableColumn[] = [
@@ -82,8 +83,56 @@ export const INVOICE_COLUMNS: TableColumn[] = [
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
 ];
 
-export const INVOICE_ACTIONS: TableActionConfig[] = []
-export const INVOICE_FILTER_OPTIONS: FilterOption[] = [];
+export const INVOICE_ACTIONS: TableActionConfig[] = [
+    {
+        key: 'payment_details',
+        label: 'Payment details',
+        icon: ScrollText,
+        color: 'success',
+        condition: (row) => row['paymentStatus'] === 'PAID'
+    },
+    {
+        key: 'receive_payment',
+        label: 'Receive Payment',
+        icon: ReceiptIndianRupee,
+        color: 'primary',
+        condition: (row) => row['paymentStatus'] === 'UNPAID' || row['paymentStatus'] === 'PARTIALLY_PAID'
+    },
+    {
+        key: 'download_invoice',
+        label: '',
+        icon: FileDown,
+        color: 'neutral',
+        condition: (row) => true
+    }
+]
+export const INVOICE_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'DRAFT', value: 'DRAFT' },
+            { label: 'PENDING', value: 'PENDING' },
+            { label: 'CONFIRMED', value: 'CONFIRMED' },
+            { label: 'APPROVED', value: 'APPROVED' },
+            { label: 'REJECTED', value: 'REJECTED' },
+            { label: 'FULLY_INVOICED', value: 'FULLY_INVOICED' }
+        ]
+    },
+    {
+        id: 'paymentStatus',
+        label: 'Payment Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'UNPAID', value: InvoicePaymentStatus.UNPAID },
+            { label: 'PARTIALLY_PAID', value: InvoicePaymentStatus.PARTIALLY_PAID },
+            { label: 'PAID', value: InvoicePaymentStatus.PAID }
+        ]
+    }
+];
 export const INVOICE_DATE_CONFIG: DatePickerConfig = {
     type: 'both',
     placeholder: 'Start - End'
