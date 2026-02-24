@@ -11,10 +11,10 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
 import { ArrowRight, CircleX, Clock, DollarSign, FileText, Headphones, ReceiptText, RefreshCcw, View, XCircle } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
+import { SALES_ORDER_ACTIONS, SALES_ORDER_COLUMNS, SALES_ORDER_DATE_CONFIG, SALES_ORDER_FILTER_OPTIONS } from '../salesConfig';
 
 @Component({
   selector: 'app-sales-order',
@@ -26,36 +26,21 @@ import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-gro
 export class SalesOrderComponent implements OnInit {
 
   @Input() customerId?: number;
+  @Input() statGroup?: boolean = true;
+
   @ViewChild('soDetails') soDetails!: TemplateRef<any>;
   readonly ArrowRight = ArrowRight;
+
+  soColumn = SALES_ORDER_COLUMNS;
+  soActions: TableActionConfig[] = SALES_ORDER_ACTIONS;
+  soFilterOptions = SALES_ORDER_FILTER_OPTIONS;
+  dateConfig: DatePickerConfig = SALES_ORDER_DATE_CONFIG;
+
   salesOrders: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
   salesOrderFilter: SalesOrderFilterModal = new SalesOrderFilterModal();
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
-  soColumn: any = SALES_ORDER_COLUMNS;
-  soActions: TableActionConfig[] = [
-    {
-      key: 'move_to_invoice',
-      label: 'Move to Invoice',
-      icon: ArrowRight,
-      color: 'primary',
-      condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
-    },
-    {
-      key: 'move_to_cancle',
-      label: '',
-      icon: CircleX,
-      color: 'danger',
-      condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
-    }
-  ];
-
-  dateConfig: DatePickerConfig = {
-    type: 'both', // or 'single'
-    // label: 'Filter Dates',
-    placeholder: 'Start - End'
-  };
 
   // //DUMMY STATS DATA
   salesOrderStats: StatCardConfig[] = [
@@ -99,7 +84,7 @@ export class SalesOrderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if(this.customerId){
+    if (this.customerId) {
       this.salesOrderFilter.customerId = this.customerId;
     }
     this.getAllSalesOrders();
@@ -208,6 +193,13 @@ export class SalesOrderComponent implements OnInit {
 
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
+  }
+
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.salesOrderFilter.soStatuses = $event['status'] || null;
+    this.salesOrderFilter.soSource = $event['source'] || null;
+    this.getAllSalesOrders();
   }
 
   onLoadMore() {

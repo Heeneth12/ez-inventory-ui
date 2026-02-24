@@ -1,3 +1,4 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
 import { ContactMiniModel } from "../../contacts/contacts.model";
 
 export class SalesOrderModal {
@@ -35,13 +36,26 @@ export class SalesOrderItemsModal {
     lineTotal!: number;
 }
 
-export class SalesOrderFilterModal {
-    id!: number;
-    status!: string;
-    searchQuery!: string;
+export class SalesOrderFilterModal extends CommonFilterModel {
+    soStatuses?: SoStatus[] | null;
+    soSource?: SoSource[] | null;
     customerId!: number;
-    warehouseId!: number;
-    fromDate!: string | null;
-    toDate!: string | null;
+}
 
+export enum SoStatus {
+    CREATED = 'CREATED',
+    PENDING_APPROVAL = 'PENDING_APPROVAL',
+    REJECTED = 'REJECTED',
+    CANCELLED = 'CANCELLED',
+    CONFIRMED = 'CONFIRMED',
+    PARTIALLY_INVOICED = 'PARTIALLY_INVOICED',
+    FULLY_INVOICED = 'FULLY_INVOICED'
+}
+
+export enum SoSource {
+    SALES_TEAM = 'SALES_TEAM',
+    DIRECT_SALES = 'DIRECT_SALES',
+    MARKETING_CAMPAIGN = 'MARKETING_CAMPAIGN',
+    ONLINE_CHANNEL = 'ONLINE_CHANNEL',
+    REPEAT_ORDER = 'REPEAT_ORDER'
 }
