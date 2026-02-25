@@ -14,6 +14,7 @@ import { CloudUpload } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { AuthService } from '../../layouts/guards/auth.service';
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-items',
@@ -23,6 +24,8 @@ import { AuthService } from '../../layouts/guards/auth.service';
   styleUrls: ['./items.component.css']
 })
 export class ItemsComponent implements OnInit {
+
+  private tableState$ = new Subject<void>();
 
   itemList: ItemModel[] = [];
   itemFilter: ItemSearchFilter = new ItemSearchFilter();
@@ -71,7 +74,16 @@ export class ItemsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getAllItems();
+    this.setupTablePipeline();
+    this.tableState$.next();
+  }
+
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getAllItems();
+    });
   }
 
   getAllItems() {
@@ -111,6 +123,12 @@ export class ItemsComponent implements OnInit {
     );
   }
 
+  onSearchChange(searchQuery: string) {
+    this.itemFilter.searchQuery = searchQuery;
+    this.pagination.currentPage = 1;
+    this.tableState$.next();
+  }
+
   createItem() {
     this.router.navigate(['/items/add']);
   }
@@ -133,13 +151,11 @@ export class ItemsComponent implements OnInit {
   }
 
   onFilterUpdate($event: Record<string, any>) {
-    console.log("Received filter update:", $event);
     this.itemFilter.itemTypes = $event['type'] || null;
-    this.getAllItems();
+    this.tableState$.next();
   }
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
-
     switch (type) {
       case 'view':
         console.log("View:", row.id);
@@ -165,7 +181,7 @@ export class ItemsComponent implements OnInit {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getAllItems();
+    this.tableState$.next();
   }
 
   onLoadMore() {
