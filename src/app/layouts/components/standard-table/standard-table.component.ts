@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, Si
 import { CommonModule, DecimalPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig, HeaderAction } from './standard-table.model';
-import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight, RefreshCcw, RotateCcw, Settings } from 'lucide-angular';
+import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight, RotateCcw, Settings } from 'lucide-angular';
 import { StatusStepperComponent } from '../../UI/status-stepper/status-stepper.component';
 import { UserCardComponent } from "../../UI/user-card/user-card.component";
 import { DatePickerConfig, DateRangeEmit, DatePickerComponent } from '../../UI/date-picker/date-picker.component';
 import { FilterOption, FilterDropdownComponent } from '../../UI/filter-dropdown/filter-dropdown.component';
+import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-standard-table',
@@ -42,6 +43,7 @@ export class StandardTableComponent implements OnChanges {
   @Output() loadMore = new EventEmitter<void>();
   @Output() action = new EventEmitter<TableAction>();
   @Output() selectionChange = new EventEmitter<(string | number)[]>(); // New: Emit selected IDs
+  @Output() searchChange = new EventEmitter<string>(); // New: Emit search query changes
 
   // Icons
   readonly Filter = Filter;
@@ -56,6 +58,7 @@ export class StandardTableComponent implements OnChanges {
   readonly Settings = Settings;
 
   // State Signals
+  @Input() searchMode: 'client' | 'server' = 'client';
   searchQuery = signal('');
   showSettings = signal(false);
   density = signal<Density>('normal');
@@ -77,8 +80,34 @@ export class StandardTableComponent implements OnChanges {
   private toggleTimeout: any;
   triggerReset = 0;
 
+  private searchSubject = new Subject<string>();
+  private searchSubscription!: Subscription;
+
   constructor(private eRef: ElementRef) { }
 
+  ngOnInit() {
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged() // Only emit if the value is different from the last
+    ).subscribe((query) => {
+      // Update the signal (this triggers local filtering if in client mode)
+      this.searchQuery.set(query);
+      // If Backend mode, emit the event to the parent
+      if (this.searchMode === 'server') {
+        this.searchChange.emit(query);
+        // Usually reset to page 1 on new search
+        this.pageChange.emit(1);
+      }
+    });
+  }
+
+
+  ngOnDestroy() {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+  }
+  
   ngOnChanges(changes: SimpleChanges) {
     // Sync local data
     if (changes['data']) {
@@ -88,6 +117,11 @@ export class StandardTableComponent implements OnChanges {
     if (changes['pagination'] && this.pagination) {
       this.currentPageSignal.set(this.pagination.currentPage);
     }
+  }
+
+
+  onSearchInput(value: string) {
+    this.searchSubject.next(value);
   }
 
   // --- Computed ---
@@ -366,6 +400,9 @@ export class StandardTableComponent implements OnChanges {
     this.sortDirection.set('asc');
     this.currentPageSignal.set(1);
     this.triggerReset++;
-    this.pageChange.emit(1);
+    if(this.searchMode === 'server') {
+        this.searchChange.emit('');
+        this.pageChange.emit(1);
+    }
   }
 }   
