@@ -32,7 +32,7 @@ export const UserManagementRoutes: Routes = [
 
                 ]
             },
-            { path: 'apps', component: ApplicationsComponent },
+            //{ path: 'apps', component: ApplicationsComponent },
         ]
     },
     {
