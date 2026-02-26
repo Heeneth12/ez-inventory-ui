@@ -9,17 +9,20 @@ export class SalesOrderModal {
     contactMini!: ContactMiniModel
     customerId!: number;
     customerName!: string;
-    paymentTerms!: string;
-    totalAmount!: number;
-    discount!: number;
-    tax!: number;
-    subTotal!: number;
-    grandTotal!: number;
-    totalDiscount!: number;
-    totalTax!: number;
     active!: boolean;
     status!: string;
     source!: string;
+    paymentTerms!: string;
+    itemGrossTotal!: number;     // Sum of (UnitPrice * Qty)
+    itemTotalDiscount!: number;  // Sum of all item-level discount amounts
+    itemTotalTax!: number;       // Sum of all item-level tax amounts
+    flatDiscountRate!: number;   // The % the user typed in (e.g., 2)
+    flatDiscountAmount!: number; // Calculated $ value from backend
+    flatTaxRate!: number;        // The % the user typed in (e.g., 5)
+    flatTaxAmount!: number;      // Calculated $ value from backend
+    totalTax!:number;
+    totalDiscount!:number;
+    grandTotal!: number;
     items!: SalesOrderItemsModal[];
     remarks!: string;
 }
@@ -29,10 +32,13 @@ export class SalesOrderItemsModal {
     itemId!: number;
     itemName!: string;
     orderedQty!: number;
+    invoicedQty!: number;
     quantity!: number;
     unitPrice!: number;
-    discount!: number;
-    tax!: number;
+    discountRate!: number;
+    discountAmount!: number;
+    taxRate!: number;
+    taxAmount!: number;
     lineTotal!: number;
 }
 
@@ -44,6 +50,7 @@ export class SalesOrderFilterModal extends CommonFilterModel {
 
 export enum SoStatus {
     CREATED = 'CREATED',
+    PENDING = 'PENDING',
     PENDING_APPROVAL = 'PENDING_APPROVAL',
     REJECTED = 'REJECTED',
     CANCELLED = 'CANCELLED',

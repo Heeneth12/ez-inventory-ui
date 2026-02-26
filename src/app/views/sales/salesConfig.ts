@@ -13,7 +13,6 @@ export const SALES_ORDER_COLUMNS: TableColumn[] = [
     { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
     { key: 'totalTax', label: 'Tax', width: '120px', type: 'currency', align: 'right' },
     { key: 'totalDiscount', label: "Dis", width: '120px', type: 'currency', align: 'right' },
-    { key: 'totalDiscountPer', label: "Dis %", width: '80px', type: 'text', align: 'center' },
     { key: 'status', label: 'Status', width: '140px', type: 'badge', align: 'center' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
 ];
