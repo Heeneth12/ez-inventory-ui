@@ -395,11 +395,13 @@ export class ApprovalConsoleComponent implements OnInit {
   }
 
   // Helper to calculate percentage
+  // Helper to calculate percentage based on the new itemGrossTotal
   get discountPercentage(): number {
-    if (!this.salesOrderDetails || !this.salesOrderDetails.subTotal || this.salesOrderDetails.subTotal === 0) {
+    if (!this.salesOrderDetails || !this.salesOrderDetails.itemGrossTotal || this.salesOrderDetails.itemGrossTotal === 0) {
       return 0;
     }
-    return (this.salesOrderDetails.totalDiscount / this.salesOrderDetails.subTotal) * 100;
+    // Calculates total combined discount against the absolute gross value
+    return (this.salesOrderDetails.totalDiscount / this.salesOrderDetails.itemGrossTotal) * 100;
   }
 
   // Helper to calculate Total Adjustment Value dynamically

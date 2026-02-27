@@ -90,6 +90,7 @@ export class SalesOrderComponent implements OnInit {
       this.salesOrderFilter.customerId = this.customerId;
     }
     this.getAllSalesOrders();
+    this.getSalesOrderStats();
   }
 
   getAllSalesOrders() {
@@ -127,6 +128,50 @@ export class SalesOrderComponent implements OnInit {
       (error: any) => {
         this.toastSvc.show('Failed to load Sales Order details', 'error');
         console.error('Error fetching Sales Order details:', error);
+      }
+    );
+  }
+
+  getSalesOrderStats() {
+    this.salesOrderService.getSalesOrderStats(
+      {},
+      (response: any) => {
+        this.salesOrderStats = [
+          {
+            key: 'totalValue',
+            label: 'Total Sales Order Value',
+            value: '₹' + response.data.totalValue,
+            icon: DollarSign,
+            color: 'emerald',
+          },
+          {
+            key: 'pendingApproval',
+            label: 'Pending Approval',
+            value: response.data.pendingApprovalCount + ' Orders',
+            icon: Clock,
+            color: 'gray',
+          },
+          {
+            key: 'pendingInvoice',
+            label: 'Pending Invoice',
+            value: 0 + ' Orders',
+            icon: FileText,
+            color: 'amber',
+          },
+          {
+            key: 'cancelled',
+            label: 'Cancelled Orders',
+            value: response.data.cancelledCount,
+            icon: XCircle,
+            color: 'orange',
+          }
+        ];
+        console.log('Sales Order Stats:', response.data);
+      }
+      ,
+      (error: any) => {
+        this.toastSvc.show('Failed to load Sales Order stats', 'error');
+        console.error('Error fetching Sales Order stats:', error);
       }
     );
   }
