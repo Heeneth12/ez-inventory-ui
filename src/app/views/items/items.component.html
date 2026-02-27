@@ -2,14 +2,166 @@
     <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="itemList" [pagination]="pagination"
             [isServerSide]="true" [headerActions]="headerActions" (headerAction)="handleHeaderAction($event)"
-            [filterConfig]="filterConfig" (filterChanged)="onFilterUpdate($event)"(searchChange)="onSearchChange($event)"
+            [filterConfig]="filterConfig" (filterChanged)="onFilterUpdate($event)"
+            (searchChange)="onSearchChange($event)" [customActions]="itemActions" (action)="handleTableAction($event)"
             (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)">
         </app-standard-table>
     </div>
 </div>
 
 <!-- DRAWER FORM TEMPLATE -->
-<ng-template #contactProfile let-data>
-    <div class="flex flex-col h-full bg-white">
+<ng-template #stockItemDetail>
+    @if(selectedMasterItem){
+    <div class="flex flex-col h-full bg-[#F8FAFC] font-sans">
+
+        <div class="bg-white px-6 py-6 border-b border-gray-100">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                <div>
+                    <h1 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                        {{ selectedMasterItem.name }}
+                    </h1>
+                    <p class="text-xs text-gray-500">{{selectedMasterItem.description}}</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button (click)="closeItemDetails()"
+                        class="bg-white border border-gray-200 px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
+                    <button (click)="updateItem(selectedMasterItem.id)"
+                        class="bg-[#4338CA] text-white px-4 py-2 rounded text-sm font-semibold hover:bg-indigo-700 transition">
+                        Edit Item
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto">
+            <div class="bg-white rounded-lg border border-gray-100 p-4 space-y-10">
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    <div class="lg:col-span-4 flex flex-col items-center justify-start">
+                        <div
+                            class="w-full aspect-square border-2 border-dashed border-blue-400 rounded-lg flex flex-col items-center justify-center bg-blue-50/30 text-blue-600 overflow-hidden">
+                            @if(selectedMasterItem.imageUrl) {
+                            <img [src]="selectedMasterItem.imageUrl" class="w-full h-full object-cover">
+                            } @else {
+                            <svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-[11px] font-bold uppercase">No Image</span>
+                            }
+                        </div>
+                        <div class="mt-4 w-full text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Master Price</span>
+                            <p class="text-2xl font-bold text-emerald-600">{{ selectedMasterItem.sellingPrice |
+                                currency:'INR' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8 space-y-6">
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="space-y-1">
+                                <label class="block text-xs font-medium text-gray-500">Item Code / SKU</label>
+                                <div
+                                    class="w-full bg-gray-50 border border-gray-100 rounded px-3 py-2 text-sm text-gray-800 font-medium">
+                                    {{ selectedMasterItem.itemCode }} {{ selectedMasterItem.sku ? '| ' +
+                                    selectedMasterItem.sku : '' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Category</label>
+                                <div class="text-sm text-gray-700 font-medium">{{ selectedMasterItem.category }}</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Brand</label>
+                                <div class="text-sm text-gray-700 font-medium">{{ selectedMasterItem.brand || '---' }}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">HSN Code</label>
+                                <div class="text-sm text-gray-700 font-medium">{{ selectedMasterItem.hsnSacCode || '---'
+                                    }}</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                            <p
+                                class="text-xs text-gray-600 leading-relaxed bg-slate-50 p-3 rounded border border-slate-100">
+                                {{ selectedMasterItem.description || 'No description provided for this item.' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100">
+
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Inventory & Batches</h3>
+                            <p class="text-xs text-gray-500">Real-time stock availability across all active batches</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="text-center px-4 border-r border-gray-100">
+                                <span class="block text-[10px] font-bold text-gray-400 uppercase">Total Stock</span>
+                                <span class="text-lg font-bold text-indigo-600">{{
+                                    calculateTotalStock(selectedItemDetail?.batches || []) }}</span>
+                            </div>
+                            <div class="text-center px-4">
+                                <span class="block text-[10px] font-bold text-gray-400 uppercase">Status</span>
+                                <span
+                                    class="text-xs px-2 py-0.5 rounded bg-green-50 text-green-600 font-bold uppercase">In
+                                    Stock</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if(selectedItemDetail && selectedItemDetail.batches.length > 0) {
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @for(batch of selectedItemDetail.batches; track batch.batchNumber) {
+                        <div
+                            class="bg-gray-50 border border-gray-100 rounded-lg p-4 flex justify-between items-center group hover:bg-white hover:shadow-md transition-all">
+                            <div class="flex items-center gap-4">
+                                <div [ngClass]="getExpiryStatusColor(batch.expiryDate, 'bg')"
+                                    class="w-1 h-10 rounded-full"></div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-bold text-gray-800">{{ batch.batchNumber }}</span>
+                                        <span
+                                            class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Batch</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 mt-0.5">
+                                        Exp: {{ batch.expiryDate | date:'MMM d, y' }}
+                                        <span [ngClass]="getExpiryStatusColor(batch.expiryDate, 'text')"
+                                            class="font-bold ml-1">
+                                            ({{ getDaysRemainingText(batch.expiryDate) }})
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Qty Available</p>
+                                <p class="text-lg font-bold text-slate-800">{{ batch.remainingQty }}</p>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    } @else {
+                    <div
+                        class="w-full py-12 border-2 border-dashed border-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-400">
+                        <span class="material-icons opacity-20 text-4xl mb-2">inventory_2</span>
+                        <p class="text-sm font-medium">No active batches found for this item</p>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
+    }
 </ng-template>

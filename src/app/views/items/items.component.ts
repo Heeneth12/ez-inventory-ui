@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ItemModel, ItemSearchFilter } from './models/Item.model';
 import { ItemService } from './item.service';
@@ -10,22 +10,29 @@ import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
 import { ITEMS_COLUMNS } from '../../layouts/config/tableConfig';
-import { CloudUpload } from 'lucide-angular';
+import { CloudUpload, List, LucideAngularModule } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { AuthService } from '../../layouts/guards/auth.service';
 import { debounceTime, Subject } from 'rxjs';
+import { BatchDetailModel, ItemStockSearchModel } from '../stock/models/stock.model';
+import { StockService } from '../stock/stock.service';
 
 @Component({
   selector: 'app-items',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent],
+  imports: [CommonModule, StandardTableComponent, LucideAngularModule],
   templateUrl: './items.component.html',
   styleUrls: ['./items.component.css']
 })
 export class ItemsComponent implements OnInit {
 
   private tableState$ = new Subject<void>();
+  @ViewChild('stockItemDetail') stockItemDetail!: TemplateRef<any>;
+
+  selectedItemDetail: ItemStockSearchModel | null = null;
+  selectedMasterItem: ItemModel | null = null;
+  stockFilter: any = {};
 
   itemList: ItemModel[] = [];
   itemFilter: ItemSearchFilter = new ItemSearchFilter();
@@ -40,8 +47,8 @@ export class ItemsComponent implements OnInit {
     {
       label: 'Bulk Process',
       icon: CloudUpload,
-      variant: 'primary',
-      key: 'create_route',
+      variant: 'secondary',
+      key: 'bulk_process',
       action: () => this.bulkUploadItems(),
       hidden: !this.authService.hasPermission('EZH_INV_ITEMS_EXPORT')
     }
@@ -61,6 +68,17 @@ export class ItemsComponent implements OnInit {
     }
   ];
 
+
+  itemActions: TableActionConfig[] = [
+    {
+      key: 'view_item_details',
+      label: '',
+      icon: List,
+      color: 'primary',
+      condition: (row) => true
+    }
+  ];
+
   constructor(
     private itemService: ItemService,
     private router: Router,
@@ -68,7 +86,8 @@ export class ItemsComponent implements OnInit {
     private loaderSvc: LoaderService,
     private drawerSvc: DrawerService,
     private modalService: ModalService,
-    private authService: AuthService
+    private authService: AuthService,
+    private stockService: StockService,
   ) {
     this.itemFilter.active = true;
   }
@@ -134,6 +153,7 @@ export class ItemsComponent implements OnInit {
   }
 
   updateItem(itemId: string | number) {
+    this.drawerSvc.close();
     this.router.navigate(['/items/edit', itemId]);
   }
 
@@ -148,6 +168,56 @@ export class ItemsComponent implements OnInit {
       "Bulk Data Management",
       'lg'
     )
+  }
+
+  handleTableAction(event: TableAction) {
+    if (event.type === 'custom' && event.key === 'view_item_details') {
+      this.viewItemDetails(event.row as ItemModel);
+    }
+  }
+
+
+  viewItemDetails(item: ItemModel) {
+    this.selectedMasterItem = item;
+    this.selectedItemDetail = null;
+    this.loaderSvc.show();
+
+    this.stockFilter.itemId = item.id;
+    this.stockFilter.warehouseId = 1;
+    this.stockService.searchItems(this.stockFilter, (response: any) => {
+      this.loaderSvc.hide();
+      const data = response?.data || [];
+      if (data.length > 0) {
+        this.selectedItemDetail = data[0];
+      }
+      console.log("Selected Item Detail", this.selectedItemDetail);
+      this.drawerSvc.openTemplate(this.stockItemDetail, "Full Item Inventory", 'lg');
+    }, (error: any) => {
+      this.loaderSvc.hide();
+      this.toastService.show('Error loading stock', 'error');
+    });
+  }
+
+  calculateTotalStock(batches: BatchDetailModel[]): number {
+    return batches ? batches.reduce((acc, b) => acc + b.remainingQty, 0) : 0;
+  }
+
+  getDaysRemainingText(timestamp: number): string {
+    const diff = timestamp - Date.now();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    return days > 0 ? `${days} days left` : 'Expired';
+  }
+
+  getExpiryStatusColor(timestamp: number, type: 'text' | 'bg'): string {
+    const diff = timestamp - Date.now();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    if (days < 0) return type === 'text' ? 'text-red-600' : 'bg-red-100';
+    if (days < 30) return type === 'text' ? 'text-amber-600' : 'bg-amber-100';
+    return type === 'text' ? 'text-emerald-600' : 'bg-emerald-100';
+  }
+
+  closeItemDetails() {
+    this.drawerSvc.close();
   }
 
   onFilterUpdate($event: Record<string, any>) {
