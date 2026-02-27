@@ -75,6 +75,6 @@ export class PaymentService {
      * If your httpService.getHttp doesn't support blobs, you might need a native HttpClient call.
      */
     downloadPaymentPdf(paymentId: number | string, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/${paymentId}/pdf`, successfn, errorfn);
+        return this.httpService.getFile(`${PaymentService.PAYMENT_BASE_URL}/${paymentId}/pdf`, successfn, errorfn);
     }
 }

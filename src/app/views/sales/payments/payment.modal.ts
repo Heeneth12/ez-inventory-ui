@@ -1,3 +1,4 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
 import { ContactMiniModel } from "../../contacts/contacts.model";
 
 export interface InvoicePaymentSummaryModal {
@@ -68,12 +69,8 @@ export interface WalletApplyModal {
     amount: number;
 }
 
-export class PaymentFilterModal {
-    id!: number;
-    tenantId!: number;
+export class PaymentFilterModal extends CommonFilterModel {
     customerId!: number;
-    paymentDateFrom!: Date;
-    paymentDateTo!: Date;
-    status!: string;
-    paymentMethod!: string;
+    paymentStatus!: string[];
+    paymentMethod!: string[];
 }

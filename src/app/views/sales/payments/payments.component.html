@@ -3,8 +3,10 @@
 <div class="space-y-6">
     <div class="flex-1 h-[calc(100vh-225px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="paymentList" [pagination]="pagination"
-            [isServerSide]="true" [customActions]="soActions" (action)="handleTableAction($event)"
-            (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)" >
+            [isServerSide]="true" [customActions]="payActions" (action)="handleTableAction($event)"
+            (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)"
+            [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)" [filterConfig]="filterOptions"
+            (filterChanged)="onFilterUpdate($event)">
         </app-standard-table>
     </div>
 </div>
