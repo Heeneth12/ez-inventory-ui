@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
@@ -22,6 +22,9 @@ import { UserManagementService } from '../../../user-management/userManagement.s
   styleUrls: ['./sales-order-form.component.css']
 })
 export class SalesOrderFormComponent implements OnInit {
+
+  @Input() customerId: number | null = null;
+  @Input() id: number | null = null; // sales order id
 
   // icons
   readonly SearchIcon = Search;
@@ -73,32 +76,45 @@ export class SalesOrderFormComponent implements OnInit {
       warehouseId: [1, Validators.required],
       orderDate: [new Date().toISOString().split('T')[0], Validators.required],
       remarks: [''],
-      isGstBill: [false], 
+      isGstBill: [false],
       items: this.fb.array([], Validators.required),
-      
+
       // Header Level Adjustments (Inputs are RATES %)
-      flatDiscountRate: [0, [Validators.min(0), Validators.max(100)]], 
+      flatDiscountRate: [0, [Validators.min(0), Validators.max(100)]],
       flatTaxRate: [0, [Validators.min(0), Validators.max(100)]]
     });
   }
 
   ngOnInit(): void {
+    if (this.customerId) {
+      this.getUserById(this.customerId);
+      this.orderForm.get('customerId')?.setValue(this.customerId);
+    }
+
     this.setupItemSearch();
     this.checkEditMode();
     this.getSalesOrderApprovalConfig();
   }
 
-  // --- Initialization Logic ---
   private checkEditMode() {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
+    if (this.id) {
+      this.initializeEditMode(this.id);
+      return;
+    }
 
-      if (id) {
-        this.isEditMode = true;
-        this.orderId = +id;
-        this.loadOrderDetails(this.orderId);
+    this.route.paramMap.subscribe(params => {
+      const routeId = params.get('id');
+
+      if (routeId) {
+        this.initializeEditMode(routeId);
       }
     });
+  }
+
+  private initializeEditMode(id: string | number) {
+    this.isEditMode = true;
+    this.orderId = Number(id);
+    this.loadOrderDetails(this.orderId);
   }
 
   private loadOrderDetails(id: number) {
@@ -117,7 +133,7 @@ export class SalesOrderFormComponent implements OnInit {
           flatDiscountRate: order.flatDiscountRate || 0,
           flatTaxRate: order.flatTaxRate || 0
         });
-        
+
         // 2. Set Customer Display
         this.getUserById(order.customerId);
 
@@ -132,7 +148,7 @@ export class SalesOrderFormComponent implements OnInit {
             sellingPrice: item.unitPrice,
             orderedQty: item.orderedQty,
             // Map Rates
-            discountRate: item.discountRate, 
+            discountRate: item.discountRate,
             taxRate: item.taxRate
           }));
         });
@@ -200,22 +216,22 @@ export class SalesOrderFormComponent implements OnInit {
   // 1. Sum of all Line Totals (Item Gross Total in Java)
   get itemGrossTotal(): number {
     return this.items.controls.reduce((sum, ctrl, index) => {
-       const details = this.getLineDetails(index);
-       return sum + details.lineTotal;
+      const details = this.getLineDetails(index);
+      return sum + details.lineTotal;
     }, 0);
   }
 
   // 2. Sum of all Item Discounts (For Display)
   get totalItemDiscounts(): number {
     return this.items.controls.reduce((sum, ctrl, index) => {
-       return sum + this.getLineDetails(index).discAmt;
+      return sum + this.getLineDetails(index).discAmt;
     }, 0);
   }
 
   // 3. Sum of all Item Taxes (For Display)
   get totalItemTaxes(): number {
     return this.items.controls.reduce((sum, ctrl, index) => {
-       return sum + this.getLineDetails(index).taxAmt;
+      return sum + this.getLineDetails(index).taxAmt;
     }, 0);
   }
 
@@ -231,7 +247,7 @@ export class SalesOrderFormComponent implements OnInit {
 
   // Calculated Flat Discount Amount (Logic: Applied on Sum of Line Totals)
   get flatDiscountAmount(): number {
-    const lineSum = this.itemGrossTotal; 
+    const lineSum = this.itemGrossTotal;
     return this.round(lineSum * (this.flatDiscountRate / 100));
   }
 
@@ -344,11 +360,11 @@ export class SalesOrderFormComponent implements OnInit {
       warehouseId: formVal.warehouseId,
       orderDate: formVal.orderDate,
       remarks: formVal.remarks,
-      
+
       // Header Level Rates
       flatDiscountRate: formVal.flatDiscountRate,
       flatTaxRate: formVal.flatTaxRate,
-      
+
       // Map Items (sending Rates, Backend calculates Amounts)
       items: formVal.items.map((i: any) => ({
         itemId: i.itemId,
@@ -397,13 +413,13 @@ export class SalesOrderFormComponent implements OnInit {
 
     // Calculate Total Discount Value (Item Level + Header Level)
     const totalDiscountVal = this.totalItemDiscounts + this.flatDiscountAmount;
-    
+
     // Base Amount (Item Gross Total before any discount)
     // We calculate pure gross (Price * Qty) for percentage comparison
     const rawGross = this.items.controls.reduce((sum, ctrl) => {
-       const qty = ctrl.get('orderedQty')?.value || 0;
-       const price = ctrl.get('unitPrice')?.value || 0;
-       return sum + (qty * price);
+      const qty = ctrl.get('orderedQty')?.value || 0;
+      const price = ctrl.get('unitPrice')?.value || 0;
+      return sum + (qty * price);
     }, 0);
 
     if (rawGross === 0) return false;

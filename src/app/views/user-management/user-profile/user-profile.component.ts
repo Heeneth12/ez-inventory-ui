@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Users, MapPinCheckIcon, ChevronDown, UserSquare, Pencil, User, Fingerprint, Calendar, Hash, Plus, Star, LucideAngularModule, Truck, RefreshCw, Package, Folder, Clipboard, Banknote } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
@@ -8,7 +8,7 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DatePickerConfig } from '../../../layouts/UI/date-picker/date-picker.component';
 import { PaymentSymmaryComponent } from '../../sales/payments/payment-symmary/payment-symmary.component';
 import { PaymentService } from '../../sales/payments/payment.service';
-import { UserModel, UserType } from '../models/user.model';
+import { UserAddressModel, UserModel, UserType } from '../models/user.model';
 import { UserManagementService } from '../userManagement.service';
 import { PurchaseRequestComponent } from "../../purchases/purchase-request/purchase-request.component";
 import { PurchaseOrderComponent } from "../../purchases/purchase-order/purchase-order.component";
@@ -19,6 +19,7 @@ import { InvoicesComponent } from "../../sales/invoices/invoices.component";
 import { PaymentsComponent } from "../../sales/payments/payments.component";
 import { DeliveryComponent } from "../../sales/delivery/delivery.component";
 import { SalesReturnsComponent } from "../../sales/sales-returns/sales-returns.component";
+import { SalesOrderFormComponent } from '../../sales/sales-order/sales-order-form/sales-order-form.component';
 
 @Component({
   selector: 'app-user-profile',
@@ -33,6 +34,7 @@ export class UserProfileComponent implements OnInit {
   userId: number = 0;
   public readonly UserType = UserType;
   currentUserType: UserType = UserType.CUSTOMER;
+  isDropdownOpen = false;
 
   financialSummary: any = {
     totalOutstandingAmount: 0,
@@ -74,6 +76,7 @@ export class UserProfileComponent implements OnInit {
   readonly Package = Package;
   readonly Folder = Folder;
   readonly Banknote = Banknote;
+  readonly plusIcon = Plus;
 
   dateConfig: DatePickerConfig = {
     type: 'both',
@@ -238,11 +241,46 @@ export class UserProfileComponent implements OnInit {
     console.log("Current Selection:", this.selectedItemIds);
   }
 
+  getUserAddress(userAddress: UserAddressModel | undefined | null): string {
+
+    if (!userAddress) return '';
+
+    const addressParts = [
+      userAddress.addressLine1,
+      userAddress.addressLine2,
+      userAddress.route,
+      userAddress.area,
+      userAddress.city,
+      userAddress.state,
+      userAddress.country,
+      userAddress.pinCode
+    ];
+
+    return addressParts
+      .filter(part => part && part.trim() !== '')
+      .join(', ');
+  }
+
   openPaymentSummary(customerId: any) {
     this.modalService.openComponent(
       PaymentSymmaryComponent,
       { customerId },
       'lg'
     );
+  }
+
+  createSalesOrderForm() {
+    this.modalService.openComponent(
+      SalesOrderFormComponent,
+      { customerId: this.userId },
+      'xl'
+    );
+  }
+
+  onCreateClick() {
+    if (this.activeTab === 'sales_orders') {
+      this.createSalesOrderForm();
+    }
+
   }
 }

@@ -1,6 +1,6 @@
 @if(userDetails){
 <div class="bg-white pb-20">
-    <div class="bg-white border-b border-slate-100 px-8 py-6 flex flex-col lg:flex-row items-center gap-8">
+    <div class="bg-white border-b border-slate-100 px-8 py-4 flex flex-col lg:flex-row items-center gap-8">
         <div class="relative group">
             <div
                 class="w-32 h-32 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden shadow-sm">
@@ -16,7 +16,9 @@
             <div class="flex items-center gap-3">
                 <h1 class="text-2xl font-bold text-slate-800">{{ userDetails.fullName }}</h1>
                 <span
-                    class="px-3 py-0.5 bg-rose-50 text-rose-600 text-[11px] font-bold rounded-full border border-rose-100 uppercase">{{userDetails.userType}}</span>
+                    class="px-3 py-0.5 bg-rose-50 text-rose-600 text-[11px] font-bold rounded-full border border-rose-100 uppercase">
+                    {{userDetails.userType}}
+                </span>
             </div>
 
             <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-slate-500 font-medium">
@@ -24,8 +26,6 @@
                     userDetails.phone }}</span>
                 <span class="flex items-center gap-2"><lucide-icon [img]="User" class="w-3.5 h-3.5"></lucide-icon> {{
                     userDetails.userType }}</span>
-                <span class="flex items-center gap-2 font-mono"><lucide-icon [img]="Fingerprint"
-                        class="w-3.5 h-3.5"></lucide-icon> {{ userDetails.phone }}</span>
             </div>
             <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-slate-500 font-medium">
                 <span class="flex items-center gap-2"><lucide-icon [img]="Mail" class="w-3.5 h-3.5"></lucide-icon> {{
@@ -34,8 +34,14 @@
                     userDetails.gstNumber }}</span> -->
             </div>
 
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-slate-500 font-medium">
+                <span class="flex items-center gap-2"><lucide-icon [img]="User" class="w-3.5 h-3.5"></lucide-icon> {{
+                    userDetails.userType }}</span>
+            </div>
+
             <p class="text-xs text-slate-400 max-w-sm leading-relaxed mt-2 italic flex items-center gap-1">
-                <!-- <lucide-icon [img]="MapPin" class="w-3.5 h-3.5"></lucide-icon> {{ locationDisplay || 'Address not insystem' }} -->
+                <lucide-icon [img]="MapPin" class="w-3.5 h-3.5"></lucide-icon> {{
+                getUserAddress(userDetails.addresses?.[0]) || 'Address not insystem' }}
             </p>
         </div>
 
@@ -57,12 +63,12 @@
             </div>
             <div class="flex flex-col gap-2">
                 <button (click)="openPaymentSummary(userDetails.id)"
-                    class="w-full flex items-center justify-center gap-2 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg border border-slate-200 hover:bg-slate-200 transition-all">
+                    class="w-full flex items-center justify-center gap-2 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-mb border border-slate-200 hover:bg-slate-200 transition-all">
                     <lucide-icon [img]="Plus" class="w-3.5 h-3.5"></lucide-icon>
                     Collect Advance
                 </button>
                 <button
-                    class="flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all">
+                    class="flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-mb hover:bg-indigo-600 transition-all">
                     <lucide-icon [img]="FileText" class="w-4 h-4"></lucide-icon>
                     <span class="text-[10px] font-bold text-center leading-tight">Generate Inv</span>
                 </button>
@@ -144,13 +150,24 @@
                     {{ tab.label }}
                 </button>
             </div>
+            <div class="flex items-center self-start sm:self-auto w-full sm:w-auto">
+                <button (click)="onCreateClick()"
+                    class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-l-full transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
+                    <lucide-icon [img]="plusIcon" class="w-4 h-4 text-gray-500 group-hover:text-gray-700"></lucide-icon>
+                    <span>Create</span>
+                    <kbd
+                        class="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-sans font-semibold text-gray-400 bg-gray-100 border border-gray-200 rounded ml-2 group-hover:bg-white transition-colors">
+                        <span class="text-xs">Ctrl</span> C
+                    </kbd>
+                </button>
+            </div>
         </div>
 
         <div class="p-0 bg-white animate-in fade-in duration-300">
             @if(activeTab === 'overview') {
             <div class="p-6 border-t border-gray-100  space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-blue-100 border border-slate-100 p-4 rounded-2xl shadow-sm">
+                    <div class="bg-indigo-100 border border-slate-100 p-4 rounded-lg shadow-sm">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Lifetime Sales
                         </p>
                         <div class="flex items-center justify-between">
@@ -159,17 +176,17 @@
                                 class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+12%</span>
                         </div>
                     </div>
-                    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                    <div class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Open Invoices</p>
                         <h3 class="text-xl font-bold text-slate-800">04</h3>
                     </div>
-                    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                    <div class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Wallet Balance
                         </p>
                         <h3 class="text-xl font-bold text-emerald-600">₹{{ financialSummary.walletBalance |
                             number:'1.2-2' }}</h3>
                     </div>
-                    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                    <div class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Due</p>
                         <h3 class="text-xl font-bold text-rose-600">₹{{ financialSummary.totalOutstandingAmount |
                             number:'1.2-2' }}</h3>
@@ -267,7 +284,7 @@
             }@else if (activeTab === 'invoices') {
             <app-invoices [customerId]="userId" [statGroup]="false"></app-invoices>
             }@else if (activeTab === 'payments') {
-            <app-payments [customerId]="userId" ></app-payments>
+            <app-payments [customerId]="userId" [statGroup]="false"></app-payments>
             }@else if (activeTab === 'delivery') {
             <app-delivery [customerId]="userId"></app-delivery>
             }@else if (activeTab === 'sales_return') {

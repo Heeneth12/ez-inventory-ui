@@ -217,9 +217,9 @@
             <div class="flex items-center gap-2 sm:gap-4">
 
                 <button (click)="openUserCalendar()"
-                    class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-50 hover:border-slate-300 ">
+                    class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-50 hover:border-slate-300 ">
                     <lucide-icon [img]="Calendar" class="w-3 h-3 text-slate-400"></lucide-icon>
-                    <span>Oct 1 - Oct 31, 2023</span>
+                    <span>Oct 31, 2023</span>
                     <lucide-icon [img]="ChevronDown" class="w-3 h-3 ml-1 text-slate-400"></lucide-icon>
                 </button>
 
@@ -227,7 +227,7 @@
                 <app-custom-dropdown id="quick-create-btn" [triggerIcon]="Zap" menuTitle="Quick Create"
                     [items]="quickCreateItems">
                 </app-custom-dropdown>
-                
+
                 <app-custom-dropdown id="help-center-btn" [triggerIcon]="helpIcon" menuTitle="Help Center"
                     [items]="helpCenterItems" anchor="bottom end">
                 </app-custom-dropdown>
