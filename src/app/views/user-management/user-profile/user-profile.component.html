@@ -286,9 +286,9 @@
             }@else if (activeTab === 'payments') {
             <app-payments [customerId]="userId" [statGroup]="false"></app-payments>
             }@else if (activeTab === 'delivery') {
-            <app-delivery [customerId]="userId"></app-delivery>
+            <app-delivery [customerId]="userId" [statGroup]="false"></app-delivery>
             }@else if (activeTab === 'sales_return') {
-            <app-sales-returns [customerId]="userId"></app-sales-returns>
+            <app-sales-returns [customerId]="userId" [statGroup]="false"></app-sales-returns>
             }
         </div>
     </div>

@@ -208,7 +208,6 @@ export class StockComponent implements OnInit {
   handleTableAction(event: TableAction) {
     // Check if the event is the specific custom action we defined
     if (event.type === 'custom' && event.key === 'view_item_details') {
-      console.log('Viewing item details:', event.row);
       this.searchItemInStockById(event.row['itemId']);
     }
     // You can handle other actions here (edit, delete, etc.)

@@ -19,6 +19,7 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
 })
 export class SalesReturnsComponent {
 
+  @Input() statGroup?: boolean = true;
   @Input() customerId?: number;
   readonly ArrowRight = ArrowRight;
 

@@ -472,6 +472,14 @@ export class ApprovalConsoleComponent implements OnInit {
     this.getAllApprovals();
   }
 
+  onSearchChange(searchQuery: string) {
+    console.log('Search Query:', searchQuery);
+    this.approvalFilter.searchQuery = searchQuery;
+    this.pagination.currentPage = 1;
+    this.getAllApprovals();
+  }
+
+
   handleCardAction(card: StatCardData) {
     console.log('Card Clicked:', card.title);
   }
