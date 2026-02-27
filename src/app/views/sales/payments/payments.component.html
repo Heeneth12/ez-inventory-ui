@@ -1,5 +1,6 @@
+@if(statGroup){
 <app-stat-group [stats]="dashboardStats"></app-stat-group>
-
+}
 <div class="space-y-6">
     <div class="flex-1 h-[calc(100vh-225px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="paymentList" [pagination]="pagination"
