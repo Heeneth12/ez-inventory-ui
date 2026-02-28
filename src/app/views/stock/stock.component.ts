@@ -47,17 +47,17 @@ export class StockComponent implements OnInit {
     {
       label: 'Bulk Process',
       icon: CloudDownloadIcon,
-      variant: 'primary',
+      variant: 'secondary',
       key: 'bulk_download',
       action: () => this.downloadCurrentStockReport()
     },
-    {
-      label: 'Warehouse',
-      icon: Building2,
-      variant: 'outline',
-      key: 'bulk_download',
-      action: () => console.log("Warehouse")
-    }
+    // {
+    //   label: 'Warehouse',
+    //   icon: Building2,
+    //   variant: 'outline',
+    //   key: 'bulk_download',
+    //   action: () => console.log("Warehouse")
+    // }
   ];
 
   viewDetails: TableActionConfig[] = [

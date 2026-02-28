@@ -185,7 +185,6 @@ export class PaymentsComponent {
       value: '$10,398',
       color: 'emerald',
       icon: Banknote,
-      trend: { value: '+$498', isUp: true }
     },
     {
       key: 'profit',
@@ -193,7 +192,6 @@ export class PaymentsComponent {
       value: '$3,982',
       icon: PieChart,
       color: 'gray',
-      trend: { value: '+$198', isUp: true }
     },
     {
       key: 'orders',
@@ -201,7 +199,6 @@ export class PaymentsComponent {
       value: '1,248',
       icon: ShoppingCart,
       color: 'gray',
-      trend: { value: '+86', isUp: true }
     },
     {
       key: 'customers',
@@ -209,7 +206,6 @@ export class PaymentsComponent {
       value: '342',
       icon: Users,
       color: 'gray',
-      trend: { value: '-12', isUp: false }
     }
   ];
 }

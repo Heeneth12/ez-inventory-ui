@@ -1,4 +1,4 @@
-import { ListRestart, ListCollapse, PenLineIcon, Undo2, XCircle, ArrowRight, CircleX, FileDown, ReceiptIndianRupee, ScrollText } from "lucide-angular";
+import { ListRestart, ListCollapse, PenLineIcon, Undo2, XCircle, ArrowRight, CircleX, FileDown, ReceiptIndianRupee, ScrollText, Truck, PackageCheck } from "lucide-angular";
 import { TableColumn, TableActionConfig } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
@@ -170,18 +170,18 @@ export const DELIVERY_ACTIONS: TableActionConfig[] = [
         condition: (row) => true
     },
     {
-        key: 'move_to_invoice',
-        label: 'Move to Invoice',
-        icon: ArrowRight,
+        key: 'move_to_delivery',
+        label: 'Move to Delivery',
+        icon: Truck,
         color: 'primary',
-        condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
+        condition: (row) => row['status'] === 'SCHEDULED'
     },
     {
-        key: 'move_to_cancle',
-        label: '',
-        icon: CircleX,
-        color: 'danger',
-        condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
+        key: 'make_as_delivered',
+        label: 'Make as Delivered',
+        icon: PackageCheck,
+        color: 'success',
+        condition: (row) => row['status'] === 'SHIPPED'
     }
 ];
 
