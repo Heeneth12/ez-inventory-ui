@@ -33,6 +33,7 @@ export class StockAdjustmentComponent implements OnInit {
   stockAdjustmentSummary: StockAdjustmentDetailModel | null = null;
   stockAdjustmentFilter: StockAdjustmentFilter = new StockAdjustmentFilter();
   stockAdjColumn: any = STOCK_ADJUSTMENT_COLUMNS;
+  isLoading: boolean = false;
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
@@ -90,14 +91,14 @@ export class StockAdjustmentComponent implements OnInit {
 
   private setupTablePipeline() {
     this.tableRefresh$.pipe(
-      debounceTime(400)
+      debounceTime(300)
     ).subscribe(() => {
       this.getAllSalesAdjustments();
     });
   }
 
   getAllSalesAdjustments() {
-    this.loaderSvc.show();
+    this.isLoading = true;
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.stockService.getStockAdjustments(
       apiPage,
@@ -110,10 +111,10 @@ export class StockAdjustmentComponent implements OnInit {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
       },
       (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastSvc.show('Failed to load Stock Adjustments', 'error');
       }
     );
