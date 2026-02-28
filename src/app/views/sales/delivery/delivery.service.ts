@@ -3,6 +3,7 @@ import { environment } from "../../../../environments/environment.development";
 import { HttpService } from "../../../layouts/service/http-svc/http.service";
 import { ItemService } from "../../items/item.service";
 import { ItemModel } from "../../items/models/Item.model";
+import { ShipmentStatus } from "./delivery.model";
 
 
 @Injectable({
@@ -26,8 +27,8 @@ export class DeliveryService {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/search`, searchFilter, successfn, errorfn);
     }
 
-    updateDeliveryStatus(request: any, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/update-status`, request, successfn, errorfn);
+    updateDeliveryStatus(id: string | number, status: ShipmentStatus, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${id}/status?status=${status}`, {}, successfn, errorfn);
     }
 
     markAsDelivered(deliveryId: string | number, successfn: any, errorfn: any) {
@@ -57,7 +58,7 @@ export class DeliveryService {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/complete/${routeId}`, {}, successfn, errorfn);
     }
 
-    getRouteSummary(successfn: any, errorfn: any){
+    getRouteSummary(successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/summary`, successfn, errorfn)
     }
 }

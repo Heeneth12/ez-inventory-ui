@@ -1,27 +1,15 @@
-<div class="p-4 bg-white">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <app-stat-card *ngFor="let card of stats" [data]="card" [isSelected]="selectedCardId === card.id"
-            (cardClick)="handleCardSelection($event)">
-        </app-stat-card>
-    </div>
-</div>
-
+@if(statGroup){
+<app-stat-group [stats]="deliveryDashboardStats"></app-stat-group>
+}
 
 <div class="space-y-6">
     <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
-        <app-standard-table
-            [title]="'Data Table'" 
-            [columns]="columns" 
-            [data]="deliveryDetails"
-            [pagination]="pagination"
-            [isServerSide]="true" 
-            [customActions]="deliveryActions"
-            (action)="handleTableAction($event)" 
-            [headerActions]="headerActions"
-            (headerAction)="handleHeaderAction($event)"
-            (pageChange)="onPageChange($event)" 
-            (loadMore)="onLoadMore()"
-            (selectionChange)="onSelectionChange($event)" 
+        <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="deliveryDetails"
+            [pagination]="pagination" [isServerSide]="true" [customActions]="deliveryActions"
+            (action)="handleTableAction($event)" [headerActions]="headerActions"
+            (headerAction)="handleHeaderAction($event)" (pageChange)="onPageChange($event)"
+            (selectionChange)="onSelectionChange($event)" [datePickerConfig]="dateConfig"
+            (dateChange)="onFilterDate($event)" [filterConfig]="FilterOptions" (filterChanged)="onFilterUpdate($event)"
             [enableSelection]="true">
         </app-standard-table>
     </div>
