@@ -43,6 +43,7 @@ import {
   ClipboardList,
   Receipt,
   UserPlus,
+  BadgePlus,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -86,6 +87,7 @@ export class InventoryLayoutComponent implements OnInit {
   readonly XIcon = X;
   readonly plusIcon = Plus;
   readonly helpIcon = HelpCircle;
+  readonly BadgePlus = BadgePlus
 
   isQuickCreateOpen = false;
 
