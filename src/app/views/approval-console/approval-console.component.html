@@ -1,8 +1,8 @@
 <app-stat-group [stats]="approvalDashboardStats"></app-stat-group>
 <div class="space-y-6 rounded-lg">
-    <div class="flex-1 h-[calc(100vh-190px)] overflow-y-auto">
+    <div class="flex-1 h-[calc(100vh-150px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="approvals" [pagination]="pagination"
-            [isServerSide]="true" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
+            [isServerSide]="true" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" [isLoading]="isLoading"
             [customActions]="approvalActions" (action)="onTableAction($event)" [headerActions]="myHeaderActions"
             [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)" [filterConfig]="filterConfig"
             (searchChange)="onSearchChange($event)" (filterChanged)="onFilterUpdate($event)"

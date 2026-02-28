@@ -8,11 +8,12 @@ import { UserCardComponent } from "../../UI/user-card/user-card.component";
 import { DatePickerConfig, DateRangeEmit, DatePickerComponent } from '../../UI/date-picker/date-picker.component';
 import { FilterOption, FilterDropdownComponent } from '../../UI/filter-dropdown/filter-dropdown.component';
 import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
+import { SkeletonLoaderComponent } from "../../UI/skeleton-loader/skeleton-loader.component";
 
 @Component({
   selector: 'app-standard-table',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, StatusStepperComponent, UserCardComponent, DatePickerComponent, FilterDropdownComponent],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, StatusStepperComponent, UserCardComponent, DatePickerComponent, FilterDropdownComponent, SkeletonLoaderComponent],
   templateUrl: './standard-table.component.html',
   styleUrls: ['./standard-table.component.css'],
 })
@@ -107,7 +108,7 @@ export class StandardTableComponent implements OnChanges {
       this.searchSubscription.unsubscribe();
     }
   }
-  
+
   ngOnChanges(changes: SimpleChanges) {
     // Sync local data
     if (changes['data']) {
@@ -218,7 +219,7 @@ export class StandardTableComponent implements OnChanges {
     }
 
     // WARNING
-    if (['pending', 'processing', 'hold', 'warning', 'partially_invoiced', 'customer_pickup', 'pending_approval', 'customer' ].includes(s)) {
+    if (['pending', 'processing', 'hold', 'warning', 'partially_invoiced', 'customer_pickup', 'pending_approval', 'customer'].includes(s)) {
       return styles.warning;
     }
 
@@ -400,9 +401,9 @@ export class StandardTableComponent implements OnChanges {
     this.sortDirection.set('asc');
     this.currentPageSignal.set(1);
     this.triggerReset++;
-    if(this.searchMode === 'server') {
-        this.searchChange.emit('');
-        this.pageChange.emit(1);
+    if (this.searchMode === 'server') {
+      this.searchChange.emit('');
+      this.pageChange.emit(1);
     }
   }
 }   

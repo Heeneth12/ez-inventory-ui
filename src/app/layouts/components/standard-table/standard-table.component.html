@@ -329,6 +329,13 @@
                         </div>
                     </td>
                 </tr>
+                <tr *ngIf="loadMode === 'pagination' && isLoading">
+                    <td [attr.colspan]="visibleColumns().length + (enableSelection ? 1 : 0)"
+                        class="text-center bg-gray-50">
+                        <app-skeleton-loader [type]="'table'" [rows]="12"
+                            [columns]="visibleColumns().length"></app-skeleton-loader>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>

@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms'; // Import FormsModule for the draw
 import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { ToastService } from '../../layouts/components/toast/toastService';
-import { StatCardData } from "../../layouts/UI/stat-card/stat-card.component";
 import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight, ClipboardListIcon, Clock, FileText } from 'lucide-angular';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
@@ -185,14 +184,13 @@ export class ApprovalConsoleComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.getAllApprovals();
     this.getApprovalStats();
   }
 
   getAllApprovals() {
-    this.loaderSvc.show();
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
-
     this.approvalConsoleService.getAllApprovals(
       apiPage,
       this.pagination.pageSize,
@@ -204,10 +202,10 @@ export class ApprovalConsoleComponent implements OnInit {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
       },
       (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastService.show('Failed to load approvals', 'error');
       }
     );
@@ -479,20 +477,8 @@ export class ApprovalConsoleComponent implements OnInit {
     this.getAllApprovals();
   }
 
-
-  handleCardAction(card: StatCardData) {
-    console.log('Card Clicked:', card.title);
-  }
-
   onLoadMore() {
 
-  }
-
-
-  selectedCardId: string | number = '1';
-  handleCardSelection(card: StatCardData) {
-    this.selectedCardId = card.id;
-    // Perform other actions (filter lists, show charts, etc.)
   }
 
   onFilterDate(range: DateRangeEmit) {

@@ -19,33 +19,49 @@
         </div>
     </div>
 
-    <div *ngSwitchCase="'table'" class="w-full rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
-        <div class="flex items-center gap-4 border-b border-slate-100 bg-slate-50/50 px-6 py-4">
-            <div class="h-4 w-4 shrink-0 animate-pulse rounded bg-slate-200"></div>
-            <div class="h-2.5 w-1/4 animate-pulse rounded-full bg-slate-200"></div>
-            <div class="h-2.5 w-1/4 animate-pulse hidden rounded-full bg-slate-200 md:block"></div>
-            <div class="h-2.5 w-1/4 animate-pulse hidden rounded-full bg-slate-200 lg:block"></div>
-            <div class="ml-auto h-2.5 w-20 animate-pulse rounded-full bg-slate-200"></div>
-        </div>
-        <div class="divide-y divide-slate-50">
+    <div *ngSwitchCase="'table'" class="w-full bg-white shadow-sm overflow-hidden flex flex-col">
+        <div class="divide-y divide-slate-50 flex-1">
             <div *ngFor="let row of rowArray" class="flex items-center gap-4 px-6 py-4">
                 <div class="h-4 w-4 shrink-0 animate-pulse rounded bg-slate-100"></div>
-                <div class="flex w-1/4 items-center gap-3">
-                    <div class="h-8 w-8 shrink-0 animate-pulse rounded-lg bg-slate-100"></div>
+
+                <div class="flex w-64 items-center gap-3 shrink-0">
+                    <div class="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-slate-100"></div>
                     <div class="flex-1 space-y-2">
-                        <div class="h-2 w-3/4 animate-pulse rounded-full bg-slate-200"></div>
-                        <div class="h-1.5 w-1/2 animate-pulse rounded-full bg-slate-100"></div>
+                        <div class="h-2.5 w-3/4 animate-pulse rounded-full bg-slate-200"></div>
                     </div>
                 </div>
-                <div class="hidden w-1/4 md:block">
-                    <div class="h-2 w-24 animate-pulse rounded-full bg-slate-100"></div>
+
+                <div class="hidden w-32 animate-pulse rounded-full bg-slate-200 xl:block h-2"></div>
+                <div class="hidden w-32 animate-pulse rounded-full bg-slate-200 xl:block h-2"></div>
+
+                <div class="hidden w-20 shrink-0 lg:block">
+                    <div class="h-5 w-16 animate-pulse rounded-full bg-slate-200"></div>
                 </div>
-                <div class="hidden w-1/4 lg:block">
-                    <div class="h-6 w-16 animate-pulse rounded-full bg-slate-100"></div>
+
+                <div class="hidden w-20 animate-pulse rounded-full bg-slate-200 lg:block h-2"></div>
+                <div class="hidden w-20 animate-pulse rounded-full bg-slate-200 md:block h-2"></div>
+                <div class="hidden w-20 animate-pulse rounded-full bg-slate-200 md:block h-2"></div>
+                <div class="hidden w-20 animate-pulse rounded-full bg-slate-200 md:block h-2"></div>
+
+                <div class="hidden w-24 animate-pulse rounded-full bg-slate-200 sm:block h-2"></div>
+
+                <div class="ml-auto shrink-0">
+                    <div class="h-5 w-9 animate-pulse rounded-full bg-slate-200"></div>
                 </div>
-                <div class="ml-auto flex gap-2">
-                    <div class="h-8 w-8 animate-pulse rounded-md bg-slate-50"></div>
+
+                <div class="flex gap-2 shrink-0">
+                    <div class="h-8 w-8 animate-pulse rounded-md bg-slate-100"></div>
+                    <div class="h-8 w-4 animate-pulse rounded-md bg-slate-100"></div>
                 </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-slate-50 bg-slate-50/50 px-6 py-3">
+            <div class="h-2.5 w-32 animate-pulse rounded-full bg-slate-200"></div>
+            <div class="flex gap-2">
+                <div class="h-8 w-16 animate-pulse rounded-md bg-slate-200"></div>
+                <div class="h-8 w-10 animate-pulse rounded-md bg-slate-200"></div>
+                <div class="h-8 w-16 animate-pulse rounded-md bg-slate-200"></div>
             </div>
         </div>
     </div>
