@@ -9,7 +9,7 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
-import { ArrowRight, CircleX, Clock, DollarSign, FileText, Headphones, ReceiptText, RefreshCcw, View, XCircle } from 'lucide-angular';
+import { ArrowRight, BadgeIndianRupee, CircleX, Clock, DollarSign, FileText, Headphones, ReceiptText, RefreshCcw, View, XCircle } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
@@ -49,7 +49,7 @@ export class SalesOrderComponent implements OnInit {
       key: 'totalValue',
       label: 'Total Sales Order Value',
       value: '₹12,45,000',
-      icon: DollarSign,
+      icon: BadgeIndianRupee,
       color: 'emerald',
     },
     {
@@ -141,7 +141,7 @@ export class SalesOrderComponent implements OnInit {
             key: 'totalValue',
             label: 'Total Sales Order Value',
             value: '₹' + response.data.totalValue,
-            icon: DollarSign,
+            icon: BadgeIndianRupee,
             color: 'emerald',
           },
           {

@@ -26,6 +26,13 @@ export const SALES_ORDER_ACTIONS: TableActionConfig[] = [
         condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
     },
     {
+        key: 'view_sales_order',
+        label: '',
+        icon: ListCollapse,
+        color: 'neutral',
+        condition: (row) => true
+    },
+    {
         key: 'move_to_cancle',
         label: '',
         icon: CircleX,
@@ -73,12 +80,10 @@ export const INVOICE_COLUMNS: TableColumn[] = [
     { key: 'invoiceNumber', label: 'Invoice No', width: '130px', type: 'link' },
     { key: 'invoiceDate', label: 'Inv-Date', width: '130px', type: 'date', align: 'center' },
     { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'center' },
-    { key: 'totalDiscount', label: "Dis %", width: '120px', type: 'currency', align: 'center' },
     { key: 'status', label: 'Status', width: '130px', type: 'badge' },
     { key: 'paymentStatus', label: 'Pay-Status', width: '120px', type: 'badge' },
     { key: 'amountPaid', label: 'Paid Amt', width: '130px', type: 'currency', align: 'center' },
     { key: 'balance', label: 'Balance', width: '130px', type: 'currency', align: 'right' },
-    { key: 'grandTotal', label: 'Total Amt', width: '130px', type: 'currency', align: 'right' },
     { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
 ];
 
@@ -103,7 +108,14 @@ export const INVOICE_ACTIONS: TableActionConfig[] = [
         icon: FileDown,
         color: 'neutral',
         condition: (row) => true
-    }
+    },
+    {
+        key: 'view_invoice',
+        label: '',
+        icon: ListCollapse,
+        color: 'neutral',
+        condition: (row) => true
+    },
 ]
 export const INVOICE_FILTER_OPTIONS: FilterOption[] = [
     {
@@ -133,6 +145,124 @@ export const INVOICE_FILTER_OPTIONS: FilterOption[] = [
     }
 ];
 export const INVOICE_DATE_CONFIG: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+};
+
+// DELIVERY
+export const DELIVERY_COLUMNS: TableColumn[] = [
+    { key: 'contactMini', label: 'Customer', width: '140px', type: 'fullProfile', align: 'left' },
+    { key: 'deliveryNumber', label: 'Delivery Number', width: '200px', type: 'link' },
+    { key: 'type', label: 'Type', width: '100px', type: 'badge' },
+    { key: 'status', label: 'Status', width: '90px', type: 'badge' },
+    { key: 'scheduledDate', label: 'Scheduled Date', align: 'right', width: '110px', type: 'date' },
+    { key: 'shippedDate', label: 'Shipped Date', align: 'right', width: '110px', type: 'date' },
+    { key: 'deliveredDate', label: 'Delivered Date', align: 'right', width: '110px', type: 'date' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];
+
+export const DELIVERY_ACTIONS: TableActionConfig[] = [
+    {
+        key: 'view_delivery',
+        label: '',
+        icon: ListCollapse,
+        color: 'neutral',
+        condition: (row) => true
+    },
+    {
+        key: 'move_to_invoice',
+        label: 'Move to Invoice',
+        icon: ArrowRight,
+        color: 'primary',
+        condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
+    },
+    {
+        key: 'move_to_cancle',
+        label: '',
+        icon: CircleX,
+        color: 'danger',
+        condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
+    }
+];
+
+export const DELIVERY_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'type',
+        label: 'Type',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'In House Delivery', value: 'IN_HOUSE_DELIVERY' },
+            { label: 'Third Party Courier', value: 'THIRD_PARTY_COURIER' },
+            { label: 'Customer Pickup', value: 'CUSTOMER_PICKUP' }
+        ]
+    },
+    {
+        id: 'shipmentStatus',
+        label: 'Shipment Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'Pending', value: 'PENDING' },
+            { label: 'Scheduled', value: 'SCHEDULED' },
+            { label: 'Shipped', value: 'SHIPPED' },
+            { label: 'Delivered', value: 'DELIVERED' },
+            { label: 'Cancelled', value: 'CANCELLED' }
+        ]
+    }
+];
+
+export const DELIVERY_DATE_CONFIG: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+};
+
+// PAYMENTS
+export const PAYMENTS_COLUMNS: TableColumn[] = [
+    { key: 'contactMini', label: 'Customer', width: '140px', type: 'fullProfile', align: 'left' },
+    { key: 'paymentNumber', label: 'Payment Number', width: '200px', type: 'link' },
+    { key: 'paymentDate', label: 'Payment Date', width: '100px', type: 'date' },
+    { key: 'amount', label: 'Amount', width: '90px', type: 'text' },
+    { key: 'status', label: 'Status', align: 'right', width: '110px', type: 'badge' },
+    { key: 'paymentMethod', label: 'Payment Method', align: 'right', width: '130px', type: 'text' },
+    { key: 'allocatedAmount', label: 'Allocated Amount', align: 'right', width: '110px', type: 'currency' },
+    { key: 'unallocatedAmount', label: 'Unallocated Amount', align: "center", width: '110px', type: 'currency' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];
+
+export const PAYMENTS_ACTIONS: TableActionConfig[] = [
+    {
+        key: 'payment_details',
+        label: 'Payment details',
+        icon: ScrollText,
+        color: 'primary',
+        condition: (row) => row['status'] === 'COMPLETED' || row['status'] === 'RECEIVED'
+    },
+    {
+        key: 'download_receipt',
+        label: '',
+        icon: FileDown,
+        color: 'neutral',
+        condition: (row) => true
+    },
+]
+
+export const PAYMENTS_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'PENDING', value: 'PENDING' },
+            { label: 'COMPLETED', value: 'COMPLETED' },
+            { label: 'RECEIVED', value: 'RECEIVED' },
+            { label: 'FAILED', value: 'FAILED' }
+        ]
+    }
+];
+
+export const PAYMENTS_DATE_CONFIG: DatePickerConfig = {
     type: 'both',
     placeholder: 'Start - End'
 };
