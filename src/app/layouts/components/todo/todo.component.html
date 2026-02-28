@@ -1,0 +1,133 @@
+<div class="lg:p-4 p-2 font-sans antialiased text-[#1A1C1E]">
+  <div class="max-w-[1750px] mx-auto space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+      <div>
+        <div class="flex items-center gap-2">
+            <span class="px-2 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase rounded-md border border-amber-100">Daily Closure</span>
+        </div>
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight mt-1">End of Day Verification</h1>
+        <p class="text-[14px] text-slate-500">Accountant's record book for February 25, 2026</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+          Print Summary
+        </button>
+        <button class="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
+          Finalize & Close Day
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6">
+      
+      <div class="col-span-12 lg:col-span-8 space-y-6">
+        
+        <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+          <div class="p-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+              <lucide-icon [img]="icons.packageCheck" class="w-5 h-5 text-indigo-500"></lucide-icon>
+              Verify Incoming Stock (Purchases)
+            </h3>
+            <span class="text-xs font-bold text-slate-400">4 Items Pending</span>
+          </div>
+          <div class="divide-y divide-slate-50">
+            <div *ngFor="let item of purchaseQueue" class="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
+                  #{{item.id}}
+                </div>
+                <div>
+                  <p class="text-sm font-bold text-slate-900">{{item.vendor}}</p>
+                  <p class="text-xs text-slate-500">{{item.itemsCount}} SKUs • ${{item.totalAmount}}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-6">
+                <div class="hidden md:block text-right">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Status</p>
+                    <p class="text-xs font-bold text-emerald-500">Unverified</p>
+                </div>
+                <input type="checkbox" class="w-5 h-5 rounded border-slate-300 text-slate-900 focus:ring-slate-900">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+          <div class="p-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+              <lucide-icon [img]="icons.shoppingCart" class="w-5 h-5 text-emerald-500"></lucide-icon>
+              Verify Sales & Outgoing Stock
+            </h3>
+            <span class="text-xs font-bold text-slate-400">Total: $12,450.00</span>
+          </div>
+          <div class="p-0">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/80">
+                    <tr>
+                        <th class="p-4 text-[11px] font-black text-slate-400 uppercase">Inv ID</th>
+                        <th class="p-4 text-[11px] font-black text-slate-400 uppercase">Payment Mode</th>
+                        <th class="p-4 text-[11px] font-black text-slate-400 uppercase">Amount</th>
+                        <th class="p-4 text-[11px] font-black text-slate-400 uppercase text-right">Verify</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    <tr *ngFor="let sale of salesData" class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 text-sm font-bold text-slate-700">#{{sale.invoice}}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold text-slate-600">{{sale.method}}</span>
+                        </td>
+                        <td class="p-4 text-sm font-black text-slate-900">${{sale.amount}}</td>
+                        <td class="p-4 text-right">
+                            <input type="checkbox" class="w-5 h-5 rounded border-slate-300">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-4 space-y-6">
+        
+        <div class="bg-slate-900 rounded-2xl p-6 text-white shadow-xl shadow-slate-200">
+          <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <lucide-icon [img]="icons.coins" class="w-5 h-5 text-amber-400"></lucide-icon>
+            Cash Denominations
+          </h3>
+          
+          <div class="space-y-3">
+            <div *ngFor="let note of notes" class="flex items-center gap-3">
+              <span class="w-12 text-sm font-bold text-slate-400">${{note.value}}</span>
+              <span class="text-slate-600">×</span>
+              <input type="number" class="flex-1 bg-slate-800 border-none rounded-lg p-2 text-sm focus:ring-2 focus:ring-slate-700 outline-none" placeholder="Qty">
+              <span class="w-16 text-right text-sm font-bold text-emerald-400">$0</span>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-slate-800">
+            <div class="flex justify-between items-end">
+                <p class="text-xs font-bold text-slate-400 uppercase">Physical Total</p>
+                <p class="text-2xl font-black text-white">$0.00</p>
+            </div>
+            <div class="flex justify-between items-end mt-2">
+                <p class="text-xs font-bold text-slate-400 uppercase">System Expected</p>
+                <p class="text-sm font-bold text-slate-300">$1,240.00</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">EOD Remarks</h3>
+            <textarea 
+                rows="4" 
+                placeholder="Any discrepancies or notes for the day..."
+                class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-slate-900 outline-none transition-all"
+            ></textarea>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
