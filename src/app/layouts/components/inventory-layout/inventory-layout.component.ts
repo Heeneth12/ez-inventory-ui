@@ -44,6 +44,7 @@ import {
   Receipt,
   UserPlus,
   BadgePlus,
+  UsersRound,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { LoaderComponent } from "../loader/loader.component";
@@ -159,7 +160,7 @@ export class InventoryLayoutComponent implements OnInit {
       iconBgClass: 'bg-slate-50',
       colorClass: 'text-slate-600',
       routerLink: '/system-status'
-      
+
     }
   ];
 
@@ -215,18 +216,18 @@ export class InventoryLayoutComponent implements OnInit {
         { label: 'Sales Return', link: '/sales/return' },
       ]
     },
-    {
-      label: 'Contacts',
-      link: '/contacts',
-      icon: Users,
-      moduleKey: 'EZH_INV_CONTACTS'
-    },
-    {
-      label: 'Employees',
-      link: '/employee',
-      icon: CircleUser,
-      moduleKey: 'EZH_INV_EMPLOYEE'
-    },
+    // {
+    //   label: 'Contacts',
+    //   link: '/contacts',
+    //   icon: Users,
+    //   moduleKey: 'EZH_INV_CONTACTS'
+    // },
+    // {
+    //   label: 'Employees',
+    //   link: '/employee',
+    //   icon: CircleUser,
+    //   moduleKey: 'EZH_INV_EMPLOYEE'
+    // },
     {
       label: 'Approval',
       link: '/approval',
@@ -239,6 +240,12 @@ export class InventoryLayoutComponent implements OnInit {
       link: '/reports',
       icon: FileChartColumn,
       moduleKey: 'EZH_INV_REPORTS'
+    },
+    {
+      label: 'User Management',
+      link: '/admin/users',
+      icon: UsersRound,
+      moduleKey: 'EZH_INV_USER_MGMT'
     },
     {
       label: 'AI Chat',

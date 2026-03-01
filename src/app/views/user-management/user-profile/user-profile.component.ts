@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Users, MapPinCheckIcon, ChevronDown, UserSquare, Pencil, User, Fingerprint, Calendar, Hash, Plus, Star, LucideAngularModule, Truck, RefreshCw, Package, Folder, Clipboard, Banknote } from 'lucide-angular';
+import { Mail, MapPin, Phone, Building, FileText, ShoppingCart, CreditCard, StickyNote, ArrowUpRight, ArrowDownLeft, Clock, Home, Users, MapPinCheckIcon, ChevronDown, UserSquare, Pencil, User, Fingerprint, Calendar, Hash, Plus, Star, LucideAngularModule, Truck, RefreshCw, Package, Folder, Clipboard, Banknote, Undo2 } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
@@ -20,11 +20,13 @@ import { PaymentsComponent } from "../../sales/payments/payments.component";
 import { DeliveryComponent } from "../../sales/delivery/delivery.component";
 import { SalesReturnsComponent } from "../../sales/sales-returns/sales-returns.component";
 import { SalesOrderFormComponent } from '../../sales/sales-order/sales-order-form/sales-order-form.component';
+import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { SkeletonLoaderComponent } from "../../../layouts/UI/skeleton-loader/skeleton-loader.component";
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, PurchaseRequestComponent, PurchaseOrderComponent, GoodsReceiptComponent, PurchaseReturnsComponent, SalesOrderComponent, InvoicesComponent, PaymentsComponent, DeliveryComponent, SalesReturnsComponent],
+  imports: [CommonModule, LucideAngularModule, PurchaseRequestComponent, PurchaseOrderComponent, GoodsReceiptComponent, PurchaseReturnsComponent, SalesOrderComponent, InvoicesComponent, PaymentsComponent, DeliveryComponent, SalesReturnsComponent, SkeletonLoaderComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -77,6 +79,7 @@ export class UserProfileComponent implements OnInit {
   readonly Folder = Folder;
   readonly Banknote = Banknote;
   readonly plusIcon = Plus;
+  readonly undoIcon = Undo2;
 
   dateConfig: DatePickerConfig = {
     type: 'both',
@@ -105,11 +108,13 @@ export class UserProfileComponent implements OnInit {
     private toast: ToastService,
     private router: Router,
     private modalService: ModalService,
+    private drawerSvc: DrawerService,
     private loaderSvc: LoaderService,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
+    this.isLoading = true;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.userId = Number(id);
@@ -137,9 +142,11 @@ export class UserProfileComponent implements OnInit {
   }
 
   getFinancialSummary(id: number) {
+    this.isLoading = true;
     this.paymentService.getCustomerSummary(id,
       (res: any) => {
         this.financialSummary = res.data;
+        this.isLoading = false;
       },
       (err: any) => console.error("Could not load summary", err)
     );
@@ -204,7 +211,7 @@ export class UserProfileComponent implements OnInit {
           { id: 'invoices', label: 'Invoice / Bill', icon: this.FileText },
           { id: 'delivery', label: 'Delivery', icon: this.Truck },
           { id: 'payments', label: 'Payment', icon: this.CreditCard },
-          { id: 'sales_return', label: 'Sales Return', icon: this.RefreshCw }
+          { id: 'sales_return', label: 'Sales Return', icon: this.undoIcon }
         ];
 
       case UserType.VENDOR:
@@ -213,7 +220,7 @@ export class UserProfileComponent implements OnInit {
           { id: 'ppurchase_request', label: 'Purchase Requisition', icon: this.Clipboard },
           { id: 'purchase_orders', label: 'Purchase Orders', icon: this.ShoppingCart },
           { id: 'goods_receipt', label: 'Goods Receipt', icon: this.Package },
-          { id: 'purchase_return', label: 'Purchase Return', icon: this.RefreshCw }
+          { id: 'purchase_return', label: 'Purchase Return', icon: this.undoIcon }
         ];
 
       case UserType.EMPLOYEE:
@@ -277,9 +284,20 @@ export class UserProfileComponent implements OnInit {
     );
   }
 
+  createPurchaseOrderForm() {
+    this.drawerSvc.openComponent(
+      SalesOrderFormComponent,
+      { customerId: this.userId },
+      'Create Purchase Order',
+      '2xl'
+    );
+  }
+
   onCreateClick() {
     if (this.activeTab === 'sales_orders') {
-      this.createSalesOrderForm();
+      this.createPurchaseOrderForm();
+    } else if (this.activeTab === 'purchase_orders') {
+      this.createPurchaseOrderForm();
     }
 
   }
