@@ -12,6 +12,8 @@ import { RoleModel, ApplicationModel, ModuleModel, PrivilegeModel } from './mode
 import { UserFilterModel, UserModel } from './models/user.model';
 import { TenantModel } from './models/tenant.model';
 import { CreateUserRequest } from './models/user.interfaces';
+import { USER_ACTIONS, USER_COLUMNS, USER_FILTER_OPTIONS } from './user-managementConfig';
+import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
 
 interface ApplicationUI extends ApplicationModel {
   isExpanded?: boolean;       // Is the accordion open?
@@ -46,18 +48,14 @@ export class UserManagementComponent implements OnInit {
 
   isConfigEditMode: boolean = false;
   isLoadingApps: boolean = false;
+  isLoading: boolean = false;
+
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
-  columns: TableColumn[] = [
-    { key: 'fullName', label: 'Name', width: '130px', type: 'profile' },
-    { key: 'email', label: 'Email', width: '220px', type: 'link' },
-    { key: 'phone', label: 'Phone', width: '100px', type: 'text' },
-    { key: 'roles', label: 'Roles', width: '100px', type: 'text' },
-    { key: 'userType', label: 'User Type', width: '100px', type: 'badge' },
-    { key: 'isActive', label: 'Active', width: '130px', type: 'toggle', align: 'center' },
-    { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
-  ];
+  columns: TableColumn[] = USER_COLUMNS;
+  viewActions: TableActionConfig[] = USER_ACTIONS;
+  filterOptions: FilterOption[] = USER_FILTER_OPTIONS;
 
   headerActions: HeaderAction[] = [
     {
@@ -76,16 +74,6 @@ export class UserManagementComponent implements OnInit {
     }
   ];
 
-  viewActions: TableActionConfig[] = [
-    {
-      key: 'view_user_details',
-      label: 'View Details',
-      icon: ArrowRight,
-      color: 'primary',
-      condition: (row) => true
-    }
-  ];
-
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -99,14 +87,15 @@ export class UserManagementComponent implements OnInit {
   }
 
   loadUsers() {
-    this.isLoadingApps = true; // Optional: Use a loading state if you have one
+    this.isLoading = true;
     this.userManagementService.getAllUsers(0, 100,
       this.userFilter,
       (res: any) => {
         this.users = res.data.content;
+        this.isLoading = false;
       },
       (err: any) => {
-        this.isLoadingApps = false;
+        this.isLoading = false;
         this.toast.show('Failed to load users for tenant', 'error');
       }
     );
@@ -190,19 +179,19 @@ export class UserManagementComponent implements OnInit {
   }
 
   toggleUserStatus(item: UserModel) {
-      this.userManagementService.toggleUserStatus(item.id,
-        (response: any) => {
-          this.toast.show(
-            response.data.message,
-            response.data.status === 'SUCCESS' ? 'success' : 'warning'
-          );
-          this.loadUsers();
-        },
-        (error: any) => {
-          this.toast.show('Failed to update item status', 'error');
-        }
-      );
-    }
+    this.userManagementService.toggleUserStatus(item.id,
+      (response: any) => {
+        this.toast.show(
+          response.data.message,
+          response.data.status === 'SUCCESS' ? 'success' : 'warning'
+        );
+        this.loadUsers();
+      },
+      (error: any) => {
+        this.toast.show('Failed to update item status', 'error');
+      }
+    );
+  }
 
   openConfigApplications() {
     this.isConfigEditMode = false;
@@ -289,6 +278,23 @@ export class UserManagementComponent implements OnInit {
     if (event.type === 'custom' && event.key === 'view_user_details') {
       this.getUserDetails(Number(event.row.id));
     }
+    if (event.type === 'custom' && event.key === 'view_profile') {
+      this.router.navigate(['admin/user/profile', event.row.id]);
+    }
+    if (event.type === 'custom' && event.key === 'edit_profile') {
+      this.editUser(Number(event.row.id));
+    }
+  }
+
+  onSearchChange(searchQuery: string) {
+    this.userFilter.searchQuery = searchQuery;
+    this.pagination.currentPage = 1;
+    this.loadUsers();
+  }
+
+  onFilterUpdate($event: Record<string, any>) {
+    this.userFilter = $event;
+    this.loadUsers();
   }
 
   onPageChange($event: number) {
