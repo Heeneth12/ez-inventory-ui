@@ -11,7 +11,7 @@ import { Observable } from "rxjs";
 export class UserManagementService {
 
     private static BASE_URL = environment.authUrl;
-    
+
     private static USER_MANAG_BASE_URL = UserManagementService.BASE_URL + '/api/v1/common';
     private static USER_BASE_URL = UserManagementService.BASE_URL + '/api/v1/user';
     private static TENANT_BASE_URL = UserManagementService.BASE_URL + '/api/v1/tenant';
@@ -36,6 +36,18 @@ export class UserManagementService {
 
     getTenantById(tenantId: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}`, successfn, errorfn);
+    }
+
+    createTenantDetails(tenantId: number, data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/details`, data, successfn, errorfn);
+    }
+
+    updateTenantDetails(tenantId: number, data: any, successfn: any, errorfn: any) {
+        return this.httpService.putHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/details`, data, successfn, errorfn);
+    }
+
+    getTenantDetails(tenantId: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/details`, successfn, errorfn);
     }
 
     // users

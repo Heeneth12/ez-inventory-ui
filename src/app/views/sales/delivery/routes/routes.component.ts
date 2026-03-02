@@ -127,10 +127,7 @@ export class RoutesComponent implements OnInit {
 
   markStopDelivered(stop: DeliveryModel) {
     this.loader.show();
-    this.deliveryService.updateDeliveryStatus({
-      id: stop.id,
-      status: ShipmentStatus.DELIVERED
-    },
+    this.deliveryService.updateDeliveryStatus(stop.id, ShipmentStatus.DELIVERED,
       (res: any) => {
         this.toast.show(`Order ${stop.deliveryNumber} Delivered`, 'success');
         stop.status = 'DELIVERED'; // Local update for UI
@@ -143,12 +140,7 @@ export class RoutesComponent implements OnInit {
       });
   }
 
-  /**
-   * Helper to reuse your existing badge logic from standard table
-   */
   getBadgeClass(status: any): string {
-    // You can call your StandardTableComponent's getBadgeClass method 
-    // or keep a local copy of that switch-case logic here
     return 'bg-blue-50 text-blue-700 border-blue-100';
   }
 

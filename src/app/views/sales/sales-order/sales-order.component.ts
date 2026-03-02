@@ -9,12 +9,13 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
-import { ArrowRight, CircleX, Clock, DollarSign, FileText, Headphones, ReceiptText, RefreshCcw, View, XCircle } from 'lucide-angular';
+import { ArrowRight, BadgeIndianRupee, CircleX, Clock, DollarSign, FileText, Headphones, ReceiptText, RefreshCcw, View, XCircle } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { SALES_ORDER_COLUMNS } from '../../../layouts/config/tableConfig';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
+import { SALES_ORDER_ACTIONS, SALES_ORDER_COLUMNS, SALES_ORDER_DATE_CONFIG, SALES_ORDER_FILTER_OPTIONS } from '../salesConfig';
+import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-sales-order',
@@ -26,36 +27,21 @@ import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-gro
 export class SalesOrderComponent implements OnInit {
 
   @Input() customerId?: number;
+  @Input() statGroup?: boolean = true;
+
   @ViewChild('soDetails') soDetails!: TemplateRef<any>;
   readonly ArrowRight = ArrowRight;
+
+  soColumn = SALES_ORDER_COLUMNS;
+  soActions: TableActionConfig[] = SALES_ORDER_ACTIONS;
+  soFilterOptions = SALES_ORDER_FILTER_OPTIONS;
+  dateConfig: DatePickerConfig = SALES_ORDER_DATE_CONFIG;
+
   salesOrders: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
   salesOrderFilter: SalesOrderFilterModal = new SalesOrderFilterModal();
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
-  soColumn: any = SALES_ORDER_COLUMNS;
-  soActions: TableActionConfig[] = [
-    {
-      key: 'move_to_invoice',
-      label: 'Move to Invoice',
-      icon: ArrowRight,
-      color: 'primary',
-      condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
-    },
-    {
-      key: 'move_to_cancle',
-      label: '',
-      icon: CircleX,
-      color: 'danger',
-      condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
-    }
-  ];
-
-  dateConfig: DatePickerConfig = {
-    type: 'both', // or 'single'
-    // label: 'Filter Dates',
-    placeholder: 'Start - End'
-  };
 
   // //DUMMY STATS DATA
   salesOrderStats: StatCardConfig[] = [
@@ -63,7 +49,7 @@ export class SalesOrderComponent implements OnInit {
       key: 'totalValue',
       label: 'Total Sales Order Value',
       value: '₹12,45,000',
-      icon: DollarSign,
+      icon: BadgeIndianRupee,
       color: 'emerald',
     },
     {
@@ -94,15 +80,17 @@ export class SalesOrderComponent implements OnInit {
     public drawerService: DrawerService,
     private toastSvc: ToastService,
     private router: Router,
-    private loaderSvc: LoaderService
+    private loaderSvc: LoaderService,
+    private confirmationModalService: ConfirmationModalService
   ) {
   }
 
   ngOnInit(): void {
-    if(this.customerId){
+    if (this.customerId) {
       this.salesOrderFilter.customerId = this.customerId;
     }
     this.getAllSalesOrders();
+    this.getSalesOrderStats();
   }
 
   getAllSalesOrders() {
@@ -144,6 +132,84 @@ export class SalesOrderComponent implements OnInit {
     );
   }
 
+  getSalesOrderStats() {
+    this.salesOrderService.getSalesOrderStats(
+      {},
+      (response: any) => {
+        this.salesOrderStats = [
+          {
+            key: 'totalValue',
+            label: 'Total Sales Order Value',
+            value: '₹' + response.data.totalValue,
+            icon: BadgeIndianRupee,
+            color: 'emerald',
+          },
+          {
+            key: 'pendingApproval',
+            label: 'Pending Approval',
+            value: response.data.pendingApprovalCount + ' Orders',
+            icon: Clock,
+            color: 'gray',
+          },
+          {
+            key: 'pendingInvoice',
+            label: 'Pending Invoice',
+            value: 0 + ' Orders',
+            icon: FileText,
+            color: 'amber',
+          },
+          {
+            key: 'cancelled',
+            label: 'Cancelled Orders',
+            value: response.data.cancelledCount,
+            icon: XCircle,
+            color: 'orange',
+          }
+        ];
+        console.log('Sales Order Stats:', response.data);
+      }
+      ,
+      (error: any) => {
+        this.toastSvc.show('Failed to load Sales Order stats', 'error');
+        console.error('Error fetching Sales Order stats:', error);
+      }
+    );
+  }
+
+  confirmAndUpdateStatus(salesOrderId: any, status: string) {
+    const action = status === 'APPROVED' ? 'Approve' : 'Reject';
+    this.confirmationModalService.open({
+      title: `${action} Sales Order`,
+      message: `Are you sure you want to ${action.toLowerCase()} this sales order?`,
+      intent: status === 'APPROVED' ? 'success' : 'danger',
+      confirmLabel: `Yes, ${action}`,
+      cancelLabel: 'No, Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.updateSalesOrderStatus(salesOrderId, status);
+      }
+    });
+  }
+
+  updateSalesOrderStatus(salesOrderId: any, status: string) {
+    this.loaderSvc.show();
+    this.salesOrderService.updateSalesOrderStatus(
+      salesOrderId,
+      status,
+      (response: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Sales Order status updated to ' + status, 'success');
+        this.getAllSalesOrders();
+      }
+      ,
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Failed to update Sales Order status', 'error');
+        console.error('Error updating Sales Order status:', error);
+      }
+    );
+  }
+
   viewSalesOrderDetail(id: number | string) {
     this.getSalesOrderById(id);
     this.drawerService.openComponent(
@@ -165,8 +231,8 @@ export class SalesOrderComponent implements OnInit {
         queryParams: { salesOrderId: event.row.id }
       });
     }
-    if (event.type === 'edit') {
-      // Standard edit logic
+    if (event.type === 'custom' && event.key === 'move_to_cancle') {
+      this.confirmAndUpdateStatus(event.row.id, 'REJECTED');
     }
   }
 
@@ -183,7 +249,6 @@ export class SalesOrderComponent implements OnInit {
         break;
       case 'delete':
         console.log("Delete:", row.id);
-
         break;
       case 'toggle':
         break;
@@ -208,6 +273,13 @@ export class SalesOrderComponent implements OnInit {
 
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
+  }
+
+  onFilterUpdate($event: Record<string, any>) {
+    console.log("Received filter update:", $event);
+    this.salesOrderFilter.soStatuses = $event['status'] || null;
+    this.salesOrderFilter.soSource = $event['source'] || null;
+    this.getAllSalesOrders();
   }
 
   onLoadMore() {

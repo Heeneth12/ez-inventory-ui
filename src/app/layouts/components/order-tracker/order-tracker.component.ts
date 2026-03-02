@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { SalesOrderService } from '../../../views/sales/sales-order/sales-order.service';
 import { InvoiceService } from '../../../views/sales/invoices/invoice.service';
 import { SalesOrderModal, } from '../../../views/sales/sales-order/sales-order.modal';
-import { InvoiceModal } from '../../../views/sales/invoices/invoice.modal';
 import { ContactService } from '../../../views/contacts/contacts.service';
 import { LoaderService } from '../loader/loaderService';
 import { ToastService } from '../toast/toastService';
@@ -26,7 +25,6 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
   contactId: number | string | null = 0;
 
   salesOrderDetails: SalesOrderModal | null = null;
-  invoiceDetails: InvoiceModal | null = null;
   deliveryDetails: DeliveryModel | null = null;
 
 
@@ -112,7 +110,6 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     this.loaderService.show();
     return this.invoiceService.getInvoiceById(soId,
       (response: any) => {
-        this.invoiceDetails = response.date;
         this.loaderService.hide();
         //this.getDeliverieDetails(this.invoiceDetails)
       },

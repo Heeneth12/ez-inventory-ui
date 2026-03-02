@@ -104,6 +104,7 @@ export class DrawerComponent implements OnInit {
       case 'md': return 'max-w-md';
       case 'lg': return 'max-w-2xl';
       case 'xl': return 'max-w-4xl';
+      case '2xl': return 'max-w-6xl';
       case 'full': return 'max-w-full';
       default: return 'max-w-md';
     }

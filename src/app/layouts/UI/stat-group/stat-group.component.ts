@@ -43,19 +43,19 @@ export class StatGroupComponent {
 
   getIconTheme(color: string = 'indigo') {
     const themes: Record<string, string> = {
-      blue:    'bg-blue-50 text-blue-600 ring-1 ring-blue-500/10',
-      indigo:  'bg-indigo-50 text-indigo-600 ring-1 ring-indigo-500/10',
-      purple:  'bg-purple-50 text-purple-600 ring-1 ring-purple-500/10',
-      pink:    'bg-pink-50 text-pink-600 ring-1 ring-pink-500/10',
-      rose:    'bg-rose-50 text-rose-600 ring-1 ring-rose-500/10',
-      orange:  'bg-orange-50 text-orange-600 ring-1 ring-orange-500/10',
-      amber:   'bg-amber-50 text-amber-600 ring-1 ring-amber-500/10',
-      emerald: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/10',
-      teal:    'bg-teal-50 text-teal-600 ring-1 ring-teal-500/10',
-      cyan:    'bg-cyan-50 text-cyan-600 ring-1 ring-cyan-500/10',
-      sky:     'bg-sky-50 text-sky-600 ring-1 ring-sky-500/10',
-      slate:   'bg-slate-100 text-slate-600 ring-1 ring-slate-500/10',
-      gray:    'bg-gray-100 text-gray-600 ring-1 ring-gray-500/10',
+      blue: 'bg-blue-50/50 text-blue-600 ring-1 ring-blue-200/50',
+      indigo: 'bg-indigo-50/50 text-indigo-600 ring-1 ring-indigo-200/50',
+      purple: 'bg-purple-50/50 text-purple-600 ring-1 ring-purple-200/50',
+      pink: 'bg-pink-50/50 text-pink-600 ring-1 ring-pink-200/50',
+      rose: 'bg-rose-50/50 text-rose-600 ring-1 ring-rose-200/50',
+      orange: 'bg-orange-50/50 text-orange-600 ring-1 ring-orange-200/50',
+      amber: 'bg-amber-50/50 text-amber-600 ring-1 ring-amber-200/50',
+      emerald: 'bg-emerald-50/50 text-emerald-600 ring-1 ring-emerald-200/50',
+      teal: 'bg-teal-50/50 text-teal-600 ring-1 ring-teal-200/50',
+      cyan: 'bg-cyan-50/50 text-cyan-600 ring-1 ring-cyan-200/50',
+      sky: 'bg-sky-50/50 text-sky-600 ring-1 ring-sky-200/50',
+      slate: 'bg-slate-50/50 text-slate-600 ring-1 ring-slate-200/50',
+      gray: 'bg-gray-50/50 text-gray-600 ring-1 ring-gray-200/50',
     };
 
     return themes[color] || themes['indigo'];

@@ -11,7 +11,7 @@ import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
-import { InvoiceModal, InvoiceItemModal, InvoiceRequest, DeliveryOption } from '../invoice.modal';
+import { InvoiceModal, InvoiceItemModal, DeliveryOption } from '../invoice.modal';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { AddressType, UserModel } from '../../../user-management/models/user.model';
 import { UserManagementService } from '../../../user-management/userManagement.service';
@@ -29,14 +29,14 @@ export class InvoiceFormComponent implements OnInit {
   readonly TruckIcon = Truck;
   readonly ReceiptIndianRupeeIcon = ReceiptIndianRupee;
   readonly checkIcon = Check;
-  readonly creditCardIcon =CreditCard;
-  readonly chevronRightIcon =ChevronRight;
-  readonly truckIcon =TruckIcon;
+  readonly creditCardIcon = CreditCard;
+  readonly chevronRightIcon = ChevronRight;
+  readonly truckIcon = TruckIcon;
   readonly saveIcon = SaveIcon;
   readonly fileTextIcon = FileText;
   readonly boxIcon = BoxIcon;
-  readonly userIcon =User;
-  readonly calendarIcon =CalculatorIcon;
+  readonly userIcon = User;
+  readonly calendarIcon = CalculatorIcon;
   readonly SearchIcon = Search;
   readonly BarCode = QrCode;
   readonly ShoppingBag = ShoppingBag;
@@ -74,10 +74,6 @@ export class InvoiceFormComponent implements OnInit {
   isDeliveryScheduled = false;
   activeHistoryTab: 'invoices' | 'payments' = 'invoices';
 
-  //gst config
-  isGstEnabled = false;
-  gstNumber: string = "";
-
   constructor(
     private fb: FormBuilder,
     private invoiceService: InvoiceService,
@@ -97,8 +93,10 @@ export class InvoiceFormComponent implements OnInit {
       warehouseId: [1, Validators.required],
       remarks: [''],
       items: this.fb.array([], Validators.required),
-      totalDiscount: [0],
-      totalTax: [0]
+
+      // Changed to Rates to match backend mapping
+      flatDiscountRate: [0, [Validators.min(0), Validators.max(100)]],
+      flatTaxRate: [0, [Validators.min(0), Validators.max(100)]]
     });
   }
 
@@ -108,7 +106,6 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   private checkEditMode() {
-    // 1. Check for Invoice ID (True Edit Mode)
     this.route.queryParamMap.subscribe(params => {
       const invoiceId = params.get('invoiceId');
       if (invoiceId) {
@@ -118,7 +115,6 @@ export class InvoiceFormComponent implements OnInit {
       }
     });
 
-    // 2. Check for Sales Order ID (Create Mode - Autofill)
     this.route.queryParamMap.subscribe(params => {
       const salesOrderId = params.get('salesOrderId');
       if (salesOrderId) {
@@ -130,27 +126,22 @@ export class InvoiceFormComponent implements OnInit {
 
   private loadOrderDetails(id: number) {
     this.loaderSvc.show();
-    // Strictly typing response data
     this.salesOrderService.getSalesOrderById(id,
       (response: { data: SalesOrderModal }) => {
         const order = response.data;
 
-        //Patch Header
         this.invoiceForm.patchValue({
-          id: null, // New Invoice, so ID is null
+          id: null,
           salesOrderId: order.id,
           customerId: order.customerId,
           warehouseId: order.warehouseId,
-          orderDate: order.orderDate,
+          invoiceDate: new Date().toISOString().split('T')[0],
           remarks: order.remarks,
-          totalDiscount: 0,
-          totalTax: 0
+          flatDiscountRate: order.flatDiscountRate || 0,
+          flatTaxRate: order.flatTaxRate || 0
         });
 
-        //Set Customer
         this.setUserById(order.customerId, order.customerName);
-
-        //Apply Items (Reuse logic)
         this.applySalesOrder(order);
 
         this.loaderSvc.hide();
@@ -164,12 +155,10 @@ export class InvoiceFormComponent implements OnInit {
 
   private loadInvoiceForEdit(id: number) {
     this.loaderSvc.show();
-    // Strictly typing response data
     this.invoiceService.getInvoiceById(id,
       (res: { data: InvoiceModal }) => {
         const invoice = res.data;
 
-        //Patch Header
         this.invoiceForm.patchValue({
           id: invoice.id,
           salesOrderId: invoice.salesOrderId,
@@ -177,14 +166,12 @@ export class InvoiceFormComponent implements OnInit {
           warehouseId: invoice.warehouseId,
           invoiceDate: invoice.invoiceDate,
           remarks: invoice.remarks,
-          totalDiscount: invoice.totalDiscount,
-          totalTax: invoice.totalTax
+          flatDiscountRate: invoice.flatDiscountRate || 0,
+          flatTaxRate: invoice.flatTaxRate || 0
         });
 
-        //Set Customer
         this.setUserById(invoice.customerId, "Loading...");
 
-        //Patch Items
         const itemArray = this.items;
         itemArray.clear();
 
@@ -209,7 +196,6 @@ export class InvoiceFormComponent implements OnInit {
         this.selectedUser = res.data;
       },
       (err: any) => {
-        // Fallback if fetch fails
         this.selectedUser = { id: userId, fullName: fallbackName } as UserModel;
       }
     );
@@ -238,24 +224,15 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   selectItemFromSearch(item: ItemModel) {
-    // When adding from Search, we must map ItemModel -> Form Structure
-    // Source Type is 'PRODUCT'
-
-    const itemsArray = this.items;
-    
-    // 1. Check if the item already exists in the FormArray
     const existingItemIndex = this.findItemIndexById(item.id);
 
     if (existingItemIndex > -1) {
-      // 2. Item exists: Increase the count
       this.adjustQuantity(existingItemIndex, 1);
       this.toast.show(`${item.name} quantity updated`, 'success');
     } else {
-      // 3. Item does not exist: Add new row
-      // Source Type is 'PRODUCT' for items coming from search
-      itemsArray.push(this.createItemControl(item, 'PRODUCT'));
+      this.items.push(this.createItemControl(item, 'PRODUCT'));
     }
-    
+
     this.itemSearchQuery = "";
     this.showItemResults = false;
   }
@@ -264,144 +241,134 @@ export class InvoiceFormComponent implements OnInit {
     return this.items.controls.findIndex(ctrl => ctrl.get('itemId')?.value === itemId);
   }
 
-  // CORE METHOD: Handles mapping from 3 different sources
   private createItemControl(data: any, sourceType: 'INVOICE' | 'SO' | 'PRODUCT'): FormGroup {
-
-    // Default Values
     let id = null;
     let soItemId = null;
     let itemId = null;
     let name = '';
     let unitPrice = 0;
     let quantity = 1;
-    let discountAmount = 0;
-    let taxAmount = 0;
+    let discountRate = 0;
+    let taxRate = 0;
+    let batchNumber = '';
 
-    // Map based on source to ensure correct IDs
     if (sourceType === 'INVOICE') {
-      // Data is InvoiceItemModal
-      id = data.id;                // Existing Invoice Line ID
+      id = data.id;
       soItemId = data.soItemId;
       itemId = data.itemId;
       name = data.itemName;
       unitPrice = data.unitPrice;
       quantity = data.quantity;
-      discountAmount = data.discountAmount;
-      taxAmount = data.taxAmount;
-    }
-    else if (sourceType === 'SO') {
-      // Data is SalesOrderItem (from SalesOrderModal)
-      id = null;                   // New Invoice Line
-      soItemId = data.id;          // The ID of the SO Line
+      discountRate = data.discountRate || 0;
+      taxRate = data.taxRate || 0;
+      batchNumber = data.batchNumber || '';
+    } else if (sourceType === 'SO') {
+      id = null;
+      soItemId = data.id;
       itemId = data.itemId;
       name = data.itemName;
       unitPrice = data.unitPrice;
-      quantity = data.orderedQty;  // Default to ordered amount
-      discountAmount = data.discount; // SO usually calls it 'discount'
-      taxAmount = data.tax;           // SO usually calls it 'tax'
-    }
-    else if (sourceType === 'PRODUCT') {
-      // Data is ItemModel (Search Result)
-      id = null;                   // New Invoice Line
-      soItemId = null;             // Direct item, no SO link
-      itemId = data.id;            // Product Master ID
+      quantity = data.orderedQty - (data.invoicedQty || 0); // Only bring over uninvoiced qty
+      discountRate = data.discountRate || 0;
+      taxRate = data.taxRate || 0;
+    } else if (sourceType === 'PRODUCT') {
+      id = null;
+      soItemId = null;
+      itemId = data.id;
       name = data.name;
       unitPrice = data.sellingPrice;
       quantity = 1;
-      discountAmount = 0;
-      taxAmount = 0; // Backend can recalculate or default 0
+      discountRate = 0;
+      taxRate = 0;
     }
 
     return this.fb.group({
-      id: [id], // Crucial: Null for new, Number for edit
+      id: [id],
       soItemId: [soItemId],
       itemId: [itemId, Validators.required],
       name: [name],
-      imageUrl: ['https://ui-avatars.com/api/?name=' + name + '&background=eff6ff&color=3b82f6&bold=true&size=128'],
       unitPrice: [unitPrice || 0, [Validators.required, Validators.min(0)]],
-      orderedQty: [quantity, [Validators.required, Validators.min(1)]],
-      discountAmount: [discountAmount || 0, Validators.min(0)],
-      taxAmount: [taxAmount || 0, Validators.min(0)],
-      batchNumber: [data.batchNumber || '']
+      orderedQty: [Math.max(1, quantity), [Validators.required, Validators.min(1)]],
+      discountRate: [discountRate, [Validators.min(0), Validators.max(100)]],
+      taxRate: [taxRate, [Validators.min(0), Validators.max(100)]],
+      batchNumber: [batchNumber]
     });
   }
-
 
   applySalesOrder(order: SalesOrderModal) {
     if (this.items.length > 0 && !confirm(`Autofill invoice from Order #${order.id}? This will replace current items.`)) return;
 
-    // 1. Calculate Extra Header Math
-    let sumItemDiscounts = 0;
-    let sumItemTaxes = 0;
-
-    if (order.items) {
-      order.items.forEach((item: any) => {
-        sumItemDiscounts += (item.discount || 0);
-        sumItemTaxes += (item.tax || 0);
-      });
-    }
-
-    const extraDiscount = (order.totalDiscount || 0) - sumItemDiscounts;
-    const extraTax = (order.totalTax || 0) - sumItemTaxes;
-
-    // 2. Patch Header
     this.invoiceForm.patchValue({
       salesOrderId: order.id,
       warehouseId: order.warehouseId,
       remarks: order.remarks,
       customerId: order.customerId,
-      totalDiscount: Math.max(0, extraDiscount),
-      totalTax: Math.max(0, extraTax)
+      flatDiscountRate: order.flatDiscountRate || 0,
+      flatTaxRate: order.flatTaxRate || 0
     });
 
-    // 3. Patch Items
     const itemArray = this.items;
     itemArray.clear();
 
     if (order.items) {
       order.items.forEach((item: any) => {
-        // Source is 'SO'
         itemArray.push(this.createItemControl(item, 'SO'));
       });
     }
   }
 
-  // --- FORM HELPERS ---
-
+  // --- FORM HELPERS & FINANCIAL CALCULATIONS ---
   get items(): FormArray {
     return this.invoiceForm.get('items') as FormArray;
   }
 
-  get subtotal(): number {
-    return this.items.controls.reduce((sum, ctrl) => {
-      const qty = ctrl.get('orderedQty')?.value || 0;
-      const price = ctrl.get('unitPrice')?.value || 0;
-      return sum + (qty * price);
-    }, 0);
+  private round(num: number): number {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
   }
 
-  get totalItemDiscounts(): number {
-    return this.items.controls.reduce((sum, ctrl) => sum + (ctrl.get('discountAmount')?.value || 0), 0);
-  }
-
-  get totalItemTaxes(): number {
-    return this.items.controls.reduce((sum, ctrl) => sum + (ctrl.get('taxAmount')?.value || 0), 0);
-  }
-
-  get grandTotal(): number {
-    const headerDisc = this.invoiceForm.get('totalDiscount')?.value || 0;
-    const headerTax = this.invoiceForm.get('totalTax')?.value || 0;
-    const itemNet = this.subtotal - this.totalItemDiscounts + this.totalItemTaxes;
-    return Math.max(0, itemNet - headerDisc + headerTax);
-  }
-
-  getRowTotal(index: number): number {
+  getLineDetails(index: number) {
     const ctrl = this.items.at(index);
     const qty = ctrl.get('orderedQty')?.value || 0;
     const price = ctrl.get('unitPrice')?.value || 0;
-    const disc = ctrl.get('discountAmount')?.value || 0;
-    const tax = ctrl.get('taxAmount')?.value || 0;
-    return Math.max(0, (qty * price) - disc + tax);
+    const discRate = ctrl.get('discountRate')?.value || 0;
+    const taxRate = ctrl.get('taxRate')?.value || 0;
+
+    const gross = this.round(qty * price);
+    const discAmt = this.round(gross * (discRate / 100));
+    const taxable = gross - discAmt;
+    const taxAmt = this.round(taxable * (taxRate / 100));
+    const lineTotal = taxable + taxAmt;
+
+    return { gross, discAmt, taxAmt, lineTotal };
+  }
+
+  get itemGrossTotal(): number {
+    return this.items.controls.reduce((sum, _, index) => sum + this.getLineDetails(index).lineTotal, 0);
+  }
+
+  get totalItemDiscounts(): number {
+    return this.items.controls.reduce((sum, _, index) => sum + this.getLineDetails(index).discAmt, 0);
+  }
+
+  get totalItemTaxes(): number {
+    return this.items.controls.reduce((sum, _, index) => sum + this.getLineDetails(index).taxAmt, 0);
+  }
+
+  get flatDiscountRate(): number { return this.invoiceForm.get('flatDiscountRate')?.value || 0; }
+  get flatTaxRate(): number { return this.invoiceForm.get('flatTaxRate')?.value || 0; }
+
+  get flatDiscountAmount(): number {
+    return this.round(this.itemGrossTotal * (this.flatDiscountRate / 100));
+  }
+
+  get flatTaxAmount(): number {
+    const taxableBill = this.itemGrossTotal - this.flatDiscountAmount;
+    return this.round(taxableBill * (this.flatTaxRate / 100));
+  }
+
+  get grandTotal(): number {
+    const taxableBill = this.itemGrossTotal - this.flatDiscountAmount;
+    return Math.max(0, taxableBill + this.flatTaxAmount);
   }
 
   removeItem(index: number) {
@@ -416,65 +383,62 @@ export class InvoiceFormComponent implements OnInit {
     }
   }
 
-  //Item Management ---
   onItemSearchInput(event: any) {
     const query = event.target.value;
     this.itemSearchQuery = query;
     this.searchSubject.next(query);
   }
 
-  //SAVE LOGIC
+  // --- SAVE LOGIC ---
   saveOrder() {
-    // if (this.invoiceForm.invalid) {
-    //   this.invoiceForm.markAllAsTouched();
-    //   console.log('Form Invalid:', this.invoiceForm.value);
-    //   this.toast.show('Please fill required fields', 'warning');
-    //   return;
-    // }
+    if (this.invoiceForm.invalid) {
+      this.invoiceForm.markAllAsTouched();
+      this.toast.show('Please fill required fields', 'warning');
+      return;
+    }
 
     const formVal = this.invoiceForm.getRawValue();
 
-    // MAP FORM TO STRICT TYPED REQUEST
-    const requestPayload: InvoiceRequest = {
+    // Mapping directly to the unified InvoiceModal
+    const requestPayload: any = {
+      id: formVal.id,
       salesOrderId: formVal.salesOrderId || null,
       customerId: formVal.customerId,
-      warehouseId: 1,
+      warehouseId: formVal.warehouseId || 1,
       invoiceDate: formVal.invoiceDate,
       remarks: formVal.remarks,
-      totalDiscount: formVal.totalDiscount,
-      totalTax: formVal.totalTax,
-      scheduledDate: new Date().toISOString(),
+
+      flatDiscountRate: formVal.flatDiscountRate,
+      flatTaxRate: formVal.flatTaxRate,
+
+      // Delivery Logic Mapping
+      scheduledDate: this.enableScheduledDelivery() ? this.scheduledDate() : undefined,
       shippingAddress: "test address",
       deliveryType: this.currentDeliveryType(),
 
       items: formVal.items.map((item: any) => ({
-        id: item.id,                  // NULL for New, ID for Edit
-        soItemId: item.soItemId,       // NULL for Direct, ID for Linked
-        itemId: item.itemId,           // Required
+        id: item.id,
+        soItemId: item.soItemId,
+        itemId: item.itemId,
         quantity: item.orderedQty,
         unitPrice: item.unitPrice,
-        discountAmount: item.discountAmount,
-        taxAmount: item.taxAmount,
-        batchNumber: null
+        discountRate: item.discountRate, // Send Rate, Backend calculates amount
+        taxRate: item.taxRate,           // Send Rate, Backend calculates amount
+        batchNumber: item.batchNumber
       }))
     };
 
-    console.log('Sending Payload:', requestPayload);
     this.isLoading = true;
     this.loaderSvc.show();
 
     if (this.isEditMode && this.orderId) {
       this.invoiceService.updateInvoice(this.orderId, requestPayload,
-        (res: any) => {
-          this.handleSuccess(res, 'Invoice updated successfully');
-        },
+        (res: any) => this.handleSuccess(res, 'Invoice updated successfully'),
         (err: any) => this.handleError(err)
       );
     } else {
       this.invoiceService.createInvoice(requestPayload,
-        (res: any) => {
-          this.handleSuccess(res, 'Invoice created successfully');
-        },
+        (res: any) => this.handleSuccess(res, 'Invoice created successfully'),
         (err: any) => this.handleError(err)
       );
     }
@@ -483,8 +447,7 @@ export class InvoiceFormComponent implements OnInit {
   private handleSuccess(res: any, msg: string) {
     this.loaderSvc.hide();
     this.toast.show(msg, 'success');
-    // Navigate to view/edit page using the ID from response
-    const id = res.data?.id || this.orderId;
+    const id = res.id || res.data?.id || this.orderId;
     this.router.navigate(['/sales/invoices', id]);
   }
 
@@ -516,18 +479,16 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   toggleScheduledDelivery() {
-    // Use .update() here to flip the value
     this.enableScheduledDelivery.update(value => !value);
   }
 
   fetchPendingOrders(customerId: number) {
     this.isLoadingOrders = true;
     this.pendingOrders = [];
-    // Strict typing for filter if you have an interface
     const filter = { customerId: customerId, status: 'CREATED' };
 
     this.salesOrderService.searchSalesOrders(filter,
-      (res: { data: { content: SalesOrderModal[] } }) => { // Assuming paginated response
+      (res: { data: { content: SalesOrderModal[] } }) => {
         this.pendingOrders = res.data.content || [];
         this.isLoadingOrders = false;
         if (this.pendingOrders.length > 0) {
@@ -547,7 +508,6 @@ export class InvoiceFormComponent implements OnInit {
 
 function getTomorrowString(): string {
   const date = new Date();
-  date.setDate(date.getDate() + 1); // Add 1 day
-  // 'en-CA' locale consistently outputs YYYY-MM-DD
-  return date.toLocaleDateString('en-CA'); 
+  date.setDate(date.getDate() + 1);
+  return date.toLocaleDateString('en-CA');
 }

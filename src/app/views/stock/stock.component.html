@@ -1,11 +1,11 @@
 <app-stat-group [stats]="stockDashboardStats"></app-stat-group>
 
 <div class="space-y-6">
-  <div class="flex-1 h-[calc(100vh-230px)] overflow-y-auto">
+  <div class="flex-1 h-[calc(100vh-200px)] overflow-y-auto">
     <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="stockList" [pagination]="pagination"
       [headerActions]="headerActions" (headerAction)="handleHeaderAction($event)" [customActions]="viewDetails"
       (action)="handleTableAction($event)" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
-      (action)="onTableAction($event)">
+      (action)="onTableAction($event)" [isLoading]="isLoading">
     </app-standard-table>
   </div>
 </div>

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, SlidersHorizontal } from 'lucide-angular';
 
 export interface TabItem {
   id: string;
@@ -30,6 +30,8 @@ export class TabCardComponent {
   @Input() tabs: TabItem[] = [];
   @Input() activeTabId: string = '';
   @Output() activeTabIdChange = new EventEmitter<string>();
+
+  readonly slidersHorizontal=SlidersHorizontal
 
   selectTab(id: string) {
     if (this.activeTabId !== id) {

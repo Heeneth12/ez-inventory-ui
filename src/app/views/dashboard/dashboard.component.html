@@ -1,39 +1,47 @@
-<div class="bg-[#F3F4F6] lg:p-4 p-2 font-sans antialiased text-[#1A1C1E] min-h-screen">
+<div class="lg:p-4 p-2 font-sans antialiased text-[#1A1C1E]">
   <div class="max-w-[1750px] mx-auto space-y-4">
     <div class="space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
-          <p class="text-[14px] text-slate-500 mt-1">Track your daily sales, upcoming tasks, and schedule.</p>
-        </div>
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
           <button
-            class="p-2.5 bg-white border border-slate-200 rounded-full text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-all shadow-sm">
-            <lucide-icon [img]="icons.bell" class="w-4 h-4"></lucide-icon>
-          </button>
-          <button
-            class="w-10 h-10 rounded-full bg-slate-900 text-white border-2 border-white shadow-md flex items-center justify-center font-bold text-sm hover:scale-105 transition-transform">
+            class="w-14 h-14 rounded-md bg-slate-200 text-slate-800 flex items-center justify-center font-bold text-xl hover:scale-105 transition-transform">
             JD
           </button>
+
+          <div>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Hello, John Doe</h1>
+            <p class="text-[13px] text-slate-500 font-medium">Senior Inventory Manager</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 self-end md:self-center">
+          <div class="text-right hidden sm:block border-r border-slate-200 pr-4">
+            <h2 class="text-sm font-bold text-slate-900">Global Logistics Corp.</h2>
+            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Main Warehouse • Sector 7</p>
+          </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-8 border-b border-slate-200/80">
-        @for(tab of allTabs; track tab){
-        <button (click)="handleTabChange(tab)"
-          class="relative pb-4 text-[14px] font-bold text-slate-900 transition-colors">
-          {{tab}}
-          @if(currentTab === tab){
-          <div class="absolute bottom-0 left-0 w-full h-[2px] bg-slate-900 rounded-t-full"></div>
+      <div>
+        <div class="flex items-center gap-8 border-b border-slate-200/80">
+          @for(tab of allTabs; track tab){
+          <button (click)="handleTabChange(tab)"
+            class="relative pb-2 text-[14px] font-bold text-slate-500 hover:text-slate-900 transition-colors capitalize"
+            [ngClass]="{'text-slate-900': currentTab === tab}">
+            {{tab}}
+            @if(currentTab === tab){
+            <div class="absolute bottom-0 left-0 w-full h-[3px] bg-slate-900 rounded-t-full"></div>
+            }
+          </button>
           }
-        </button>
-        }
+        </div>
       </div>
+
     </div>
     @if(currentTab === 'dashboard'){
     <div class="grid grid-cols-12 gap-4">
-      <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-6 border border-white/60">
+      <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-6 border border-slate-100">
         <div class="flex justify-between items-start">
           <div class="space-y-1">
             <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Sale</h2>
@@ -89,7 +97,7 @@
       </div>
 
       <div
-        class="col-span-12 lg:col-span-4 bg-white rounded-lg p-6 border border-white/60 flex flex-col justify-between overflow-hidden">
+        class="col-span-12 lg:col-span-4 bg-white rounded-lg p-6 border border-slate-100 flex flex-col justify-between overflow-hidden">
         <div>
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Orders</h2>
@@ -116,10 +124,97 @@
         </div>
       </div>
     </div>
+    <div class="grid grid-cols-12 gap-4 mt-4">
+      <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-6 border border-slate-100 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Quick To-Do</h2>
+          <button class="text-slate-400 hover:text-slate-900 transition-colors">
+            <lucide-icon [img]="icons.plus" class="w-5 h-5"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg group hover:bg-slate-100 transition-colors cursor-pointer">
+            <div
+              class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center group-hover:border-indigo-500 transition-colors">
+              <div class="w-2 h-2 bg-indigo-500 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <span class="text-sm font-semibold text-slate-700">Restock Sector 7 - Brake Pads</span>
+            <span
+              class="ml-auto text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded uppercase">High</span>
+          </div>
+
+          <div
+            class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg group hover:bg-slate-100 transition-colors cursor-pointer">
+            <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center"></div>
+            <span class="text-sm font-semibold text-slate-700">Quarterly safety inspection</span>
+            <span
+              class="ml-auto text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded uppercase">Low</span>
+          </div>
+        </div>
+
+        <button
+          class="mt-auto pt-6 text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors">
+          View all tasks <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 -rotate-90"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-6 border border-slate-100 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Pending Approvals</h2>
+          <span class="px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-black">4 NEW</span>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:shadow-sm transition-all">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <lucide-icon [img]="icons.shoppingCart" class="w-5 h-5"></lucide-icon>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-800">Purchase Order #882</h4>
+                <p class="text-[11px] text-slate-400 font-medium">Nexus Logistics • $1,200.00</p>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors">
+                <lucide-icon [img]="icons.packageCheck" class="w-4 h-4"></lucide-icon>
+              </button>
+              <button class="p-2 text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
+                <lucide-icon [img]="icons.more" class="w-4 h-4"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:shadow-sm transition-all">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded bg-amber-50 text-amber-600 flex items-center justify-center">
+                <lucide-icon [img]="icons.users" class="w-5 h-5"></lucide-icon>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-800">Inventory Adjustment</h4>
+                <p class="text-[11px] text-slate-400 font-medium">JD • Sector 7 Stock</p>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors">
+                <lucide-icon [img]="icons.packageCheck" class="w-4 h-4"></lucide-icon>
+              </button>
+              <button class="p-2 text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
+                <lucide-icon [img]="icons.more" class="w-4 h-4"></lucide-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     }@else if (currentTab === 'tasks') {
-
+    <app-todo></app-todo>
     }@else if (currentTab === 'calender') {
-
+    <!-- <app-calendar></app-calendar> -->
     }
   </div>
 </div>

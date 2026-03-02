@@ -26,20 +26,20 @@ export const UserManagementRoutes: Routes = [
                 path: 'users',
                 children: [
                     { path: '', component: UserManagementComponent },
-                    { path:'profile', component: UserProfileComponent },
+                    { path: 'profile', component: UserProfileComponent },
                     { path: 'form', component: UserFormComponent },
                     { path: 'form/:id', component: UserFormComponent },
 
                 ]
             },
-            { path: 'apps', component: ApplicationsComponent },
+            //{ path: 'apps', component: ApplicationsComponent },
         ]
     },
     {
         path: 'user',
         children: [
             { path: 'calendar', component: CalendarComponent },
-            { path:'profile/:id', component: UserProfileComponent },
+            { path: 'profile/:id', component: UserProfileComponent },
         ]
     },
 ];

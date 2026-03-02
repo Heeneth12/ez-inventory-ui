@@ -3,7 +3,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'; // Ad
 import { StockAdjustmentDetailModel, StockAdjustmentFilter, StockAdjustmentModel } from '../models/stock-adjustment.model';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { ArrowRight, Eye, FilePlusCorner, Printer, Receipt } from 'lucide-angular';
+import { ArrowRight, FilePlusCorner } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
@@ -31,8 +31,9 @@ export class StockAdjustmentComponent implements OnInit {
 
   stockAdjustmentDetails: StockAdjustmentModel[] = [];
   stockAdjustmentSummary: StockAdjustmentDetailModel | null = null;
-  stockAdjustmentFilter: StockAdjustmentFilter =  new StockAdjustmentFilter();
+  stockAdjustmentFilter: StockAdjustmentFilter = new StockAdjustmentFilter();
   stockAdjColumn: any = STOCK_ADJUSTMENT_COLUMNS;
+  isLoading: boolean = false;
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
@@ -42,17 +43,16 @@ export class StockAdjustmentComponent implements OnInit {
       label: 'View Details',
       icon: ArrowRight,
       color: 'primary',
-      condition: (row) => true // Show for all or filter based on status
+      condition: (row) => true
     }
   ];
-
 
   myHeaderActions: HeaderAction[] = [
     {
       label: 'Create',
-      icon: FilePlusCorner, // Pass the Lucide icon object directly file-plus-corner
-      variant: 'primary',
-      action: () => this.moveToCreateStockAdj() // Direct callback
+      icon: FilePlusCorner,
+      variant: 'secondary',
+      action: () => this.moveToCreateStockAdj()
     },
   ];
 
@@ -72,8 +72,7 @@ export class StockAdjustmentComponent implements OnInit {
   ];
 
   dateConfig: DatePickerConfig = {
-    type: 'both', // or 'single'
-    // label: 'Filter Dates',
+    type: 'both',
     placeholder: 'Start - End'
   };
 
@@ -92,14 +91,14 @@ export class StockAdjustmentComponent implements OnInit {
 
   private setupTablePipeline() {
     this.tableRefresh$.pipe(
-      debounceTime(400)
+      debounceTime(300)
     ).subscribe(() => {
       this.getAllSalesAdjustments();
     });
   }
 
   getAllSalesAdjustments() {
-    this.loaderSvc.show();
+    this.isLoading = true;
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.stockService.getStockAdjustments(
       apiPage,
@@ -112,10 +111,10 @@ export class StockAdjustmentComponent implements OnInit {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
       },
       (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastSvc.show('Failed to load Stock Adjustments', 'error');
       }
     );

@@ -1,7 +1,7 @@
 import { Injectable, TemplateRef, Type } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-type DrawerWidth = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+type DrawerWidth = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 
 @Injectable({
     providedIn: 'root'

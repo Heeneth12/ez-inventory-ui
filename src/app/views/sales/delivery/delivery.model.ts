@@ -1,3 +1,4 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
 import { ContactMiniModel } from "../../contacts/contacts.model";
 
 export interface DeliveryModel {
@@ -19,19 +20,13 @@ export interface DeliveryModel {
     contactPhone: string;
 }
 
-export class DeliveryFilterModel {
-    id?: number
-    deliveryNumber?: string;
-    invoiceId?: number;
-    customerId?: number;
-    type?: 'CUSTOMER_PICKUP' | 'THIRD_PARTY_COURIER' | 'IN_HOUSE_DELIVERY';   // ShipmentType
-    status?: 'PENDING' | 'SCHEDULED' | 'SHIPPED' | 'DELIVERED'
-    scheduledDateFrom?: Date;
-    scheduledDateTo?: Date;
-    shippedDateFrom?: Date;
-    shippedDateTo?: Date;
-    deliveredDateFrom?: Date;
-    deliveredDateTo?: Date;
+export class DeliveryFilterModel extends CommonFilterModel {
+    deliveryId!: number;
+    customerId!: number;
+    deliveryNumber!: string;
+    shipmentTypes!: Type[] | null;
+    shipmentStatuses!: ShipmentStatus[] | null;
+
 }
 
 export enum ShipmentStatus {
@@ -40,6 +35,12 @@ export enum ShipmentStatus {
     SHIPPED = 'SHIPPED',
     DELIVERED = 'DELIVERED',
     CANCELLED = 'CANCELLED'
+}
+
+export enum Type {
+    CUSTOMER_PICKUP = 'CUSTOMER_PICKUP',
+    THIRD_PARTY_COURIER = 'THIRD_PARTY_COURIER',
+    IN_HOUSE_DELIVERY = 'IN_HOUSE_DELIVERY'
 }
 
 export interface RouteModel {

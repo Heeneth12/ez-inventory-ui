@@ -1,11 +1,10 @@
-<div class="flex items-center gap-3">
-    @for(btn of buttons; track btn.label){
-    <button type="button" (click)="btn.action()" [disabled]="btn.disabled" [class]="getButtonClasses(btn)">
-        @if(btn.icon){
-        <lucide-icon [name]="btn.icon" [size]="getIconSize(btn.size)" class="shrink-0 transition-colors">
-        </lucide-icon>
-        }
-        <span>{{ btn.label }}</span>
-    </button>
+<div class="flex items-center gap-2 flex-wrap">
+    @for(btn of buttons; track btn.label) {
+      <button *ngIf="!btn.hidden" type="button" (click)="btn.action()" [disabled]="btn.disabled" [class]="getButtonClasses(btn)">
+          @if(btn.icon) {
+            <lucide-icon [img]="btn.icon" [size]="getIconSize(btn.size)" class="shrink-0 transition-colors"></lucide-icon>
+          }
+          <span>{{ btn.label }}</span>
+      </button>
     }
-</div>
+  </div>

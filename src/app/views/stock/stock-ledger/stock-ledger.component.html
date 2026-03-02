@@ -2,9 +2,8 @@
     <div class="flex-1 h-[calc(100vh-118px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="stockLedgerList" [isServerSide]="true"
             [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
-            [filterConfig]="filterConfig" (filterChanged)="onFilterUpdate($event)"
-            [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)"
-            (action)="onTableAction($event)">
+            [filterConfig]="filterConfig" (filterChanged)="onFilterUpdate($event)" [datePickerConfig]="dateConfig"
+            (dateChange)="onFilterDate($event)" (action)="onTableAction($event)" [isLoading]="isLoading">
         </app-standard-table>
     </div>
 </div>

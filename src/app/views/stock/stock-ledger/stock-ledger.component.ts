@@ -23,6 +23,7 @@ export class StockLedgerComponent {
   stockLedgerList: StockLedger[] = [];
   stockLedgerFilter: StockLedgerFilter = new StockLedgerFilter();
 
+  isLoading: boolean = false;
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
@@ -86,7 +87,7 @@ export class StockLedgerComponent {
   }
 
   getCurrentStock() {
-    this.loaderSvc.show();
+    this.isLoading = true;
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.stockService.getStockTransactions(
       apiPage,
@@ -99,10 +100,10 @@ export class StockLedgerComponent {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
 
       }, (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastService.show('Error fetching stock data', 'error');
       });
   }

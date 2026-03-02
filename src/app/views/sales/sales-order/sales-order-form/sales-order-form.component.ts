@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
@@ -7,7 +7,7 @@ import { ToastService } from '../../../../layouts/components/toast/toastService'
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
-import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown } from 'lucide-angular';
+import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown, XIcon, ArrowLeft, Check, Eye, Trash } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/approval-console.model';
 import { ApprovalConsoleService } from '../../../approval-console/approval-console.service';
@@ -23,6 +23,11 @@ import { UserManagementService } from '../../../user-management/userManagement.s
 })
 export class SalesOrderFormComponent implements OnInit {
 
+  @Input() customerId: number | null = null;
+  @Input() id: number | null = null; // sales order id
+
+  @ViewChild('itemSearchInput') itemSearchInput!: ElementRef;
+
   // icons
   readonly SearchIcon = Search;
   readonly BarCode = QrCode;
@@ -31,6 +36,11 @@ export class SalesOrderFormComponent implements OnInit {
   readonly ShoppingBag = ShoppingBag;
   readonly SettingsIcon = SettingsIcon;
   readonly FileDownIcon = FileDown;
+  readonly xIconIcon = XIcon;
+  readonly ArrowLeftIcon = ArrowLeft;
+  readonly eyeIcon = Eye;
+  readonly checkIcon = Check;
+  readonly TrashIcon = Trash;
 
   orderForm: FormGroup;
   isEditMode = false;
@@ -47,7 +57,7 @@ export class SalesOrderFormComponent implements OnInit {
   showItemResults = false;
   private searchSubject = new Subject<string>();
 
-  approvalConfigDetails:ApprovalConfigModel | null = null;
+  approvalConfigDetails: ApprovalConfigModel | null = null;
 
   // Options
   warehouseOptions = [
@@ -59,7 +69,7 @@ export class SalesOrderFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private salesOrderService: SalesOrderService,
-    private approvalConsoleService:ApprovalConsoleService,
+    private approvalConsoleService: ApprovalConsoleService,
     private userService: UserManagementService,
     private itemService: ItemService,
     private toast: ToastService,
@@ -69,34 +79,49 @@ export class SalesOrderFormComponent implements OnInit {
     this.userFilter.userType = [UserType.VENDOR];
     this.orderForm = this.fb.group({
       id: [null],
-      customerId: [1, Validators.required],
+      customerId: [null, Validators.required], // Start null to force selection
       warehouseId: [1, Validators.required],
       orderDate: [new Date().toISOString().split('T')[0], Validators.required],
       remarks: [''],
+      isGstBill: [false],
       items: this.fb.array([], Validators.required),
-      // Financials (Global)
-      totalDiscount: [0], // Global Discount Amount
-      totalTax: [0] // Global Tax % to apply
+
+      // Header Level Adjustments (Inputs are RATES %)
+      flatDiscountRate: [0, [Validators.min(0), Validators.max(100)]],
+      flatTaxRate: [0, [Validators.min(0), Validators.max(100)]]
     });
   }
 
   ngOnInit(): void {
+    if (this.customerId) {
+      this.getUserById(this.customerId);
+      this.orderForm.get('customerId')?.setValue(this.customerId);
+    }
+
     this.setupItemSearch();
     this.checkEditMode();
     this.getSalesOrderApprovalConfig();
   }
 
-  // --- Initialization Logic ---
   private checkEditMode() {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
+    if (this.id) {
+      this.initializeEditMode(this.id);
+      return;
+    }
 
-      if (id) {
-        this.isEditMode = true;
-        this.orderId = +id;
-        this.loadOrderDetails(this.orderId);
+    this.route.paramMap.subscribe(params => {
+      const routeId = params.get('id');
+
+      if (routeId) {
+        this.initializeEditMode(routeId);
       }
     });
+  }
+
+  private initializeEditMode(id: string | number) {
+    this.isEditMode = true;
+    this.orderId = Number(id);
+    this.loadOrderDetails(this.orderId);
   }
 
   private loadOrderDetails(id: number) {
@@ -111,9 +136,11 @@ export class SalesOrderFormComponent implements OnInit {
           warehouseId: order.warehouseId,
           orderDate: order.orderDate,
           remarks: order.remarks,
-          totalDiscount: order.totalDiscount, // Map Flat Discount
-          totalTax: order.totalTax          // Map Flat Tax
+          // Map backend DTO to Form Controls
+          flatDiscountRate: order.flatDiscountRate || 0,
+          flatTaxRate: order.flatTaxRate || 0
         });
+
         // 2. Set Customer Display
         this.getUserById(order.customerId);
 
@@ -127,8 +154,9 @@ export class SalesOrderFormComponent implements OnInit {
             name: item.itemName,
             sellingPrice: item.unitPrice,
             orderedQty: item.orderedQty,
-            discount: item.discount,
-            tax: item.tax
+            // Map Rates
+            discountRate: item.discountRate,
+            taxRate: item.taxRate
           }));
         });
 
@@ -150,7 +178,6 @@ export class SalesOrderFormComponent implements OnInit {
         const filter = new ItemSearchFilter();
         filter.searchQuery = query;
         filter.active = true;
-        // wrapping in observable for switchMap
         return new Promise(resolve => {
           this.itemService.searchItems(filter,
             (res: any) => resolve(res.data),
@@ -164,70 +191,83 @@ export class SalesOrderFormComponent implements OnInit {
     });
   }
 
-  // --- Form Accessors ---
-
   get items(): FormArray {
     return this.orderForm.get('items') as FormArray;
   }
 
-  // --- Financial Calculations (Getters) ---
-
-  get subtotal(): number {
-    return this.items.controls.reduce((sum, ctrl) => {
-      const qty = ctrl.get('orderedQty')?.value || 0;
-      const price = ctrl.get('unitPrice')?.value || 0;
-      return sum + (qty * price);
-    }, 0);
+  // Helper to round currency
+  private round(num: number): number {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
   }
 
-  get totalItemDiscounts(): number {
-    // Sum of individual item discounts
-    return this.items.controls.reduce((sum, ctrl) => {
-      return sum + (ctrl.get('discount')?.value || 0);
-    }, 0);
-  }
-
-  get totalItemTaxes(): number {
-    return this.items.controls.reduce((sum, ctrl) => {
-      return sum + (ctrl.get('tax')?.value || 0);
-    }, 0);
-  }
-
-  get headerDiscount(): number {
-    return this.orderForm.get('totalDiscount')?.value || 0;
-  }
-
-  get headerTax(): number {
-    return this.orderForm.get('totalTax')?.value || 0;
-  }
-
-  // CHANGE 4: Updated Grand Total Formula
-  // (Price * Qty) - (Item Disc) + (Item Tax) - (Header Disc) + (Header Tax)
-  get grandTotal(): number {
-    const itemsNet = this.subtotal - this.totalItemDiscounts + this.totalItemTaxes;
-    const headerAdjustments = this.headerTax - this.headerDiscount;
-
-    return Math.max(0, itemsNet + headerAdjustments);
-  }
-
-  get globalDiscount(): number {
-    return this.orderForm.get('discount')?.value || 0;
-  }
-
-  get calculatedTax(): number {
-    const taxPercent = this.orderForm.get('taxPercentage')?.value || 0;
-    // Taxable = Subtotal - Total Discounts
-    const taxable = Math.max(0, this.subtotal - this.totalItemDiscounts - this.globalDiscount);
-    return (taxable * taxPercent) / 100;
-  }
-
-  getRowTotal(index: number): number {
+  /**
+   * Calculates the specific line totals based on current Rate inputs
+   * Formula: (Price * Qty) - (Gross * Disc%) + ((Gross-Disc) * Tax%)
+   */
+  getLineDetails(index: number) {
     const ctrl = this.items.at(index);
     const qty = ctrl.get('orderedQty')?.value || 0;
     const price = ctrl.get('unitPrice')?.value || 0;
-    const disc = ctrl.get('discount')?.value || 0;
-    const tax = ctrl.get('tax')?.value || 0; // Include item tax
-    return Math.max(0, (qty * price) - disc + tax);
+    const discRate = ctrl.get('discountRate')?.value || 0;
+    const taxRate = ctrl.get('taxRate')?.value || 0;
+
+    const gross = this.round(qty * price);
+    const discAmt = this.round(gross * (discRate / 100));
+    const taxable = gross - discAmt;
+    const taxAmt = this.round(taxable * (taxRate / 100));
+    const lineTotal = taxable + taxAmt;
+
+    return { gross, discAmt, taxAmt, lineTotal };
+  }
+
+  // 1. Sum of all Line Totals (Item Gross Total in Java)
+  get itemGrossTotal(): number {
+    return this.items.controls.reduce((sum, ctrl, index) => {
+      const details = this.getLineDetails(index);
+      return sum + details.lineTotal;
+    }, 0);
+  }
+
+  // 2. Sum of all Item Discounts (For Display)
+  get totalItemDiscounts(): number {
+    return this.items.controls.reduce((sum, ctrl, index) => {
+      return sum + this.getLineDetails(index).discAmt;
+    }, 0);
+  }
+
+  // 3. Sum of all Item Taxes (For Display)
+  get totalItemTaxes(): number {
+    return this.items.controls.reduce((sum, ctrl, index) => {
+      return sum + this.getLineDetails(index).taxAmt;
+    }, 0);
+  }
+
+  // --- Header Calculations ---
+
+  get flatDiscountRate(): number {
+    return this.orderForm.get('flatDiscountRate')?.value || 0;
+  }
+
+  get flatTaxRate(): number {
+    return this.orderForm.get('flatTaxRate')?.value || 0;
+  }
+
+  // Calculated Flat Discount Amount (Logic: Applied on Sum of Line Totals)
+  get flatDiscountAmount(): number {
+    const lineSum = this.itemGrossTotal;
+    return this.round(lineSum * (this.flatDiscountRate / 100));
+  }
+
+  // Calculated Flat Tax Amount (Logic: Applied on Bill AFTER Flat Discount)
+  get flatTaxAmount(): number {
+    const taxableBill = this.itemGrossTotal - this.flatDiscountAmount;
+    return this.round(taxableBill * (this.flatTaxRate / 100));
+  }
+
+  // Final Grand Total
+  get grandTotal(): number {
+    const taxableBill = this.itemGrossTotal - this.flatDiscountAmount;
+    return Math.max(0, taxableBill + this.flatTaxAmount);
   }
 
   // --- Item Management ---
@@ -239,22 +279,17 @@ export class SalesOrderFormComponent implements OnInit {
   }
 
   selectItemFromSearch(item: ItemModel) {
-    // 1. Check if item already exists in the array
     const existingIndex = this.items.controls.findIndex(
       (control) => control.get('itemId')?.value === item.id
     );
 
     if (existingIndex !== -1) {
-      // 2. If exists, just increment the quantity
       this.adjustQuantity(existingIndex, 1);
-      
-      this.toast.show(`${item.name} quantity updated`, 'success'); // Optional feedback
+      this.toast.show(`${item.name} quantity updated`, 'success');
     } else {
-      // 3. If new, push to array
       this.items.push(this.createItemControl(item));
     }
 
-    // 4. Reset search
     this.itemSearchQuery = "";
     this.showItemResults = false;
     this.itemSearchResults = [];
@@ -268,8 +303,9 @@ export class SalesOrderFormComponent implements OnInit {
       imageUrl: [data.imageUrl || 'https://ui-avatars.com/api/?name=' + data.name + '&background=eff6ff&color=3b82f6&bold=true&size=128'],
       unitPrice: [data.sellingPrice || 0, [Validators.required, Validators.min(0)]],
       orderedQty: [data.orderedQty || 1, [Validators.required, Validators.min(1)]],
-      discount: [data.discount || 0, Validators.min(0)],
-      tax: [data.tax || 0, [Validators.min(0)]]
+      // UPDATED: Inputs are Rates (%)
+      discountRate: [data.discountRate || 0, [Validators.min(0), Validators.max(100)]],
+      taxRate: [data.taxRate || 0, [Validators.min(0), Validators.max(100)]]
     });
   }
 
@@ -285,14 +321,15 @@ export class SalesOrderFormComponent implements OnInit {
     }
   }
 
-  //Customer Management
-  getUserById(customerId:any){
+  // --- Customer Management ---
+  getUserById(customerId: any) {
     this.userService.getUserById(
       customerId,
-      (response:any) => {
+      (response: any) => {
         this.selectedUser = response.data;
+        this.focusItemSearch();
       },
-      (err:any) => {
+      (err: any) => {
         console.log(err);
       }
     )
@@ -301,6 +338,7 @@ export class SalesOrderFormComponent implements OnInit {
   onUserSelected(user: UserModel) {
     this.selectedUser = user;
     this.orderForm.patchValue({ customerId: user.id });
+    this.focusItemSearch();
   }
 
   onUserCleared() {
@@ -324,22 +362,25 @@ export class SalesOrderFormComponent implements OnInit {
     }
 
     const formVal = this.orderForm.getRawValue();
-    const taxPerItem = this.calculatedTax / formVal.items.length; // Simple distribution for DTO
 
-    // Map to Backend DTO
+    // Map to the new SalesOrderDto structure
     const payload = {
       customerId: formVal.customerId,
       warehouseId: formVal.warehouseId,
       orderDate: formVal.orderDate,
       remarks: formVal.remarks,
-      totalDiscount: formVal.totalDiscount,
-      totalTax: formVal.totalTax,
+
+      // Header Level Rates
+      flatDiscountRate: formVal.flatDiscountRate,
+      flatTaxRate: formVal.flatTaxRate,
+
+      // Map Items (sending Rates, Backend calculates Amounts)
       items: formVal.items.map((i: any) => ({
         itemId: i.itemId,
         orderedQty: i.orderedQty,
         unitPrice: i.unitPrice,
-        discount: i.discount,
-        tax: i.tax // Send the specific item tax
+        discountRate: i.discountRate, // Send %
+        taxRate: i.taxRate            // Send %
       }))
     };
 
@@ -362,7 +403,6 @@ export class SalesOrderFormComponent implements OnInit {
     }
   }
 
-
   getSalesOrderApprovalConfig() {
     this.approvalConsoleService.getApprovalConfigByApprovalType(
       ApprovalType.SALES_ORDER_DISCOUNT,
@@ -370,36 +410,50 @@ export class SalesOrderFormComponent implements OnInit {
         this.approvalConfigDetails = response.data;
       },
       (err: any) => {
-        this.toast.show("", 'error')
+        this.toast.show("Failed to load approval rules", 'error')
       }
     )
   }
 
   get isApprovalRequired(): boolean {
-    // 1. Safety checks
-    // FIX: Change .isEnabled to .enabled to match your API JSON
     if (!this.approvalConfigDetails || !this.approvalConfigDetails.isEnabled) {
       return false;
     }
 
-    // 2. Calculate Total Discount Amount (Line items + Global header discount)
-    const totalDiscountAmount = this.totalItemDiscounts + this.headerDiscount;
+    // Calculate Total Discount Value (Item Level + Header Level)
+    const totalDiscountVal = this.totalItemDiscounts + this.flatDiscountAmount;
 
-    // 3. Avoid division by zero
-    if (this.subtotal === 0) return false;
+    // Base Amount (Item Gross Total before any discount)
+    // We calculate pure gross (Price * Qty) for percentage comparison
+    const rawGross = this.items.controls.reduce((sum, ctrl) => {
+      const qty = ctrl.get('orderedQty')?.value || 0;
+      const price = ctrl.get('unitPrice')?.value || 0;
+      return sum + (qty * price);
+    }, 0);
 
-    // 4. Calculate Percentage
-    const currentDiscPercent = (totalDiscountAmount / this.subtotal) * 100;
+    if (rawGross === 0) return false;
 
-    // 5. Compare with Threshold
-    // Use optional chaining just in case
+    const currentDiscPercent = (totalDiscountVal / rawGross) * 100;
+
     return currentDiscPercent > (this.approvalConfigDetails.thresholdPercentage || 100);
   }
 
-
-
   toggleGstBill() {
-  const current = this.orderForm.get('isGstBill')?.value;
-  this.orderForm.patchValue({ isGstBill: !current });
-}
+    const current = this.orderForm.get('isGstBill')?.value;
+    this.orderForm.patchValue({ isGstBill: !current });
+  }
+
+  onPreview() {
+    console.log("Preview Clicked");
+  }
+
+  back() {
+    this.router.navigate(['/sales']);
+  }
+
+  private focusItemSearch() {
+    setTimeout(() => {
+      this.itemSearchInput.nativeElement.focus();
+    }, 100);
+  }
 }
