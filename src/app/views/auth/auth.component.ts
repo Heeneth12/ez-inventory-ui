@@ -10,6 +10,14 @@ import { ToastService } from '../../layouts/components/toast/toastService';
 
 declare const google: any;
 type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password';
+export enum BusinessType {
+  RETAIL = 'RETAIL',
+  WHOLESALE = 'WHOLESALE',
+  MANUFACTURING = 'MANUFACTURING',
+  DISTRIBUTION = 'DISTRIBUTION',
+  ECOMMERCE = 'ECOMMERCE',
+  SERVICE_PROVIDER = 'SERVICE_PROVIDER'
+}
 
 @Component({
   selector: 'app-auth',
@@ -202,7 +210,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       password: formValue.password,
       adminPhone: `${formValue.countryCode} ${formValue.phone}`,
       isPersonal: false,
-      businessType: "DISTRIBUTION",
+      businessType: BusinessType.DISTRIBUTION,
       appKey: this.APP_KEY,
       address: {
         addressLine1: formValue.addressLine1,
