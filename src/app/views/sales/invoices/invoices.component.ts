@@ -247,7 +247,6 @@ export class InvoicesComponent {
       value: '$45,780',
       icon: Banknote,
       color: 'gray',
-      trend: { value: '+$2,350', isUp: true }
     },
     {
       key: 'collected',
@@ -255,7 +254,6 @@ export class InvoicesComponent {
       value: '$32,420',
       icon: PieChart,
       color: 'gray',
-      trend: { value: '+$1,120', isUp: true }
     },
     {
       key: 'uncollected',
@@ -263,7 +261,6 @@ export class InvoicesComponent {
       value: '$13,360',
       icon: ShoppingCart,
       color: 'gray',
-      trend: { value: '-$540', isUp: false }
     },
     {
       key: 'pendingInvoices',
@@ -271,7 +268,6 @@ export class InvoicesComponent {
       value: '28',
       icon: Users,
       color: 'gray',
-      trend: { value: '+4', isUp: true }
     }
   ];
 

@@ -5,16 +5,31 @@ import {
   Eye, Users, MousePointerClick, ShoppingCart, TrendingUp,
   TrendingDown, MoreVertical, Download, Plus, ChevronDown,
   Star, Send, Calendar,
-  Bell
+  Bell,
+  PackageCheck,
+  ShoppingBag,
+  Coins,
+  Notebook,
 } from 'lucide-angular';
 import { Chart, registerables } from 'chart.js';
+import { CalendarComponent } from "../../layouts/components/calendar/calendar.component";
+import { TodoComponent } from "../../layouts/components/todo/todo.component";
+
+interface PurchaseItem {
+  id: string;
+  vendor: string;
+  itemsCount: number;
+  totalAmount: number;
+  status: 'Pending' | 'Verified' | 'Discrepancy';
+  receivedDate: string;
+}
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, CalendarComponent, TodoComponent],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
@@ -26,6 +41,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   private profitChart: Chart | null = null;
   private activityChart: Chart | null = null;
+  activeReport: string = 'inventory';
 
   readonly icons = {
     eye: Eye,
@@ -41,7 +57,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     star: Star,
     send: Send,
     calendar: Calendar,
-    bell: Bell
+    bell: Bell,
+    packageCheck: PackageCheck,
+    purchaseQueue: Send,
+    shoppingCart: ShoppingBag,
+    salesData: ShoppingCart,
+    coins: Coins,
+    notes: Notebook,
   };
 
   hoveredDayIndex: number | null = null;
@@ -104,129 +126,66 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   maxActivity = Math.max(...this.dailyActivity.map(d => d.value));
 
+  // Dummy data for the Purchase Queue (Incoming Stock)
+  purchaseQueue: PurchaseItem[] = [
+    {
+      id: 'PUR-2026-001',
+      vendor: 'Global Tech Supplies',
+      itemsCount: 45,
+      totalAmount: 1250.50,
+      status: 'Pending',
+      receivedDate: '2026-02-25 10:30 AM'
+    },
+    {
+      id: 'PUR-2026-002',
+      vendor: 'Nexus Logistics',
+      itemsCount: 12,
+      totalAmount: 450.00,
+      status: 'Pending',
+      receivedDate: '2026-02-25 01:15 PM'
+    },
+    {
+      id: 'PUR-2026-003',
+      vendor: 'Prime Wholesale',
+      itemsCount: 150,
+      totalAmount: 3200.75,
+      status: 'Pending',
+      receivedDate: '2026-02-25 03:45 PM'
+    },
+    {
+      id: 'PUR-2026-004',
+      vendor: 'Office Depot Inc',
+      itemsCount: 5,
+      totalAmount: 89.99,
+      status: 'Pending',
+      receivedDate: '2026-02-25 04:20 PM'
+    }
+  ];
+
+  // Data for the Cash Denominations section
+  notes = [
+    { label: 'Hundreds', value: 100, qty: 0 },
+    { label: 'Fifties', value: 50, qty: 0 },
+    { label: 'Twenties', value: 20, qty: 0 },
+    { label: 'Tens', value: 10, qty: 0 },
+    { label: 'Fives', value: 5, qty: 0 },
+    { label: 'Ones', value: 1, qty: 0 }
+  ];
+
+  // Sales Data Dummy
+  salesData = [
+    { invoice: 'INV-8821', method: 'Cash', amount: 120.00 },
+    { invoice: 'INV-8822', method: 'UPI/Card', amount: 450.50 },
+    { invoice: 'INV-8823', method: 'Cash', amount: 35.00 }
+  ];
+
   ngOnInit() { }
 
   ngAfterViewInit() {
     // Wait for DOM to be fully ready
     setTimeout(() => {
-      this.initProfitChart();
       this.initActivityChart();
     }, 300);
-  }
-
-  private initProfitChart() {
-    if (!this.profitChartRef?.nativeElement) {
-      console.error('Profit chart canvas not found');
-      return;
-    }
-
-    const ctx = this.profitChartRef.nativeElement.getContext('2d');
-    if (!ctx) {
-      console.error('Could not get 2D context for profit chart');
-      return;
-    }
-
-    // Destroy existing chart if it exists
-    if (this.profitChart) {
-      this.profitChart.destroy();
-    }
-
-    // Create gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
-    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
-    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.01)');
-
-    // Dummy data for profit chart
-    const profitData = {
-      labels: ['Jan 1', 'Jan 5', 'Jan 10', 'Jan 15', 'Jan 20', 'Jan 25', 'Jan 30'],
-      values: [5200, 6800, 5500, 8200, 7100, 9500, 11200]
-    };
-
-    this.profitChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: profitData.labels,
-        datasets: [{
-          label: 'Profit',
-          data: profitData.values,
-          borderColor: '#3b82f6',
-          backgroundColor: gradient,
-          borderWidth: 3,
-          tension: 0.4,
-          fill: true,
-          pointRadius: 0,
-          pointHoverRadius: 8,
-          pointHoverBackgroundColor: '#3b82f6',
-          pointHoverBorderColor: '#fff',
-          pointHoverBorderWidth: 3
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            enabled: true,
-            mode: 'index',
-            intersect: false,
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            titleColor: '#fff',
-            bodyColor: '#cbd5e1',
-            borderColor: '#334155',
-            borderWidth: 1,
-            padding: 16,
-            displayColors: false,
-            cornerRadius: 8,
-            titleFont: {
-              size: 13,
-              weight: 'bold'
-            },
-            bodyFont: {
-              size: 15,
-              weight: 'bold'
-            },
-            callbacks: {
-              title: (items) => items[0].label,
-              label: ({ parsed }) => parsed?.y != null ? `$${parsed.y.toLocaleString()}` : ''
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-            ticks: {
-              color: '#94a3b8',
-              font: {
-                size: 12,
-              },
-              padding: 8
-            }
-          },
-          y: {
-            border: { display: false },
-            grid: {
-              color: '#f1f5f9',
-              drawTicks: false,
-            },
-            ticks: {
-              color: '#94a3b8',
-              font: {
-                size: 12,
-              },
-              callback: (value) => `$${Number(value) / 1000}k`,
-              padding: 12
-            }
-          }
-        },
-        interaction: {
-          mode: 'index',
-          intersect: false
-        }
-      }
-    });
   }
 
   private initActivityChart() {
