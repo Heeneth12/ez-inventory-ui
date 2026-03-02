@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
@@ -7,7 +7,7 @@ import { ToastService } from '../../../../layouts/components/toast/toastService'
 import { ItemService } from '../../../items/item.service';
 import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
-import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown } from 'lucide-angular';
+import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown, XIcon, ArrowLeft, Check, Eye, Trash } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/approval-console.model';
 import { ApprovalConsoleService } from '../../../approval-console/approval-console.service';
@@ -26,6 +26,8 @@ export class SalesOrderFormComponent implements OnInit {
   @Input() customerId: number | null = null;
   @Input() id: number | null = null; // sales order id
 
+  @ViewChild('itemSearchInput') itemSearchInput!: ElementRef;
+
   // icons
   readonly SearchIcon = Search;
   readonly BarCode = QrCode;
@@ -34,6 +36,11 @@ export class SalesOrderFormComponent implements OnInit {
   readonly ShoppingBag = ShoppingBag;
   readonly SettingsIcon = SettingsIcon;
   readonly FileDownIcon = FileDown;
+  readonly xIconIcon = XIcon;
+  readonly ArrowLeftIcon = ArrowLeft;
+  readonly eyeIcon = Eye;
+  readonly checkIcon = Check;
+  readonly TrashIcon = Trash;
 
   orderForm: FormGroup;
   isEditMode = false;
@@ -320,6 +327,7 @@ export class SalesOrderFormComponent implements OnInit {
       customerId,
       (response: any) => {
         this.selectedUser = response.data;
+        this.focusItemSearch();
       },
       (err: any) => {
         console.log(err);
@@ -330,6 +338,7 @@ export class SalesOrderFormComponent implements OnInit {
   onUserSelected(user: UserModel) {
     this.selectedUser = user;
     this.orderForm.patchValue({ customerId: user.id });
+    this.focusItemSearch();
   }
 
   onUserCleared() {
@@ -432,5 +441,19 @@ export class SalesOrderFormComponent implements OnInit {
   toggleGstBill() {
     const current = this.orderForm.get('isGstBill')?.value;
     this.orderForm.patchValue({ isGstBill: !current });
+  }
+
+  onPreview() {
+    console.log("Preview Clicked");
+  }
+
+  back() {
+    this.router.navigate(['/sales']);
+  }
+
+  private focusItemSearch() {
+    setTimeout(() => {
+      this.itemSearchInput.nativeElement.focus();
+    }, 100);
   }
 }
