@@ -202,6 +202,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       password: formValue.password,
       adminPhone: `${formValue.countryCode} ${formValue.phone}`,
       isPersonal: false,
+      businessType: "DISTRIBUTION",
       appKey: this.APP_KEY,
       address: {
         addressLine1: formValue.addressLine1,
