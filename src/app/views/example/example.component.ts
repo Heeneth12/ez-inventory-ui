@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { StatusStepperComponent } from "../../layouts/UI/status-stepper/status-stepper.component";
 import { Calendar, ClipboardList, Package, Truck } from 'lucide-angular';
-import { StatCardData, StatCardComponent } from '../../layouts/UI/stat-card/stat-card.component';
 import { HttpClient } from '@angular/common/http';
 import { UserCardData, UserCardComponent } from '../../layouts/UI/user-card/user-card.component';
 import { DatePickerConfig, DateRangeEmit, DatePickerComponent } from '../../layouts/UI/date-picker/date-picker.component';
@@ -10,7 +9,7 @@ import { DatePickerConfig, DateRangeEmit, DatePickerComponent } from '../../layo
 @Component({
   selector: 'app-example',
   standalone: true,
-  imports: [CommonModule, StatusStepperComponent, StatCardComponent, UserCardComponent, DatePickerComponent],
+  imports: [CommonModule, StatusStepperComponent, UserCardComponent, DatePickerComponent],
   templateUrl: './example.component.html',
   styleUrl: './example.component.css'
 })
@@ -18,19 +17,13 @@ export class ExampleComponent {
 
 
 
-  
 
-orders = [
-  { id: 'SHP-5574', statusIndex: 2 }, // Bill done (matches row 1 in your image)
-  { id: 'SHP-5575', statusIndex: 4 }, // All done (matches row 3)
-  { id: 'SHP-5576', statusIndex: 0 }, // Draft (matches row 4)
-];
 
-handleCardAction(card: StatCardData) {
-    console.log('Card Clicked:', card.title);
-    // You can add routing logic here, e.g.:
-    // this.router.navigate(['/details', card.id]);
-  }
+  orders = [
+    { id: 'SHP-5574', statusIndex: 2 }, // Bill done (matches row 1 in your image)
+    { id: 'SHP-5575', statusIndex: 4 }, // All done (matches row 3)
+    { id: 'SHP-5576', statusIndex: 0 }, // Draft (matches row 4)
+  ];
 
 
   singleConfig: DatePickerConfig = {
@@ -60,20 +53,20 @@ handleCardAction(card: StatCardData) {
 
 
 
-//  users: UserCardData[] = [
-//     {
-//       id: 1,
-//       name: 'Talan Dias',
-//       role: 'UX Designer',
-//       isVerified: true
-//     },
-//     {
-//       id: 2,
-//       name: 'Lydia Gouse',
-//       role: 'Product Owner',
-//       isVerified: false
-//     }
-//   ];
+  //  users: UserCardData[] = [
+  //     {
+  //       id: 1,
+  //       name: 'Talan Dias',
+  //       role: 'UX Designer',
+  //       isVerified: true
+  //     },
+  //     {
+  //       id: 2,
+  //       name: 'Lydia Gouse',
+  //       role: 'Product Owner',
+  //       isVerified: false
+  //     }
+  //   ];
 
   handleProfileApiCall(userId: string | number) {
     console.log('API CALL triggered for user:', userId);
