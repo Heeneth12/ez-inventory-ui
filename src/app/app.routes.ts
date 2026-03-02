@@ -2,11 +2,10 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './layouts/guards/auth.guard';
 import { RedirectGuard } from './layouts/guards/redirect.guard';
 import { ExampleComponent } from './views/example/example.component';
-import { AiChatComponent } from './views/ai-chat/ai-chat.component';
 
 export const routes: Routes = [
-    { 
-        path: '', 
+    {
+        path: '',
         canActivate: [RedirectGuard],
         children: []
     },
@@ -75,22 +74,22 @@ export const routes: Routes = [
     },
 
     // 7. CONTACTS
-    {
-        path: 'contacts',
-        loadChildren: () => import('./views/contacts/contacts.routes')
-            .then(m => m.contactsRoutes),
-        canActivate: [AuthGuard],
-        data: { moduleKey: 'EZH_INV_CONTACTS' }
-    },
+    // {
+    //     path: 'contacts',
+    //     loadChildren: () => import('./views/contacts/contacts.routes')
+    //         .then(m => m.contactsRoutes),
+    //     canActivate: [AuthGuard],
+    //     data: { moduleKey: 'EZH_INV_CONTACTS' }
+    // },
 
     // 8. EMPLOYEE
-    {
-        path: 'employee',
-        loadChildren: () => import('./views/employee/employee-management.routes')
-            .then(m => m.employeeManagementRoutes),
-        canActivate: [AuthGuard],
-        data: { moduleKey: 'EZH_INV_EMPLOYEE' }
-    },
+    // {
+    //     path: 'employee',
+    //     loadChildren: () => import('./views/employee/employee-management.routes')
+    //         .then(m => m.employeeManagementRoutes),
+    //     canActivate: [AuthGuard],
+    //     data: { moduleKey: 'EZH_INV_EMPLOYEE' }
+    // },
 
     // 9. DOCUMENTS
     {

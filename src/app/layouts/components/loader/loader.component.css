@@ -16,9 +16,9 @@
     inset: 0;
     background-color: rgba(15, 23, 42, 0.6);
     /* Slate-900 with opacity */
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(2px);
     /* The Frosted Glass Effect */
-    -webkit-backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(2px);
     animation: fadeIn 0.3s ease-out;
 }
 
