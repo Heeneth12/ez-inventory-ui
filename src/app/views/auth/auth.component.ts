@@ -11,6 +11,14 @@ import { BusinessType } from './auth.model';
 
 declare const google: any;
 type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password';
+export enum BusinessType {
+  RETAIL = 'RETAIL',
+  WHOLESALE = 'WHOLESALE',
+  MANUFACTURING = 'MANUFACTURING',
+  DISTRIBUTION = 'DISTRIBUTION',
+  ECOMMERCE = 'ECOMMERCE',
+  SERVICE_PROVIDER = 'SERVICE_PROVIDER'
+}
 
 @Component({
   selector: 'app-auth',
@@ -215,6 +223,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       adminPhone: `${formValue.countryCode} ${formValue.phone}`,
       businessType: formValue.businessType,
       isPersonal: false,
+      businessType: BusinessType.DISTRIBUTION,
       appKey: this.APP_KEY,
       address: {
         addressLine1: formValue.addressLine1,
