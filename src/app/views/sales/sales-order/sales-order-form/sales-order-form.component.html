@@ -5,7 +5,11 @@
                 <button (click)="back()" type="button" class="text-gray-500 hover:text-gray-800 transition-colors">
                     <lucide-icon [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-icon>
                 </button>
+                @if(customerId){
                 <h1 class="text-base font-semibold text-gray-800 tracking-tight">Create Sales Order</h1>
+                }@else{
+                <h1 class="text-base font-semibold text-gray-800 tracking-tight">Update Sales Order</h1>
+                }
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" (click)="onPreview()"

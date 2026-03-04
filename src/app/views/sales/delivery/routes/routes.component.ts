@@ -131,7 +131,7 @@ export class RoutesComponent implements OnInit {
       (res: any) => {
         this.toast.show(`Order ${stop.deliveryNumber} Delivered`, 'success');
         stop.status = 'DELIVERED'; // Local update for UI
-        stop.deliveredDate = new Date();
+        //stop.deliveredDate = new Date().toISOString();
         this.loader.hide();
       },
       (err: any) => {

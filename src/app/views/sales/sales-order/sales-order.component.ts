@@ -16,6 +16,7 @@ import { OrderTrackerComponent } from '../../../layouts/components/order-tracker
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
 import { SALES_ORDER_ACTIONS, SALES_ORDER_COLUMNS, SALES_ORDER_DATE_CONFIG, SALES_ORDER_FILTER_OPTIONS } from '../salesConfig';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
+import { SalesOrderFormComponent } from './sales-order-form/sales-order-form.component';
 import { debounceTime, Subject } from 'rxjs';
 
 @Component({
@@ -85,6 +86,7 @@ export class SalesOrderComponent implements OnInit {
     private toastSvc: ToastService,
     private router: Router,
     private loaderSvc: LoaderService,
+    private drawerSvc: DrawerService,
     private confirmationModalService: ConfirmationModalService
   ) {
   }
@@ -233,6 +235,15 @@ export class SalesOrderComponent implements OnInit {
     );
   }
 
+  updateSalesOrderFormMiniForm(soId: any) {
+    this.drawerSvc.openComponent(
+      SalesOrderFormComponent,
+      { id: soId },
+      'Update Sales Order',
+      '2xl'
+    );
+  }
+
   updateSalesOrder(id: number | string) {
     this.router.navigate(['/sales/order/edit', id]);
   }
@@ -258,7 +269,11 @@ export class SalesOrderComponent implements OnInit {
         this.viewSalesOrderDetail(row.id);
         break;
       case 'edit':
-        this.updateSalesOrder(row.id);
+        if (this.customerId) {
+          this.updateSalesOrderFormMiniForm(row.id);
+        } else {
+          this.updateSalesOrder(row.id);
+        }
         break;
       case 'delete':
         console.log("Delete:", row.id);

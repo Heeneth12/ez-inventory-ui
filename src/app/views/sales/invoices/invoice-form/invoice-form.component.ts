@@ -10,7 +10,7 @@ import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
-import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
+import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, EyeIcon, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
 import { InvoiceModal, InvoiceItemModal, DeliveryOption } from '../invoice.modal';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { AddressType, UserModel } from '../../../user-management/models/user.model';
@@ -44,6 +44,7 @@ export class InvoiceFormComponent implements OnInit {
   readonly xIconIcon = XIcon;
   readonly HistoryIcon = HistoryIcon;
   readonly ChevronRightIcon = ChevronsLeftRight;
+  readonly eyeIcon = EyeIcon;
 
   invoiceForm: FormGroup;
   isEditMode = false;

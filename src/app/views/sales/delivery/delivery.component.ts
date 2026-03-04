@@ -14,11 +14,12 @@ import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.compo
 import { DELIVERY_ACTIONS, DELIVERY_COLUMNS, DELIVERY_DATE_CONFIG, DELIVERY_FILTER_OPTIONS } from '../salesConfig';
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { StatusBadgeComponent } from "../../../layouts/components/status-badge/status-badge.component";
 
 @Component({
   selector: 'app-delivery',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent, StatGroupComponent, LucideAngularModule],
+  imports: [CommonModule, StandardTableComponent, StatGroupComponent, LucideAngularModule, StatusBadgeComponent],
   templateUrl: './delivery.component.html',
   styleUrl: './delivery.component.css'
 })
@@ -32,6 +33,7 @@ export class DeliveryComponent implements OnInit {
   readonly RouteIcon = Route;
   readonly CalendarClockIcon = CalendarClock;
   readonly UserIcon = User;
+  readonly TruckIcon = Truck;
 
   deliveryDetails: DeliveryModel[] = [];
   selectedDelivery: DeliveryModel | null = null;
@@ -263,9 +265,10 @@ export class DeliveryComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
-  getExpectedArrival(delivery: DeliveryModel | null): Date | null {
+  getExpectedArrival(delivery: DeliveryModel | null): string | null {
     if (!delivery) return null;
-    return delivery.deliveredDate || delivery.scheduledDate || delivery.shippedDate || null;
+    const date = delivery.deliveredDate || delivery.scheduledDate || delivery.shippedDate;
+    return date ? this.formatDate(date) : null;
   }
 
   onFilterDate(range: DateRangeEmit) {
