@@ -4,9 +4,10 @@
 <div class="space-y-6">
     <div class="flex-1 h-[calc(100vh-230px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="soColumn" [data]="salesOrders" [pagination]="pagination"
+            [isLoading]="isLoading" [isServerSide]="true" [searchMode]="'server'"
             (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)"
             (action)="handleTableAction($event)" [customActions]="soActions" [datePickerConfig]="dateConfig"
-             [filterConfig]="soFilterOptions" (filterChanged)="onFilterUpdate($event)"
+             [filterConfig]="soFilterOptions" (filterChanged)="onFilterUpdate($event)" (searchChange)="onSearchChange($event)"
             (dateChange)="onFilterDate($event)">
         </app-standard-table>
     </div>
