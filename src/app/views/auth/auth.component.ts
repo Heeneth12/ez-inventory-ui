@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { CommonService } from '../../layouts/service/common/common.service';
 import { ToastService } from '../../layouts/components/toast/toastService';
+import { BusinessType } from './auth.model';
 
 declare const google: any;
 type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password';
@@ -34,6 +35,16 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     { code: '+971', label: 'UAE (+971)', countryName: 'UAE' },
     { code: '+61', label: 'AU (+61)', countryName: 'Australia' },
     { code: '+65', label: 'SG (+65)', countryName: 'Singapore' }
+  ];
+
+
+  businessTypeOptions = [
+    { value: BusinessType.RETAIL, label: 'Retail' },
+    { value: BusinessType.WHOLESALE, label: 'Wholesale' },
+    { value: BusinessType.MANUFACTURING, label: 'Manufacturing' },
+    { value: BusinessType.DISTRIBUTION, label: 'Distribution' },
+    { value: BusinessType.ECOMMERCE, label: 'Ecommerce' },
+    { value: BusinessType.SERVICE_PROVIDER, label: 'Service Provider' }
   ];
 
   bookingReasons = [
@@ -124,6 +135,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
         companyName: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(8)]],
+        businessType: [BusinessType.RETAIL, Validators.required],
         countryCode: ['+91', Validators.required],
         phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
         addressLine1: ['', Validators.required],
@@ -201,6 +213,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       adminEmail: formValue.email,
       password: formValue.password,
       adminPhone: `${formValue.countryCode} ${formValue.phone}`,
+      businessType: formValue.businessType,
       isPersonal: false,
       appKey: this.APP_KEY,
       address: {

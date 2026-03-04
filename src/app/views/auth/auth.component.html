@@ -164,6 +164,14 @@
                                 autocomplete="off"
                                 class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         </div>
+
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="text-sm font-medium text-slate-700">Business Type</label>
+                            <select formControlName="businessType"
+                                class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                <option *ngFor="let bt of businessTypeOptions" [value]="bt.value">{{ bt.label }}</option>
+                            </select>
+                        </div>
                     </div>
 
                     <hr class="border-gray-100 my-2">
