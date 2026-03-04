@@ -16,6 +16,7 @@ import { OrderTrackerComponent } from '../../../layouts/components/order-tracker
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
 import { SALES_ORDER_ACTIONS, SALES_ORDER_COLUMNS, SALES_ORDER_DATE_CONFIG, SALES_ORDER_FILTER_OPTIONS } from '../salesConfig';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-sales-order',
@@ -40,6 +41,9 @@ export class SalesOrderComponent implements OnInit {
   salesOrders: SalesOrderModal[] = [];
   salesOrderDetail: SalesOrderModal | null = null;
   salesOrderFilter: SalesOrderFilterModal = new SalesOrderFilterModal();
+  isLoading = false;
+
+  private tableState$ = new Subject<void>();
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
@@ -86,15 +90,24 @@ export class SalesOrderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.setupTablePipeline();
     if (this.customerId) {
       this.salesOrderFilter.customerId = this.customerId;
     }
-    this.getAllSalesOrders();
+    this.tableState$.next();
     this.getSalesOrderStats();
   }
 
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getAllSalesOrders();
+    });
+  }
+
   getAllSalesOrders() {
-    this.loaderSvc.show();
+    this.isLoading = true;
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.salesOrderService.getAllSalesOrders(
       apiPage,
@@ -107,10 +120,10 @@ export class SalesOrderComponent implements OnInit {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
       },
       (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastSvc.show('Failed to load Items', 'error');
         console.error('Error fetching items:', error);
       }
@@ -257,7 +270,7 @@ export class SalesOrderComponent implements OnInit {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getAllSalesOrders();
+    this.tableState$.next();
   }
 
   onFilterDate(range: DateRangeEmit) {
@@ -269,6 +282,8 @@ export class SalesOrderComponent implements OnInit {
     this.salesOrderFilter.toDate = range.to
       ? this.formatDate(range.to)
       : null;
+    this.pagination.currentPage = 1;
+    this.tableState$.next();
   }
 
   private formatDate(date: Date): string {
@@ -279,7 +294,14 @@ export class SalesOrderComponent implements OnInit {
     console.log("Received filter update:", $event);
     this.salesOrderFilter.soStatuses = $event['status'] || null;
     this.salesOrderFilter.soSource = $event['source'] || null;
-    this.getAllSalesOrders();
+    this.pagination.currentPage = 1;
+    this.tableState$.next();
+  }
+
+  onSearchChange(searchQuery: string) {
+    this.salesOrderFilter.searchQuery = searchQuery;
+    this.pagination.currentPage = 1;
+    this.tableState$.next();
   }
 
   onLoadMore() {
