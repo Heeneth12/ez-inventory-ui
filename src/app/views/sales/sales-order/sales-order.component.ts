@@ -6,10 +6,10 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
 import { SalesOrderFilterModal, SalesOrderModal } from './sales-order.modal';
 import { Router } from '@angular/router';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
-import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
-import { ArrowRight, BadgeIndianRupee, CircleX, Clock, DollarSign, FileText, Headphones, ReceiptText, RefreshCcw, View, XCircle } from 'lucide-angular';
+import { ArrowRight, BadgeIndianRupee, Clock, FileText, XCircle } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';

@@ -18,6 +18,7 @@ import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker
 import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
 import { INVOICE_ACTIONS, INVOICE_COLUMNS, INVOICE_DATE_CONFIG, INVOICE_FILTER_OPTIONS } from '../salesConfig';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
+import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
 
 @Component({
   selector: 'app-invoices',
@@ -39,6 +40,8 @@ export class InvoicesComponent {
   invFilterOptions = INVOICE_FILTER_OPTIONS;
   dateConfig = INVOICE_DATE_CONFIG;
 
+  isLoading: boolean = false;
+
   readonly Truck = Truck;
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
@@ -50,6 +53,7 @@ export class InvoicesComponent {
     private router: Router,
     private loaderSvc: LoaderService,
     private modalService: ModalService,
+    private drawerSvc: DrawerService,
     private confirmationModalService: ConfirmationModalService
   ) {
   }
@@ -62,7 +66,7 @@ export class InvoicesComponent {
   }
 
   getAllInvoices() {
-    this.loaderSvc.show();
+    this.isLoading = true;
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.invoiceService.getInvoices(
       apiPage,
@@ -75,10 +79,10 @@ export class InvoicesComponent {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
       },
       (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastSvc.show('Failed to load Items', 'error');
         console.error('Error fetching items:', error);
       }
@@ -131,6 +135,21 @@ export class InvoicesComponent {
       { invoiceId, customerId },
       'lg'
     );
+  }
+
+  openInvoiceForm(invoiceId: any) {
+    this.drawerSvc.openComponent(
+      InvoiceFormComponent,
+      { id: invoiceId },
+      'Create Invoice',
+      '2xl'
+    );
+  }
+
+  onSearchChange(searchQuery: string) {
+    this.invoicesFilter.searchQuery = searchQuery?.trim() || undefined;
+    this.pagination.currentPage = 1;
+    this.getAllInvoices();
   }
 
   downloadInvoicePdf(invoiceId: any) {
@@ -196,8 +215,11 @@ export class InvoicesComponent {
         console.log("View:", row.id);
         break;
       case 'edit':
-        this.editInvoice(row.id);
-        console.log("Edit:", row.id);
+        if (this.customerId) {
+          this.openInvoiceForm(row.id);
+        } else {
+          this.editInvoice(row.id);
+        }
         break;
       case 'delete':
         console.log("Delete:", row.id);

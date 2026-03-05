@@ -22,6 +22,7 @@ import { SalesReturnsComponent } from "../../sales/sales-returns/sales-returns.c
 import { SalesOrderFormComponent } from '../../sales/sales-order/sales-order-form/sales-order-form.component';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { SkeletonLoaderComponent } from "../../../layouts/UI/skeleton-loader/skeleton-loader.component";
+import { InvoiceFormComponent } from '../../sales/invoices/invoice-form/invoice-form.component';
 
 @Component({
   selector: 'app-user-profile',
@@ -284,7 +285,7 @@ export class UserProfileComponent implements OnInit {
     );
   }
 
-  createPurchaseOrderForm() {
+  openPurchaseOrderForm() {
     this.drawerSvc.openComponent(
       SalesOrderFormComponent,
       { customerId: this.userId },
@@ -293,11 +294,20 @@ export class UserProfileComponent implements OnInit {
     );
   }
 
+  openInvoiceForm() {
+    this.drawerSvc.openComponent(
+      InvoiceFormComponent,
+      { customerId: this.userId },
+      'Create Invoice',
+      '2xl'
+    );
+  }
+
   onCreateClick() {
     if (this.activeTab === 'sales_orders') {
-      this.createPurchaseOrderForm();
-    } else if (this.activeTab === 'purchase_orders') {
-      this.createPurchaseOrderForm();
+      this.openPurchaseOrderForm();
+    } else if (this.activeTab === 'invoices') {
+      this.openInvoiceForm();
     }
 
   }

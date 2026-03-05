@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, Input, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
@@ -24,6 +24,10 @@ import { UserManagementService } from '../../../user-management/userManagement.s
   styleUrls: ['./invoice-form.component.css']
 })
 export class InvoiceFormComponent implements OnInit {
+
+  @Input() customerId: number | null = null;
+  @Input() salesOrderId: number | null = null;
+  @Input() id: number | null = null;
 
   //icons
   readonly TruckIcon = Truck;
@@ -107,6 +111,17 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   private checkEditMode() {
+    if (this.id) {
+      this.isEditMode = true;
+      this.orderId = this.id;
+      this.loadInvoiceForEdit(this.orderId);
+    }
+
+    if (this.salesOrderId) {
+      this.isEditMode = false;
+      this.loadOrderDetails(this.salesOrderId);
+    }
+
     this.route.queryParamMap.subscribe(params => {
       const invoiceId = params.get('invoiceId');
       if (invoiceId) {
