@@ -8,7 +8,10 @@ import { StockLedger, StockLedgerFilter } from '../models/stock-ledger.model';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
-import { List } from 'lucide-angular';
+import { List, Download } from 'lucide-angular';
+import { HeaderAction } from '../../../layouts/components/standard-table/standard-table.model';
+import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { BulkUploadComponent } from '../../../layouts/components/bulk-upload/bulk-upload.component';
 
 
 @Component({
@@ -81,6 +84,16 @@ export class StockLedgerComponent {
     }
   ];
 
+  headerActions: HeaderAction[] = [
+    {
+      label: 'Report',
+      icon: Download,
+      variant: 'secondary',
+      key: 'report',
+      action: () => this.openReport(),
+      hidden: false
+    }
+  ];
 
   page: number = 0;
   size: number = 10;
@@ -90,7 +103,8 @@ export class StockLedgerComponent {
     private stockService: StockService,
     private router: Router,
     private toastService: ToastService,
-    private loaderSvc: LoaderService
+    private loaderSvc: LoaderService,
+    private drawerSvc: DrawerService
   ) { }
 
 
@@ -127,6 +141,14 @@ export class StockLedgerComponent {
 
   onLoadMore() {
     console.log('Load more triggered');
+  }
+
+  openReport() {
+    this.drawerSvc.openComponent(BulkUploadComponent,
+      {},
+      "Report Download",
+      'lg'
+    );
   }
 
   handleTableAction(event: TableAction) {

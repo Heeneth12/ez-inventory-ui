@@ -13,6 +13,7 @@ import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/app
 import { ApprovalConsoleService } from '../../../approval-console/approval-console.service';
 import { UserModel, AddressType, UserType, UserFilterModel } from '../../../user-management/models/user.model';
 import { UserManagementService } from '../../../user-management/userManagement.service';
+import { DrawerService } from '../../../../layouts/components/drawer/drawerService';
 
 @Component({
   selector: 'app-sales-order-form',
@@ -73,6 +74,7 @@ export class SalesOrderFormComponent implements OnInit {
     private userService: UserManagementService,
     private itemService: ItemService,
     private toast: ToastService,
+    private drawerService: DrawerService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -388,7 +390,12 @@ export class SalesOrderFormComponent implements OnInit {
       this.salesOrderService.updateSalesOrder(this.orderId, payload,
         () => {
           this.toast.show('Order updated successfully', 'success');
-          this.router.navigate(['/sales']);
+          // this mean i got open in user profile so close the side drawer
+          if (this.customerId) {
+            this.drawerService.close();
+          } else {
+            this.router.navigate(['/sales']);
+          }
         },
         (err: any) => this.toast.show(err.error?.message || 'Update failed', 'error')
       );
@@ -396,7 +403,11 @@ export class SalesOrderFormComponent implements OnInit {
       this.salesOrderService.createSalesOrder(payload,
         () => {
           this.toast.show('Order created successfully', 'success');
-          this.router.navigate(['/sales']);
+          if (this.customerId) {
+            this.drawerService.close();
+          } else {
+            this.router.navigate(['/sales']);
+          }
         },
         (err: any) => this.toast.show(err.error?.message || 'Creation failed', 'error')
       );

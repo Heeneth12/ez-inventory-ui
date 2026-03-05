@@ -18,6 +18,7 @@ import { SALES_ORDER_ACTIONS, SALES_ORDER_COLUMNS, SALES_ORDER_DATE_CONFIG, SALE
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 import { SalesOrderFormComponent } from './sales-order-form/sales-order-form.component';
 import { debounceTime, Subject } from 'rxjs';
+import { InvoiceFormComponent } from '../invoices/invoice-form/invoice-form.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -250,14 +251,27 @@ export class SalesOrderComponent implements OnInit {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'move_to_invoice') {
-      console.log('Moving PO to Invoice:', event.row.id);
-      this.router.navigate(['/sales/invoice/create'], {
-        queryParams: { salesOrderId: event.row.id }
-      });
+      if (this.customerId) {
+        this.openInvoiceForm(event.row.id);
+      } else {
+        this.router.navigate(['/sales/invoice/create'], {
+          queryParams: { salesOrderId: event.row.id }
+        });
+      }
     }
     if (event.type === 'custom' && event.key === 'move_to_cancle') {
       this.confirmAndUpdateStatus(event.row.id, 'REJECTED');
     }
+  }
+
+
+  openInvoiceForm(soId: any) {
+    this.drawerSvc.openComponent(
+      InvoiceFormComponent,
+      { salesOrderId: soId },
+      'Create Invoice',
+      '2xl'
+    );
   }
 
   onTableAction(event: TableAction) {

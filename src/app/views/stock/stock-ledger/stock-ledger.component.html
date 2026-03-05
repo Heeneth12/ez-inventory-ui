@@ -4,7 +4,7 @@
             [pagination]="pagination" (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()"
             [filterConfig]="filterConfig" (filterChanged)="onFilterUpdate($event)" [datePickerConfig]="dateConfig"
             [customActions]="slActions" (dateChange)="onFilterDate($event)" (action)="handleTableAction($event)"
-            [isLoading]="isLoading">
+            [isLoading]="isLoading" [headerActions]="headerActions">
         </app-standard-table>
     </div>
 </div>

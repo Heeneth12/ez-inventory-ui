@@ -462,6 +462,7 @@ export class InvoiceFormComponent implements OnInit {
 
   private handleSuccess(res: any, msg: string) {
     this.loaderSvc.hide();
+    this.isLoading = false;
     this.toast.show(msg, 'success');
     const id = res.id || res.data?.id || this.orderId;
     this.router.navigate(['/sales/invoices', id]);
