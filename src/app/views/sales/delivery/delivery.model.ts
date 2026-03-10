@@ -1,12 +1,14 @@
 import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
-import { ContactMiniModel } from "../../contacts/contacts.model";
+import { UserMiniModel } from "../../user-management/models/user.model";
+import { InvoiceModal } from "../invoices/invoice.modal";
 
 export interface DeliveryModel {
     id: number;
     tenantId: number;
     deliveryNumber: string;  // DEV-2025-001
     invoiceId: number;
-    contactMini: ContactMiniModel;
+    invoice:InvoiceModal;
+    contactMini: UserMiniModel;
     customerId: number;
     customerName: string;
     type: 'CUSTOMER_PICKUP' | 'THIRD_PARTY_COURIER' | 'IN_HOUSE_DELIVERY';   // ShipmentType
@@ -18,6 +20,7 @@ export interface DeliveryModel {
     deliveryAddress: string;
     contactPerson: string;
     contactPhone: string;
+    remarks:string;
 }
 
 export class DeliveryFilterModel extends CommonFilterModel {

@@ -13,6 +13,8 @@ import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/app
 import { ApprovalConsoleService } from '../../../approval-console/approval-console.service';
 import { UserModel, AddressType, UserType, UserFilterModel } from '../../../user-management/models/user.model';
 import { UserManagementService } from '../../../user-management/userManagement.service';
+import { DrawerService } from '../../../../layouts/components/drawer/drawerService';
+import { SalesOrderFilterModal } from '../sales-order.modal';
 
 @Component({
   selector: 'app-sales-order-form',
@@ -25,6 +27,7 @@ export class SalesOrderFormComponent implements OnInit {
 
   @Input() customerId: number | null = null;
   @Input() id: number | null = null; // sales order id
+  @Input() orderNumber: string | null = null;
 
   @ViewChild('itemSearchInput') itemSearchInput!: ElementRef;
 
@@ -73,6 +76,7 @@ export class SalesOrderFormComponent implements OnInit {
     private userService: UserManagementService,
     private itemService: ItemService,
     private toast: ToastService,
+    private drawerService: DrawerService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -109,6 +113,11 @@ export class SalesOrderFormComponent implements OnInit {
       return;
     }
 
+    if (this.orderNumber) {
+      this.getSalesOrderByNumber(this.orderNumber);
+      return;
+    }
+
     this.route.paramMap.subscribe(params => {
       const routeId = params.get('id');
 
@@ -129,41 +138,71 @@ export class SalesOrderFormComponent implements OnInit {
     this.salesOrderService.getSalesOrderById(id,
       (response: any) => {
         const order = response.data;
-        // 1. Patch Header
-        this.orderForm.patchValue({
-          id: order.id,
-          customerId: order.customerId,
-          warehouseId: order.warehouseId,
-          orderDate: order.orderDate,
-          remarks: order.remarks,
-          // Map backend DTO to Form Controls
-          flatDiscountRate: order.flatDiscountRate || 0,
-          flatTaxRate: order.flatTaxRate || 0
-        });
-
-        // 2. Set Customer Display
-        this.getUserById(order.customerId);
-
-        // 3. Patch Items
-        const itemArray = this.orderForm.get('items') as FormArray;
-        itemArray.clear();
-
-        order.items.forEach((item: any) => {
-          itemArray.push(this.createItemControl({
-            id: item.itemId,
-            name: item.itemName,
-            sellingPrice: item.unitPrice,
-            orderedQty: item.orderedQty,
-            // Map Rates
-            discountRate: item.discountRate,
-            taxRate: item.taxRate
-          }));
-        });
-
+        this.patchOrderDetailsToForm(order);
         this.isLoading = false;
       },
       (err: any) => {
         this.toast.show('Failed to load order details', 'error');
+        this.isLoading = false;
+      }
+    );
+  }
+
+  private patchOrderDetailsToForm(order: any) {
+    // 1. Patch Header
+    this.orderForm.patchValue({
+      id: order.id,
+      customerId: order.customerId,
+      warehouseId: order.warehouseId,
+      orderDate: order.orderDate,
+      remarks: order.remarks,
+      // Map backend DTO to Form Controls
+      flatDiscountRate: order.flatDiscountRate || 0,
+      flatTaxRate: order.flatTaxRate || 0
+    });
+
+    // 2. Set Customer Display
+    this.getUserById(order.customerId);
+
+    // 3. Patch Items
+    const itemArray = this.orderForm.get('items') as FormArray;
+    itemArray.clear();
+
+    if (order.items) {
+      order.items.forEach((item: any) => {
+        itemArray.push(this.createItemControl({
+          id: item.itemId,
+          name: item.itemName,
+          sellingPrice: item.unitPrice,
+          orderedQty: item.orderedQty,
+          // Map Rates
+          discountRate: item.discountRate,
+          taxRate: item.taxRate
+        }));
+      });
+    }
+  }
+
+  getSalesOrderByNumber(salesOrderNumber: string) {
+    if (!salesOrderNumber) return;
+    const filter = new SalesOrderFilterModal();
+    filter.soNumber = salesOrderNumber;
+    this.isLoading = true;
+    this.salesOrderService.searchSalesOrders(filter,
+      (response: any) => {
+        if (response.data && response.data.length > 0) {
+          const order = response.data[0];
+          this.isEditMode = true;
+          this.orderId = order.id;
+          this.patchOrderDetailsToForm(order);
+          this.toast.show('Sales order loaded successfully', 'success');
+        } else {
+          this.toast.show('Sales order not found', 'warning');
+        }
+        this.isLoading = false;
+      },
+      (err: any) => {
+        this.toast.show('Failed to load sales orders', 'error');
         this.isLoading = false;
       }
     );
@@ -388,7 +427,12 @@ export class SalesOrderFormComponent implements OnInit {
       this.salesOrderService.updateSalesOrder(this.orderId, payload,
         () => {
           this.toast.show('Order updated successfully', 'success');
-          this.router.navigate(['/sales']);
+          // this mean i got open in user profile so close the side drawer
+          if (this.customerId) {
+            this.drawerService.close();
+          } else {
+            this.router.navigate(['/sales']);
+          }
         },
         (err: any) => this.toast.show(err.error?.message || 'Update failed', 'error')
       );
@@ -396,7 +440,11 @@ export class SalesOrderFormComponent implements OnInit {
       this.salesOrderService.createSalesOrder(payload,
         () => {
           this.toast.show('Order created successfully', 'success');
-          this.router.navigate(['/sales']);
+          if (this.customerId) {
+            this.drawerService.close();
+          } else {
+            this.router.navigate(['/sales']);
+          }
         },
         (err: any) => this.toast.show(err.error?.message || 'Creation failed', 'error')
       );

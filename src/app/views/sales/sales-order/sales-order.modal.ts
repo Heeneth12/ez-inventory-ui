@@ -20,8 +20,8 @@ export class SalesOrderModal {
     flatDiscountAmount!: number; // Calculated $ value from backend
     flatTaxRate!: number;        // The % the user typed in (e.g., 5)
     flatTaxAmount!: number;      // Calculated $ value from backend
-    totalTax!:number;
-    totalDiscount!:number;
+    totalTax!: number;
+    totalDiscount!: number;
     grandTotal!: number;
     items!: SalesOrderItemsModal[];
     remarks!: string;
@@ -46,6 +46,7 @@ export class SalesOrderFilterModal extends CommonFilterModel {
     soStatuses?: SoStatus[] | null;
     soSource?: SoSource[] | null;
     customerId!: number;
+    soNumber!: string;
 }
 
 export enum SoStatus {

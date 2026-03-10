@@ -1,13 +1,17 @@
 import { Component } from '@angular/core';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { Router } from '@angular/router';
-import { PaginationConfig, TableColumn, TableAction } from '../../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableColumn, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { StockService } from '../stock.service';
 import { StockLedger, StockLedgerFilter } from '../models/stock-ledger.model';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { List, Download } from 'lucide-angular';
+import { HeaderAction } from '../../../layouts/components/standard-table/standard-table.model';
+import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { BulkUploadComponent } from '../../../layouts/components/bulk-upload/bulk-upload.component';
 
 
 @Component({
@@ -27,8 +31,8 @@ export class StockLedgerComponent {
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   columns: TableColumn[] = [
-    { key: 'itemId', label: 'Item ID', width: '75px', type: 'text' },
-    { key: 'itemName', label: 'Item Name', width: '200px', type: 'text' },
+    { key: 'itemId', label: 'Item ID', width: '90px', type: 'text' },
+    { key: 'itemName', label: 'Item Name', width: '170px', type: 'text' },
     { key: 'warehouseId', label: 'Warehouse ID', width: '120px', type: 'text' },
     { key: 'createdAt', label: 'Created Date', width: '120px', type: 'date' },
     { key: 'transactionType', label: 'Txn Type', width: '120px', type: 'badge' },   // IN / OUT
@@ -36,7 +40,8 @@ export class StockLedgerComponent {
     { key: 'beforeQty', label: 'Before Qty', align: 'right', width: '110px', type: 'number' },
     { key: 'afterQty', label: 'After Qty', align: 'right', width: '110px', type: 'number' },
     { key: 'referenceType', label: 'Ref Type', width: '120px', type: 'text' },      // GRN / SALE / RETURN / TRANSFER
-    { key: 'referenceId', label: 'Ref ID', width: '110px', type: 'text' },
+    { key: 'referenceId', label: 'Ref ID', width: '90px', type: 'text' },
+    { key: 'actions', label: 'Actions', width: '10px', type: 'action', align: 'center' },
   ];
 
   filterConfig: FilterOption[] = [
@@ -69,6 +74,26 @@ export class StockLedgerComponent {
     placeholder: 'Start - End'
   };
 
+  slActions: TableActionConfig[] = [
+    {
+      key: 'view_stock_ledger_details',
+      label: 'View Details',
+      icon: List,
+      color: 'primary',
+      condition: (row) => true
+    }
+  ];
+
+  headerActions: HeaderAction[] = [
+    {
+      label: 'Report',
+      icon: Download,
+      variant: 'secondary',
+      key: 'report',
+      action: () => this.openReport(),
+      hidden: false
+    }
+  ];
 
   page: number = 0;
   size: number = 10;
@@ -78,7 +103,8 @@ export class StockLedgerComponent {
     private stockService: StockService,
     private router: Router,
     private toastService: ToastService,
-    private loaderSvc: LoaderService
+    private loaderSvc: LoaderService,
+    private drawerSvc: DrawerService
   ) { }
 
 
@@ -116,8 +142,22 @@ export class StockLedgerComponent {
   onLoadMore() {
     console.log('Load more triggered');
   }
-  onTableAction($event: TableAction) {
-    console.log('Table action:', $event);
+
+  openReport() {
+    this.drawerSvc.openComponent(BulkUploadComponent,
+      {},
+      "Report Download",
+      'lg'
+    );
+  }
+
+  handleTableAction(event: TableAction) {
+    // Check if the event is the specific custom action we defined
+    if (event.type === 'custom' && event.key === 'view_stock_ledger_details') {
+      console.log('View stock ledger details:', event.row.id);
+    }
+    else {
+    }
   }
 
 

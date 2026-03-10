@@ -5,7 +5,11 @@
                 <button (click)="back()" type="button" class="text-gray-500 hover:text-gray-800 transition-colors">
                     <lucide-icon [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-icon>
                 </button>
+                @if(customerId){
                 <h1 class="text-base font-semibold text-gray-800 tracking-tight">Create Sales Order</h1>
+                }@else{
+                <h1 class="text-base font-semibold text-gray-800 tracking-tight">Update Sales Order</h1>
+                }
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" (click)="onPreview()"
@@ -40,9 +44,17 @@
                     <div class="md:col-span-3 p-5 bg-gray-50/30">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1 font-medium">SO Number</label>
-                                <input type="text" placeholder="Auto-generated" readonly
-                                    class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-800 bg-gray-100 focus:outline-none">
+                                <label class="block text-xs text-gray-500 mb-1 font-medium">Search by SO Number</label>
+                                <div class="flex gap-2">
+                                    <input type="text" #soSearch placeholder="Enter SO Number..."
+                                        [(ngModel)]="orderNumber" [ngModelOptions]="{standalone: true}"
+                                        (keyup.enter)="getSalesOrderByNumber(soSearch.value)"
+                                        class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-800 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all">
+                                    <button type="button" (click)="getSalesOrderByNumber(soSearch.value)"
+                                        class="px-3 py-2 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 transition-colors">
+                                        <lucide-icon [img]="SearchIcon" class="w-4 h-4"></lucide-icon>
+                                    </button>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1 font-medium">Order Date</label>

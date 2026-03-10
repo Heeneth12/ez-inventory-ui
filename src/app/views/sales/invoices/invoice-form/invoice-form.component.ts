@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, Input, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
@@ -10,7 +10,7 @@ import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
-import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
+import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, EyeIcon, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
 import { InvoiceModal, InvoiceItemModal, DeliveryOption } from '../invoice.modal';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { AddressType, UserModel } from '../../../user-management/models/user.model';
@@ -24,6 +24,10 @@ import { UserManagementService } from '../../../user-management/userManagement.s
   styleUrls: ['./invoice-form.component.css']
 })
 export class InvoiceFormComponent implements OnInit {
+
+  @Input() customerId: number | null = null;
+  @Input() salesOrderId: number | null = null;
+  @Input() id: number | null = null;
 
   //icons
   readonly TruckIcon = Truck;
@@ -44,6 +48,7 @@ export class InvoiceFormComponent implements OnInit {
   readonly xIconIcon = XIcon;
   readonly HistoryIcon = HistoryIcon;
   readonly ChevronRightIcon = ChevronsLeftRight;
+  readonly eyeIcon = EyeIcon;
 
   invoiceForm: FormGroup;
   isEditMode = false;
@@ -106,6 +111,17 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   private checkEditMode() {
+    if (this.id) {
+      this.isEditMode = true;
+      this.orderId = this.id;
+      this.loadInvoiceForEdit(this.orderId);
+    }
+
+    if (this.salesOrderId) {
+      this.isEditMode = false;
+      this.loadOrderDetails(this.salesOrderId);
+    }
+
     this.route.queryParamMap.subscribe(params => {
       const invoiceId = params.get('invoiceId');
       if (invoiceId) {
@@ -446,6 +462,7 @@ export class InvoiceFormComponent implements OnInit {
 
   private handleSuccess(res: any, msg: string) {
     this.loaderSvc.hide();
+    this.isLoading = false;
     this.toast.show(msg, 'success');
     const id = res.id || res.data?.id || this.orderId;
     this.router.navigate(['/sales/invoices', id]);

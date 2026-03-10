@@ -29,8 +29,8 @@ export class SalesOrderService {
         return this.httpService.getHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/${id}`, successfn, errorfn);
     }
 
-    searchSalesOrders(query: any, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/search`, query, successfn, errorfn);
+    searchSalesOrders(filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/search`, filter, successfn, errorfn);
     }
 
     updateSalesOrderStatus(id: number, status: string, successfn: any, errorfn: any) {

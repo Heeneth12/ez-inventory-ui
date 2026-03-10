@@ -3,7 +3,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'; // Ad
 import { StockAdjustmentDetailModel, StockAdjustmentFilter, StockAdjustmentModel } from '../models/stock-adjustment.model';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { ArrowRight, FilePlusCorner } from 'lucide-angular';
+import { ArrowRight, FilePlusCorner, X } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
@@ -38,6 +38,13 @@ export class StockAdjustmentComponent implements OnInit {
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
   soActions: TableActionConfig[] = [
+    {
+      key: 'cancel_stockadj',
+      label: '',
+      icon: X,
+      color: 'danger',
+      condition: (row) => row['status'] === 'PENDING_APPROVAL'
+    },
     {
       key: 'view_stockadj_details',
       label: 'View Details',
@@ -155,9 +162,15 @@ export class StockAdjustmentComponent implements OnInit {
       console.log('View stock adj details:', event.row.id);
       this.viewStockAdjustmentDetails(event.row.id);
     }
-    if (event.type === 'edit') {
-      // Standard edit logic
+    if (event.type === 'custom' && event.key === 'cancel_stockadj') {
+      console.log('Cancel stock adj:', event.row.id);
+      this.cancelStockAdjustment(event.row.id);
     }
+  }
+
+  cancelStockAdjustment(id: number | string) {
+    this.loaderSvc.show();
+
   }
 
   onTableAction(event: TableAction) {

@@ -39,6 +39,10 @@ export class ContactMiniModel {
     id?: number;
     contactCode?: string;
     name?: string;
+    email?: string;
+    phone?: string;
+    userType?: string;
+    userUuid?: string;
 }
 
 export enum ContactType {

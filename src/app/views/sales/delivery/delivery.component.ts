@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DeliveryFilterModel, DeliveryModel, RouteCreateRequest, ShipmentStatus } from './delivery.model';
 import { HeaderAction, PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
@@ -7,16 +8,18 @@ import { LoaderService } from '../../../layouts/components/loader/loaderService'
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DeliveryService } from './delivery.service';
-import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { CheckCircle, Clock, Truck, XCircle } from 'lucide-angular';
+import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component';
+import { CalendarClock, CheckCircle, Clock, LucideAngularModule, MapPin, Route, Truck, User, XCircle } from 'lucide-angular';
 import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { DELIVERY_ACTIONS, DELIVERY_COLUMNS, DELIVERY_DATE_CONFIG, DELIVERY_FILTER_OPTIONS } from '../salesConfig';
-import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
+import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
+import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { StatusBadgeComponent } from "../../../layouts/components/status-badge/status-badge.component";
 
 @Component({
   selector: 'app-delivery',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent, StatGroupComponent],
+  imports: [CommonModule, StandardTableComponent, StatGroupComponent, LucideAngularModule, StatusBadgeComponent],
   templateUrl: './delivery.component.html',
   styleUrl: './delivery.component.css'
 })
@@ -24,8 +27,16 @@ export class DeliveryComponent implements OnInit {
 
   @Input() customerId?: number;
   @Input() statGroup?: boolean = true;
+  @ViewChild('deliveryDetailTemplate') deliveryDetailTemplate!: TemplateRef<any>;
+
+  readonly MapPinIcon = MapPin;
+  readonly RouteIcon = Route;
+  readonly CalendarClockIcon = CalendarClock;
+  readonly UserIcon = User;
+  readonly TruckIcon = Truck;
 
   deliveryDetails: DeliveryModel[] = [];
+  selectedDelivery: DeliveryModel | null = null;
   deliveryFilter: DeliveryFilterModel = new DeliveryFilterModel();
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
@@ -83,9 +94,12 @@ export class DeliveryComponent implements OnInit {
     private router: Router,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private drawerService: DrawerService,
+    private sanitizer: DomSanitizer
   ) {
   }
+
   ngOnInit(): void {
     if (this.customerId) {
       this.deliveryFilter.customerId = this.customerId;
@@ -120,7 +134,7 @@ export class DeliveryComponent implements OnInit {
 
   onSelectionChange(selectedIds: (string | number)[]) {
     this.selectedItemIds = selectedIds;
-    console.log("Current Selection:", this.selectedItemIds);
+    console.log('Current Selection:', this.selectedItemIds);
   }
 
   updateDelivaryStatus(id: any, status: ShipmentStatus) {
@@ -128,11 +142,11 @@ export class DeliveryComponent implements OnInit {
       id,
       status,
       (response: any) => {
-        this.toastService.show("Delivery updated successfully", 'success');
+        this.toastService.show('Delivery updated successfully', 'success');
         this.getAllDeliveries();
       },
       (error: any) => {
-        this.toastService.show("Failed to update delivery", 'error');
+        this.toastService.show('Failed to update delivery', 'error');
       }
     );
   }
@@ -140,12 +154,12 @@ export class DeliveryComponent implements OnInit {
 
   processBatchAssignment() {
     if (this.selectedItemIds.length === 0) {
-      this.toastService.show("select atlease one", 'info');
+      this.toastService.show('select atlease one', 'info');
       return;
     }
     const request: RouteCreateRequest = {
-      areaName: 'Downtown Area', // This could come from a small popup input
-      driverId: 1,             // Selected from an employee dropdown
+      areaName: 'Downtown Area',
+      driverId: 1,
       vehicleNumber: 'TRUCK-01',
       deliveryIds: this.selectedItemIds.map(id => Number(id))
     };
@@ -216,13 +230,46 @@ export class DeliveryComponent implements OnInit {
       this.updateDelivaryStatus(event.row.id, ShipmentStatus.DELIVERED);
     }
     if (event.type === 'custom' && event.key === 'move_to_delivery') {
-      this.updateDelivaryStatus(event.row.id, ShipmentStatus.SHIPPED)
+      this.updateDelivaryStatus(event.row.id, ShipmentStatus.SHIPPED);
+    }
+    if (event.type === 'custom' && event.key === 'view_delivery') {
+      this.openDeliveryDetails(event.row.id);
     }
     if (event.type === 'edit') {
       // Standard edit logic
     }
   }
 
+  openDeliveryDetails(deliveryId: string | number) {
+    this.loaderSvc.show();
+    this.deliveryService.getDeliveryById(String(deliveryId),
+      (response: any) => {
+        this.selectedDelivery = response.data;
+        this.loaderSvc.hide();
+        this.drawerService.openTemplate(
+          this.deliveryDetailTemplate,
+          `Delivery: ${this.selectedDelivery?.deliveryNumber || deliveryId}`,
+          'lg'
+        );
+      },
+      () => {
+        this.loaderSvc.hide();
+        this.toastService.show('Failed to fetch delivery details', 'error');
+      }
+    );
+  }
+
+  getMapUrl(address?: string): SafeResourceUrl {
+    const destination = encodeURIComponent(address || 'Chennai');
+    const url = `https://maps.google.com/maps?q=${destination}&z=14&output=embed`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  getExpectedArrival(delivery: DeliveryModel | null): string | null {
+    if (!delivery) return null;
+    const date = delivery.deliveredDate || delivery.scheduledDate || delivery.shippedDate;
+    return date ? this.formatDate(date) : null;
+  }
 
   onFilterDate(range: DateRangeEmit) {
     console.log('Filter table by:', range.from, range.to);
@@ -240,7 +287,7 @@ export class DeliveryComponent implements OnInit {
   }
 
   onFilterUpdate($event: Record<string, any>) {
-    console.log("Received filter update:", $event);
+    console.log('Received filter update:', $event);
     this.deliveryFilter.shipmentTypes = $event['type'] || null;
     this.deliveryFilter.shipmentStatuses = $event['shipmentStatus'] || null;
     this.getAllDeliveries();

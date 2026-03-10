@@ -6,17 +6,19 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
 import { SalesOrderFilterModal, SalesOrderModal } from './sales-order.modal';
 import { Router } from '@angular/router';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
-import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
-import { ArrowRight, BadgeIndianRupee, CircleX, Clock, DollarSign, FileText, Headphones, ReceiptText, RefreshCcw, View, XCircle } from 'lucide-angular';
+import { ArrowRight, BadgeIndianRupee, Clock, FileText, XCircle } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
 import { SALES_ORDER_ACTIONS, SALES_ORDER_COLUMNS, SALES_ORDER_DATE_CONFIG, SALES_ORDER_FILTER_OPTIONS } from '../salesConfig';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
+import { SalesOrderFormComponent } from './sales-order-form/sales-order-form.component';
 import { debounceTime, Subject } from 'rxjs';
+import { InvoiceFormComponent } from '../invoices/invoice-form/invoice-form.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -85,6 +87,7 @@ export class SalesOrderComponent implements OnInit {
     private toastSvc: ToastService,
     private router: Router,
     private loaderSvc: LoaderService,
+    private drawerSvc: DrawerService,
     private confirmationModalService: ConfirmationModalService
   ) {
   }
@@ -233,20 +236,42 @@ export class SalesOrderComponent implements OnInit {
     );
   }
 
+  updateSalesOrderFormMiniForm(soId: any) {
+    this.drawerSvc.openComponent(
+      SalesOrderFormComponent,
+      { id: soId },
+      'Update Sales Order',
+      '2xl'
+    );
+  }
+
   updateSalesOrder(id: number | string) {
     this.router.navigate(['/sales/order/edit', id]);
   }
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'move_to_invoice') {
-      console.log('Moving PO to Invoice:', event.row.id);
-      this.router.navigate(['/sales/invoice/create'], {
-        queryParams: { salesOrderId: event.row.id }
-      });
+      if (this.customerId) {
+        this.openInvoiceForm(event.row.id);
+      } else {
+        this.router.navigate(['/sales/invoice/create'], {
+          queryParams: { salesOrderId: event.row.id }
+        });
+      }
     }
     if (event.type === 'custom' && event.key === 'move_to_cancle') {
       this.confirmAndUpdateStatus(event.row.id, 'REJECTED');
     }
+  }
+
+
+  openInvoiceForm(soId: any) {
+    this.drawerSvc.openComponent(
+      InvoiceFormComponent,
+      { salesOrderId: soId },
+      'Create Invoice',
+      '2xl'
+    );
   }
 
   onTableAction(event: TableAction) {
@@ -258,7 +283,11 @@ export class SalesOrderComponent implements OnInit {
         this.viewSalesOrderDetail(row.id);
         break;
       case 'edit':
-        this.updateSalesOrder(row.id);
+        if (this.customerId) {
+          this.updateSalesOrderFormMiniForm(row.id);
+        } else {
+          this.updateSalesOrder(row.id);
+        }
         break;
       case 'delete':
         console.log("Delete:", row.id);
