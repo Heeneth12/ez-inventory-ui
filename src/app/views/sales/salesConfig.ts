@@ -116,6 +116,13 @@ export const INVOICE_ACTIONS: TableActionConfig[] = [
         color: 'neutral',
         condition: (row) => true
     },
+    {
+        key: 'sales_return',
+        label: '',
+        icon: Undo2,
+        color: 'danger',
+        condition: (row) => true
+    },
 ]
 export const INVOICE_FILTER_OPTIONS: FilterOption[] = [
     {
