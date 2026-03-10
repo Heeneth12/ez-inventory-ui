@@ -17,6 +17,7 @@
                     <lucide-icon [img]="eyeIcon" class="w-4 h-4"></lucide-icon>
                     Preview
                 </button>
+                @if(!isReadonly){
                 <button type="submit" [disabled]="isLoading"
                     class="px-5 py-1.5 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center gap-2 shadow-sm">
                     @if(isLoading){
@@ -28,14 +29,25 @@
                     }
                     {{ isApprovalRequired ? 'Submit for Approval' : 'Save Sales Order' }}
                 </button>
+                }
             </div>
         </div>
+
+        @if(isReadonly) {
+        <div class="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center gap-3">
+            <lucide-icon [img]="WarningIcon" class="w-5 h-5 text-amber-500"></lucide-icon>
+            <p class="text-sm font-medium text-amber-800">
+                This Sales Order is <strong>{{ orderStatus }}</strong> and cannot be edited.
+            </p>
+        </div>
+        }
 
         <div class="w-full mx-auto space-y-0">
             <div class="bg-white border-b border-gray-200 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-10">
 
-                    <div class="md:col-span-7 p-2 border-r border-gray-200">
+                    <div class="md:col-span-7 p-2 border-r border-gray-200" [class.pointer-events-none]="isReadonly"
+                        [class.opacity-75]="isReadonly">
                         <app-invoice-header [selectedUser]="selectedUser" [searchType]="'CUSTOMER'" [autoFocus]="true"
                             (userSelected)="onUserSelected($event)" (userCleared)="onUserCleared()">
                         </app-invoice-header>
@@ -74,7 +86,8 @@
 
             <div class="bg-white overflow-hidden">
                 <div class="px-5 py-3 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between gap-4">
-                    <div class="relative flex-1 max-w-lg z-30 group">
+                    <div class="relative flex-1 max-w-lg z-30 group" [class.pointer-events-none]="isReadonly"
+                        [class.opacity-50]="isReadonly">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
                         </div>
@@ -144,8 +157,8 @@
                         </div>
 
                         <div class="col-span-2 flex justify-center">
-                            <div
-                                class="inline-flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm">
+                            <div class="inline-flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm"
+                                [class.pointer-events-none]="isReadonly" [class.opacity-50]="isReadonly">
                                 <button type="button" (click)="adjustQuantity($index, -1)"
                                     class="px-2 py-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-50 border-r border-gray-200 transition-colors">−</button>
                                 <input type="number" formControlName="orderedQty"
@@ -173,10 +186,12 @@
                         <div class="col-span-1 flex items-center justify-end gap-2">
                             <span class="text-sm font-bold text-gray-900">{{ getLineDetails($index).lineTotal |
                                 currency:'INR' }}</span>
+                            @if(!isReadonly) {
                             <button type="button" (click)="removeItem($index)"
                                 class="text-red-300 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">
                                 <lucide-icon [img]="TrashIcon" class="w-4 h-4"></lucide-icon>
                             </button>
+                            }
                         </div>
                     </div>
                     }
@@ -244,10 +259,12 @@
                         </div>
 
                         <div class="pt-4">
+                            @if(!isReadonly) {
                             <button type="submit"
                                 class="w-full py-3 bg-indigo-600 text-white text-sm font-bold rounded-md hover:bg-indigo-700 shadow-md transition-all flex items-center justify-center gap-2">
                                 {{ isEditMode ? 'Update Order' : 'Confirm & Create Order' }}
                             </button>
+                            }
                         </div>
                     </div>
                 </div>
