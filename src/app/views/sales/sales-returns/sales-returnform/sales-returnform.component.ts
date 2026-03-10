@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,10 +17,13 @@ import { ContactService } from '../../../contacts/contacts.service';
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './sales-returnform.component.html',
-  styleUrls: ['./sales-returnform.component.css'] 
+  styleUrls: ['./sales-returnform.component.css']
 })
 export class SalesReturnformComponent implements OnInit {
-  
+
+
+  @Input() invoiceId: number | null = null;
+
   // Icons
   readonly SearchIcon = Search;
   readonly ArrowLeft = ArrowLeft;
@@ -30,11 +33,10 @@ export class SalesReturnformComponent implements OnInit {
 
   // State
   searchInvoiceId: string = '';
-  invoiceData: any = null; 
+  invoiceData: any = null;
   returnReason: string = '';
 
   // Contact details
-  contactDetails: ContactModel | null = null;
 
   // Items Signal
   uiItems = signal<any[]>([]);
@@ -62,9 +64,14 @@ export class SalesReturnformComponent implements OnInit {
     private toastSvc: ToastService,
     private router: Router,
     private loaderSvc: LoaderService
-  ) {}
+  ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.invoiceId) {
+      this.searchInvoiceId = this.invoiceId.toString();
+      this.searchInvoice();
+    }
+  }
 
   // Fetch Invoice Details
   searchInvoice() {
@@ -72,10 +79,9 @@ export class SalesReturnformComponent implements OnInit {
       this.toastSvc.show('Please enter an Invoice ID', 'error');
       return;
     }
-    
+
     // Reset state before new search
     this.invoiceData = null;
-    this.contactDetails = null;
     this.uiItems.set([]);
 
     this.loaderSvc.show();
@@ -83,21 +89,13 @@ export class SalesReturnformComponent implements OnInit {
       Number(this.searchInvoiceId),
       (response: any) => {
         this.loaderSvc.hide();
-        this.invoiceData = response.data; 
-
-        // FIX 3: Fetch Contact Details immediately after Invoice is found
-        // Assuming invoiceData has a 'customerId' or 'customer.id' field
-        const customerId = this.invoiceData.customerId || this.invoiceData.customer?.id;
-        if (customerId) {
-            this.getContactDetails(customerId);
-        }
-
+        this.invoiceData = response.data;
         // Map items
         this.uiItems.set(this.invoiceData.items.map((item: any) => ({
           ...item,
           isSelected: false,
           returnQty: 0,
-          maxQty: item.quantity 
+          maxQty: item.quantity
         })));
       },
       (error: any) => {
@@ -108,25 +106,12 @@ export class SalesReturnformComponent implements OnInit {
     );
   }
 
-  getContactDetails(contactId: number) {
-    // Optional: Show loader if needed, or run in background
-    this.contactService.getContactById(
-      contactId,
-      (response: any) => {
-        this.contactDetails = response.data; 
-      },
-      (error: any) => {
-        this.toastSvc.show('Error fetching contact details', 'error');
-      }
-    );
-  } 
-
   // Toggle Item Selection
   toggleItem(item: any) {
     // 1. Mutate the item logic
     item.isSelected = !item.isSelected;
     if (item.isSelected && item.returnQty === 0) {
-      item.returnQty = 1; 
+      item.returnQty = 1;
     } else if (!item.isSelected) {
       item.returnQty = 0;
     }
@@ -153,7 +138,7 @@ export class SalesReturnformComponent implements OnInit {
     const itemsToReturn = this.uiItems()
       .filter(item => item.isSelected && item.returnQty > 0)
       .map(item => ({
-        itemId: item.itemId || item.item.id, 
+        itemId: item.itemId || item.item.id,
         quantity: item.returnQty
       }));
 

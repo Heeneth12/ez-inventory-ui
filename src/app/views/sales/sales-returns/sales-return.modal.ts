@@ -5,6 +5,10 @@ export interface SalesReturnModal {
     invoiceId: number;
     returnDate: string;
     totalAmount: number;
+    status?: string;
+    paymentMethod?: string;
+    allocatedAmount?: number;
+    unallocatedAmount?: number;
     items: SalesReturnItemModal[];
     creditNotePaymentId?: number; // Nullable
 }
