@@ -19,6 +19,7 @@ import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-gro
 import { INVOICE_ACTIONS, INVOICE_COLUMNS, INVOICE_DATE_CONFIG, INVOICE_FILTER_OPTIONS } from '../salesConfig';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
+import { SalesReturnformComponent } from '../sales-returns/sales-returnform/sales-returnform.component';
 
 @Component({
   selector: 'app-invoices',
@@ -103,6 +104,9 @@ export class InvoicesComponent {
     if (event.type === 'custom' && event.key === 'download_invoice') {
       this.downloadInvoicePdf(event.row.id);
     }
+    if (event.type === 'custom' && event.key === 'sales_return') {
+      this.openSalesReturnForm(event.row.id);
+    }
     if (event.type === 'edit') {
       // Standard edit logic
     }
@@ -142,6 +146,15 @@ export class InvoicesComponent {
       InvoiceFormComponent,
       { id: invoiceId },
       'Create Invoice',
+      '2xl'
+    );
+  }
+
+  openSalesReturnForm(invoiceId: any) {
+    this.drawerSvc.openComponent(
+      SalesReturnformComponent,
+      { invoiceId: invoiceId },
+      'Create Sales Return',
       '2xl'
     );
   }
