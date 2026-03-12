@@ -8,6 +8,7 @@ import { environment } from "../../../../environments/environment.development";
 export class BulkUploadService {
 
     private static ITEMS_BASE_URL = environment.devUrl + '/v1/items';
+    private static STOCK_BASE_URL = environment.devUrl + '/v1/stock';
 
     constructor(private httpService: HttpService) { }
 
@@ -38,6 +39,23 @@ export class BulkUploadService {
         this.httpService.postHttpBlob(url, filter,
             (blob: Blob) => {
                 this.downloadFile(blob, "inventory_items.xlsx");
+                if (successCallback) successCallback();
+            },
+            (error: any) => {
+                if (errorCallback) errorCallback(error);
+            }
+        );
+    }
+
+    /**
+     * DOWNLOAD STOCK LEDGER EXCEL
+     */
+    bulkStockLedgerDownload(filter: any, successCallback?: any, errorCallback?: any) {
+        const url = BulkUploadService.STOCK_BASE_URL + '/ledger/download';
+
+        this.httpService.postHttpBlob(url, filter,
+            (blob: Blob) => {
+                this.downloadFile(blob, "stock_ledger_report.xlsx");
                 if (successCallback) successCallback();
             },
             (error: any) => {

@@ -145,7 +145,11 @@ export class StockLedgerComponent {
 
   openReport() {
     this.drawerSvc.openComponent(BulkUploadComponent,
-      {},
+      {
+        type: 'download',
+        serviceType: 'stock-ledger',
+        customFilters: this.stockLedgerFilter
+      },
       "Report Download",
       'lg'
     );
