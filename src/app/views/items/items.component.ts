@@ -10,7 +10,7 @@ import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
 import { ITEMS_COLUMNS } from '../../layouts/config/tableConfig';
-import { CloudUpload, List, LucideAngularModule } from 'lucide-angular';
+import { CloudUpload, List, Plus, LucideAngularModule } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { AuthService } from '../../layouts/guards/auth.service';
@@ -44,6 +44,13 @@ export class ItemsComponent implements OnInit {
   //tabel config
   columns: TableColumn[] = ITEMS_COLUMNS;
   headerActions: HeaderAction[] = [
+    {
+      label: 'Create Item',
+      icon: Plus,
+      variant: 'primary',
+      key: 'create_item',
+      action: () => this.createItem()
+    },
     {
       label: 'Bulk Process',
       icon: CloudUpload,

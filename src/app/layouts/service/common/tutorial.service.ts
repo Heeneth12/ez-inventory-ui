@@ -92,30 +92,46 @@ const MODULE_STEPS: Record<string, DriveStep[]> = {
             }
         },
     ],
-    
+
     'items': [
         {
-            element: '#menu-item-1',
+            element: '#data-table',
             popover: {
                 title: 'Item Catalog',
-                description: 'This is where you manage your products and services.',
-                side: 'right'
-            }
-        },
-        {
-            element: '#add-item-btn',
-            popover: {
-                title: 'Add New Product',
-                description: 'Click here to define a new SKU or service in your inventory.',
-                side: 'left'
-            }
-        },
-        {
-            element: '#inventory-table',
-            popover: {
-                title: 'Stock Overview',
-                description: 'Monitor real-time stock levels and warehouse locations.',
+                description: 'This is where you can view and manage all your products and services in a centralized table.',
                 side: 'top'
+            }
+        },
+        {
+            element: '#table-action-create_item',
+            popover: {
+                title: 'Create Items',
+                description: 'Click here to manually define a new product, service, or abstract item.',
+                side: 'bottom'
+            }
+        },
+        {
+            element: '#table-action-bulk_process',
+            popover: {
+                title: 'Bulk Process',
+                description: 'Use this option to perform bulk data management, such as importing multiple items from a spreadsheet.',
+                side: 'bottom'
+            }
+        },
+        {
+            element: '#table-filter',
+            popover: {
+                title: 'Filters',
+                description: 'Quickly find specific items using advanced dropdown filters.',
+                side: 'bottom'
+            }
+        },
+        {
+            element: '#table-reload',
+            popover: {
+                title: 'Reload Data',
+                description: 'Click here to instantly reset all active filters, search criteria, and reload your table data.',
+                side: 'bottom'
             }
         }
     ],

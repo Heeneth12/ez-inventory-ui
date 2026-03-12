@@ -43,12 +43,18 @@
 
             @if (!item.subItems) {
             <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i"
-                routerLinkActive="bg-indigo-500/10 text-white border border-indigo-500/20"
-                class="group relative flex items-center rounded-mb p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 transition-all duration-300 cursor-pointer outline-none"
-                [ngClass]="{'justify-center': isSidebarCollapsed,'opacity-50 cursor-not-allowed': item.isDisabled}">
+                class="group relative flex items-center rounded-mb p-3 text-sm font-medium border transition-all duration-300 cursor-pointer outline-none"
+                [ngClass]="{
+                    'justify-center': isSidebarCollapsed,
+                    'opacity-100 cursor-not-allowed text-slate-600 border-none': item.isDisabled,
+                    'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item) && !item.isDisabled,
+                    'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isItemActive(item) && !item.isDisabled
+                }">
 
-                <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300"
-                    [ngClass]="{'text-white': isSidebarCollapsed}">
+                <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300" [ngClass]="{
+                        'text-indigo-400': isItemActive(item) && !item.isDisabled,
+                        'text-white': isSidebarCollapsed && !(isItemActive(item) && !item.isDisabled)
+                    }">
                 </lucide-icon>
 
                 @if (!isSidebarCollapsed) {
@@ -79,15 +85,17 @@
             @if (item.subItems) {
             <div class="space-y-1">
                 <div (click)="toggleDropdown(i)" [id]="'menu-item-' + i"
-                    class="group relative flex items-center justify-between rounded-mb p-3 text-sm font-medium text-slate-400 border border-transparent hover:bg-white/5 hover:text-slate-200 cursor-pointer transition-all duration-300 select-none"
+                    class="group relative flex items-center justify-between rounded-mb p-3 text-sm font-medium border cursor-pointer transition-all duration-300 select-none"
                     [ngClass]="{
-                        'bg-slate-800/50 text-indigo-300 border-slate-700/50': isDropdownOpen(i),
+                        'bg-slate-800/50 text-indigo-300 border-slate-700/50': isDropdownOpen(i) && !isItemActive(item),
+                        'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item),
+                        'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isDropdownOpen(i) && !isItemActive(item),
                         'justify-center': isSidebarCollapsed
                     }">
 
                     <div class="flex items-center" [ngClass]="{'w-full justify-center': isSidebarCollapsed}">
                         <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-colors"
-                            [ngClass]="isDropdownOpen(i) ? 'text-indigo-400' : 'group-hover:text-slate-200'">
+                            [ngClass]="(isDropdownOpen(i) || isItemActive(item)) ? 'text-indigo-400' : 'group-hover:text-slate-200'">
                         </lucide-icon>
 
                         @if (!isSidebarCollapsed) {
@@ -97,9 +105,11 @@
                     </div>
 
                     @if (!isSidebarCollapsed) {
-                    <svg class="w-4 h-4 text-slate-500 transition-transform duration-300"
-                        [ngClass]="isDropdownOpen(i) ? 'rotate-180 text-indigo-400' : ''" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 transition-transform duration-300" [ngClass]="{
+                            'rotate-180': isDropdownOpen(i),
+                            'text-indigo-400': isDropdownOpen(i) || isItemActive(item),
+                            'text-slate-500': !isDropdownOpen(i) && !isItemActive(item)
+                        }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                     }

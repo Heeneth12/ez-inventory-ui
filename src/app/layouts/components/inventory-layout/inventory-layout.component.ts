@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { Route, Router, RouterModule } from "@angular/router";
+import { NavigationEnd, Router, RouterModule } from "@angular/router";
+import { filter } from 'rxjs/operators';
 import { DrawerComponent } from "../drawer/drawer.component";
 import { ModalComponent } from "../modal/modal.component";
 import { DrawerService } from '../drawer/drawerService';
@@ -159,8 +160,13 @@ export class InventoryLayoutComponent implements OnInit {
       icon: Headset,
       iconBgClass: 'bg-slate-50',
       colorClass: 'text-slate-600',
-      routerLink: '/system-status'
-
+      action: () => {
+        if (this.router.url.includes('/items')) {
+          this.tutorialService.startTour('items');
+        } else {
+          this.tutorialService.startTour('general');
+        }
+      }
     }
   ];
 
@@ -216,18 +222,6 @@ export class InventoryLayoutComponent implements OnInit {
         { label: 'Sales Return', link: '/sales/return' },
       ]
     },
-    // {
-    //   label: 'Contacts',
-    //   link: '/contacts',
-    //   icon: Users,
-    //   moduleKey: 'EZH_INV_CONTACTS'
-    // },
-    // {
-    //   label: 'Employees',
-    //   link: '/employee',
-    //   icon: CircleUser,
-    //   moduleKey: 'EZH_INV_EMPLOYEE'
-    // },
     {
       label: 'Approval',
       link: '/approval',
@@ -262,18 +256,6 @@ export class InventoryLayoutComponent implements OnInit {
       icon: Folder,
       moduleKey: 'EZH_INV_DOCUMENTS'
     },
-    // {
-    //   label: 'Admin',
-    //   link: '/admin',
-    //   icon: UserPlusIcon,
-    //   moduleKey: 'EZH_INV_USER_MGMT'
-    // },
-    // {
-    //   label: 'Settings',
-    //   link: '/settings',
-    //   icon: Settings,
-    //   moduleKey: 'EZH_INV_SETTINGS'
-    // }
   ];
 
   constructor(
@@ -281,12 +263,18 @@ export class InventoryLayoutComponent implements OnInit {
     private searchService: SearchService,
     private modalService: ModalService,
     private authService: AuthService,
-    private router: Router,
+    public router: Router,
     private tutorialService: TutorialService,
     private notificationSvc: NotificationService
   ) { }
 
   ngOnInit() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.checkActiveDropdown();
+    });
+
     // Subscribe to user changes to update menu dynamically
     this.authService.currentUser$.subscribe(user => {
       if (user) {
@@ -298,10 +286,37 @@ export class InventoryLayoutComponent implements OnInit {
           role: user.userRoles[0] || 'User', // Taking first role as display
           initials: this.getInitials(user.fullName)
         };
+
+        this.checkActiveDropdown();
       }
     });
     const hasSeenTour = localStorage.getItem(this.STORAGE_KEY);
     this.openCatalystWelcomeModal(hasSeenTour);
+  }
+
+  checkActiveDropdown() {
+    if (this.isSidebarCollapsed) return;
+
+    // Check against all nav items to find which one should be open
+    this.allNavItems.forEach((item, index) => {
+      if (item.subItems && this.isItemActive(item)) {
+        this.openDropdownIndex = index;
+      }
+    });
+  }
+
+  isItemActive(item: NavItem): boolean {
+    if (!this.router || !this.router.url) return false;
+    if (item.link && this.router.url === item.link) {
+      return true;
+    }
+    if (item.link && this.router.url.startsWith(item.link) && item.link !== '/') {
+      return true;
+    }
+    if (item.subItems) {
+      return item.subItems.some(sub => this.router.url.startsWith(sub.link));
+    }
+    return false;
   }
 
   filterNavItems(user: any) {
@@ -330,6 +345,10 @@ export class InventoryLayoutComponent implements OnInit {
 
   toggleMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    if (this.isMobileMenuOpen && this.isSidebarCollapsed) {
+      this.isSidebarCollapsed = false;
+      this.checkActiveDropdown();
+    }
   }
 
   closeMenu() {
@@ -366,6 +385,8 @@ export class InventoryLayoutComponent implements OnInit {
     // If collapsing, close any open dropdowns to avoid UI bugs
     if (this.isSidebarCollapsed) {
       this.openDropdownIndex = null;
+    } else {
+      this.checkActiveDropdown();
     }
   }
 
