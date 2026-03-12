@@ -157,7 +157,8 @@ export class DatePickerComponent implements OnInit {
   // Styling helper
   getDayClasses(date: Date): string {
     const isCurrentMonth = date.getMonth() === this.currentViewDate.getMonth();
-    const base = "w-10 h-10 flex items-center justify-center rounded-full text-sm cursor-pointer transition-all duration-200 ";
+    const isToday = this.isSameDate(new Date(), date);
+    let base = "w-10 h-10 flex items-center justify-center rounded-full text-sm cursor-pointer transition-all duration-200 ";
 
     if (this.isSameDate(this.selectedFrom, date) || this.isSameDate(this.selectedTo, date)) {
       return base + "bg-blue-600 text-white font-semibold shadow-lg scale-105 z-10";
@@ -165,6 +166,14 @@ export class DatePickerComponent implements OnInit {
 
     if (this.isInRange(date)) {
       return base + "bg-blue-100 text-blue-700 rounded-none";
+    }
+
+    if (isToday) {
+      if (isCurrentMonth) {
+        return base + "border border-blue-500 text-blue-600 font-semibold bg-blue-50 hover:bg-blue-100";
+      } else {
+        return base + "border border-gray-300 text-gray-400 font-medium hover:text-gray-500 hover:bg-gray-100";
+      }
     }
 
     if (!isCurrentMonth) {

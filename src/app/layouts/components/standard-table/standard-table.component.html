@@ -16,8 +16,8 @@
             </div>
 
             <ng-container *ngIf="filterConfig.length > 0">
-                <app-filter-dropdown [config]="filterConfig" (filterChanged)="handleFilterChange($event)"
-                    [triggerReset]="triggerReset">
+                <app-filter-dropdown id="table-filter" [config]="filterConfig"
+                    (filterChanged)="handleFilterChange($event)" [triggerReset]="triggerReset">
                 </app-filter-dropdown>
             </ng-container>
 
@@ -37,7 +37,7 @@
                 </button>
             </div>
             <div class="flex items-center gap-2">
-                <button (click)="resetFilters()"
+                <button id="table-reload" (click)="resetFilters()"
                     class="text-xs p-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 hover:text-indigo-800 font-medium">
                     <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
                 </button>
@@ -46,7 +46,8 @@
 
         <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
             <ng-container *ngFor="let btn of headerActions">
-                <button *ngIf="!btn.hidden" [class]="getBtnClasses(btn.variant)" (click)="handleHeaderAction(btn)">
+                <button *ngIf="!btn.hidden" [id]="'table-action-' + btn.key" [class]="getBtnClasses(btn.variant)"
+                    (click)="handleHeaderAction(btn)">
                     <lucide-icon *ngIf="btn.icon" [img]="btn.icon" class="w-4 h-4 font-bold"></lucide-icon>
                     <span>{{ btn.label }}</span>
                 </button>
@@ -139,7 +140,7 @@
     </div>
 
     <div class="flex-1 overflow-auto relative custom-scrollbar bg-white" (scroll)="onScroll($event)">
-        <table class="w-full text-left border-collapse">
+        <table id="data-table" class="w-full text-left border-collapse">
             <thead class="bg-gray-50 sticky z-10 top-0 shadow-sm">
                 <tr>
                     <th *ngIf="enableSelection" class="w-10 px-4 border-b border-gray-200 bg-gray-50">

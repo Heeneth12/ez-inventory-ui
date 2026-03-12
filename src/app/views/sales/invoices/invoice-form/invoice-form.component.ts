@@ -11,7 +11,7 @@ import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, EyeIcon, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
-import { InvoiceModal, InvoiceItemModal, DeliveryOption } from '../invoice.modal';
+import { InvoiceModal, InvoiceItemModal, DeliveryOption, InvoiceFilterModal } from '../invoice.modal';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { AddressType, UserModel } from '../../../user-management/models/user.model';
 import { UserManagementService } from '../../../user-management/userManagement.service';
@@ -28,6 +28,7 @@ export class InvoiceFormComponent implements OnInit {
   @Input() customerId: number | null = null;
   @Input() salesOrderId: number | null = null;
   @Input() id: number | null = null;
+  @Input() invoiceNumber: string | null = null;
 
   //icons
   readonly TruckIcon = Truck;
@@ -138,6 +139,74 @@ export class InvoiceFormComponent implements OnInit {
         this.loadOrderDetails(+salesOrderId);
       }
     });
+
+    if (this.invoiceNumber) {
+      this.getInvoiceByNumber(this.invoiceNumber);
+    }
+  }
+
+  getInvoiceByNumber(invoiceNumber: string) {
+    if (!invoiceNumber) return;
+    const filter = new InvoiceFilterModal();
+    filter.invoiceNumber = invoiceNumber;
+    this.isLoading = true;
+    this.loaderSvc.show();
+    this.invoiceService.searchInvoices(filter,
+      (response: any) => {
+        const invoices = response.data?.content || response.data || [];
+        if (invoices && invoices.length > 0) {
+          const invoice = invoices[0];
+          this.isEditMode = true;
+          this.orderId = invoice.id;
+
+          this.patchInvoiceDetailsToForm(invoice);
+          this.toast.show('Invoice loaded successfully', 'success');
+        } else {
+          this.toast.show('Invoice not found', 'warning');
+        }
+        this.isLoading = false;
+        this.loaderSvc.hide();
+      },
+      (err: any) => {
+        this.toast.show('Failed to load invoice', 'error');
+        this.isLoading = false;
+        this.loaderSvc.hide();
+      }
+    );
+  }
+
+  private patchInvoiceDetailsToForm(invoice: any) {
+    this.invoiceForm.patchValue({
+      id: invoice.id,
+      salesOrderId: invoice.salesOrderId,
+      customerId: invoice.customerId,
+      warehouseId: invoice.warehouseId,
+      invoiceDate: invoice.invoiceDate ? invoice.invoiceDate.split('T')[0] : new Date().toISOString().split('T')[0],
+      remarks: invoice.remarks,
+      flatDiscountRate: invoice.flatDiscountRate || 0,
+      flatTaxRate: invoice.flatTaxRate || 0
+    });
+
+    this.setUserById(invoice.customerId, invoice.customerName || "Loading...");
+
+    if (invoice.deliveryType) {
+      this.currentDeliveryType.set(invoice.deliveryType as DeliveryOption);
+    }
+    if (invoice.scheduledDate) {
+      this.enableScheduledDelivery.set(true);
+      this.scheduledDate.set(invoice.scheduledDate.split('T')[0]);
+    } else {
+      this.enableScheduledDelivery.set(false);
+    }
+
+    const itemArray = this.items;
+    itemArray.clear();
+
+    if (invoice.items) {
+      invoice.items.forEach((item: InvoiceItemModal) => {
+        itemArray.push(this.createItemControl(item, 'INVOICE'));
+      });
+    }
   }
 
   private loadOrderDetails(id: number) {
@@ -174,29 +243,7 @@ export class InvoiceFormComponent implements OnInit {
     this.invoiceService.getInvoiceById(id,
       (res: { data: InvoiceModal }) => {
         const invoice = res.data;
-
-        this.invoiceForm.patchValue({
-          id: invoice.id,
-          salesOrderId: invoice.salesOrderId,
-          customerId: invoice.customerId,
-          warehouseId: invoice.warehouseId,
-          invoiceDate: invoice.invoiceDate,
-          remarks: invoice.remarks,
-          flatDiscountRate: invoice.flatDiscountRate || 0,
-          flatTaxRate: invoice.flatTaxRate || 0
-        });
-
-        this.setUserById(invoice.customerId, "Loading...");
-
-        const itemArray = this.items;
-        itemArray.clear();
-
-        if (invoice.items) {
-          invoice.items.forEach((item: InvoiceItemModal) => {
-            itemArray.push(this.createItemControl(item, 'INVOICE'));
-          });
-        }
-
+        this.patchInvoiceDetailsToForm(invoice);
         this.loaderSvc.hide();
       },
       (err: any) => {

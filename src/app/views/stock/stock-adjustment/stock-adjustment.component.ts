@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'; // Added TemplateRef, ViewChild
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { StockAdjustmentDetailModel, StockAdjustmentFilter, StockAdjustmentModel } from '../models/stock-adjustment.model';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { ArrowRight, FilePlusCorner, X } from 'lucide-angular';
+import { ArrowRight, CircleX, FilePlusCorner } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
@@ -41,7 +41,7 @@ export class StockAdjustmentComponent implements OnInit {
     {
       key: 'cancel_stockadj',
       label: '',
-      icon: X,
+      icon: CircleX,
       color: 'danger',
       condition: (row) => row['status'] === 'PENDING_APPROVAL'
     },

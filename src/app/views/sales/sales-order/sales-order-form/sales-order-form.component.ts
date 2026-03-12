@@ -49,6 +49,8 @@ export class SalesOrderFormComponent implements OnInit {
   isEditMode = false;
   orderId: number | null = null;
   isLoading = false;
+  isReadonly = false;
+  orderStatus: string | null = null;
 
   // Customer Search
   selectedUser: UserModel | null = null;
@@ -138,6 +140,7 @@ export class SalesOrderFormComponent implements OnInit {
     this.salesOrderService.getSalesOrderById(id,
       (response: any) => {
         const order = response.data;
+        this.checkReadonlyStatus(order);
         this.patchOrderDetailsToForm(order);
         this.isLoading = false;
       },
@@ -146,6 +149,17 @@ export class SalesOrderFormComponent implements OnInit {
         this.isLoading = false;
       }
     );
+  }
+
+  private checkReadonlyStatus(order: any) {
+    this.orderStatus = order.status;
+    if (this.orderStatus === 'FULLY_INVOICED' || this.orderStatus === 'REJECTED') {
+      this.isReadonly = true;
+      this.orderForm.disable();
+    } else {
+      this.isReadonly = false;
+      this.orderForm.enable();
+    }
   }
 
   private patchOrderDetailsToForm(order: any) {
@@ -194,6 +208,7 @@ export class SalesOrderFormComponent implements OnInit {
           const order = response.data[0];
           this.isEditMode = true;
           this.orderId = order.id;
+          this.checkReadonlyStatus(order);
           this.patchOrderDetailsToForm(order);
           this.toast.show('Sales order loaded successfully', 'success');
         } else {
@@ -375,12 +390,14 @@ export class SalesOrderFormComponent implements OnInit {
   }
 
   onUserSelected(user: UserModel) {
+    if (this.isReadonly) return;
     this.selectedUser = user;
     this.orderForm.patchValue({ customerId: user.id });
     this.focusItemSearch();
   }
 
   onUserCleared() {
+    if (this.isReadonly) return;
     this.selectedUser = null;
     this.orderForm.patchValue({ customerId: null });
   }

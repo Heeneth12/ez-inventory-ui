@@ -116,6 +116,13 @@ export const INVOICE_ACTIONS: TableActionConfig[] = [
         color: 'neutral',
         condition: (row) => true
     },
+    {
+        key: 'sales_return',
+        label: '',
+        icon: Undo2,
+        color: 'danger',
+        condition: (row) => true
+    },
 ]
 export const INVOICE_FILTER_OPTIONS: FilterOption[] = [
     {
@@ -263,6 +270,56 @@ export const PAYMENTS_FILTER_OPTIONS: FilterOption[] = [
 ];
 
 export const PAYMENTS_DATE_CONFIG: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+};
+
+// SALES RETURNS
+export const SALES_RETURNS_COLUMNS: TableColumn[] = [
+    { key: 'contactMini', label: 'Customer', width: '140px', type: 'fullProfile', align: 'left' },
+    { key: 'returnNumber', label: 'Return Number', width: '200px', type: 'link' },
+    { key: 'returnDate', label: 'Return Date', width: '100px', type: 'date' },
+    { key: 'amount', label: 'Amount', width: '90px', type: 'text' },
+    { key: 'status', label: 'Status', align: 'right', width: '110px', type: 'badge' },
+    { key: 'paymentMethod', label: 'Payment Method', align: 'right', width: '130px', type: 'text' },
+    { key: 'allocatedAmount', label: 'Allocated Amount', align: 'right', width: '110px', type: 'currency' },
+    { key: 'unallocatedAmount', label: 'Unallocated Amount', align: "center", width: '110px', type: 'currency' },
+    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
+];
+
+export const SALES_RETURNS_ACTIONS: TableActionConfig[] = [
+    {
+        key: 'return_details',
+        label: 'Return details',
+        icon: ScrollText,
+        color: 'primary',
+        condition: (row) => row['status'] === 'COMPLETED' || row['status'] === 'RECEIVED'
+    },
+    {
+        key: 'download_receipt',
+        label: '',
+        icon: FileDown,
+        color: 'neutral',
+        condition: (row) => true
+    },
+]
+
+export const SALES_RETURNS_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: true,
+        options: [
+            { label: 'PENDING', value: 'PENDING' },
+            { label: 'COMPLETED', value: 'COMPLETED' },
+            { label: 'RECEIVED', value: 'RECEIVED' },
+            { label: 'FAILED', value: 'FAILED' }
+        ]
+    }
+];
+
+export const SALES_RETURNS_DATE_CONFIG: DatePickerConfig = {
     type: 'both',
     placeholder: 'Start - End'
 };

@@ -13,6 +13,8 @@ import { PaymentModal, PaymentFilterModal } from './payment.modal';
 import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
 import { PAYMENTS_ACTIONS, PAYMENTS_COLUMNS, PAYMENTS_DATE_CONFIG, PAYMENTS_FILTER_OPTIONS } from '../salesConfig';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-payments',
@@ -37,6 +39,7 @@ export class PaymentsComponent {
   dateConfig: DatePickerConfig = PAYMENTS_DATE_CONFIG;
   payActions = PAYMENTS_ACTIONS;
   paymentFilter: PaymentFilterModal = new PaymentFilterModal();
+  private tableState$ = new Subject<void>();
 
 
   constructor(
@@ -53,7 +56,16 @@ export class PaymentsComponent {
     if (this.customerId) {
       //this.salesOrderFilter.customerId = this.customerId;
     }
-    this.getAllPayments();
+    this.setupTablePipeline();
+    this.tableState$.next();
+  }
+
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getAllPayments();
+    });
   }
 
   getAllPayments() {
@@ -149,7 +161,7 @@ export class PaymentsComponent {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getAllPayments();
+    this.tableState$.next();
   }
 
   onLoadMore() {
@@ -164,14 +176,14 @@ export class PaymentsComponent {
     this.paymentFilter.toDate = range.to
       ? (this.formatDate(range.to) as any)
       : null;
-    this.getAllPayments();
+    this.tableState$.next();
   }
 
   onFilterUpdate($event: Record<string, any>) {
     console.log("Received filter update:", $event);
     this.paymentFilter.paymentStatus = $event['paymentStatus'] || null;
     this.paymentFilter.paymentMethod = $event['paymentMethod'] || null;
-    this.getAllPayments();
+    this.tableState$.next();
   }
 
   private formatDate(date: Date): string {

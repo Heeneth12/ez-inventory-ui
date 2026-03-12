@@ -1,4 +1,4 @@
-import { Component, signal, Output, EventEmitter, inject, Input } from '@angular/core';
+import { Component, signal, Output, EventEmitter, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -42,7 +42,7 @@ interface UploadResult {
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   `]
 })
-export class BulkUploadComponent {
+export class BulkUploadComponent implements OnInit {
 
   // Icons
   readonly icons = {
@@ -51,7 +51,8 @@ export class BulkUploadComponent {
   };
 
   @Input() type: 'download' | 'upload' | 'both' = 'both';
-  @Input() serviceType: 'items' | 'stock' | 'purchases' = 'items';
+  @Input() serviceType: 'items' | 'stock' | 'purchases' | 'stock-ledger' = 'items';
+  @Input() customFilters: any = null;
 
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
@@ -75,11 +76,30 @@ export class BulkUploadComponent {
     status: ''
   };
 
+  stockFilters: any = {
+    referenceTypes: '',
+    transactionTypes: '',
+    fromDate: '',
+    toDate: ''
+  };
+
   constructor(private bulkService: BulkUploadService,
     private loaderService: LoaderService,
     private toastService: ToastService
   ) {
 
+  }
+
+  ngOnInit() {
+    if (this.type === 'download') {
+      this.activeTab.set('download');
+    }
+    if (this.serviceType === 'stock-ledger' && this.customFilters) {
+      this.stockFilters.referenceTypes = this.customFilters.referenceTypes?.[0] || '';
+      this.stockFilters.transactionTypes = this.customFilters.transactionTypes?.[0] || '';
+      this.stockFilters.fromDate = this.customFilters.fromDate || '';
+      this.stockFilters.toDate = this.customFilters.toDate || '';
+    }
   }
 
   handleSwitchSevices(type: 'items' | 'stock' | 'purchases') {
@@ -161,22 +181,48 @@ export class BulkUploadComponent {
   startDownload() {
     this.isDownloading.set(true);
 
-    // Clean filters (remove empty strings)
-    const activeFilters = Object.fromEntries(
-      Object.entries(this.filters).filter(([_, v]) => v !== '')
-    );
+    if (this.serviceType === 'stock-ledger') {
+      const activeFilters = Object.fromEntries(
+        Object.entries(this.stockFilters).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+      );
 
-    this.bulkService.bulkItemsDownload(
-      activeFilters,
-      () => {
-        this.isDownloading.set(false);
-        this.toastService.show("Items downloaded successfully.", 'success');
-      },
-      (error: any) => {
-        this.isDownloading.set(false);
-        this.toastService.show("Failed to download template. Please try again.", 'error');
+      // Convert values to array as backend expects lists
+      if (activeFilters['referenceTypes'] && !Array.isArray(activeFilters['referenceTypes'])) {
+        activeFilters['referenceTypes'] = [activeFilters['referenceTypes']];
       }
-    );
+      if (activeFilters['transactionTypes'] && !Array.isArray(activeFilters['transactionTypes'])) {
+        activeFilters['transactionTypes'] = [activeFilters['transactionTypes']];
+      }
+
+      this.bulkService.bulkStockLedgerDownload(
+        activeFilters,
+        () => {
+          this.isDownloading.set(false);
+          this.toastService.show("Stock ledger downloaded successfully.", 'success');
+        },
+        (error: any) => {
+          this.isDownloading.set(false);
+          this.toastService.show("Failed to download stock ledger. Please try again.", 'error');
+        }
+      );
+    } else {
+      // Clean filters (remove empty strings)
+      const activeFilters = Object.fromEntries(
+        Object.entries(this.filters).filter(([_, v]) => v !== '')
+      );
+
+      this.bulkService.bulkItemsDownload(
+        activeFilters,
+        () => {
+          this.isDownloading.set(false);
+          this.toastService.show("Items downloaded successfully.", 'success');
+        },
+        (error: any) => {
+          this.isDownloading.set(false);
+          this.toastService.show("Failed to download items. Please try again.", 'error');
+        }
+      );
+    }
   }
 
   removeFile() {

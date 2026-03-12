@@ -3,14 +3,14 @@
 
   <div class="bg-white border-b border-gray-100 px-4 pt-4 pb-0">
     <div class="flex gap-8">
-      <button (click)="activeTab.set('upload')"
+      <button *ngIf="type === 'both' || type === 'upload'" (click)="activeTab.set('upload')"
         class="pb-4 flex items-center gap-2.5 text-sm font-semibold border-b-2 transition-all duration-200"
         [class.border-blue-600]="activeTab() === 'upload'" [class.text-blue-600]="activeTab() === 'upload'"
         [class.border-transparent]="activeTab() !== 'upload'" [class.text-gray-500]="activeTab() !== 'upload'">
         <lucide-icon [img]="icons.UploadCloud" class="w-4 h-4"></lucide-icon>
         Upload Data
       </button>
-      <button (click)="activeTab.set('download')"
+      <button *ngIf="type === 'both' || type === 'download'" (click)="activeTab.set('download')"
         class="pb-4 flex items-center gap-2.5 text-sm font-semibold border-b-2 transition-all duration-200"
         [class.border-blue-600]="activeTab() === 'download'" [class.text-blue-600]="activeTab() === 'download'"
         [class.border-transparent]="activeTab() !== 'download'" [class.text-gray-500]="activeTab() !== 'download'">
@@ -166,7 +166,8 @@
           <p class="text-sm text-gray-500 mt-1">Refine which items to include in your export.</p>
         </div>
 
-        <div class="p-6 grid gap-6">
+        <!-- ITEMS FILTERS -->
+        <div *ngIf="serviceType === 'items'" class="p-6 grid gap-6">
           <div>
             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Search Query</label>
             <input [(ngModel)]="filters.searchQuery" placeholder="Search by name, SKU or code..."
@@ -195,8 +196,49 @@
           </div>
         </div>
 
+        <!-- STOCK LEDGER FILTERS -->
+        <div *ngIf="serviceType === 'stock-ledger'" class="p-6 grid gap-6">
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Reference Type</label>
+              <select [(ngModel)]="stockFilters.referenceTypes"
+                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 appearance-none">
+                <option value="">All Types</option>
+                <option value="GRN">GRN</option>
+                <option value="SALE">SALE</option>
+                <option value="PURCHASE_RETURN">PURCHASE_RETURN</option>
+                <option value="ADJUSTMENT">ADJUSTMENT</option>
+                <option value="TRANSFER">TRANSFER</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Transaction
+                Type</label>
+              <select [(ngModel)]="stockFilters.transactionTypes"
+                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 appearance-none">
+                <option value="">All Transactions</option>
+                <option value="IN">IN</option>
+                <option value="OUT">OUT</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">From Date</label>
+              <input type="date" [(ngModel)]="stockFilters.fromDate"
+                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">To Date</label>
+              <input type="date" [(ngModel)]="stockFilters.toDate"
+                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+            </div>
+          </div>
+        </div>
+
         <div class="p-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-          <button (click)="filters = {searchQuery: '', brand: '', category: '', status: ''}"
+          <button
+            (click)="serviceType === 'stock-ledger' ? stockFilters = {referenceTypes: '', transactionTypes: '', fromDate: '', toDate: ''} : filters = {searchQuery: '', brand: '', category: '', status: ''}"
             class="text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors">
             Reset Filters
           </button>

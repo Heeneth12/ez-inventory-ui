@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ArrowRight } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
@@ -9,15 +9,22 @@ import { SalesOrderService } from '../sales-order/sales-order.service';
 import { SalesReturnService } from './sales-return.service';
 import { SalesReturnModal } from './sales-return.modal';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
+import { SALES_RETURNS_ACTIONS, SALES_RETURNS_COLUMNS, SALES_RETURNS_DATE_CONFIG, SALES_RETURNS_FILTER_OPTIONS } from '../salesConfig';
+import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sales-returns',
   standalone: true,
-  imports: [StandardTableComponent],
+  imports: [StandardTableComponent, CommonModule],
   templateUrl: './sales-returns.component.html',
   styleUrl: './sales-returns.component.css'
 })
 export class SalesReturnsComponent {
+
+  @ViewChild('srDetails') srDetailsTemplate!: TemplateRef<any>;
 
   @Input() statGroup?: boolean = true;
   @Input() customerId?: number;
@@ -28,16 +35,14 @@ export class SalesReturnsComponent {
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
-  columns: TableColumn[] = [
-    { key: 'returnNumber', label: 'Return No', width: '130px', type: 'link' },
-    { key: 'returnDate', label: 'Customer ID', width: '100px', type: 'text' },
-    { key: 'totalAmount', label: 'total Amount', width: '220px', type: 'text' },
-    { key: 'totalAmount', label: 'Order Date', width: '130px', type: 'date', align: 'center' },
-    { key: 'grandTotal', label: 'Amount', width: '120px', type: 'currency', align: 'right' },
-    { key: 'totalTax', label: 'Tax', width: '120px', type: 'currency', align: 'right' },
-    { key: 'status', label: 'Status', width: '140px', type: 'badge' },
-    { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
-  ];
+  salesReturnsFilter: any = {};
+  isLoading: boolean = false;
+
+  columns: TableColumn[] = SALES_RETURNS_COLUMNS;
+  tableActions = SALES_RETURNS_ACTIONS;
+  filterOptions = SALES_RETURNS_FILTER_OPTIONS;
+  dateConfig = SALES_RETURNS_DATE_CONFIG;
+  private tableState$ = new Subject<void>();
 
 
   constructor(
@@ -54,16 +59,25 @@ export class SalesReturnsComponent {
     if (this.customerId) {
       //this.salesOrderFilter.customerId = this.customerId;
     }
-    this.getAllSalesReturns();
+    this.setupTablePipeline();
+    this.tableState$.next();
+  }
+
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getAllSalesReturns();
+    });
   }
 
   getAllSalesReturns() {
-    this.loaderSvc.show();
+    this.isLoading = true;
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.salesReturnService.getAllSalesReturns(
       apiPage,
       this.pagination.pageSize,
-      {},
+      this.salesReturnsFilter,
       (response: any) => {
         this.salesReturns = response.data.content;
         this.pagination = {
@@ -71,49 +85,67 @@ export class SalesReturnsComponent {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
       },
       (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastSvc.show('Failed to load Items', 'error');
         console.error('Error fetching items:', error);
       }
     );
   }
 
-  handleTableAction(event: TableAction) {
-    if (event.type === 'custom' && event.key === 'move_to_invoice') {
-      console.log('Moving PO to Invoice:', event.row.id);
-      this.router.navigate(['/sales/invoice/create'], {
-        queryParams: { salesOrderId: event.row.id }
-      });
-    }
-    if (event.type === 'edit') {
-      // Standard edit logic
-    }
-  }
-
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
+
+    if (type === 'custom') {
+      if (key === 'return_details') {
+        this.salesReturnDetail = row as SalesReturnModal;
+        this.drawerService.openTemplate(this.srDetailsTemplate, 'Sales Return Details', '2xl');
+      }
+      if (key === 'download_receipt') {
+        console.log("Download receipt for:", row.id);
+      }
+    }
 
     switch (type) {
       case 'view':
         console.log("View:", row.id);
-        //this.viewSalesOrderDetail(row.id);
         break;
       case 'edit':
         break;
       case 'delete':
         console.log("Delete:", row.id);
         break;
-      case 'toggle':
-        break;
     }
+  }
+
+  onSearchChange(searchQuery: string) {
+    this.salesReturnsFilter.searchQuery = searchQuery?.trim() || undefined;
+    this.pagination.currentPage = 1;
+    this.tableState$.next();
+  }
+
+  onFilterDate(range: DateRangeEmit) {
+    this.salesReturnsFilter.fromDate = range.from ? this.formatDate(range.from) : null;
+    this.salesReturnsFilter.toDate = range.to ? this.formatDate(range.to) : null;
+    this.pagination.currentPage = 1;
+    this.tableState$.next();
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  onFilterUpdate($event: Record<string, any>) {
+    this.salesReturnsFilter.statuses = $event['status'] || null;
+    this.pagination.currentPage = 1;
+    this.tableState$.next();
   }
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getAllSalesReturns();
+    this.tableState$.next();
   }
 
   onLoadMore() {

@@ -53,6 +53,7 @@ export class InvoiceItemModal {
 export class InvoiceFilterModal extends CommonFilterModel {
   customerId?: number | null;
   salesOrderId?: number | null;
+  invoiceNumber?: string;
   invStatuses?: InvoiceStatus[] | null;
   paymentStatus?: InvoicePaymentStatus[] | null;
 }
