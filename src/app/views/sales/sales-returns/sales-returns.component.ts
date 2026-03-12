@@ -12,6 +12,8 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
 import { SALES_RETURNS_ACTIONS, SALES_RETURNS_COLUMNS, SALES_RETURNS_DATE_CONFIG, SALES_RETURNS_FILTER_OPTIONS } from '../salesConfig';
 import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sales-returns',
@@ -40,6 +42,7 @@ export class SalesReturnsComponent {
   tableActions = SALES_RETURNS_ACTIONS;
   filterOptions = SALES_RETURNS_FILTER_OPTIONS;
   dateConfig = SALES_RETURNS_DATE_CONFIG;
+  private tableState$ = new Subject<void>();
 
 
   constructor(
@@ -56,7 +59,16 @@ export class SalesReturnsComponent {
     if (this.customerId) {
       //this.salesOrderFilter.customerId = this.customerId;
     }
-    this.getAllSalesReturns();
+    this.setupTablePipeline();
+    this.tableState$.next();
+  }
+
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getAllSalesReturns();
+    });
   }
 
   getAllSalesReturns() {
@@ -111,14 +123,14 @@ export class SalesReturnsComponent {
   onSearchChange(searchQuery: string) {
     this.salesReturnsFilter.searchQuery = searchQuery?.trim() || undefined;
     this.pagination.currentPage = 1;
-    this.getAllSalesReturns();
+    this.tableState$.next();
   }
 
   onFilterDate(range: DateRangeEmit) {
     this.salesReturnsFilter.fromDate = range.from ? this.formatDate(range.from) : null;
     this.salesReturnsFilter.toDate = range.to ? this.formatDate(range.to) : null;
     this.pagination.currentPage = 1;
-    this.getAllSalesReturns();
+    this.tableState$.next();
   }
 
   private formatDate(date: Date): string {
@@ -128,12 +140,12 @@ export class SalesReturnsComponent {
   onFilterUpdate($event: Record<string, any>) {
     this.salesReturnsFilter.statuses = $event['status'] || null;
     this.pagination.currentPage = 1;
-    this.getAllSalesReturns();
+    this.tableState$.next();
   }
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getAllSalesReturns();
+    this.tableState$.next();
   }
 
   onLoadMore() {

@@ -12,6 +12,8 @@ import { List, Download } from 'lucide-angular';
 import { HeaderAction } from '../../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { BulkUploadComponent } from '../../../layouts/components/bulk-upload/bulk-upload.component';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 
 @Component({
@@ -26,6 +28,7 @@ export class StockLedgerComponent {
 
   stockLedgerList: StockLedger[] = [];
   stockLedgerFilter: StockLedgerFilter = new StockLedgerFilter();
+  private tableState$ = new Subject<void>();
 
   isLoading: boolean = false;
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
@@ -109,11 +112,21 @@ export class StockLedgerComponent {
 
 
   ngOnInit(): void {
-    this.getCurrentStock();
+    this.setupTablePipeline();
+    this.tableState$.next();
+  }
+
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getCurrentStock();
+    });
   }
 
   getCurrentStock() {
     this.isLoading = true;
+
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.stockService.getStockTransactions(
       apiPage,
@@ -131,12 +144,13 @@ export class StockLedgerComponent {
       }, (error: any) => {
         this.isLoading = false;
         this.toastService.show('Error fetching stock data', 'error');
-      });
+      }
+    );
   }
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getCurrentStock();
+    this.tableState$.next();
   }
 
   onLoadMore() {
@@ -169,7 +183,7 @@ export class StockLedgerComponent {
     this.stockLedgerFilter = $event;
     this.stockLedgerFilter.transactionTypes = $event['transactionType'] || null;
     this.stockLedgerFilter.referenceTypes = $event['referenceType'] || null;
-    this.getCurrentStock();
+    this.tableState$.next();
   }
 
   onFilterDate(range: DateRangeEmit) {

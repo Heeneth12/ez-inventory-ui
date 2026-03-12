@@ -20,6 +20,8 @@ import { INVOICE_ACTIONS, INVOICE_COLUMNS, INVOICE_DATE_CONFIG, INVOICE_FILTER_O
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
 import { SalesReturnformComponent } from '../sales-returns/sales-returnform/sales-returnform.component';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-invoices',
@@ -35,6 +37,7 @@ export class InvoicesComponent {
   invoicesList: InvoiceModal[] = [];
   invoicesFilter: InvoiceFilterModal = new InvoiceFilterModal();
   paymentSummary: InvoicePaymentSummaryModal[] = [];
+  private tableState$ = new Subject<void>();
 
   columns: TableColumn[] = INVOICE_COLUMNS;
   paymentDetailsActions = INVOICE_ACTIONS;
@@ -63,7 +66,16 @@ export class InvoicesComponent {
     if (this.customerId) {
       this.invoicesFilter.customerId = this.customerId;
     }
-    this.getAllInvoices();
+    this.setupTablePipeline();
+    this.tableState$.next();
+  }
+
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getAllInvoices();
+    });
   }
 
   getAllInvoices() {
@@ -99,7 +111,7 @@ export class InvoicesComponent {
     }
     if (event.type === 'custom' && event.key === 'receive_payment') {
       this.openPaymentSummary(event.row.id, event.row['customerId']);
-      this.getAllInvoices();
+      this.tableState$.next();
     }
     if (event.type === 'custom' && event.key === 'download_invoice') {
       this.downloadInvoicePdf(event.row.id);
@@ -162,7 +174,7 @@ export class InvoicesComponent {
   onSearchChange(searchQuery: string) {
     this.invoicesFilter.searchQuery = searchQuery?.trim() || undefined;
     this.pagination.currentPage = 1;
-    this.getAllInvoices();
+    this.tableState$.next();
   }
 
   downloadInvoicePdf(invoiceId: any) {
@@ -210,7 +222,7 @@ export class InvoicesComponent {
       (response: any) => {
         this.loaderSvc.hide();
         this.toastSvc.show('Invoice status updated to ' + status, 'success');
-        this.getAllInvoices();
+        this.tableState$.next();
       },
       (error: any) => {
         this.loaderSvc.hide();
@@ -244,7 +256,7 @@ export class InvoicesComponent {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getAllInvoices();
+    this.tableState$.next();
   }
 
   onLoadMore() {
@@ -261,6 +273,7 @@ export class InvoicesComponent {
     this.invoicesFilter.toDate = range.to
       ? this.formatDate(range.to)
       : null;
+    this.tableState$.next();
   }
 
   private formatDate(date: Date): string {
@@ -271,7 +284,7 @@ export class InvoicesComponent {
     console.log("Received filter update:", $event);
     this.invoicesFilter.invStatuses = $event['status'] || null;
     this.invoicesFilter.paymentStatus = $event['paymentStatus'] || null;
-    this.getAllInvoices();
+    this.tableState$.next();
   }
 
 

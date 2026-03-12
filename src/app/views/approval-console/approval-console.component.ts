@@ -20,6 +20,8 @@ import { DatePickerConfig, DateRangeEmit } from '../../layouts/UI/date-picker/da
 import { StatCardConfig, StatGroupComponent } from '../../layouts/UI/stat-group/stat-group.component';
 import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { ConfirmationModalService } from '../../layouts/UI/confirmation-modal/confirmation-modal.service';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-approval-console',
@@ -44,6 +46,7 @@ export class ApprovalConsoleComponent implements OnInit {
   configs: ApprovalConfigModel[] = [];
   approvalFilter: ApprovalFilterModel = new ApprovalFilterModel();
   approvalStats: ApprovalStatsModel = new ApprovalStatsModel();
+  private tableState$ = new Subject<void>();
 
   approvalDashboardStats: StatCardConfig[] = [
     {
@@ -185,8 +188,17 @@ export class ApprovalConsoleComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.getAllApprovals();
+    this.setupTablePipeline();
+    this.tableState$.next();
     this.getApprovalStats();
+  }
+
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getAllApprovals();
+    });
   }
 
   getAllApprovals() {
@@ -293,7 +305,7 @@ export class ApprovalConsoleComponent implements OnInit {
         this.toastService.show(`Request ${status === 'APPROVED' ? 'Approved' : 'Rejected'}`, 'success');
         this.drawerService.close();
         this.loaderSvc.hide();
-        this.getAllApprovals();
+        this.tableState$.next();
       },
       (error: any) => {
         this.loaderSvc.hide();
@@ -311,7 +323,7 @@ export class ApprovalConsoleComponent implements OnInit {
     console.log("Received filter update:", $event);
     this.approvalFilter.approvalStatuses = $event['status'] || null;
     this.approvalFilter.approvalTypes = $event['approval_type'] || null;
-    this.getAllApprovals();
+    this.tableState$.next();
   }
 
   // Save (Works for both Create New and Edit Existing)
@@ -442,12 +454,12 @@ export class ApprovalConsoleComponent implements OnInit {
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'approve') {
       this.approvalConformation('APPROVED', event.row.id);
-      this.getAllApprovals();
+      this.tableState$.next();
 
     }
     if (event.type === 'custom' && event.key === 'reject') {
       this.approvalConformation('REJECTED', event.row.id);
-      this.getAllApprovals();
+      this.tableState$.next();
     }
     if (event.type === 'custom' && event.key === 'view') {
       this.viewApprovalDetails(event.row['approvalType'], event.row['referenceId'], event.row['id']);
@@ -467,14 +479,14 @@ export class ApprovalConsoleComponent implements OnInit {
 
   onPageChange(newPage: number) {
     this.pagination.currentPage = newPage;
-    this.getAllApprovals();
+    this.tableState$.next();
   }
 
   onSearchChange(searchQuery: string) {
     console.log('Search Query:', searchQuery);
     this.approvalFilter.searchQuery = searchQuery;
     this.pagination.currentPage = 1;
-    this.getAllApprovals();
+    this.tableState$.next();
   }
 
   onLoadMore() {

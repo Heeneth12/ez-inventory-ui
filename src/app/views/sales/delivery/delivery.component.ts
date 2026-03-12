@@ -15,6 +15,8 @@ import { DELIVERY_ACTIONS, DELIVERY_COLUMNS, DELIVERY_DATE_CONFIG, DELIVERY_FILT
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { StatusBadgeComponent } from "../../../layouts/components/status-badge/status-badge.component";
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-delivery',
@@ -38,6 +40,7 @@ export class DeliveryComponent implements OnInit {
   deliveryDetails: DeliveryModel[] = [];
   selectedDelivery: DeliveryModel | null = null;
   deliveryFilter: DeliveryFilterModel = new DeliveryFilterModel();
+  private tableState$ = new Subject<void>();
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
@@ -104,8 +107,17 @@ export class DeliveryComponent implements OnInit {
     if (this.customerId) {
       this.deliveryFilter.customerId = this.customerId;
     }
-    this.getAllDeliveries();
+    this.setupTablePipeline();
+    this.tableState$.next();
     this.getSummaryStats();
+  }
+
+  private setupTablePipeline() {
+    this.tableState$.pipe(
+      debounceTime(300),
+    ).subscribe(() => {
+      this.getAllDeliveries();
+    });
   }
 
   getAllDeliveries() {
@@ -143,7 +155,7 @@ export class DeliveryComponent implements OnInit {
       status,
       (response: any) => {
         this.toastService.show('Delivery updated successfully', 'success');
-        this.getAllDeliveries();
+        this.tableState$.next();
       },
       (error: any) => {
         this.toastService.show('Failed to update delivery', 'error');
@@ -168,7 +180,7 @@ export class DeliveryComponent implements OnInit {
       (res: any) => {
         this.toastService.show('Route Batch created successfully', 'success');
         this.selectedItemIds = [];
-        this.getAllDeliveries();
+        this.tableState$.next();
       },
       (err: any) => this.toastService.show('Failed to create batch', 'error')
     );
@@ -178,7 +190,7 @@ export class DeliveryComponent implements OnInit {
     this.deliveryService.markAsDelivered(deliveryIds,
       (response: any) => {
         this.toastService.show('Delivery marked as delivered', 'success');
-        this.getAllDeliveries();
+        this.tableState$.next();
       },
       (error: any) => {
         this.toastService.show('Failed to mark as delivered', 'error');
@@ -280,6 +292,7 @@ export class DeliveryComponent implements OnInit {
     this.deliveryFilter.toDate = range.to
       ? this.formatDate(range.to)
       : null;
+    this.tableState$.next();
   }
 
   private formatDate(date: Date): string {
@@ -290,7 +303,7 @@ export class DeliveryComponent implements OnInit {
     console.log('Received filter update:', $event);
     this.deliveryFilter.shipmentTypes = $event['type'] || null;
     this.deliveryFilter.shipmentStatuses = $event['shipmentStatus'] || null;
-    this.getAllDeliveries();
+    this.tableState$.next();
   }
 
   handleHeaderAction(event: HeaderAction) {
@@ -301,7 +314,7 @@ export class DeliveryComponent implements OnInit {
 
   onPageChange(newPage: number) {
     this.pagination = { ...this.pagination, currentPage: newPage };
-    this.getAllDeliveries();
+    this.tableState$.next();
   }
 
   onLoadMore() {
