@@ -139,6 +139,7 @@ export class SalesReturnformComponent implements OnInit {
       .filter(item => item.isSelected && item.returnQty > 0)
       .map(item => ({
         itemId: item.itemId || item.item.id,
+        batchNumber: item.batchNumber,
         quantity: item.returnQty
       }));
 

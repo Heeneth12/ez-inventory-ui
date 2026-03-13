@@ -22,9 +22,13 @@
 
             @if(stat.trend){
             <div class="flex items-center gap-0.5 mt-1">
-              <lucide-icon [name]="stat.trend.isUp ? 'trending-up' : 'trending-down'" [size]="12"
-                [class]="stat.trend.isUp ? 'text-emerald-500' : 'text-rose-500'">
+              @if(stat.trend.isUp){
+              <lucide-icon [img]="trendingUpIcon" size="12" class="text-emerald-500">
               </lucide-icon>
+              }@else{
+              <lucide-icon [img]="trendingDownIcon" size="12" class="text-rose-500">
+              </lucide-icon>
+              }
               <span [class]="stat.trend.isUp ? 'text-emerald-600' : 'text-rose-600'" class="text-[11px] font-bold">
                 {{ stat.trend.value }}
               </span>
