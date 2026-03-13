@@ -92,6 +92,7 @@ export class InventoryLayoutComponent implements OnInit {
   readonly BadgePlus = BadgePlus
 
   isQuickCreateOpen = false;
+  currentDate = new Date();
 
   quickCreateItems: DropdownMenuItem[] = [
     {

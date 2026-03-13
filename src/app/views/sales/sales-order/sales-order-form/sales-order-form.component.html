@@ -2,13 +2,16 @@
     <form [formGroup]="orderForm" (ngSubmit)="saveOrder()">
         <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
             <div class="flex items-center gap-3">
+                @if(!customerId && !id){
                 <button (click)="back()" type="button" class="text-gray-500 hover:text-gray-800 transition-colors">
                     <lucide-icon [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-icon>
                 </button>
-                @if(customerId){
+
+                @if(!isEditMode){
                 <h1 class="text-base font-semibold text-gray-800 tracking-tight">Create Sales Order</h1>
                 }@else{
                 <h1 class="text-base font-semibold text-gray-800 tracking-tight">Update Sales Order</h1>
+                }
                 }
             </div>
             <div class="flex items-center gap-2">

@@ -232,7 +232,7 @@
                 <button (click)="openUserCalendar()"
                     class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-50 hover:border-slate-300 ">
                     <lucide-icon [img]="Calendar" class="w-3 h-3 text-slate-400"></lucide-icon>
-                    <span>Oct 31, 2023</span>
+                    <span>{{ currentDate | date:'dd-MMM-yyyy' }}</span>
                     <lucide-icon [img]="ChevronDown" class="w-3 h-3 ml-1 text-slate-400"></lucide-icon>
                 </button>
 

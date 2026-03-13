@@ -100,19 +100,19 @@ export class StockComponent implements OnInit {
         color: 'emerald',
       },
       {
+        key: 'fastMoving',
+        label: 'Fast-Moving Items',
+        value: `${summary.fastMovingItems?.length || 0} Items`,
+        icon: Zap,
+        color: 'orange',
+      },
+      {
         key: 'outOfStock',
         label: 'Out of Stock Items',
         value: `${summary.totalItemsOutOfStock} Items`,
         icon: AlertCircle,
         color: 'rose',
       },
-      {
-        key: 'fastMoving',
-        label: 'Fast-Moving Items',
-        value: `${summary.fastMovingItems?.length || 0} Items`,
-        icon: Zap,
-        color: 'orange',
-      }
     ];
   }
 
