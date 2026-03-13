@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpService } from "../../../layouts/service/http-svc/http.service";
 import { environment } from "../../../../environments/environment.development";
+import { filter } from "rxjs";
 
 
 
@@ -39,5 +40,32 @@ export class SalesOrderService {
 
     getSalesOrderStats(filter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/stats`, filter, successfn, errorfn);
+    }
+
+    //reports
+    downloadSalesOrdersExcel(filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/download`, filter, successfn, errorfn);
+    }
+
+    getSalesOrderConversionReport(filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${SalesOrderService.SALES_ORDER_BASE_URL}/conversion-report`, filter, successfn, errorfn);
+    }
+
+    /**
+     * DOWNLOAD EXCEL
+     * Calls POST /bulk/download with filter criteria
+     */
+    bulkSalesOrderDownload(filter: any, successCallback?: any, errorCallback?: any) {
+        const url = SalesOrderService.SALES_ORDER_BASE_URL + '/bulk/download';
+
+        this.httpService.postHttpBlob(url, filter,
+            (blob: Blob) => {
+                this.httpService.downloadFile(blob, "sales_orders.xlsx");
+                if (successCallback) successCallback();
+            },
+            (error: any) => {
+                if (errorCallback) errorCallback(error);
+            }
+        );
     }
 }

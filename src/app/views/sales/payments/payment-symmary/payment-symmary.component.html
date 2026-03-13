@@ -1,12 +1,15 @@
-<div class="flex flex-col h-full bg-white rounded-sm overflow-hidden shadow-2xl max-w-4xl w-full mx-auto" *ngIf="customerId">
-    
+@if(customerId){
+<div class="flex flex-col h-full bg-white rounded-sm overflow-hidden shadow-2xl max-w-4xl w-full mx-auto">
+
     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-[#fafbfc]">
         <div>
             <h3 class="text-base font-bold text-gray-900 uppercase tracking-tight">
                 {{ invoiceId ? 'Payment Hub' : 'Advance Collection' }}
             </h3>
             <p class="text-xs text-gray-500">
-                <span *ngIf="paymentSummary">INV-{{ paymentSummary.invoiceNumber }} • </span>
+                @if(paymentSummary){
+                <span>INV-{{ paymentSummary.invoiceNumber }} • </span>
+                }
                 {{ paymentSummary?.customerName || customerSummary?.customerName || 'Loading Customer...' }}
             </p>
         </div>
@@ -18,25 +21,30 @@
     </div>
 
     <div class="p-6 overflow-y-auto max-h-[85vh] space-y-6">
-        
+
         <div class="flex items-center justify-between p-4 bg-[#f0f4ff] border border-[#dce4ff] rounded-sm">
             <div class="flex items-center gap-4">
                 <div class="w-10 h-10 bg-[#0060df] flex items-center justify-center text-white rounded-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                        </path>
                     </svg>
                 </div>
                 <div>
-                    <p class="text-[10px] font-bold text-[#5c6d9e] uppercase tracking-widest">Available Wallet Credit</p>
-                    <p class="text-xl font-bold text-[#1a2b5c]">{{ (customerSummary?.walletBalance || 0) | currency:'INR' }}</p>
+                    <p class="text-[10px] font-bold text-[#5c6d9e] uppercase tracking-widest">Available Wallet Credit
+                    </p>
+                    <p class="text-xl font-bold text-[#1a2b5c]">{{ (customerSummary?.walletBalance || 0) |
+                        currency:'INR' }}</p>
                 </div>
             </div>
             <div class="flex gap-2">
-                <button *ngIf="customerSummary?.walletBalance > 0 && paymentSummary && paymentSummary.balanceDue > 0"
-                    (click)="payWithWallet()"
+                @if(customerSummary?.walletBalance > 0 && paymentSummary && paymentSummary.balanceDue > 0){
+                <button (click)="payWithWallet()"
                     class="px-4 py-2 bg-[#0060df] text-white text-[11px] font-bold rounded-sm uppercase tracking-tight hover:bg-[#0050ba]">
                     Apply Wallet to Invoice
                 </button>
+                }
                 <button (click)="showWalletForm = !showWalletForm"
                     class="px-4 py-2 border border-[#d1d9e0] text-[#444] text-[11px] font-bold rounded-sm uppercase tracking-tight hover:bg-white">
                     {{ showWalletForm ? 'Cancel' : '+ Add Advance' }}
@@ -49,13 +57,14 @@
                 {{ showWalletForm ? 'Add Money to Wallet (Advance)' : 'Record Payment for Invoice' }}
             </h4>
 
-            <form [formGroup]="showWalletForm ? walletForm : paymentForm" 
-                  (ngSubmit)="showWalletForm ? submitWalletAdd() : submitPayment()"
-                  class="grid grid-cols-12 gap-4 items-end">
-                
+            <form [formGroup]="showWalletForm ? walletForm : paymentForm"
+                (ngSubmit)="showWalletForm ? submitWalletAdd() : submitPayment()"
+                class="grid grid-cols-12 gap-4 items-end">
+
                 <div class="col-span-3">
                     <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Method</label>
-                    <select formControlName="paymentMethod" class="w-full border border-[#d1d9e0] p-2 text-sm outline-none focus:border-indigo-500 rounded-sm">
+                    <select formControlName="paymentMethod"
+                        class="w-full border border-[#d1d9e0] p-2 text-sm outline-none focus:border-indigo-500 rounded-sm">
                         <option value="CASH">Cash</option>
                         <option value="BANK_TRANSFER">Bank Transfer</option>
                         <option value="UPI">UPI/GPay</option>
@@ -65,19 +74,22 @@
 
                 <div class="col-span-4">
                     <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Reference #</label>
-                    <input type="text" formControlName="referenceNumber" placeholder="TXN ID / Ref" class="w-full border border-[#d1d9e0] p-2 text-sm outline-none focus:border-indigo-500 rounded-sm">
+                    <input type="text" formControlName="referenceNumber" placeholder="TXN ID / Ref"
+                        class="w-full border border-[#d1d9e0] p-2 text-sm outline-none focus:border-indigo-500 rounded-sm">
                 </div>
 
                 <div class="col-span-3">
                     <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Amount</label>
                     <div class="relative">
                         <span class="absolute left-2 top-2 text-gray-400 font-bold text-xs">₹</span>
-                        <input type="number" formControlName="amount" class="w-full border border-[#d1d9e0] pl-6 p-2 text-sm font-bold text-gray-800 outline-none focus:border-indigo-500 rounded-sm">
+                        <input type="number" formControlName="amount"
+                            class="w-full border border-[#d1d9e0] pl-6 p-2 text-sm font-bold text-gray-800 outline-none focus:border-indigo-500 rounded-sm">
                     </div>
                 </div>
 
                 <div class="col-span-2">
-                    <button type="submit" [disabled]="(showWalletForm ? walletForm.invalid : paymentForm.invalid) || isSubmitting"
+                    <button type="submit"
+                        [disabled]="(showWalletForm ? walletForm.invalid : paymentForm.invalid) || isSubmitting"
                         [ngClass]="showWalletForm ? 'bg-[#0060df]' : 'bg-[#E86426]'"
                         class="w-full py-2.5 text-white text-[11px] font-bold uppercase rounded-sm transition-all disabled:opacity-50">
                         {{ isSubmitting ? '...' : (showWalletForm ? 'Collect' : 'Pay Now') }}
@@ -86,7 +98,8 @@
             </form>
         </div>
 
-        <div *ngIf="invoiceId && paymentSummary">
+        @if(invoiceId && paymentSummary){
+        <div>
             <h4 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Invoice Payment History</h4>
             <div class="border border-[#e1e6eb] rounded-sm overflow-hidden">
                 <table class="w-full text-left text-xs">
@@ -99,18 +112,30 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#eee]">
-                        <tr *ngFor="let pay of paymentSummary.paymentHistory" class="hover:bg-gray-50 transition-colors">
+                        @for(pay of paymentSummary.paymentHistory; track $index){
+                        <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-3 text-gray-600">{{ pay.paymentDate | date:'dd-MMM-yyyy' }}</td>
                             <td class="px-4 py-3 font-medium text-gray-800">{{ pay.paymentNumber }}</td>
                             <td class="px-4 py-3 uppercase text-[10px] text-gray-400 font-bold">{{ pay.method }}</td>
-                            <td class="px-4 py-3 font-bold text-green-600 text-right">{{ pay.amount | currency:'INR' }}</td>
+                            <td class="px-4 py-3 font-bold text-green-600 text-right">{{ pay.amount | currency:'INR' }}
+                            </td>
                         </tr>
-                        <tr *ngIf="paymentSummary.paymentHistory?.length === 0">
-                            <td colspan="4" class="px-4 py-8 text-center text-gray-400 italic">No payments recorded for this invoice yet.</td>
+                        }
+                        @empty{
+                        <tr>
+                            <td colspan="4" class="px-4 py-8 text-center text-gray-400 italic">No payments recorded for
+                                this invoice yet.</td>
                         </tr>
+                        }
                     </tbody>
                 </table>
             </div>
         </div>
+        }
     </div>
 </div>
+}@else{
+<div class="flex flex-col h-full bg-white rounded-sm overflow-hidden shadow-2xl max-w-4xl w-full mx-auto">
+    loading...
+</div>
+}

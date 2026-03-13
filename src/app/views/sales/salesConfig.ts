@@ -279,11 +279,9 @@ export const SALES_RETURNS_COLUMNS: TableColumn[] = [
     { key: 'contactMini', label: 'Customer', width: '140px', type: 'fullProfile', align: 'left' },
     { key: 'returnNumber', label: 'Return Number', width: '200px', type: 'link' },
     { key: 'returnDate', label: 'Return Date', width: '100px', type: 'date' },
-    { key: 'amount', label: 'Amount', width: '90px', type: 'text' },
+    { key: 'totalAmount', label: 'Amount', width: '90px', type: 'currency' },
     { key: 'status', label: 'Status', align: 'right', width: '110px', type: 'badge' },
     { key: 'paymentMethod', label: 'Payment Method', align: 'right', width: '130px', type: 'text' },
-    { key: 'allocatedAmount', label: 'Allocated Amount', align: 'right', width: '110px', type: 'currency' },
-    { key: 'unallocatedAmount', label: 'Unallocated Amount', align: "center", width: '110px', type: 'currency' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
 ];
 
@@ -293,7 +291,7 @@ export const SALES_RETURNS_ACTIONS: TableActionConfig[] = [
         label: 'Return details',
         icon: ScrollText,
         color: 'primary',
-        condition: (row) => row['status'] === 'COMPLETED' || row['status'] === 'RECEIVED'
+        condition: (row) => true
     },
     {
         key: 'download_receipt',

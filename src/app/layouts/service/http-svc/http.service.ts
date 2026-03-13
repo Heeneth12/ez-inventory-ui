@@ -121,4 +121,14 @@ export class HttpService {
             headers: this.headers // Keeps your app-key, etc.
         }).subscribe({ next: successFunc, error: errorFunc });
     }
+
+    //Helper to trigger browser download
+    downloadFile(blob: Blob, fileName: string) {
+        const link = document.createElement('a');
+        const url = window.URL.createObjectURL(blob);
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+    }
 }

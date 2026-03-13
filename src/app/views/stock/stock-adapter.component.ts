@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { LucideAngularModule, Package2, ScrollText, ClipboardPen } from 'lucide-angular';
+import { LucideAngularModule, ScrollText, ClipboardPen, Package } from 'lucide-angular';
 import { TabCardComponent, TabItem } from "../../layouts/UI/tab-card/tab-card.component";
 
 @Component({
@@ -26,7 +26,7 @@ export class StockAdapterComponent {
   isLoading = signal<boolean>(false);
 
   navigationTabs: TabItem[] = [
-    { id: 'current', label: 'Current Stock', icon: Package2 },
+    { id: 'current', label: 'Current Stock', icon: Package },
     { id: 'ledger', label: 'Stock Ledger', icon: ScrollText },
     { id: 'adjustment', label: 'Stock Adjustment', icon: ClipboardPen }
   ];
@@ -49,7 +49,7 @@ export class StockAdapterComponent {
 
   private updateActiveTabFromUrl() {
     const currentUrl = this.router.url;
-    
+
     if (currentUrl.includes('/ledger')) {
       this.activeTab.set('ledger');
     } else if (currentUrl.includes('/adjustment')) {
@@ -62,7 +62,7 @@ export class StockAdapterComponent {
 
   onTabChange(newTabId: string) {
     this.isLoading.set(true);
-    
+
     // Routing Logic based on relative paths
     if (newTabId === 'current') {
       this.router.navigate(['./'], { relativeTo: this.route });
@@ -71,7 +71,7 @@ export class StockAdapterComponent {
     } else if (newTabId === 'adjustment') {
       this.router.navigate(['adjustment'], { relativeTo: this.route });
     }
-    
+
     // Optional: Reset loading state after short delay or via router event
     setTimeout(() => this.isLoading.set(false), 300);
   }

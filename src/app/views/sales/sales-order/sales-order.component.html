@@ -2,7 +2,7 @@
 <app-stat-group [stats]="salesOrderStats"></app-stat-group>
 }
 <div class="space-y-6">
-    <div class="flex-1 h-[calc(100vh-230px)] overflow-y-auto">
+    <div class="flex-1 h-[calc(100vh-198px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="soColumn" [data]="salesOrders" [pagination]="pagination"
             [isLoading]="isLoading" [isServerSide]="true" [searchMode]="'server'" (pageChange)="onPageChange($event)"
             (loadMore)="onLoadMore()" (action)="onTableAction($event)" (action)="handleTableAction($event)"

@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { AuthService } from '../../layouts/guards/auth.service';
+import { UserInitResponse } from '../../layouts/models/Init-response.model';
+import { ToastService } from '../../layouts/components/toast/toastService';
+import { ConfirmationModalService } from '../../layouts/UI/confirmation-modal/confirmation-modal.service';
 import {
   LucideAngularModule,
   Eye, Users, MousePointerClick, ShoppingCart, TrendingUp,
@@ -10,10 +15,17 @@ import {
   ShoppingBag,
   Coins,
   Notebook,
+  FileText,
+  ArrowRight,
+  Check,
+  X,
+  List
 } from 'lucide-angular';
 import { Chart, registerables } from 'chart.js';
-import { CalendarComponent } from "../../layouts/components/calendar/calendar.component";
 import { TodoComponent } from "../../layouts/components/todo/todo.component";
+import { ApprovalConsoleService } from '../approval-console/approval-console.service';
+import { ApprovalRequestModel } from '../approval-console/approval-console.model';
+import { Router } from '@angular/router';
 
 interface PurchaseItem {
   id: string;
@@ -29,19 +41,22 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, CalendarComponent, TodoComponent],
+  imports: [CommonModule, LucideAngularModule, TodoComponent],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
 
-  currentTab: 'dashboard' | 'tasks' | 'calender' = 'dashboard';
-  allTabs = ['dashboard', 'tasks', 'calender'] as const;
+  currentTab: 'dashboard' | 'tasks' = 'dashboard';
+  allTabs = ['dashboard', 'tasks'] as const;
   @ViewChild('profitChart') profitChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('activityChart') activityChartRef!: ElementRef<HTMLCanvasElement>;
 
   private profitChart: Chart | null = null;
   private activityChart: Chart | null = null;
   activeReport: string = 'inventory';
+  userData$: Observable<UserInitResponse | null>;
+  pendingApprovals: ApprovalRequestModel[] = [];
+  pendingApprovalsCount: number = 0;
 
   readonly icons = {
     eye: Eye,
@@ -64,6 +79,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     salesData: ShoppingCart,
     coins: Coins,
     notes: Notebook,
+    fileText: FileText,
+    arrowRight: ArrowRight,
+    check: Check,
+    x: X,
+    list: List
   };
 
   hoveredDayIndex: number | null = null;
@@ -179,7 +199,80 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     { invoice: 'INV-8823', method: 'Cash', amount: 35.00 }
   ];
 
-  ngOnInit() { }
+  constructor(
+    private authSvs: AuthService,
+    private approvalConsoleService: ApprovalConsoleService,
+    private router: Router,
+    private toastService: ToastService,
+    private confirmationModalSvc: ConfirmationModalService
+  ) {
+    this.userData$ = this.authSvs.currentUser$;
+  }
+
+  ngOnInit() {
+    this.fetchPendingApprovals();
+  }
+
+  fetchPendingApprovals() {
+    this.approvalConsoleService.getAllApprovals(
+      0,
+      4,
+      { approvalStatuses: ['PENDING'] },
+      (response: any) => {
+        this.pendingApprovals = response.data.content;
+        this.pendingApprovalsCount = response.data.totalElements;
+      },
+      (error: any) => {
+        console.error('Failed to fetch pending approvals', error);
+      }
+    );
+  }
+
+  navigateToApprovals() {
+    this.router.navigate(['/approval']);
+  }
+
+  approvalConformation(status: 'APPROVED' | 'REJECTED', approvalId: number | string) {
+    const action = status === 'APPROVED' ? 'Approve' : 'Reject';
+    this.confirmationModalSvc.open({
+      title: `${action} Approval`,
+      message: `Are you sure you want to ${action.toLowerCase()} this approval request?`,
+      intent: status === 'APPROVED' ? 'success' : 'danger',
+      confirmLabel: 'Yes, Confirm',
+      cancelLabel: 'No, Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.processApproval(approvalId, status);
+      }
+    });
+  }
+
+  processApproval(requestId: number | string, approvalStatus: 'APPROVED' | 'REJECTED') {
+    this.approvalConsoleService.approvalProcess(
+      {
+        requestId: requestId,
+        status: approvalStatus,
+        remarks: 'Actioned from dashboard'
+      },
+      (response: any) => {
+        this.toastService.show('Approval processed successfully', 'success');
+        this.fetchPendingApprovals(); // Refresh list after action
+      },
+      (error: any) => {
+        this.toastService.show('Failed to process approval', 'error');
+      }
+    );
+  }
+
+  getInitials(name: string): string {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
 
   ngAfterViewInit() {
     // Wait for DOM to be fully ready
@@ -288,7 +381,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.hoveredDayIndex = index;
   }
 
-  handleTabChange(tab: 'dashboard' | 'tasks' | 'calender') {
+  handleTabChange(tab: 'dashboard' | 'tasks') {
     this.currentTab = tab;
   }
 

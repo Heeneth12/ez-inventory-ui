@@ -1,27 +1,45 @@
 <div class="lg:p-4 p-2 font-sans antialiased text-[#1A1C1E]">
   <div class="max-w-[1750px] mx-auto space-y-4">
     <div class="space-y-6">
+      @if (userData$ | async; as user) {
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
 
         <div class="flex items-center gap-4">
           <button
             class="w-14 h-14 rounded-md bg-slate-200 text-slate-800 flex items-center justify-center font-bold text-xl hover:scale-105 transition-transform">
-            JD
+            {{ getInitials(user.fullName) }}
           </button>
 
           <div>
-            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Hello, John Doe</h1>
-            <p class="text-[13px] text-slate-500 font-medium">Senior Inventory Manager</p>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight capitalize">Hello, {{ user.fullName }}</h1>
+            <p class="text-[13px] text-slate-500 font-medium">{{ user.userRoles[0] || 'User' }}</p>
           </div>
         </div>
 
         <div class="flex items-center gap-4 self-end md:self-center">
           <div class="text-right hidden sm:block border-r border-slate-200 pr-4">
-            <h2 class="text-sm font-bold text-slate-900">Global Logistics Corp.</h2>
-            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Main Warehouse • Sector 7</p>
+            <h2 class="text-sm font-bold text-slate-900">{{ user.tenantName }}</h2>
+            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Tenant ID: {{ user.tenantId }}</p>
           </div>
         </div>
       </div>
+      } @else {
+      <div class="animate-pulse flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-md bg-slate-200"></div>
+          <div>
+            <div class="h-6 bg-slate-200 w-48 rounded mb-2"></div>
+            <div class="h-4 bg-slate-200 w-32 rounded"></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 self-end md:self-center">
+          <div class="text-right hidden sm:block border-r border-slate-200 pr-4">
+            <div class="h-5 bg-slate-200 w-32 rounded mb-2 ml-auto"></div>
+            <div class="h-3 bg-slate-200 w-24 rounded ml-auto"></div>
+          </div>
+        </div>
+      </div>
+      }
 
       <div>
         <div class="flex items-center gap-8 border-b border-slate-200/80">
@@ -45,7 +63,7 @@
         <div class="flex justify-between items-start">
           <div class="space-y-1">
             <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Sale</h2>
-            <h1 class="text-5xl font-extrabold tracking-tight text-slate-900">$1.992,34</h1>
+            <h1 class="text-5xl font-extrabold tracking-tight text-slate-900">₹1.992,34</h1>
             <div class="flex items-center gap-2 pt-3">
               <span
                 class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold">
@@ -53,7 +71,7 @@
                 +19%
               </span>
               <p class="text-[14px] text-slate-400">
-                Yeay! your sales have surged by <span class="font-bold text-slate-700">$723.12</span> from last month!
+                Yeay! your sales have surged by <span class="font-bold text-slate-700">₹723.12</span> from last month!
               </p>
             </div>
           </div>
@@ -73,7 +91,7 @@
               <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
               <span class="text-[11px] font-black text-slate-500 uppercase">In-Stores Sales</span>
             </div>
-            <div class="text-2xl font-bold text-slate-900">$5,045.00</div>
+            <div class="text-2xl font-bold text-slate-900">₹5,045.00</div>
           </div>
 
           <div
@@ -82,7 +100,7 @@
               <div class="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
               <span class="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Online Sales</span>
             </div>
-            <div class="text-2xl font-bold text-slate-900">$1,001.00</div>
+            <div class="text-2xl font-bold text-slate-900">₹1,001.00</div>
           </div>
 
           <div
@@ -91,7 +109,7 @@
               <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
               <span class="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Total Sales</span>
             </div>
-            <div class="text-2xl font-bold text-slate-900">$6,460.00</div>
+            <div class="text-2xl font-bold text-slate-900">₹6,460.00</div>
           </div>
         </div>
       </div>
@@ -163,58 +181,131 @@
       <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-6 border border-slate-100 flex flex-col">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Pending Approvals</h2>
-          <span class="px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-black">4 NEW</span>
+          @if (pendingApprovalsCount > 0) {
+          <span
+            class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-600 text-[10px] font-black">{{pendingApprovalsCount}}
+            NEW</span>
+          }
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-3 p-1">
+          @if (pendingApprovals.length === 0) {
           <div
-            class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:shadow-sm transition-all">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                <lucide-icon [img]="icons.shoppingCart" class="w-5 h-5"></lucide-icon>
-              </div>
-              <div>
-                <h4 class="text-sm font-bold text-slate-800">Purchase Order #882</h4>
-                <p class="text-[11px] text-slate-400 font-medium">Nexus Logistics • $1,200.00</p>
-              </div>
+            class="flex flex-col items-center justify-center py-12 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+            <div class="p-3 bg-white rounded-full shadow-sm mb-3">
+              <lucide-icon [img]="icons.packageCheck" class="w-6 h-6 text-emerald-500"></lucide-icon>
             </div>
-            <div class="flex gap-2">
-              <button class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors">
-                <lucide-icon [img]="icons.packageCheck" class="w-4 h-4"></lucide-icon>
-              </button>
-              <button class="p-2 text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
-                <lucide-icon [img]="icons.more" class="w-4 h-4"></lucide-icon>
+            <p class="text-sm font-semibold text-slate-700">All caught up!</p>
+            <p class="text-xs text-slate-500">No pending approvals to review.</p>
+          </div>
+          } @else {
+          <div class="overflow-x-auto bg-white shadow-sm">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 rounded-tl-lg">
+                    Approval ID &amp; Date</th>
+                  <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Ref ID &amp; Type
+                  </th>
+                  <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-right">Value
+                  </th>
+                  <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-center">Status
+                  </th>
+                  <th
+                    class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-right rounded-tr-lg">
+                    Actions</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-slate-100">
+                @for (approval of pendingApprovals; track approval.id) {
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                  <td class="px-4 py-3">
+                    <div class="flex flex-col gap-0.5">
+                      <span class="text-[12px] font-bold text-indigo-600 truncate cursor-pointer hover:underline">APP-{{
+                        approval.id || 'N/A' }}</span>
+                      <span class="text-[11px] text-slate-500 font-medium">{{ approval.createdAt | date:'dd-MMM-yyyy'
+                        }}</span>
+                    </div>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="flex flex-col gap-0.5">
+                      <span class="text-[12px] font-bold text-indigo-600 truncate cursor-pointer hover:underline">{{
+                        approval.referenceCode || 'N/A' }}</span>
+                      <span class="text-[11px] text-slate-500 font-medium whitespace-nowrap">{{ (approval.approvalType |
+                        titlecase).replace('_', ' ') }}</span>
+                    </div>
+                  </td>
+
+                  <td class="px-4 py-3 text-right">
+                    <span class="text-[12px] font-bold text-slate-700">
+                      {{ approval.valueAmount ? (approval.valueAmount | currency:'INR':'symbol':'1.2-2') : '-' }}
+                    </span>
+                  </td>
+
+                  <td class="px-4 py-3 text-center">
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                      [ngClass]="{
+                            'bg-amber-100 text-amber-700': approval.status === 'PENDING',
+                            'bg-emerald-100 text-emerald-700': approval.status === 'APPROVED',
+                            'bg-rose-100 text-rose-700': approval.status === 'REJECTED'
+                          }">
+                      {{ approval.status }}
+                    </span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="flex items-center justify-end gap-2">
+                      <button
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-100/50"
+                        title="Approve"
+                        (click)="approvalConformation('APPROVED', approval.id); $event.stopPropagation()">
+                        <lucide-icon [img]="icons.check" class="w-3.5 h-3.5"></lucide-icon>
+                        <span>Approve</span>
+                      </button>
+
+                      <button
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors border border-rose-100/50"
+                        title="Reject"
+                        (click)="approvalConformation('REJECTED', approval.id); $event.stopPropagation()">
+                        <lucide-icon [img]="icons.x" class="w-3.5 h-3.5"></lucide-icon>
+                        <span>Reject</span>
+                      </button>
+
+                      <button
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-100/50"
+                        (click)="navigateToApprovals()">
+                        <lucide-icon [img]="icons.list" class="w-3.5 h-3.5"></lucide-icon>
+                        <span>View</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+
+            <div class="p-2 border-t border-slate-100 bg-slate-50/30 text-center">
+              <button (click)="navigateToApprovals()"
+                class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 underline-offset-4 hover:underline">
+                View All Pending Requests
               </button>
             </div>
           </div>
 
-          <div
-            class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:shadow-sm transition-all">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded bg-amber-50 text-amber-600 flex items-center justify-center">
-                <lucide-icon [img]="icons.users" class="w-5 h-5"></lucide-icon>
-              </div>
-              <div>
-                <h4 class="text-sm font-bold text-slate-800">Inventory Adjustment</h4>
-                <p class="text-[11px] text-slate-400 font-medium">JD • Sector 7 Stock</p>
-              </div>
-            </div>
-            <div class="flex gap-2">
-              <button class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors">
-                <lucide-icon [img]="icons.packageCheck" class="w-4 h-4"></lucide-icon>
-              </button>
-              <button class="p-2 text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
-                <lucide-icon [img]="icons.more" class="w-4 h-4"></lucide-icon>
-              </button>
-            </div>
-          </div>
+          }
         </div>
+
+        <button (click)="navigateToApprovals()"
+          class="mt-auto pt-6 text-[12px] font-bold text-indigo-600 underline hover:text-indigo-700 flex items-center gap-1 transition-colors self-start">
+          Go to Approval Console <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 -rotate-90"></lucide-icon>
+        </button>
       </div>
     </div>
     }@else if (currentTab === 'tasks') {
     <app-todo></app-todo>
-    }@else if (currentTab === 'calender') {
-    <!-- <app-calendar></app-calendar> -->
     }
   </div>
 </div>

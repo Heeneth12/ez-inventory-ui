@@ -10,11 +10,12 @@ import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
-import { BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, EyeIcon, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
+import { ArrowLeft, BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, EyeIcon, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
 import { InvoiceModal, InvoiceItemModal, DeliveryOption, InvoiceFilterModal } from '../invoice.modal';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { AddressType, UserModel } from '../../../user-management/models/user.model';
 import { UserManagementService } from '../../../user-management/userManagement.service';
+import { DrawerService } from '../../../../layouts/components/drawer/drawerService';
 
 @Component({
   selector: 'app-invoice-form',
@@ -36,6 +37,7 @@ export class InvoiceFormComponent implements OnInit {
   readonly checkIcon = Check;
   readonly creditCardIcon = CreditCard;
   readonly chevronRightIcon = ChevronRight;
+  readonly ArrowLeftIcon = ArrowLeft;
   readonly truckIcon = TruckIcon;
   readonly saveIcon = SaveIcon;
   readonly fileTextIcon = FileText;
@@ -48,7 +50,6 @@ export class InvoiceFormComponent implements OnInit {
   readonly SettingsIcon = SettingsIcon;
   readonly xIconIcon = XIcon;
   readonly HistoryIcon = HistoryIcon;
-  readonly ChevronRightIcon = ChevronsLeftRight;
   readonly eyeIcon = EyeIcon;
 
   invoiceForm: FormGroup;
@@ -89,13 +90,14 @@ export class InvoiceFormComponent implements OnInit {
     private loaderSvc: LoaderService,
     private toast: ToastService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private drawerService: DrawerService
   ) {
     this.invoiceForm = this.fb.group({
       id: [null],
       salesOrderId: [null],
       invoiceDate: [new Date().toISOString().split('T')[0], Validators.required],
-      customerId: [1, Validators.required],
+      customerId: [null, Validators.required],
       warehouseId: [1, Validators.required],
       remarks: [''],
       items: this.fb.array([], Validators.required),
@@ -107,6 +109,10 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.customerId) {
+      this.setUserById(this.customerId, "Loading...");
+      this.invoiceForm.get('customerId')?.setValue(this.customerId);
+    }
     this.setupItemSearch();
     this.checkEditMode();
   }
@@ -511,8 +517,13 @@ export class InvoiceFormComponent implements OnInit {
     this.loaderSvc.hide();
     this.isLoading = false;
     this.toast.show(msg, 'success');
-    const id = res.id || res.data?.id || this.orderId;
-    this.router.navigate(['/sales/invoices', id]);
+
+    if (this.customerId) {
+      this.drawerService.close();
+    } else {
+      const id = res.id || res.data?.id || this.orderId;
+      this.router.navigate(['/sales/invoices', id]);
+    }
   }
 
   private handleError(err: any) {

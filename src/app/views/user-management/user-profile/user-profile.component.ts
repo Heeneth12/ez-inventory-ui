@@ -23,6 +23,7 @@ import { SalesOrderFormComponent } from '../../sales/sales-order/sales-order-for
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { SkeletonLoaderComponent } from "../../../layouts/UI/skeleton-loader/skeleton-loader.component";
 import { InvoiceFormComponent } from '../../sales/invoices/invoice-form/invoice-form.component';
+import { SalesReturnformComponent } from '../../sales/sales-returns/sales-returnform/sales-returnform.component';
 
 @Component({
   selector: 'app-user-profile',
@@ -277,19 +278,11 @@ export class UserProfileComponent implements OnInit {
     );
   }
 
-  createSalesOrderForm() {
-    this.modalService.openComponent(
-      SalesOrderFormComponent,
-      { customerId: this.userId },
-      'xl'
-    );
-  }
-
-  openPurchaseOrderForm() {
+  openSalesOrderForm() {
     this.drawerSvc.openComponent(
       SalesOrderFormComponent,
       { customerId: this.userId },
-      'Create Purchase Order',
+      'Create Sales Order',
       '2xl'
     );
   }
@@ -303,11 +296,22 @@ export class UserProfileComponent implements OnInit {
     );
   }
 
+  openSalesReturnForm() {
+    this.drawerSvc.openComponent(
+      SalesReturnformComponent,
+      { customerId: this.userId },
+      'Create Sales Return',
+      '2xl'
+    );
+  }
+
   onCreateClick() {
     if (this.activeTab === 'sales_orders') {
-      this.openPurchaseOrderForm();
+      this.openSalesOrderForm();
     } else if (this.activeTab === 'invoices') {
       this.openInvoiceForm();
+    } else if (this.activeTab === 'sales_return') {
+      this.openSalesReturnForm();
     }
 
   }
