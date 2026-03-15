@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpService } from "../../../layouts/service/http-svc/http.service";
 import { environment } from "../../../../environments/environment.development";
-import { SalesOrderService } from "../sales-order/sales-order.service";
 
 
 
@@ -28,5 +27,9 @@ export class SalesReturnService {
 
     getSalesReturnById(id: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${SalesReturnService.SALES_RETURN_BASE_URL}/${id}`, successfn, errorfn);
+    }
+
+    downloadSalesReturnPdf(id: number, successfn: any, errorfn: any) {
+        return this.httpService.getFile(`${SalesReturnService.SALES_RETURN_BASE_URL}/${id}/pdf`, successfn, errorfn);
     }
 }

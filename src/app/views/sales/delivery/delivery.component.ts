@@ -121,7 +121,7 @@ export class DeliveryComponent implements OnInit {
   }
 
   getAllDeliveries() {
-    this.loaderSvc.show();
+    this.isLoading = true;
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.deliveryService.getAllDeliveries(
       apiPage,
@@ -134,10 +134,10 @@ export class DeliveryComponent implements OnInit {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
       },
       (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastService.show('Failed to load Items', 'error');
         console.error('Error fetching items:', error);
       }

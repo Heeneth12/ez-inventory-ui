@@ -90,13 +90,19 @@ export class SalesReturnformComponent implements OnInit {
       (response: any) => {
         this.loaderSvc.hide();
         this.invoiceData = response.data;
-        // Map items
-        this.uiItems.set(this.invoiceData.items.map((item: any) => ({
-          ...item,
-          isSelected: false,
-          returnQty: 0,
-          maxQty: item.quantity
-        })));
+        // Map items — account for already-returned quantities
+        this.uiItems.set(this.invoiceData.items.map((item: any) => {
+          const alreadyReturned = item.returnedQuantity || 0;
+          const remainingQty = item.quantity - alreadyReturned;
+          return {
+            ...item,
+            isSelected: false,
+            returnQty: 0,
+            returnedQuantity: alreadyReturned,
+            maxQty: remainingQty,
+            fullyReturned: remainingQty <= 0
+          };
+        }));
       },
       (error: any) => {
         this.loaderSvc.hide();
@@ -108,6 +114,7 @@ export class SalesReturnformComponent implements OnInit {
 
   // Toggle Item Selection
   toggleItem(item: any) {
+    if (item.fullyReturned) return; // Can't select fully returned items
     // 1. Mutate the item logic
     item.isSelected = !item.isSelected;
     if (item.isSelected && item.returnQty === 0) {
@@ -122,15 +129,12 @@ export class SalesReturnformComponent implements OnInit {
     this.uiItems.update(v => [...v]);
   }
 
-  // Validate Input
   validateQty(item: any) {
     if (item.returnQty > item.maxQty) {
       item.returnQty = item.maxQty;
       this.toastSvc.show(`Maximum return quantity is ${item.maxQty}`, 'warning');
     }
     if (item.returnQty < 0) item.returnQty = 0;
-
-    // FIX 2: Trigger Signal Update (Required for Total calculation to update on typing)
     this.uiItems.update(v => [...v]);
   }
 

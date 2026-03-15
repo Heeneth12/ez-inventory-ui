@@ -1,6 +1,6 @@
 <div class="bg-slate-50/50 pb-20">
     <div
-        class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+        class="px-6 py-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
         <div class="flex flex-col">
             <h1 class="text-mb font-bold text-gray-900">System Reports</h1>
             <p class="text-xs text-gray-500 font-medium mt-0.5">Analytics and insights across all modules</p>
@@ -16,11 +16,15 @@
                 </button>
                 }
             </div>
-            <button
-                class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
-                <lucide-icon [img]="icons.Filter" class="w-4 h-4 text-gray-500"></lucide-icon>
-                <span>Filter Options</span>
-            </button>
+            <div class="flex items-center gap-2 relative">
+                <div class="w-64 animate-in fade-in slide-in-from-right-2 duration-300">
+                    <app-date-picker [config]="dateConfig" (dateSelect)="onDateSelect($event)"></app-date-picker>
+                </div>
+                <app-custom-dropdown [triggerIcon]="icons.Filter" menuTitle="Filter Options" [items]="filterItems"
+                    buttonClass="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200"
+                    iconClass="w-4 h-4 text-gray-500">
+                </app-custom-dropdown>
+            </div>
         </div>
     </div>
 

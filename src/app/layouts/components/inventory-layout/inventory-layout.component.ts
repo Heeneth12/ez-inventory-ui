@@ -15,8 +15,6 @@ import {
   Warehouse,
   ShoppingCart,
   Truck,
-  Users,
-  CircleUser,
   FileChartColumn,
   Folder,
   Settings,
@@ -38,7 +36,6 @@ import {
   X,
   BookOpen,
   HelpCircle,
-  LifeBuoy,
   Headset,
   Package,
   ClipboardList,
@@ -67,7 +64,7 @@ export class InventoryLayoutComponent implements OnInit {
 
   isMobileMenuOpen = false;
   isSidebarCollapsed = false; // New state for collapse
-  openDropdownIndex: number | null = null;
+  openDropdownLabel: string | null = null;
   @ViewChild('userProfileTemplate') userProfileTemplate!: TemplateRef<any>;
   private readonly STORAGE_KEY = 'catalyst_tour_completed';
 
@@ -89,7 +86,8 @@ export class InventoryLayoutComponent implements OnInit {
   readonly XIcon = X;
   readonly plusIcon = Plus;
   readonly helpIcon = HelpCircle;
-  readonly BadgePlus = BadgePlus
+  readonly BadgePlus = BadgePlus;
+  readonly PlusIcon = Plus;
 
   isQuickCreateOpen = false;
   currentDate = new Date();
@@ -99,40 +97,40 @@ export class InventoryLayoutComponent implements OnInit {
       label: 'New Item',
       subLabel: 'Add a new product or service',
       icon: Package,
-      iconBgClass: 'bg-amber-50',
-      colorClass: 'text-amber-700',
+      iconBgClass: 'bg-gray-50 border border-gray-200',
+      colorClass: 'text-gray-700',
       action: () => this.router.navigate(['items/create'])
     },
     {
       label: 'Purchase Request',
       subLabel: 'Create a new internal PRQ',
       icon: ClipboardList,
-      iconBgClass: 'bg-blue-50',
-      colorClass: 'text-blue-700',
+      iconBgClass: 'bg-gray-50 border border-gray-200',
+      colorClass: 'text-gray-700',
       action: () => this.router.navigate(['purchases/prq/create'])
     },
     {
       label: 'Sales Order',
       subLabel: 'Create a new customer order',
       icon: ShoppingCart,
-      iconBgClass: 'bg-indigo-50',
-      colorClass: 'text-indigo-700',
+      iconBgClass: 'bg-gray-50 border border-gray-200',
+      colorClass: 'text-gray-700',
       action: () => this.router.navigate(['sales/order/create'])
     },
     {
       label: 'New Invoice',
       subLabel: 'Generate customer billing',
       icon: Receipt,
-      iconBgClass: 'bg-slate-100',
-      colorClass: 'text-slate-700',
+      iconBgClass: 'bg-gray-50 border border-gray-200',
+      colorClass: 'text-gray-700',
       action: () => this.router.navigate(['sales/invoice/create'])
     },
     {
       label: 'Add User',
       subLabel: 'Register a new system user',
       icon: UserPlus,
-      iconBgClass: 'bg-violet-50',
-      colorClass: 'text-violet-700',
+      iconBgClass: 'bg-gray-50 border border-gray-200',
+      colorClass: 'text-gray-700',
       action: () => this.router.navigate(['admin/users/form'])
     }
   ];
@@ -237,10 +235,17 @@ export class InventoryLayoutComponent implements OnInit {
       moduleKey: 'EZH_INV_REPORTS'
     },
     {
-      label: 'User Management',
+      label: 'Documents',
+      link: '/documents',
+      icon: Folder,
+      moduleKey: 'EZH_INV_DOCUMENTS'
+    },
+    {
+      label: 'Users',
       link: '/admin/users',
       icon: UsersRound,
-      moduleKey: 'EZH_INV_USER_MGMT'
+      moduleKey: 'EZH_INV_USER_MGMT',
+      section: 'Settings'
     },
     {
       label: 'AI Chat',
@@ -250,12 +255,14 @@ export class InventoryLayoutComponent implements OnInit {
       badge: 'Pro',
       badgeVariant: 'pro',
       isDisabled: true,
+      section: 'Settings'
     },
     {
-      label: 'Documents',
-      link: '/documents',
-      icon: Folder,
-      moduleKey: 'EZH_INV_DOCUMENTS'
+      label: 'Settings',
+      link: '/settings',
+      icon: Settings,
+      moduleKey: 'EZH_INV_SETTINGS',
+      section: 'Settings'
     },
   ];
 
@@ -298,10 +305,10 @@ export class InventoryLayoutComponent implements OnInit {
   checkActiveDropdown() {
     if (this.isSidebarCollapsed) return;
 
-    // Check against all nav items to find which one should be open
-    this.allNavItems.forEach((item, index) => {
+    // Check against visible nav items to find which one should be open
+    this.visibleNavItems.forEach((item) => {
       if (item.subItems && this.isItemActive(item)) {
-        this.openDropdownIndex = index;
+        this.openDropdownLabel = item.label;
       }
     });
   }
@@ -321,7 +328,7 @@ export class InventoryLayoutComponent implements OnInit {
   }
 
   filterNavItems(user: any) {
-    this.visibleNavItems = this.allNavItems.filter(item => {
+    const visible = this.allNavItems.filter(item => {
       // If item has no moduleKey, it's public/always visible
       if (!item.moduleKey) return true;
 
@@ -330,6 +337,21 @@ export class InventoryLayoutComponent implements OnInit {
         app.modulePrivileges && item.moduleKey && app.modulePrivileges[item.moduleKey]
       );
     });
+
+    const businessItems = visible.filter(item => item.section !== 'Settings');
+    const settingsItems = visible.filter(item => item.section === 'Settings');
+
+    this.visibleNavItems = [];
+
+    if (businessItems.length > 0) {
+      this.visibleNavItems.push({ label: 'Business', isHeader: true, icon: null });
+      this.visibleNavItems.push(...businessItems);
+    }
+
+    if (settingsItems.length > 0) {
+      this.visibleNavItems.push({ label: 'Settings', isHeader: true, icon: null });
+      this.visibleNavItems.push(...settingsItems);
+    }
   }
 
   getInitials(name: string): string {
@@ -356,11 +378,11 @@ export class InventoryLayoutComponent implements OnInit {
     this.isMobileMenuOpen = false;
   }
 
-  toggleDropdown(index: number) {
-    if (this.openDropdownIndex === index) {
-      this.openDropdownIndex = null;
+  toggleDropdown(label: string) {
+    if (this.openDropdownLabel === label) {
+      this.openDropdownLabel = null;
     } else {
-      this.openDropdownIndex = index;
+      this.openDropdownLabel = label;
     }
   }
 
@@ -373,8 +395,8 @@ export class InventoryLayoutComponent implements OnInit {
     )
   }
 
-  isDropdownOpen(index: number): boolean {
-    return this.openDropdownIndex === index;
+  isDropdownOpen(label: string): boolean {
+    return this.openDropdownLabel === label;
   }
 
   openSmartSearch() {
@@ -385,7 +407,7 @@ export class InventoryLayoutComponent implements OnInit {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
     // If collapsing, close any open dropdowns to avoid UI bugs
     if (this.isSidebarCollapsed) {
-      this.openDropdownIndex = null;
+      this.openDropdownLabel = null;
     } else {
       this.checkActiveDropdown();
     }
@@ -414,13 +436,15 @@ export interface SubMenuItem {
 
 export interface NavItem {
   label: string;
-  icon: any;
+  icon?: any;
   badge?: string | number;
   badgeVariant?: 'default' | 'pro' | 'warning';
   link?: string;
   moduleKey?: string;
   subItems?: SubMenuItem[];
   isDisabled?: boolean;
+  section?: string;
+  isHeader?: boolean;
 }
 
 export interface UserProfile {

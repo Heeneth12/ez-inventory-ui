@@ -50,6 +50,14 @@ export class UserManagementService {
         return this.httpService.getHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/details`, successfn, errorfn);
     }
 
+    updateTenantAddress(tenantId: number, addressId: number, data: any, successfn: any, errorfn: any) {
+        return this.httpService.putHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/address/${addressId}`, data, successfn, errorfn);
+    }
+
+    createTenantAddress(tenantId: number, data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/address`, data, successfn, errorfn);
+    }
+
     // users
     createUser(requestBody: CreateUserModel, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/create`, requestBody, successfn, errorfn);

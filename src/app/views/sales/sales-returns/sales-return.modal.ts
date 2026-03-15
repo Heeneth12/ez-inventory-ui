@@ -1,3 +1,5 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
+
 export interface SalesReturnModal {
     id: number;
     tenantId: number;
@@ -29,4 +31,10 @@ export interface SalesReturnRequestModal {
 export interface ReturnItemRequestModal {
     itemId: number;
     quantity: number;
+}
+
+export class SalesReturnFilter extends CommonFilterModel {
+    customerId?: number;
+    invoiceId?: number;
+    returnNumber?: string;
 }

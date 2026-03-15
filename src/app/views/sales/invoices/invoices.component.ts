@@ -294,28 +294,28 @@ export class InvoicesComponent {
       label: 'Total Invoice Value',
       value: '$45,780',
       icon: Banknote,
-      color: 'gray',
+      color: 'emerald',
     },
     {
       key: 'collected',
       label: 'Collected Amount',
       value: '$32,420',
       icon: PieChart,
-      color: 'gray',
+      color: 'blue',
     },
     {
       key: 'uncollected',
       label: 'Uncollected Amount',
       value: '$13,360',
       icon: ShoppingCart,
-      color: 'gray',
+      color: 'orange',
     },
     {
       key: 'pendingInvoices',
       label: 'Pending Invoices',
       value: '28',
       icon: Users,
-      color: 'gray',
+      color: 'amber',
     }
   ];
 

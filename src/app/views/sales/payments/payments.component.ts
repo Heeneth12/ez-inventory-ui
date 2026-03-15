@@ -69,7 +69,7 @@ export class PaymentsComponent {
   }
 
   getAllPayments() {
-    this.loaderSvc.show();
+    this.isLoading = true;
     const apiPage = this.pagination.currentPage > 0 ? this.pagination.currentPage - 1 : 0;
     this.paymentService.getAllPayments(
       apiPage,
@@ -82,10 +82,10 @@ export class PaymentsComponent {
           totalItems: response.data.totalElements,
           pageSize: response.data.size
         };
-        this.loaderSvc.hide();
+        this.isLoading = false;
       },
       (error: any) => {
-        this.loaderSvc.hide();
+        this.isLoading = false;
         this.toastService.show('Failed to load Payments', 'error');
         console.error('Error fetching payments:', error);
       }

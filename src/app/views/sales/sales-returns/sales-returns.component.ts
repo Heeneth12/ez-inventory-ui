@@ -7,7 +7,7 @@ import { PaginationConfig, TableColumn, TableAction } from '../../../layouts/com
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from '../sales-order/sales-order.service';
 import { SalesReturnService } from './sales-return.service';
-import { SalesReturnModal } from './sales-return.modal';
+import { SalesReturnFilter, SalesReturnModal } from './sales-return.modal';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { SALES_RETURNS_ACTIONS, SALES_RETURNS_COLUMNS, SALES_RETURNS_DATE_CONFIG, SALES_RETURNS_FILTER_OPTIONS } from '../salesConfig';
 import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
@@ -32,10 +32,10 @@ export class SalesReturnsComponent {
 
   salesReturns: SalesReturnModal[] = [];
   salesReturnDetail: SalesReturnModal | null = null;
+  salesReturnFilter: SalesReturnFilter = new SalesReturnFilter();
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
-  salesReturnsFilter: any = {};
   isLoading: boolean = false;
 
   columns: TableColumn[] = SALES_RETURNS_COLUMNS;
@@ -77,7 +77,7 @@ export class SalesReturnsComponent {
     this.salesReturnService.getAllSalesReturns(
       apiPage,
       this.pagination.pageSize,
-      this.salesReturnsFilter,
+      this.salesReturnFilter,
       (response: any) => {
         this.salesReturns = response.data.content;
         this.pagination = {
@@ -95,6 +95,28 @@ export class SalesReturnsComponent {
     );
   }
 
+
+  downloadSalesReturnPdf(id: any) {
+    this.loaderSvc.show();
+    this.salesReturnService.downloadSalesReturnPdf(id,
+      (response: any) => {
+        this.loaderSvc.hide();
+        const blob = new Blob([response.body], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(
+          url,
+          'salesReturnPopup',
+          'width=900,height=800,top=50,left=100,toolbar=no,menubar=no,scrollbars=yes,resizable=yes'
+        );
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show('Failed to download PDF', 'error');
+        console.error('Error downloading PDF:', error);
+      }
+    );
+  }
+
   onTableAction(event: TableAction) {
     const { type, row, key } = event;
 
@@ -104,7 +126,7 @@ export class SalesReturnsComponent {
         this.drawerService.openTemplate(this.srDetailsTemplate, 'Sales Return Details', '2xl');
       }
       if (key === 'download_receipt') {
-        console.log("Download receipt for:", row.id);
+        this.downloadSalesReturnPdf(row.id);
       }
     }
 
@@ -121,14 +143,14 @@ export class SalesReturnsComponent {
   }
 
   onSearchChange(searchQuery: string) {
-    this.salesReturnsFilter.searchQuery = searchQuery?.trim() || undefined;
+    this.salesReturnFilter.searchQuery = searchQuery?.trim() || undefined;
     this.pagination.currentPage = 1;
     this.tableState$.next();
   }
 
   onFilterDate(range: DateRangeEmit) {
-    this.salesReturnsFilter.fromDate = range.from ? this.formatDate(range.from) : null;
-    this.salesReturnsFilter.toDate = range.to ? this.formatDate(range.to) : null;
+    this.salesReturnFilter.fromDate = range.from ? this.formatDate(range.from) : null;
+    this.salesReturnFilter.toDate = range.to ? this.formatDate(range.to) : null;
     this.pagination.currentPage = 1;
     this.tableState$.next();
   }
@@ -138,7 +160,7 @@ export class SalesReturnsComponent {
   }
 
   onFilterUpdate($event: Record<string, any>) {
-    this.salesReturnsFilter.statuses = $event['status'] || null;
+    this.salesReturnFilter.statuses = $event['status'] || null;
     this.pagination.currentPage = 1;
     this.tableState$.next();
   }

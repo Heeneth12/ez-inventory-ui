@@ -1,11 +1,13 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Download, TrendingUp, Package, AlertTriangle, PieChart, ShoppingCart, ShoppingBag, Users, UserPlus, FileText, Activity, CreditCard, Box, Filter, ArrowUpRight, ArrowDownRight, Clock } from 'lucide-angular';
+import { LucideAngularModule, Download, TrendingUp, Package, AlertTriangle, PieChart, ShoppingCart, ShoppingBag, Users, UserPlus, FileText, Activity, CreditCard, Box, Filter, ArrowUpRight, ArrowDownRight, Clock, Calendar } from 'lucide-angular';
 import * as Highcharts from 'highcharts';
 import { StatCardConfig, StatGroupComponent } from "../../layouts/UI/stat-group/stat-group.component";
 import { SalesOrderService } from '../sales/sales-order/sales-order.service';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { RouterModule } from '@angular/router';
+import { CustomDropdownComponent, DropdownMenuItem } from '../../layouts/UI/custom-dropdown/custom-dropdown.component';
+import { DatePickerComponent, DatePickerConfig, DateRangeEmit } from '../../layouts/UI/date-picker/date-picker.component';
 
 interface Tab {
   label: string;
@@ -16,7 +18,7 @@ interface Tab {
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, StatGroupComponent, RouterModule],
+  imports: [CommonModule, LucideAngularModule, StatGroupComponent, RouterModule, CustomDropdownComponent, DatePickerComponent],
   templateUrl: './reports.component.html',
 })
 export class ReportsComponent implements AfterViewInit {
@@ -24,7 +26,7 @@ export class ReportsComponent implements AfterViewInit {
   // Icons
   icons = {
     Download, TrendingUp, Package, AlertTriangle, PieChart, ShoppingCart, ShoppingBag,
-    Users, UserPlus, FileText, Activity, CreditCard, Box, Filter, ArrowUpRight, ArrowDownRight, Clock
+    Users, UserPlus, FileText, Activity, CreditCard, Box, Filter, ArrowUpRight, ArrowDownRight, Clock, Calendar
   };
 
   tabs: Tab[] = [
@@ -39,11 +41,40 @@ export class ReportsComponent implements AfterViewInit {
   salesOrderConversionData: any[] = [];
 
 
+  dateConfig: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Select range'
+  };
+  filterItems: DropdownMenuItem[] = [];
+
   constructor(
     private salesOrderService: SalesOrderService,
     private toastService: ToastService
   ) {
     this.getSalesOrderConversionReport();
+    this.setupDropdownItems();
+  }
+
+  setupDropdownItems() {
+    this.filterItems = [
+      { label: '7 Days', icon: this.icons.Clock, action: () => this.applyFilter('7D') },
+      { label: '30 Days', icon: this.icons.Clock, action: () => this.applyFilter('30D') },
+      { label: '3 Months', icon: this.icons.Clock, action: () => this.applyFilter('3M') },
+      { label: '1 Year', icon: this.icons.Clock, action: () => this.applyFilter('1Y') },
+      { label: 'Custom Date', icon: this.icons.Calendar, action: () => this.applyFilter('CUSTOM') }
+    ];
+  }
+
+  applyFilter(range: string) {
+    console.log('Applied filter:', range);
+    // TODO: reload report data based on selected filter
+  }
+
+  onDateSelect(event: DateRangeEmit) {
+    console.log('Selected date range:', event);
+    if (event.from && event.to) {
+      this.applyFilter('CUSTOM');
+    }
   }
 
   getSalesOrderConversionReport() {

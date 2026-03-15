@@ -2,12 +2,12 @@
 <app-stat-group [stats]="dashboardStats"></app-stat-group>
 }
 <div class="space-y-6">
-    <div class="flex-1 h-[calc(100vh-225px)] overflow-y-auto">
+    <div class="flex-1 h-[calc(100vh-198px)] overflow-y-auto">
         <app-standard-table [title]="'Data Table'" [columns]="columns" [data]="paymentList" [pagination]="pagination"
             [isServerSide]="true" [customActions]="payActions" (action)="handleTableAction($event)"
             (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (action)="onTableAction($event)"
             [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)" [filterConfig]="filterOptions"
-            (filterChanged)="onFilterUpdate($event)">
+            (filterChanged)="onFilterUpdate($event)" [isLoading]="isLoading">
         </app-standard-table>
     </div>
 </div>

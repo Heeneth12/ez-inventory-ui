@@ -22,8 +22,9 @@ export interface DropdownMenuItem {
   template: `
     <el-dropdown class="inline-block">
       <button
-        class="group inline-flex items-center justify-center rounded-full bg-white px-2 py-2 text-sm font-semibold text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 transition-all duration-200">
-        <lucide-icon [img]="triggerIcon" class="h-4 w-4 shrink-0 text-slate-400 group-hover:text-indigo-500 transition-colors">
+        [class]="buttonClass">
+        {{ menuTitle }}
+        <lucide-icon [img]="triggerIcon" [class]="iconClass">
         </lucide-icon>
       </button>
 
@@ -47,7 +48,7 @@ export interface DropdownMenuItem {
               <div class="flex flex-col">
                   <span [class]="'text-xs font-medium ' + (item.colorClass || 'text-slate-700')">{{ item.label }}</span>
                   @if (item.subLabel) {
-                    <span class="text-[10px] text-slate-400">{{ item.subLabel }}</span>
+                    <span class="text-[9px] text-slate-400">{{ item.subLabel }}</span>
                   }
               </div>
             </a>
@@ -59,9 +60,11 @@ export interface DropdownMenuItem {
 })
 export class CustomDropdownComponent {
   @Input() triggerIcon!: any;
-  @Input() menuTitle: string = 'Options';
+  @Input() menuTitle?: string;
   @Input() items: DropdownMenuItem[] = [];
   @Input() anchor: string = 'bottom end';
+  @Input() buttonClass: string = 'group inline-flex items-center justify-center rounded-full bg-white p-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 transition-all duration-200 ';
+  @Input() iconClass: string = 'h-4 w-4 shrink-0 text-slate-400 group-hover:text-indigo-500 transition-colors';
 }
 
 
@@ -96,9 +99,19 @@ supportMenuItems: DropdownMenuItem[] = [
 openTicketForm() { console.log("Form Opened!"); }
 logout() { console.log("User Logged Out!"); }
 
+<!-- Default style (no buttonClass needed) -->
 <app-custom-dropdown 
   [triggerIcon]="helpIcon" 
   menuTitle="Help & Support" 
   [items]="supportMenuItems">
+</app-custom-dropdown>
+
+<!-- Custom button style example -->
+<app-custom-dropdown 
+  [triggerIcon]="helpIcon" 
+  menuTitle="Actions" 
+  [items]="supportMenuItems"
+  buttonClass="group inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition-all duration-200"
+  iconClass="h-4 w-4 shrink-0 text-indigo-200 group-hover:text-white transition-colors">
 </app-custom-dropdown>
 */

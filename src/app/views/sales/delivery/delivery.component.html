@@ -8,7 +8,8 @@
       [isServerSide]="true" [customActions]="deliveryActions" (action)="handleTableAction($event)"
       [headerActions]="headerActions" (headerAction)="handleHeaderAction($event)" (pageChange)="onPageChange($event)"
       (selectionChange)="onSelectionChange($event)" [datePickerConfig]="dateConfig" (dateChange)="onFilterDate($event)"
-      [filterConfig]="FilterOptions" (filterChanged)="onFilterUpdate($event)" [enableSelection]="true">
+      [filterConfig]="FilterOptions" (filterChanged)="onFilterUpdate($event)" [enableSelection]="true"
+      [isLoading]="isLoading">
     </app-standard-table>
   </div>
 </div>
