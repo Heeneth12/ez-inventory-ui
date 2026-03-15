@@ -262,6 +262,18 @@ export class SalesOrderComponent implements OnInit {
     if (event.type === 'custom' && event.key === 'move_to_cancle') {
       this.confirmAndUpdateStatus(event.row.id, 'REJECTED');
     }
+    if (event.type === 'custom' && event.key === 'view_details') {
+      this.openOrderTracker(event.row.id);
+    }
+  }
+
+  openOrderTracker(soId: any) {
+    this.drawerSvc.openComponent(
+      OrderTrackerComponent,
+      { salesOrderId: soId },
+      'Order Details',
+      'xl',
+    );
   }
 
 
@@ -280,7 +292,7 @@ export class SalesOrderComponent implements OnInit {
     switch (type) {
       case 'view':
         console.log("View:", row.id);
-        this.viewSalesOrderDetail(row.id);
+        this.openOrderTracker(row.id);
         break;
       case 'edit':
         if (this.customerId) {
