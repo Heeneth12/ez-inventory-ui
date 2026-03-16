@@ -28,7 +28,7 @@ export class UserManagementAdapterComponent implements OnInit {
     navigationTabs: TabItem[] = [
         //{ id: 'tenants', label: 'Tenants', icon: UsersRound },
         { id: 'users', label: 'Users', icon: UsersRound },
-        { id: 'userForm', label: 'User Form', icon: UserPenIcon },
+        { id: 'users/form', label: 'User Form', icon: UserPenIcon },
         //{ id: 'apps', label: 'Apps', icon: AppWindow },
     ];
 

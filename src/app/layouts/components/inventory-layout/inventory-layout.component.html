@@ -39,7 +39,7 @@
 
         <nav class="flex-1 mt-4 px-3 space-y-1 custom-scrollbar transition-all duration-300"
             [ngClass]="isSidebarCollapsed ? 'overflow-visible' : 'overflow-y-auto overflow-x-hidden'">
-            @for (item of visibleNavItems; track item.label; let i = $index) {
+            @for (item of visibleNavItems; track item.label + i; let i = $index) {
             @if (item.isHeader) {
             @if (!isSidebarCollapsed) {
             <div class="px-3 py-2 text-[10px] font-bold text-slate-200 uppercase tracking-wider">
@@ -101,7 +101,7 @@
                             'justify-center': isSidebarCollapsed
                         }">
 
-                    <div class="flex items-center" [ngClass]="{'w-full justify-center': isSidebarCollapsed}">
+                    <div class="flex items-center" [ngClass]="{'w-full justify-center text-white': isSidebarCollapsed}">
                         <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-colors"
                             [ngClass]="(isDropdownOpen(item.label) || isItemActive(item)) ? 'text-indigo-400' : 'group-hover:text-slate-200'">
                         </lucide-icon>

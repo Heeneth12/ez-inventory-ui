@@ -94,7 +94,8 @@ export class SalesOrderFormComponent implements OnInit {
 
       // Header Level Adjustments (Inputs are RATES %)
       flatDiscountRate: [0, [Validators.min(0), Validators.max(100)]],
-      flatTaxRate: [0, [Validators.min(0), Validators.max(100)]]
+      flatTaxRate: [0, [Validators.min(0), Validators.max(100)]],
+      referenceNumber: ['']
     });
   }
 

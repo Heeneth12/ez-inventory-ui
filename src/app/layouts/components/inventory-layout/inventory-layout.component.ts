@@ -151,7 +151,7 @@ export class InventoryLayoutComponent implements OnInit {
       icon: MessageSquare,
       iconBgClass: 'bg-slate-50',
       colorClass: 'text-slate-600',
-      action: () => console.log("h")
+      action: () => {}
     },
     {
       label: 'Page Tours',
@@ -419,7 +419,6 @@ export class InventoryLayoutComponent implements OnInit {
 
   openCatalystWelcomeModal(hasSeenTour: string | null) {
     if (hasSeenTour !== 'true') {
-      console.log("open")
       this.modalService.openComponent(
         PromoModalComponent,
         {},
