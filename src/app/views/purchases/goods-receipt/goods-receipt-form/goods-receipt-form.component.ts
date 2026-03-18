@@ -31,7 +31,7 @@ export class GoodsReceiptFormComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.modalService.context$.subscribe(ctx => {
+    this.modalService.context$.subscribe((ctx: any) => {
       if (ctx?.data?.poId) {
         const poId = ctx.data.poId;
         this.initForm();
@@ -41,7 +41,6 @@ export class GoodsReceiptFormComponent implements OnInit {
   }
 
   private initForm() {
-    // Only initialize the fields required for the GRN payload
     this.grnForm = this.fb.group({
       purchaseOrderId: [null, Validators.required],
       supplierInvoiceNo: ['', [Validators.required, Validators.minLength(3)]],
@@ -93,7 +92,6 @@ export class GoodsReceiptFormComponent implements OnInit {
     return this.grnForm.get('items') as FormArray;
   }
 
-  // Helper: Calculate Total Received Value for display
   get totalReceivedValue(): number {
     return this.itemsFormArray.controls.reduce((acc, control) => {
       const qty = control.get('receivedQty')?.value || 0;
@@ -119,7 +117,6 @@ export class GoodsReceiptFormComponent implements OnInit {
   onSubmit() {
     if (this.grnForm.invalid) {
       this.grnForm.markAllAsTouched();
-      console.log(this.grnForm.value);
       this.toastService.show('Please fill in Invoice No, Batch No, and Expiry for all items.', 'warning');
       return;
     }
@@ -139,7 +136,7 @@ export class GoodsReceiptFormComponent implements OnInit {
         expiryDate: new Date(item.expiryDate).getTime()
       }))
     };
-    console.log(payload);
+    
     this.loaderSvc.show();
     this.purchaseService.createGrn(payload,
       (res: any) => {

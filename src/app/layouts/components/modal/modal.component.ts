@@ -3,18 +3,18 @@ import {
   Component,
   OnInit,
   OnDestroy,
-  TemplateRef,
   Type,
   ComponentRef,
   ViewContainerRef,
   ViewChild,
   ChangeDetectorRef,
   ElementRef,
-  CUSTOM_ELEMENTS_SCHEMA
+  CUSTOM_ELEMENTS_SCHEMA,
+  ChangeDetectionStrategy,
+  AfterViewInit
 } from '@angular/core';
-import { ModalService, ModalSize } from './modalService';
+import { ModalService, ModalSize, ModalState } from './modalService';
 import { Subscription } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
 import '@tailwindplus/elements';
 
 @Component({
@@ -23,22 +23,19 @@ import '@tailwindplus/elements';
   imports: [CommonModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './modal.component.html',
-  styleUrl: './modal.component.css'
+  styleUrl: './modal.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ModalComponent implements OnInit, OnDestroy {
+export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('modalDialog') dialogRef!: ElementRef<HTMLDialogElement>;
-  @ViewChild('dynamicContainer', { read: ViewContainerRef })
-  dynamicContainer!: ViewContainerRef;
+  @ViewChild('dynamicContainer', { read: ViewContainerRef }) dynamicContainer!: ViewContainerRef;
 
-  isOpen = false;
-  template: TemplateRef<any> | null = null;
-  context: any = null;
-  size: ModalSize = 'md';
+  state: ModalState | null = null;
   widthClass = 'sm:max-w-lg';
 
   private componentRef: ComponentRef<any> | null = null;
-  private subscription = new Subscription();
+  private sub = new Subscription();
 
   constructor(
     public modalService: ModalService,
@@ -46,91 +43,133 @@ export class ModalComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    // 1. Subscribe to OPEN/CLOSE
-    this.subscription.add(
-      this.modalService.isOpen$.pipe(distinctUntilChanged()).subscribe(isOpen => {
-        this.isOpen = isOpen;
-        // Add a small delay or check to ensure DOM is ready
-        setTimeout(() => {
-          if (this.dialogRef?.nativeElement) {
-            if (isOpen) {
-              this.dialogRef.nativeElement.showModal();
-            } else {
-              this.dialogRef.nativeElement.close();
-            }
-          }
-        }, 0);
+    this.sub.add(
+      this.modalService.isOpen$.subscribe(isOpen => {
+        this.handleNativeDialog(isOpen);
       })
     );
 
-    // 2. Subscribe to COMPONENT
-    this.subscription.add(
+    // 2. Handle Dynamic Component Loading separately
+    this.sub.add(
       this.modalService.component$.subscribe(component => {
         if (component) {
-          setTimeout(() => this.loadComponent(component), 0);
+          this.loadComponent(component, this.modalService.context);
+        } else {
+          this.destroyComponent();
         }
-      })
-    );
-
-    // 3. Subscribe to TEMPLATE
-    this.subscription.add(
-      this.modalService.template$.subscribe(t => this.template = t)
-    );
-
-    // 4. Subscribe to CONTEXT
-    this.subscription.add(
-      this.modalService.context$.subscribe(ctx => {
-        this.context = ctx;
-        if (this.componentRef) {
-          Object.assign(this.componentRef.instance, this.context);
-          this.componentRef.changeDetectorRef.detectChanges();
-        }
-      })
-    );
-
-    // 5. Subscribe to SIZE
-    this.subscription.add(
-      this.modalService.size$.subscribe(size => {
-        this.size = size;
-        this.widthClass = this.getWidthClass(size);
       })
     );
   }
 
-  private loadComponent(component: Type<any>) {
+  private handleNativeDialog(open: boolean) {
+    if (!this.dialogRef?.nativeElement) return;
+
+    const dialog = this.dialogRef.nativeElement;
+    if (open && !dialog.open) {
+      dialog.showModal();
+      document.body.style.overflow = 'hidden';
+    } else if (!open && dialog.open) {
+      dialog.close();
+      document.body.style.overflow = '';
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.state?.isOpen) {
+      setTimeout(() => this.toggleDialog(true), 100);
+    }
+  }
+
+  private toggleDialog(open: boolean) {
+    if (!this.dialogRef?.nativeElement) {
+      return;
+    }
+
+    try {
+      if (open) {
+        if (!this.dialogRef.nativeElement.open) {
+          this.dialogRef.nativeElement.showModal();
+          document.body.style.overflow = 'hidden';
+        }
+      } else {
+        if (this.dialogRef.nativeElement.open) {
+          this.dialogRef.nativeElement.close();
+          document.body.style.overflow = '';
+        }
+      }
+    } catch (e) {
+      console.error('Error toggling dialog state:', e);
+    }
+  }
+
+  private loadComponent(component: Type<any>, context: any) {
     if (!this.dynamicContainer) return;
 
-    this.dynamicContainer.clear();
+    try {
+      // 1. Clear previous content and destroy old component reference
+      this.dynamicContainer.clear();
+      this.destroyComponent();
 
+      // 2. Instantiate the new component
+      this.componentRef = this.dynamicContainer.createComponent(component);
+      const instance = this.componentRef.instance;
+
+      // 3. Map Context to Component Inputs
+      if (context) {
+        // Direct assignment for simple properties
+        Object.assign(instance, context);
+
+        // If using Angular Signals or newer Input transforms, 
+        // check if you need to call setInput() instead:
+        // Object.entries(context).forEach(([key, value]) => {
+        //   this.componentRef?.setInput(key, value);
+        // });
+      }
+
+      // 4. Handle Common Output Patterns (@Output / EventEmitter)
+      // We check for 'close' and 'selected' event streams
+
+      // Close Event
+      if (instance.close?.subscribe) {
+        this.sub.add(
+          instance.close.subscribe(() => this.close())
+        );
+      }
+
+      // Selected Event
+      if (instance.selected?.subscribe) {
+        this.sub.add(
+          instance.selected.subscribe((data: any) => {
+            if (context?.onSelected) {
+              context.onSelected(data);
+            }
+          })
+        );
+      }
+
+      // 5. Finalize Change Detection
+      // detectChanges() ensures the view is rendered immediately
+      // markForCheck() ensures the OnPush parent knows something changed
+      this.componentRef.changeDetectorRef.detectChanges();
+      this.cdr.markForCheck();
+
+    } catch (e) {
+      console.error('Error creating dynamic component in modal:', e);
+    }
+  }
+
+  private destroyComponent() {
     if (this.componentRef) {
       this.componentRef.destroy();
+      this.componentRef = null;
     }
-
-    // Create Component
-    this.componentRef = this.dynamicContainer.createComponent(component);
-
-    // Pass Data (Inputs)
-    if (this.context) {
-      Object.assign(this.componentRef.instance, this.context);
-    }
-
-    // Listen to Close (SAFE CHECK ADDED HERE)
-    const instance = this.componentRef.instance;
-    if (instance.close && typeof instance.close.subscribe === 'function') {
-      this.subscription.add(
-        instance.close.subscribe(() => this.close())
-      );
-    }
-
-    // Force Update
-    this.componentRef.changeDetectorRef.detectChanges();
   }
 
   close() {
     this.modalService.close();
   }
 
-  private getWidthClass(size: ModalSize): string {
+  public getWidthClass(size: ModalSize | any): string {
     switch (size) {
       case 'sm': return 'sm:max-w-sm';
       case 'md': return 'sm:max-w-lg';
@@ -142,7 +181,8 @@ export class ModalComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-    if (this.componentRef) this.componentRef.destroy();
+    this.sub.unsubscribe();
+    this.destroyComponent();
+    document.body.style.overflow = '';
   }
 }

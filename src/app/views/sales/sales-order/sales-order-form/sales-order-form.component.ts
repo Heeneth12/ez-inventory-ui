@@ -15,6 +15,8 @@ import { UserModel, AddressType, UserType, UserFilterModel } from '../../../user
 import { UserManagementService } from '../../../user-management/userManagement.service';
 import { DrawerService } from '../../../../layouts/components/drawer/drawerService';
 import { SalesOrderFilterModal } from '../sales-order.modal';
+import { ModalService } from '../../../../layouts/components/modal/modalService';
+import { ItemSearchComponent } from '../../../../layouts/components/item-search/item-search.component';
 
 @Component({
   selector: 'app-sales-order-form',
@@ -79,6 +81,7 @@ export class SalesOrderFormComponent implements OnInit {
     private itemService: ItemService,
     private toast: ToastService,
     private drawerService: DrawerService,
+    private modalService: ModalService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -161,6 +164,17 @@ export class SalesOrderFormComponent implements OnInit {
       this.isReadonly = false;
       this.orderForm.enable();
     }
+  }
+
+  openItemSearch() {
+    this.modalService.openComponent(ItemSearchComponent, {
+      searchType: 'ITEM',
+      placeholder: 'Search for products to add to order...',
+      onSelected: (item: any) => {
+        this.selectItemFromSearch(item);
+        this.modalService.close();
+      }
+    }, 'lg');
   }
 
   private patchOrderDetailsToForm(order: any) {
