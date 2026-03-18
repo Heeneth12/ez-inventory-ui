@@ -1,0 +1,138 @@
+<div class="flex flex-col h-full bg-white overflow-hidden rounded-lg">
+
+  <!-- Search Header -->
+  <div class="p-4 border-b border-gray-100 bg-gray-50/50">
+    <div class="relative">
+      <lucide-icon [img]="Search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"></lucide-icon>
+      <input #searchInput type="text" [(ngModel)]="searchQuery" (input)="onSearchInput($event)"
+        [placeholder]="placeholder"
+        class="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200 text-gray-900 placeholder-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm">
+
+      <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+        @if(isLoading){
+        <div class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-indigo-500 border-t-transparent"></div>
+        }
+        @if(searchQuery && !isLoading){
+        <button (click)="clearSearch()" class="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600">
+          <lucide-icon [img]="X" class="h-3.5 w-3.5"></lucide-icon>
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Type Indicators -->
+    <div class="mt-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
+          [ngClass]="searchType === 'ITEM' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'">
+          {{ searchType === 'ITEM' ? 'Catalog' : 'In Stock' }}
+        </span>
+        <span class="text-[11px] text-gray-500 font-medium">Searching {{ searchQuery ? 'results for "' + searchQuery +
+          '"' : 'all products' }}</span>
+      </div>
+      @if(results.length > 0){
+      <div class="text-[10px] text-gray-400 font-medium">
+        {{ results.length }} items found
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Results Area -->
+  <div class="flex-1 overflow-y-auto custom-scrollbar bg-white">
+
+    <!-- Empty State -->
+    @if(!hasSearched && !isLoading){
+    <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+      <lucide-icon [img]="Search" class="h-10 w-10 opacity-20 mb-3"></lucide-icon>
+      <p class="text-xs font-medium">Search for items by name, SKU or code</p>
+    </div>
+    }
+
+    <!-- No Results -->
+    @if(hasSearched && results.length === 0 && !isLoading){
+    <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+      <div class="p-4 bg-gray-50 rounded-full mb-3 border border-gray-100">
+        <lucide-icon [img]="Info" class="h-8 w-8 opacity-40 text-amber-500"></lucide-icon>
+      </div>
+      <p class="text-xs font-semibold text-gray-600">No matching items found</p>
+      <p class="text-[10px] text-gray-400 mt-1">Try adjusting your search query</p>
+    </div>
+    }
+
+    <!-- Results List -->
+    @if(results.length > 0){
+    <div class="divide-y divide-gray-50">
+      @for(item of results; track trackByItemId($index, item); let i = $index){
+      <div [id]="'result-item-' + i" (click)="selectItem(item)" (mouseenter)="selectedIndex = i"
+        class="relative flex items-center px-4 py-3 cursor-pointer transition-colors"
+        [ngClass]="i === selectedIndex ? 'bg-indigo-50/80 shadow-inner' : 'hover:bg-gray-50/50'">
+        <!-- Selection Highlight Bar -->
+        @if(i === selectedIndex){
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+        }
+
+        <!-- Item Thumbnail -->
+        <div
+          class="h-10 w-10 shrink-0 rounded border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden">
+          <img *ngIf="item.imageUrl" [src]="item.imageUrl" class="h-full w-full object-cover">
+          <lucide-icon *ngIf="!item.imageUrl" [img]="Package" class="h-4 w-4 text-gray-300"></lucide-icon>
+        </div>
+
+        <!-- Meta -->
+        <div class="ml-4 flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="text-sm font-semibold text-gray-900 truncate"
+              [ngClass]="{'text-indigo-700': i === selectedIndex}">
+              {{ item.name }}
+            </h4>
+            <span class="text-xs font-bold whitespace-nowrap"
+              [ngClass]="i === selectedIndex ? 'text-indigo-600' : 'text-gray-700'">
+              {{ (searchType === 'ITEM' ? item.sellingPrice : item.sellingPrice || 0) | currency:'INR' }}
+            </span>
+          </div>
+
+          <div class="flex items-center mt-0.5 space-x-3 text-[11px]">
+            <span class="text-gray-400 font-mono">{{ searchType === 'ITEM' ? item.itemCode : item.code }}</span>
+            <span *ngIf="item.sku" class="text-gray-300">•</span>
+            <span *ngIf="item.sku" class="text-gray-400">SKU: {{ item.sku }}</span>
+
+            <div *ngIf="searchType === 'STOCK'" class="ml-auto flex items-center gap-1.5 font-bold">
+              <span class="w-1.5 h-1.5 rounded-full"
+                [ngClass]="(item.batches?.[0]?.remainingQty || 0) > 0 ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+              <span class="text-gray-600">Qty: {{ item.batches?.[0]?.remainingQty || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Keyboard Hint -->
+        @if(i === selectedIndex){
+        <div
+          class="ml-4 flex items-center gap-1 text-[10px] font-bold text-indigo-400 uppercase tracking-tighter animate-pulse">
+          Press Enter
+          <lucide-icon [img]="CheckCircle2" class="h-3 w-3"></lucide-icon>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    }
+  </div>
+
+  <!-- Footer Help -->
+  <div
+    class="px-4 py-2 border-t border-gray-100 bg-gray-50/50 flex items-center gap-4 text-[10px] text-gray-400 font-medium">
+    <div class="flex items-center gap-1.5">
+      <kbd class="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-500 text-[10px]">↑↓</kbd>
+      <span>to navigate</span>
+    </div>
+    <div class="flex items-center gap-1.5 border-l border-gray-200 pl-4">
+      <kbd class="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-500 text-[10px]">Enter</kbd>
+      <span>to select</span>
+    </div>
+    <div class="flex items-center gap-1.5 border-l border-gray-200 pl-4">
+      <kbd class="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-500 text-[10px]">Esc</kbd>
+      <span>to close</span>
+    </div>
+  </div>
+</div>
