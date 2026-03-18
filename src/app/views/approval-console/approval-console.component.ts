@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms'; // Import FormsModule for the draw
 import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { ToastService } from '../../layouts/components/toast/toastService';
-import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight, ClipboardListIcon, Clock, FileText } from 'lucide-angular';
+import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight, ClipboardListIcon, Clock, FileText, ShieldCheck, Search, RotateCcw, CheckCircle, FileSignature, Check } from 'lucide-angular';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
@@ -47,6 +47,8 @@ export class ApprovalConsoleComponent implements OnInit {
   approvalFilter: ApprovalFilterModel = new ApprovalFilterModel();
   approvalStats: ApprovalStatsModel = new ApprovalStatsModel();
   private tableState$ = new Subject<void>();
+
+  @ViewChild('approvalEmptyTemplate') approvalEmptyTemplate!: TemplateRef<any>;
 
   approvalDashboardStats: StatCardConfig[] = [
     {
@@ -106,6 +108,13 @@ export class ApprovalConsoleComponent implements OnInit {
   readonly XCircleIcon = XCircle;
   readonly ArrowRightIcon = ArrowRight;
   readonly ClipboardListIcon = ClipboardListIcon;
+  readonly ShieldCheck = ShieldCheck;
+  readonly Search = Search;
+  readonly FileText = FileText;
+  readonly RotateCcw = RotateCcw;
+  readonly CheckCircle = CheckCircle;
+  readonly FileSignature = FileSignature;
+  readonly Check = Check;
 
   //table config
   columns: TableColumn[] = APPROVAL_COLUMN;

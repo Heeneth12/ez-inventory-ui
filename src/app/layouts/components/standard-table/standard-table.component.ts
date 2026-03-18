@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, ElementRef, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges, ElementRef, HostListener, TemplateRef } from '@angular/core';
 import { CommonModule, DecimalPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableColumn, TableRow, LoadMode, PaginationConfig, TableAction, Density, TableActionConfig, HeaderAction } from './standard-table.model';
-import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight, RotateCcw, Settings } from 'lucide-angular';
+import { LucideAngularModule, Filter, Calendar, Download, Edit, Trash2, EyeIcon, MoreVertical, ArrowRight, RotateCcw, Settings, Package, Plus, FileText } from 'lucide-angular';
 import { StatusStepperComponent } from '../../UI/status-stepper/status-stepper.component';
 import { UserCardComponent } from "../../UI/user-card/user-card.component";
 import { DatePickerConfig, DateRangeEmit, DatePickerComponent } from '../../UI/date-picker/date-picker.component';
@@ -13,7 +13,7 @@ import { SkeletonLoaderComponent } from "../../UI/skeleton-loader/skeleton-loade
 @Component({
   selector: 'app-standard-table',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, StatusStepperComponent, UserCardComponent, DatePickerComponent, FilterDropdownComponent, SkeletonLoaderComponent],
+  imports: [CommonModule, DecimalPipe, CurrencyPipe, FormsModule, LucideAngularModule, DatePipe, UserCardComponent, DatePickerComponent, FilterDropdownComponent, SkeletonLoaderComponent],
   templateUrl: './standard-table.component.html',
   styleUrls: ['./standard-table.component.css'],
 })
@@ -57,6 +57,11 @@ export class StandardTableComponent implements OnChanges {
   readonly ArrowRight = ArrowRight;
   readonly RotateCcw = RotateCcw;
   readonly Settings = Settings;
+  readonly Package = Package;
+  readonly Plus = Plus;
+  readonly FileText = FileText;
+
+  @Input() emptyStateTemplate?: TemplateRef<any>;
 
   // State Signals
   @Input() searchMode: 'client' | 'server' = 'client';
