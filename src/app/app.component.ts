@@ -7,11 +7,14 @@ import { ToastComponent } from "./layouts/components/toast/toast.component";
 import { BannerLoaderComponent } from "./layouts/components/banner-loader/banner-loader.component";
 import { VendorLayoutComponent } from "./layouts/components/vendor-layout/vendor-layout.component";
 import { ConfirmationModalComponent } from "./layouts/UI/confirmation-modal/confirmation-modal.component";
+import { ModalComponent } from "./layouts/components/modal/modal.component";
+import { DrawerComponent } from "./layouts/components/drawer/drawer.component";
+import { LoaderComponent } from "./layouts/components/loader/loader.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, InventoryLayoutComponent, ToastComponent, BannerLoaderComponent, VendorLayoutComponent, ConfirmationModalComponent],
+  imports: [CommonModule, RouterOutlet, InventoryLayoutComponent, ToastComponent, BannerLoaderComponent, VendorLayoutComponent, ConfirmationModalComponent, ModalComponent, DrawerComponent, LoaderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

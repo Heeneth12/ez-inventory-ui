@@ -1,13 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from "@angular/router";
 import { filter } from 'rxjs/operators';
-import { DrawerComponent } from "../drawer/drawer.component";
-import { ModalComponent } from "../modal/modal.component";
-import { DrawerService } from '../drawer/drawerService';
-import { UserComponent } from '../user/user.component';
-import { SearchService } from '../search-modal/search-modal.service';
-import { SearchModalComponent } from "../search-modal/search-modal.component";
 import {
   LucideAngularModule,
   LayoutDashboard,
@@ -43,29 +37,38 @@ import {
   UserPlus,
   BadgePlus,
   UsersRound,
+  ShieldCheck,
+  LogOut,
+  FolderOpen,
+  ChevronsLeft,
+  Sun,
+  Moon,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
-import { LoaderComponent } from "../loader/loader.component";
 import { TutorialService } from '../../service/common/tutorial.service';
 import { PromoModalComponent } from "../promo-modal/promo-modal.component";
 import { ModalService } from '../modal/modalService';
 import { NotificationsComponent } from '../notifications/notifications.component';
-import { NotificationService } from '../notifications/notification.service';
 import { DropdownMenuItem, CustomDropdownComponent } from '../../UI/custom-dropdown/custom-dropdown.component';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { DrawerService } from '../drawer/drawerService';
+import { SearchModalComponent } from '../search-modal/search-modal.component';
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, DrawerComponent, ModalComponent, UserComponent, LucideAngularModule, SearchModalComponent, LoaderComponent, NotificationsComponent, CustomDropdownComponent],
+  imports: [CommonModule, RouterModule, LucideAngularModule, NotificationsComponent, CustomDropdownComponent],
   templateUrl: './inventory-layout.component.html',
-  styleUrl: './inventory-layout.component.css'
+  styleUrl: './inventory-layout.component.css',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class InventoryLayoutComponent implements OnInit {
 
   isMobileMenuOpen = false;
-  isSidebarCollapsed = false; // New state for collapse
+  isSidebarCollapsed = false;
   openDropdownLabel: string | null = null;
-  @ViewChild('userProfileTemplate') userProfileTemplate!: TemplateRef<any>;
+  @ViewChild('app-sidebar') sidebar!: any;
+  currentDate = new Date();
   private readonly STORAGE_KEY = 'catalyst_tour_completed';
 
   //icons
@@ -88,9 +91,9 @@ export class InventoryLayoutComponent implements OnInit {
   readonly helpIcon = HelpCircle;
   readonly BadgePlus = BadgePlus;
   readonly PlusIcon = Plus;
-
-  isQuickCreateOpen = false;
-  currentDate = new Date();
+  readonly ChevronsLeft = ChevronsLeft;
+  readonly Sun = Sun;
+  readonly Moon = Moon;
 
   quickCreateItems: DropdownMenuItem[] = [
     {
@@ -135,6 +138,39 @@ export class InventoryLayoutComponent implements OnInit {
     }
   ];
 
+  userMenuItems: DropdownMenuItem[] = [
+    {
+      label: 'Admin Portal',
+      subLabel: 'Manage users & permissions',
+      icon: ShieldCheck,
+      iconBgClass: 'bg-slate-50',
+      colorClass: 'text-slate-600',
+      action: () => this.router.navigate(['/admin'])
+    },
+    {
+      label: 'Settings',
+      subLabel: 'System preferences',
+      icon: SettingsIcon,
+      iconBgClass: 'bg-slate-50',
+      colorClass: 'text-slate-600',
+      action: () => this.router.navigate(['/settings'])
+    },
+    {
+      label: 'Documents',
+      subLabel: 'Manage your documents',
+      icon: FolderOpen,
+      iconBgClass: 'bg-slate-50',
+      colorClass: 'text-slate-600',
+      action: () => this.router.navigate(['/documents'])
+    },
+    {
+      label: 'Sign Out',
+      icon: LogOut,
+      iconBgClass: 'bg-rose-50',
+      colorClass: 'text-rose-600',
+      action: () => this.authService.logout()
+    }
+  ];
 
   helpCenterItems: DropdownMenuItem[] = [
     {
@@ -151,7 +187,7 @@ export class InventoryLayoutComponent implements OnInit {
       icon: MessageSquare,
       iconBgClass: 'bg-slate-50',
       colorClass: 'text-slate-600',
-      action: () => {}
+      action: () => { }
     },
     {
       label: 'Page Tours',
@@ -168,12 +204,6 @@ export class InventoryLayoutComponent implements OnInit {
       }
     }
   ];
-
-  user: UserProfile = {
-    name: 'Adam Driver',
-    role: 'Fleet Manager',
-    initials: 'AD'
-  };
 
   visibleNavItems: NavItem[] = [];
 
@@ -266,14 +296,19 @@ export class InventoryLayoutComponent implements OnInit {
     },
   ];
 
+  user: UserProfile = {
+    name: 'Adam Driver',
+    role: 'Fleet Manager',
+    initials: 'AD',
+    email: ''
+  };
+
   constructor(
     private drawerService: DrawerService,
-    private searchService: SearchService,
     private modalService: ModalService,
     private authService: AuthService,
     public router: Router,
     private tutorialService: TutorialService,
-    private notificationSvc: NotificationService
   ) { }
 
   ngOnInit() {
@@ -283,16 +318,15 @@ export class InventoryLayoutComponent implements OnInit {
       this.checkActiveDropdown();
     });
 
-    // Subscribe to user changes to update menu dynamically
     this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.filterNavItems(user);
 
-        // Update local user profile data for display
         this.user = {
           name: user.fullName,
-          role: user.userRoles[0] || 'User', // Taking first role as display
-          initials: this.getInitials(user.fullName)
+          role: user.userRoles[0] || 'User',
+          initials: this.getInitials(user.fullName),
+          email: user.email
         };
 
         this.checkActiveDropdown();
@@ -358,13 +392,6 @@ export class InventoryLayoutComponent implements OnInit {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   }
 
-  toggleUserMenu() {
-    this.drawerService.openTemplate(
-      this.userProfileTemplate,
-      'User Profile',
-      'md'
-    );
-  }
 
   toggleMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
@@ -400,7 +427,11 @@ export class InventoryLayoutComponent implements OnInit {
   }
 
   openSmartSearch() {
-    this.searchService.open();
+    this.modalService.openComponent(
+      SearchModalComponent,
+      {},
+      'md'
+    )
   }
 
   toggleSidebarCollapse() {
@@ -450,4 +481,5 @@ export interface UserProfile {
   name: string;
   role: string;
   initials: string;
+  email: string;
 }

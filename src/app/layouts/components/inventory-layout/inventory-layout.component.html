@@ -113,13 +113,12 @@
                     </div>
 
                     @if (!isSidebarCollapsed) {
-                    <svg class="w-4 h-4 transition-transform duration-300" [ngClass]="{
+                    <lucide-icon [img]="ChevronDown" class="w-4 h-4 transition-transform duration-300" [ngClass]="{
                                 'rotate-180': isDropdownOpen(item.label),
                                 'text-indigo-400': isDropdownOpen(item.label) || isItemActive(item),
                                 'text-slate-500': !isDropdownOpen(item.label) && !isItemActive(item)
-                            }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                            }">
+                    </lucide-icon>
                     }
 
                     @if (isSidebarCollapsed) {
@@ -158,11 +157,9 @@
 
             <button (click)="toggleSidebarCollapse()"
                 class="hidden lg:flex w-full items-center justify-center p-2 rounded-lg text-slate-500 hover:bg-white/5 hover:text-white transition-all mb-3 group">
-                <svg [ngClass]="{'rotate-180': isSidebarCollapsed}" class="w-5 h-5 transition-transform duration-300"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
-                </svg>
+                <lucide-icon [img]="ChevronsLeft" [ngClass]="{'rotate-180': isSidebarCollapsed}"
+                    class="w-5 h-5 transition-transform duration-300">
+                </lucide-icon>
 
                 @if(!isSidebarCollapsed) {
                 <span
@@ -178,11 +175,8 @@
                     <span
                         class="flex items-center justify-center bg-slate-700 text-white shadow-sm rounded-full transition-all"
                         [ngClass]="isSidebarCollapsed ? 'w-7 h-7' : 'px-3 py-1 gap-2'">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
-                            </path>
-                        </svg>
+                        <lucide-icon [img]="Sun" class="w-3.5 h-3.5">
+                        </lucide-icon>
                         @if (!isSidebarCollapsed) { <span class="text-xs font-medium">Light</span> }
                     </span>
 
@@ -190,11 +184,8 @@
                         [ngClass]="isSidebarCollapsed ? 'w-7 h-7' : 'px-3 gap-2'">
                         @if (!isSidebarCollapsed) { <span class="text-xs font-medium">Dark</span> }
                         @if (isSidebarCollapsed) {
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
-                            </path>
-                        </svg>
+                        <lucide-icon [img]="Moon" class="w-3.5 h-3.5">
+                        </lucide-icon>
                         }
                     </span>
                 </button>
@@ -208,28 +199,16 @@
             <div class="flex items-center text-sm text-gray-500">
                 <button (click)="toggleMenu()"
                     class="lg:hidden mr-4 text-slate-500 hover:bg-gray-100 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16">
-                        </path>
-                    </svg>
+                    <lucide-icon [img]="Menu" class="w-6 h-6"></lucide-icon>
                 </button>
                 <button
                     class="md:hidden p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-full transition-colors">
-                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 20 20">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                    </svg>
+                    <lucide-icon [img]="Search" class="w-5 h-5"></lucide-icon>
                 </button>
 
                 <div class="hidden md:block relative" id="smart-search">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                        </svg>
+                        <lucide-icon [img]="Search" class="w-4 h-4 text-gray-400"></lucide-icon>
                     </div>
                     <input type="text"
                         class="block w-full sm:w-80 pl-10 pr-3 py-2.5 border-none rounded-full bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all"
@@ -261,13 +240,66 @@
 
                 <app-notifications></app-notifications>
 
-                <div class="flex items-center gap-3 border-l hover:transition-all duration-200 cursor-pointer border-gray-200 pl-4"
-                    (click)="toggleUserMenu()">
-                    <div
-                        class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold cursor-pointer hover:bg-slate-700 transition-colors">
-                        {{ user.initials }}
-                    </div>
-                </div>
+                <el-dropdown class="inline-block">
+                    <button
+                        class="flex items-center gap-3 border-l hover:transition-all duration-200 cursor-pointer border-gray-200 pl-4 focus:outline-none focus:ring-0">
+                        <div
+                            class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold hover:bg-slate-700 transition-colors">
+                            {{ user.initials }}
+                        </div>
+                        <div class="hidden xl:flex flex-col items-start min-w-0">
+                            <span class="text-sm font-bold text-slate-900 truncate max-w-[120px]">{{ user.name }}</span>
+                            <span class="text-[11px] text-slate-500 font-medium truncate max-w-[120px]">{{ user.role
+                                }}</span>
+                        </div>
+                    </button>
+
+                    <el-menu [attr.anchor]="'bottom end'" popover
+                        class="m-0 w-72 origin-top-right rounded-xl bg-white p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-200 transition [--anchor-gap:12px] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:opacity-0">
+
+
+                        <div
+                            class="px-3 py-4 mb-2 bg-slate-50/50 rounded-lg border border-slate-100 flex items-center gap-3">
+                            <div
+                                class="size-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-lg ring-2 ring-white">
+                                {{ user.initials }}
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <span class="text-sm font-bold text-slate-900 truncate capitalize">{{ user.name
+                                    }}</span>
+                                <span class="text-[11px] text-slate-500 font-medium truncate">{{ user.email }}</span>
+                                <div class="mt-1">
+                                    <span
+                                        class="px-1.5 py-0.5 rounded bg-indigo-100 text-[9px] font-bold text-indigo-700 uppercase tracking-wide">
+                                        {{ user.role }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-0.5">
+                            @for (item of userMenuItems; track item.label) {
+                            <a (click)="item.action ? item.action() : null"
+                                class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 focus:outline-none hover:bg-slate-50 group cursor-pointer border border-transparent hover:border-slate-100">
+
+                                <div
+                                    [class]="'size-8 flex items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-110 ' + (item.iconBgClass || 'bg-slate-200')">
+                                    <lucide-icon [img]="item.icon"
+                                        [class]="'size-4 ' + (item.colorClass || 'text-slate-600')"></lucide-icon>
+                                </div>
+
+                                <div class="flex flex-col">
+                                    <span [class]="'text-xs font-semibold ' + (item.colorClass || 'text-slate-700')">{{
+                                        item.label }}</span>
+                                    @if (item.subLabel) {
+                                    <span class="text-[10px] text-slate-400 font-medium">{{ item.subLabel }}</span>
+                                    }
+                                </div>
+                            </a>
+                            }
+                        </div>
+                    </el-menu>
+                </el-dropdown>
             </div>
         </header>
 
@@ -276,13 +308,3 @@
         </div>
     </main>
 </div>
-
-
-<app-modal></app-modal>
-<app-drawer></app-drawer>
-<app-loader></app-loader>
-<!-- <app-mcp-chat-bot></app-mcp-chat-bot> -->
-<app-search-modal></app-search-modal>
-<ng-template #userProfileTemplate>
-    <app-user></app-user>
-</ng-template>
