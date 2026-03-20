@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, X, Package, Layers, Info, CheckCircle2, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule, Search, X, Package, Layers, Info, CheckCircle2, AlertCircle, Clock, Calendar } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ItemService } from '../../../views/items/item.service';
@@ -16,6 +16,7 @@ import { StockService } from '../../../views/stock/stock.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ItemSearchComponent implements OnInit {
+
   @Input() searchType: 'ITEM' | 'STOCK' = 'ITEM';
   @Input() placeholder: string = 'Search items...';
   @Input() autoFocus: boolean = true;
@@ -39,6 +40,11 @@ export class ItemSearchComponent implements OnInit {
   readonly Layers = Layers;
   readonly Info = Info;
   readonly CheckCircle2 = CheckCircle2;
+  readonly Clock = Clock;
+  readonly Calendar = Calendar;
+
+  recentItems: any[] = [];
+  private readonly RECENT_ITEMS_KEY: string = 'ez_recent_search_items';
 
   constructor(
     private itemService: ItemService,
@@ -47,6 +53,8 @@ export class ItemSearchComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.loadRecentItems();
+
     this.searchSubject.pipe(
       debounceTime(200), // Slightly faster debounce
       distinctUntilChanged()
@@ -87,20 +95,48 @@ export class ItemSearchComponent implements OnInit {
         this.cdr.markForCheck();
       });
     } else {
-      this.stockService.searchItems({ searchQuery: query }, (res: any) => {
-        this.results = res.data || [];
-        this.selectedIndex = 0;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      }, () => {
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      });
+      this.stockService.searchItems(
+        {
+          searchQuery: query,
+          warehouseId: 1
+        },
+        (res: any) => {
+          this.results = res.data || [];
+          console.log(this.results);
+          this.selectedIndex = 0;
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }, () => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        });
     }
   }
 
   selectItem(item: any) {
+    this.saveRecentItem(item);
     this.selected.emit(item);
+  }
+
+  loadRecentItems() {
+    const stored = localStorage.getItem(this.RECENT_ITEMS_KEY);
+    if (stored) {
+      try {
+        this.recentItems = JSON.parse(stored);
+      } catch (e) {
+        this.recentItems = [];
+      }
+    }
+  }
+
+  saveRecentItem(item: any) {
+    // Keep only last 5 searched items based on item id
+    this.recentItems = this.recentItems.filter(i => this.trackByItemId(0, i) !== this.trackByItemId(0, item));
+    this.recentItems.unshift(item);
+    if (this.recentItems.length > 5) {
+      this.recentItems.pop();
+    }
+    localStorage.setItem(this.RECENT_ITEMS_KEY, JSON.stringify(this.recentItems));
   }
 
   @HostListener('keydown', ['$event'])

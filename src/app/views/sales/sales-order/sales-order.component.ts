@@ -262,7 +262,7 @@ export class SalesOrderComponent implements OnInit {
     if (event.type === 'custom' && event.key === 'move_to_cancle') {
       this.confirmAndUpdateStatus(event.row.id, 'CANCELLED');
     }
-    if (event.type === 'custom' && event.key === 'view_details') {
+    if (event.type === 'custom' && event.key === 'view_sales_order') {
       this.openOrderTracker(event.row.id);
     }
   }
