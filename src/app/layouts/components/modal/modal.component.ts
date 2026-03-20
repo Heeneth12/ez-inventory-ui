@@ -10,8 +10,7 @@ import {
   ChangeDetectorRef,
   ElementRef,
   CUSTOM_ELEMENTS_SCHEMA,
-  ChangeDetectionStrategy,
-  AfterViewInit
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { ModalService, ModalSize, ModalState } from './modalService';
 import { Subscription } from 'rxjs';
@@ -26,7 +25,7 @@ import '@tailwindplus/elements';
   styleUrl: './modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ModalComponent implements OnInit, OnDestroy {
 
   @ViewChild('modalDialog') dialogRef!: ElementRef<HTMLDialogElement>;
   @ViewChild('dynamicContainer', { read: ViewContainerRef }) dynamicContainer!: ViewContainerRef;
@@ -45,15 +44,14 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.sub.add(
       this.modalService.isOpen$.subscribe(isOpen => {
-        this.handleNativeDialog(isOpen);
+        setTimeout(() => this.handleNativeDialog(isOpen), 10);
       })
     );
 
-    // 2. Handle Dynamic Component Loading separately
     this.sub.add(
       this.modalService.component$.subscribe(component => {
         if (component) {
-          this.loadComponent(component, this.modalService.context);
+          setTimeout(() => this.loadComponent(component, this.modalService.context), 10);
         } else {
           this.destroyComponent();
         }
@@ -71,34 +69,6 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (!open && dialog.open) {
       dialog.close();
       document.body.style.overflow = '';
-    }
-  }
-
-  ngAfterViewInit(): void {
-    if (this.state?.isOpen) {
-      setTimeout(() => this.toggleDialog(true), 100);
-    }
-  }
-
-  private toggleDialog(open: boolean) {
-    if (!this.dialogRef?.nativeElement) {
-      return;
-    }
-
-    try {
-      if (open) {
-        if (!this.dialogRef.nativeElement.open) {
-          this.dialogRef.nativeElement.showModal();
-          document.body.style.overflow = 'hidden';
-        }
-      } else {
-        if (this.dialogRef.nativeElement.open) {
-          this.dialogRef.nativeElement.close();
-          document.body.style.overflow = '';
-        }
-      }
-    } catch (e) {
-      console.error('Error toggling dialog state:', e);
     }
   }
 
