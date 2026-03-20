@@ -233,8 +233,8 @@
                 </app-custom-dropdown>
 
                 <app-custom-dropdown id="help-center-btn" [triggerIcon]="helpIcon"
-                    [iconClass]="'h-4 w-4 shrink-0 text-indigo-600 group-hover:text-indigo-500 transition-colors'"
-                    buttonClass="flex items-center gap-2 p-2 bg-indigo-50 border border-indigo-200 text-indigo-600 text-xs font-medium rounded-lg hover:bg-indigo-50 hover:border-indigo-300 "
+                    [iconClass]="'h-4 w-4 shrink-0 text-gray-600 group-hover:text-gray-500 transition-colors'"
+                    buttonClass="flex items-center gap-2 p-2 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 hover:border-gray-300"
                     [items]="helpCenterItems" anchor="bottom end">
                 </app-custom-dropdown>
 
@@ -242,15 +242,10 @@
 
                 <el-dropdown class="inline-block">
                     <button
-                        class="flex items-center gap-3 border-l hover:transition-all duration-200 cursor-pointer border-gray-200 pl-4 focus:outline-none focus:ring-0">
+                        class="flex items-center gap-3 border-l hover:transition-all duration-200 cursor-pointer border-gray-200 pl-4">
                         <div
                             class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold hover:bg-slate-700 transition-colors">
                             {{ user.initials }}
-                        </div>
-                        <div class="hidden xl:flex flex-col items-start min-w-0">
-                            <span class="text-sm font-bold text-slate-900 truncate max-w-[120px]">{{ user.name }}</span>
-                            <span class="text-[11px] text-slate-500 font-medium truncate max-w-[120px]">{{ user.role
-                                }}</span>
                         </div>
                     </button>
 
@@ -258,8 +253,7 @@
                         class="m-0 w-72 origin-top-right rounded-xl bg-white p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-200 transition [--anchor-gap:12px] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:opacity-0">
 
 
-                        <div
-                            class="px-3 py-4 mb-2 bg-slate-50/50 rounded-lg border border-slate-100 flex items-center gap-3">
+                        <div class="p-3 mb-2 bg-slate-50/50 rounded-lg border border-slate-200 flex items-center gap-3">
                             <div
                                 class="size-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-lg ring-2 ring-white">
                                 {{ user.initials }}

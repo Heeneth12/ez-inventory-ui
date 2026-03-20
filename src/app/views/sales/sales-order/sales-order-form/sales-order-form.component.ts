@@ -6,7 +6,7 @@ import { ToastService } from '../../../../layouts/components/toast/toastService'
 import { ItemService } from '../../../items/item.service';
 import { ItemModel } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
-import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown, XIcon, ArrowLeft, Check, Eye, Trash } from 'lucide-angular';
+import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown, XIcon, ArrowLeft, Check, Eye, Trash, Save } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/approval-console.model';
 import { ApprovalConsoleService } from '../../../approval-console/approval-console.service';
@@ -45,6 +45,7 @@ export class SalesOrderFormComponent implements OnInit {
   readonly eyeIcon = Eye;
   readonly checkIcon = Check;
   readonly TrashIcon = Trash;
+  readonly DraftIcon = Save;
 
   orderForm: FormGroup;
   isEditMode = false;
