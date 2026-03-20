@@ -6,11 +6,12 @@ import { UserInitResponse } from '../../models/Init-response.model';
 import { AuthService } from '../../guards/auth.service';
 import { Notification } from './notification.model';
 import { DrawerService } from '../drawer/drawerService';
+import { Bell, Check, Trash2, AlertTriangle, Info, LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './notifications.component.html'
 })
 export class NotificationsComponent implements OnInit, OnDestroy {
@@ -19,6 +20,13 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   private sub: Subscription = new Subscription();
   filter = signal<'all' | 'unread'>('all');
   rawNotifications = signal<Notification[]>([]);
+
+  //icon
+  readonly BellIcon = Bell;
+  readonly CheckIcon = Check;
+  readonly TrashIcon = Trash2;
+  readonly AlertTriangleIcon = AlertTriangle;
+  readonly InfoIcon = Info;
 
   notifications = computed(() => {
     const list = this.rawNotifications();
