@@ -324,10 +324,8 @@
                     </td>
                 </tr>
                 <tr *ngIf="displayedRows().length === 0 && !isLoading">
-                    <td [attr.colspan]="visibleColumns().length + (enableSelection ? 1 : 0)" class="py-16 text-center">
-                        <div class="flex flex-col items-center justify-center text-gray-400">
-                            <span class="text-base font-medium">No results found</span>
-                        </div>
+                    <td [attr.colspan]="visibleColumns().length + (enableSelection ? 1 : 0)">
+                        <ng-container *ngTemplateOutlet="emptyStateTemplate || defaultEmptyState"></ng-container>
                     </td>
                 </tr>
                 <tr *ngIf="loadMode === 'pagination' && isLoading">
@@ -366,3 +364,50 @@
         </div>
     </div>
 </div>
+
+
+<ng-template #defaultEmptyState>
+    <div
+        class="relative flex min-h-[450px] w-full flex-col items-center justify-center overflow-hidden rounded-xl px-6 py-20 text-center">
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-50 rounded-full blur-[100px] pointer-events-none opacity-60">
+        </div>
+
+        <div class="relative mb-8 h-32 w-full max-w-[300px]">
+            <div
+                class="absolute left-1/2 top-0 z-0 h-14 w-52 -translate-x-1/2 -rotate-6 rounded-3xl bg-white/60 backdrop-blur-md border border-slate-200/60 shadow-sm animate-pulse flex items-center px-4 gap-3">
+                <div class="h-6 w-6 rounded-lg bg-slate-100 flex items-center justify-center">
+                    <lucide-icon [img]="FileText" class="size-3 text-slate-400"></lucide-icon>
+                </div>
+                <div class="h-2 w-24 rounded-full bg-slate-200"></div>
+            </div>
+
+            <div
+                class="absolute left-1/2 top-8 z-10 h-16 w-64 -translate-x-1/2 rounded-3xl border border-slate-200 bg-white p-3 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] flex items-center px-4 gap-4 ring-1 ring-slate-100">
+                <div
+                    class="h-10 w-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
+                    <lucide-icon [img]="Package" class="size-5"></lucide-icon>
+                </div>
+                <div class="flex flex-col gap-1.5 flex-1">
+                    <div class="h-2.5 w-full rounded-full bg-slate-100"></div>
+                    <div class="h-2 w-2/3 rounded-full bg-slate-50"></div>
+                </div>
+            </div>
+
+            <div
+                class="absolute left-1/2 top-16 z-0 h-14 w-52 -translate-x-1/2 rotate-6 rounded-3xl bg-white/40 backdrop-blur-sm border border-slate-200/40 shadow-sm flex items-center px-4 gap-3">
+                <div class="h-6 w-6 rounded-lg bg-slate-100 flex items-center justify-center">
+                    <lucide-icon [img]="RotateCcw" class="size-3 text-slate-300"></lucide-icon>
+                </div>
+                <div class="h-2 w-20 rounded-full bg-slate-200"></div>
+            </div>
+        </div>
+
+        <div class="z-20 max-w-sm">
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 mb-2">No records found</h2>
+            <p class="text-slate-500 font-medium leading-relaxed">
+                Your search didn't return any results. Try adjusting your filters or search terms.
+            </p>
+        </div>
+    </div>
+</ng-template>

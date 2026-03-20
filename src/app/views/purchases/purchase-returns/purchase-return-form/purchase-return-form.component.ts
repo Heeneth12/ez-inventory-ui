@@ -36,7 +36,7 @@ export class PurchaseReturnFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.modalService.context$.subscribe(ctx => {
+    this.modalService.context$.subscribe((ctx: any) => {
       if (ctx?.data?.grnId) {
         const grnId = ctx.data.grnId;
         this.loadGrnDetails(grnId);
@@ -62,16 +62,13 @@ export class PurchaseReturnFormComponent implements OnInit {
       distinctUntilChanged()
     ).subscribe(term => {
       // In a real app, this would call an API search
-      // For now, we simulate "Load by ID" when user hits Enter or button
     });
   }
 
-  // --- Step 1: Load GRN Data ---
   loadGrnDetails(id: number | string) {
     if (!id) return;
 
     this.loaderSvc.show();
-    // Assuming you have a method to get GRN by ID
     this.purchaseService.getGrnDetails(+id,
       (res: any) => {
         this.loaderSvc.hide();
@@ -87,7 +84,6 @@ export class PurchaseReturnFormComponent implements OnInit {
     );
   }
 
-  // --- Step 2: Populate Form ---
   populateForm(grn: any) {
     this.returnForm.patchValue({
       vendorId: grn.vendorId,
@@ -108,14 +104,12 @@ export class PurchaseReturnFormComponent implements OnInit {
   createItemControl(item: any): FormGroup {
     return this.fb.group({
       itemId: [item.itemId],
-      itemName: [item.itemName], // Display only
-      itemCode: [item.itemCode], // Display only
-      batchNumber: [item.batchNumber], // Required in payload
-      // Validation: Cannot return more than received
-      receivedQty: [item.receivedQty], // Display/Validation reference
-      returnedQty: [item.returnedQty || 0], // Already returned quantity from previous returns
-      unitPrice: [item.poItemPrice || 0], // Reference for refund price
-      // Inputs
+      itemName: [item.itemName],
+      itemCode: [item.itemCode],
+      batchNumber: [item.batchNumber],
+      receivedQty: [item.receivedQty],
+      returnedQty: [item.returnedQty || 0],
+      unitPrice: [item.poItemPrice || 0],
       returnQty: [0],
       refundPrice: [item.poItemPrice || 0]
     });
@@ -125,7 +119,6 @@ export class PurchaseReturnFormComponent implements OnInit {
     return this.returnForm.get('items') as FormArray;
   }
 
-  // --- Helpers ---
   resetSearch() {
     this.showSearch = true;
     this.grnDetails = null;
@@ -145,16 +138,7 @@ export class PurchaseReturnFormComponent implements OnInit {
     this.modalService.close();
   }
 
-  // --- Submit Logic ---
   onSubmit() {
-    // if (this.returnForm.invalid) {
-    //   console.log(this.returnForm.value);
-    //   this.returnForm.markAllAsTouched();
-    //   this.toastService.show('Please fix errors before submitting.', 'warning');
-    //   return;
-    // }
-
-    // Filter out items with 0 return quantity (Optional, but good practice)
     const rawItems = this.returnForm.value.items;
     const itemsToReturn = rawItems.filter((i: any) => i.returnQty > 0);
 
@@ -175,8 +159,6 @@ export class PurchaseReturnFormComponent implements OnInit {
         batchNumber: item.batchNumber
       }))
     };
-
-    console.log('Purchase Return Payload:', payload);
 
     this.isSubmitting = true;
     this.loaderSvc.show();

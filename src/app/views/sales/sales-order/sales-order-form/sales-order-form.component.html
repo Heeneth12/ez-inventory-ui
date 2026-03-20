@@ -15,7 +15,7 @@
                 }
             </div>
             <div class="flex items-center gap-2">
-                <button type="button" (click)="onPreview()"
+                <button type="button"
                     class="px-4 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2">
                     <lucide-icon [img]="eyeIcon" class="w-4 h-4"></lucide-icon>
                     Preview
@@ -94,30 +94,14 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
                         </div>
-                        <input #itemSearchInput type="text" [value]="itemSearchQuery"
-                            (keyup)="onItemSearchInput($event)"
-                            class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-md bg-white text-sm placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 transition-all"
-                            placeholder="Search products by name or SKU..." />
-                        @if(showItemResults){
-                        <div
-                            class="absolute top-full mt-1 left-0 w-full bg-white rounded-lg shadow-xl border border-gray-200 max-h-72 overflow-y-auto z-50">
-                            @for(item of itemSearchResults; track $index){
-                            <div (click)="selectItemFromSearch(item)"
-                                class="flex items-center gap-3 px-4 py-2.5 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors">
-                                <div
-                                    class="w-8 h-8 bg-indigo-50 rounded-md flex items-center justify-center overflow-hidden shrink-0">
-                                    <img [src]="item.imageUrl || 'https://ui-avatars.com/api/?name=' + item.name"
-                                        class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">{{ item.name }}</p>
-                                </div>
-                                <span class="text-sm font-semibold text-gray-700">{{ item.sellingPrice |
-                                    currency:'INR'}}</span>
-                            </div>
-                            }
+                        <div class="relative w-full max-w-lg">
+                            <button (click)="openItemSearch()"
+                                class="w-full flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-md text-sm text-gray-400 hover:border-gray-300 hover:bg-gray-50 transition-all focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
+
+                                <span>Search products by name or SKU...</span>
+                            </button>
                         </div>
-                        }
                     </div>
                     <span class="text-xs font-medium text-gray-400 whitespace-nowrap">
                         {{ items.length }} Item{{ items.length !== 1 ? 's' : '' }} Selected

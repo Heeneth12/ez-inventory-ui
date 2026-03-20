@@ -10,7 +10,7 @@ import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
 import { ITEMS_COLUMNS } from '../../layouts/config/tableConfig';
-import { CloudUpload, List, Plus, LucideAngularModule } from 'lucide-angular';
+import { CloudUpload, List, Plus, LucideAngularModule, FileText, RotateCcw, Package, Box, LayoutGrid, Wrench, Briefcase, PackageOpen, Sparkles, Zap } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { AuthService } from '../../layouts/guards/auth.service';
@@ -29,6 +29,20 @@ export class ItemsComponent implements OnInit {
 
   private tableState$ = new Subject<void>();
   @ViewChild('stockItemDetail') stockItemDetail!: TemplateRef<any>;
+  @ViewChild('itemEmptyTemplate') itemEmptyTemplate!: TemplateRef<any>;
+
+  //icon
+  readonly FileText = FileText;
+  readonly RotateCcw = RotateCcw;
+  readonly Package = Package;
+  readonly Plus = Plus;
+  readonly Box = Box;
+  readonly LayoutGrid = LayoutGrid;
+  readonly Wrench = Wrench;
+  readonly PackageOpen = PackageOpen;
+  readonly Briefcase = Briefcase;
+  readonly Sparkles = Sparkles;
+  readonly Zap = Zap;
 
   selectedItemDetail: ItemStockSearchModel | null = null;
   selectedMasterItem: ItemModel | null = null;
@@ -156,7 +170,7 @@ export class ItemsComponent implements OnInit {
   }
 
   createItem() {
-    this.router.navigate(['/items/add']);
+    this.router.navigate(['/items/create']);
   }
 
   updateItem(itemId: string | number) {

@@ -193,7 +193,7 @@ export class SalesOrderComponent implements OnInit {
   }
 
   confirmAndUpdateStatus(salesOrderId: any, status: string) {
-    const action = status === 'APPROVED' ? 'Approve' : 'Reject';
+    const action = status === 'APPROVED' ? 'Approve' : 'Cancel';
     this.confirmationModalService.open({
       title: `${action} Sales Order`,
       message: `Are you sure you want to ${action.toLowerCase()} this sales order?`,
@@ -260,9 +260,9 @@ export class SalesOrderComponent implements OnInit {
       }
     }
     if (event.type === 'custom' && event.key === 'move_to_cancle') {
-      this.confirmAndUpdateStatus(event.row.id, 'REJECTED');
+      this.confirmAndUpdateStatus(event.row.id, 'CANCELLED');
     }
-    if (event.type === 'custom' && event.key === 'view_details') {
+    if (event.type === 'custom' && event.key === 'view_sales_order') {
       this.openOrderTracker(event.row.id);
     }
   }

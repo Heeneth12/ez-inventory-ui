@@ -1,0 +1,17 @@
+dialog::backdrop {
+    background-color: rgba(15, 23, 42, 0.6);
+}
+
+dialog[open]::backdrop {
+    animation: fade-in 0.2s ease-out forwards;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

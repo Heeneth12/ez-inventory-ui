@@ -73,7 +73,6 @@ export class InvoiceHeaderComponent implements OnInit, AfterViewInit {
       const tenantId = parseInt(tenantIdString, 10);
       this.userService.fetchTenantObservable(tenantId).subscribe(data => {
         this.tenantDetails = data;
-        console.log('Tenant Details are ready:', this.tenantDetails);
       });
     }
   }

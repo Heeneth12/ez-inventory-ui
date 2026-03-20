@@ -2,10 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
 import { ItemService } from '../../../items/item.service';
-import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
+import { ItemModel } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
 import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown, XIcon, ArrowLeft, Check, Eye, Trash } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
@@ -15,6 +14,8 @@ import { UserModel, AddressType, UserType, UserFilterModel } from '../../../user
 import { UserManagementService } from '../../../user-management/userManagement.service';
 import { DrawerService } from '../../../../layouts/components/drawer/drawerService';
 import { SalesOrderFilterModal } from '../sales-order.modal';
+import { ModalService } from '../../../../layouts/components/modal/modalService';
+import { ItemSearchComponent } from '../../../../layouts/components/item-search/item-search.component';
 
 @Component({
   selector: 'app-sales-order-form',
@@ -59,8 +60,6 @@ export class SalesOrderFormComponent implements OnInit {
   // Item Search
   itemSearchResults: ItemModel[] = [];
   itemSearchQuery = "";
-  showItemResults = false;
-  private searchSubject = new Subject<string>();
 
   approvalConfigDetails: ApprovalConfigModel | null = null;
 
@@ -79,6 +78,7 @@ export class SalesOrderFormComponent implements OnInit {
     private itemService: ItemService,
     private toast: ToastService,
     private drawerService: DrawerService,
+    private modalService: ModalService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -105,7 +105,6 @@ export class SalesOrderFormComponent implements OnInit {
       this.orderForm.get('customerId')?.setValue(this.customerId);
     }
 
-    this.setupItemSearch();
     this.checkEditMode();
     this.getSalesOrderApprovalConfig();
   }
@@ -161,6 +160,17 @@ export class SalesOrderFormComponent implements OnInit {
       this.isReadonly = false;
       this.orderForm.enable();
     }
+  }
+
+  openItemSearch() {
+    this.modalService.openComponent(ItemSearchComponent, {
+      searchType: 'ITEM',
+      placeholder: 'Search for products to add to order...',
+      onSelected: (item: any) => {
+        this.selectItemFromSearch(item);
+        this.modalService.close();
+      }
+    }, 'lg');
   }
 
   private patchOrderDetailsToForm(order: any) {
@@ -222,28 +232,6 @@ export class SalesOrderFormComponent implements OnInit {
         this.isLoading = false;
       }
     );
-  }
-
-  private setupItemSearch() {
-    this.searchSubject.pipe(
-      debounceTime(400),
-      distinctUntilChanged(),
-      switchMap(query => {
-        if (!query.trim()) return of([]);
-        const filter = new ItemSearchFilter();
-        filter.searchQuery = query;
-        filter.active = true;
-        return new Promise(resolve => {
-          this.itemService.searchItems(filter,
-            (res: any) => resolve(res.data),
-            () => resolve([])
-          );
-        });
-      })
-    ).subscribe((results: any) => {
-      this.itemSearchResults = results;
-      this.showItemResults = results.length > 0;
-    });
   }
 
   get items(): FormArray {
@@ -325,17 +313,10 @@ export class SalesOrderFormComponent implements OnInit {
     return Math.max(0, taxableBill + this.flatTaxAmount);
   }
 
-  // --- Item Management ---
-
-  onItemSearchInput(event: any) {
-    const query = event.target.value;
-    this.itemSearchQuery = query;
-    this.searchSubject.next(query);
-  }
-
-  selectItemFromSearch(item: ItemModel) {
+  selectItemFromSearch(item: any) {
+    const selectedId = item.id || item.itemId;
     const existingIndex = this.items.controls.findIndex(
-      (control) => control.get('itemId')?.value === item.id
+      (control) => control.get('itemId')?.value === selectedId
     );
 
     if (existingIndex !== -1) {
@@ -346,13 +327,12 @@ export class SalesOrderFormComponent implements OnInit {
     }
 
     this.itemSearchQuery = "";
-    this.showItemResults = false;
     this.itemSearchResults = [];
   }
 
   private createItemControl(data: any): FormGroup {
     return this.fb.group({
-      itemId: [data.id],
+      itemId: [data.id || data.itemId],
       name: [data.name],
       hsn: [data.hsnSacCode],
       imageUrl: [data.imageUrl || 'https://ui-avatars.com/api/?name=' + data.name + '&background=eff6ff&color=3b82f6&bold=true&size=128'],

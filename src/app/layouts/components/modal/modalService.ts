@@ -1,51 +1,73 @@
 import { Injectable, TemplateRef, Type } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
+export interface ModalState {
+    isOpen: boolean;
+    template: TemplateRef<any> | null;
+    component: Type<any> | null;
+    context: any;
+    size: ModalSize;
+}
 
 @Injectable({
     providedIn: 'root'
 })
 export class ModalService {
-    private isOpenSubject = new BehaviorSubject<boolean>(false);
-    isOpen$ = this.isOpenSubject.asObservable();
+    private initialState: ModalState = {
+        isOpen: false,
+        template: null,
+        component: null,
+        context: null,
+        size: 'md'
+    };
 
-    private templateSubject = new BehaviorSubject<TemplateRef<any> | null>(null);
-    template$ = this.templateSubject.asObservable();
+    private stateSubject = new BehaviorSubject<ModalState>(this.initialState);
+    
+    // Core state observable
+    state$ = this.stateSubject.asObservable();
 
-    private componentSubject = new BehaviorSubject<Type<any> | null>(null);
-    component$ = this.componentSubject.asObservable();
+    // Sliced observables for individual subscriptions (keeps code clean and optimized)
+    isOpen$ = this.stateSubject.pipe(map(s => s.isOpen), distinctUntilChanged());
+    context$ = this.stateSubject.pipe(map(s => s.context));
+    component$ = this.stateSubject.pipe(map(s => s.component), distinctUntilChanged());
+    size$ = this.stateSubject.pipe(map(s => s.size), distinctUntilChanged());
 
-    private contextSubject = new BehaviorSubject<any>(null);
-    context$ = this.contextSubject.asObservable();
-
-    // Default size is 'md'
-    private sizeSubject = new BehaviorSubject<ModalSize>('md');
-    size$ = this.sizeSubject.asObservable();
+    get context() {
+        return this.stateSubject.value.context;
+    }
 
     openTemplate(template: TemplateRef<any>, context: any = null, size: ModalSize = 'md') {
-        this.componentSubject.next(null);
-        this.templateSubject.next(template);
-        this.contextSubject.next(context);
-        this.sizeSubject.next(size); // Set size
-        this.isOpenSubject.next(true);
+        this.stateSubject.next({
+            isOpen: true,
+            template,
+            component: null,
+            context,
+            size
+        });
     }
 
     openComponent(component: Type<any>, context: any = null, size: ModalSize = 'md') {
-        this.templateSubject.next(null);
-        this.componentSubject.next(component);
-        this.contextSubject.next(context);
-        this.sizeSubject.next(size); // Set size
-        this.isOpenSubject.next(true);
+        this.stateSubject.next({
+            isOpen: true,
+            template: null,
+            component,
+            context,
+            size
+        });
     }
 
     close() {
-        this.isOpenSubject.next(false);
+        const currentState = this.stateSubject.value;
+        this.stateSubject.next({ ...currentState, isOpen: false });
+
+        // Complete cleanup after animation
         setTimeout(() => {
-            this.templateSubject.next(null);
-            this.componentSubject.next(null);
-            this.contextSubject.next(null);
-            this.sizeSubject.next('md'); // Reset size to default
+            if (!this.stateSubject.value.isOpen) {
+                this.stateSubject.next(this.initialState);
+            }
         }, 300);
     }
 }
