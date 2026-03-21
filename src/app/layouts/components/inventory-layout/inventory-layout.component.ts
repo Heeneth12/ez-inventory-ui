@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from "@angular/router";
 import { filter } from 'rxjs/operators';
 import {
@@ -432,6 +432,14 @@ export class InventoryLayoutComponent implements OnInit {
       {},
       'md'
     )
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && (event.key === 'k' || event.key === 'K')) {
+      event.preventDefault();
+      this.openSmartSearch();
+    }
   }
 
   toggleSidebarCollapse() {

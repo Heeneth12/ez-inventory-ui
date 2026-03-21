@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, HostListener } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
@@ -108,6 +108,22 @@ export class SalesOrderFormComponent implements OnInit {
 
     this.checkEditMode();
     this.getSalesOrderApprovalConfig();
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (this.isReadonly) return;
+    // F2 to open Item Search
+    if (event.key === 'F2') {
+      event.preventDefault();
+      this.openItemSearch();
+    }
+    // F3 to focus on SO Search
+    if (event.key === 'F3') {
+      event.preventDefault();
+      const soSearchElem = document.querySelector('input[placeholder="Enter SO Number..."]') as HTMLInputElement;
+      if (soSearchElem) soSearchElem.focus();
+    }
   }
 
   private checkEditMode() {

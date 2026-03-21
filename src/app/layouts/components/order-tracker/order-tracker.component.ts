@@ -8,7 +8,6 @@ import { LoaderService } from '../loader/loaderService';
 import { ToastService } from '../toast/toastService';
 import { StepConfig, StepperComponent } from "../../UI/stepper/stepper.component";
 import { User, ReceiptText, Truck, ReceiptIndianRupee } from 'lucide-angular';
-import { ContactCardComponent } from "../contact-card/contact-card.component";
 import { DeliveryService } from '../../../views/sales/delivery/delivery.service';
 import { DeliveryModel } from '../../../views/sales/delivery/delivery.model';
 import { PaymentService } from '../../../views/sales/payments/payment.service';
@@ -17,13 +16,14 @@ import { InvoicePaymentSummaryModal } from '../../../views/sales/payments/paymen
 @Component({
   selector: 'app-order-tracking',
   standalone: true,
-  imports: [CommonModule, StepperComponent, ContactCardComponent],
+  imports: [CommonModule, StepperComponent],
   templateUrl: './order-tracker.component.html',
   styleUrls: ['./order-tracker.component.css']
 })
 export class OrderTrackerComponent implements OnInit, OnDestroy {
 
   @Input() salesOrderId: number | null = null;
+  @Input() invoiceNumber: string | null = null;
   contactId: number | string | null = 0;
 
   salesOrderDetails: SalesOrderModal | null = null;

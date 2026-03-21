@@ -3,7 +3,8 @@
         <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
             <div class="flex items-center gap-3">
                 @if(!customerId && !id){
-                <button (click)="back()" type="button" class="text-gray-500 hover:text-gray-800 transition-colors">
+                <button (click)="back()" title="Go Back" type="button"
+                    class="text-gray-500 hover:text-gray-800 transition-colors">
                     <lucide-icon [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-icon>
                 </button>
 
@@ -59,7 +60,11 @@
                     <div class="md:col-span-3 p-5 bg-gray-50/30">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1 font-medium">Search by SO Number</label>
+                                <label class="block text-xs text-gray-500 mb-1 font-medium flex items-center gap-2">
+                                    Search by SO Number
+                                    <kbd
+                                        class="hidden md:inline-block px-1 py-0.5 text-[9px] bg-gray-100 border border-gray-200 rounded text-gray-400">F3</kbd>
+                                </label>
                                 <div class="flex gap-2">
                                     <input type="text" #soSearch placeholder="Enter SO Number..."
                                         [(ngModel)]="orderNumber" [ngModelOptions]="{standalone: true}"
@@ -100,6 +105,8 @@
                                 <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
 
                                 <span>Search products by name or SKU...</span>
+                                <kbd
+                                    class="hidden md:inline-flex items-center ml-auto px-1.5 py-0.5 text-[10px] font-sans font-bold text-gray-500 bg-gray-100 border border-gray-300 rounded shrink-0 shadow-sm leading-none">F2</kbd>
                             </button>
                         </div>
                     </div>
