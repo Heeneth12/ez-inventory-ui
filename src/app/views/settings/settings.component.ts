@@ -7,28 +7,36 @@ import { UserManagementService } from '../user-management/userManagement.service
 import { UserInitResponse } from '../../layouts/models/Init-response.model';
 import { TenantModel } from '../user-management/models/tenant.model';
 import { Observable, take } from 'rxjs';
+import { ProfileComponent } from '../../layouts/components/profile/profile.component';
+import { TabCardComponent, TabItem } from '../../layouts/UI/tab-card/tab-card.component';
+import { LucideAngularModule, User, Briefcase, Sliders, CreditCard } from 'lucide-angular';
 
 // Defined tabs based on your request
-type Tab = 'General' | 'Tenant Details' | 'Payments' | 'Security' | 'Subscriptions';
+type Tab = 'Profile' | 'Business' | 'Preferences' | 'Billing';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ProfileComponent, TabCardComponent, LucideAngularModule],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit {
 
   // State
-  activeTab = signal<Tab>('General');
+  activeTab = signal<Tab>('Profile');
   isLoading = signal<boolean>(true);
   isSaving = signal<boolean>(false);
 
   userData$!: Observable<UserInitResponse | null>;
 
-  // Tabs List for the UI loop
-  tabs: Tab[] = ['General', 'Tenant Details', 'Payments', 'Security', 'Subscriptions'];
+  // Tabs List
+  navigationTabs: TabItem[] = [
+    { id: 'Profile', label: 'Profile', icon: User },
+    { id: 'Business', label: 'Business', icon: Briefcase },
+    { id: 'Preferences', label: 'Preferences', icon: Sliders },
+    { id: 'Billing', label: 'Billing', icon: CreditCard }
+  ];
 
   // Forms
   generalForm: FormGroup;
@@ -191,8 +199,8 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  switchTab(tab: Tab) {
-    this.activeTab.set(tab);
+  switchTab(tabId: string) {
+    this.activeTab.set(tabId as Tab);
   }
 
   onSave() {

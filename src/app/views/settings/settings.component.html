@@ -1,310 +1,252 @@
-<div class="min-h-screen bg-[#F8FAFC] p-4 md:p-8 font-sans">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-            <h1 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                Business Settings
-            </h1>
-            <p class="text-xs text-gray-500">Edit Your Company Settings And Information</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-            <button
-                class="bg-[#D97706] text-white px-4 py-2 rounded text-sm font-medium hover:bg-orange-700 transition">
-                Create new business
-            </button>
-            <button
-                class="bg-white border border-gray-200 px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-2">
-                <span class="material-icons text-sm">calendar_today</span> Close Financial Year
-            </button>
-            <button
-                class="bg-white border border-gray-200 px-6 py-2 rounded text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
-            <button [disabled]="isSaving()" (click)="onSaveTenant()"
-                class="bg-[#C7D2FE] text-[#4338CA] px-6 py-2 rounded text-sm font-semibold hover:bg-[#a5b4fc] transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
-                <span class="flex items-center gap-2">
-                    <span *ngIf="isSaving()"
-                        class="w-4 h-4 border-2 border-[#4338CA]/30 border-t-[#4338CA] rounded-full animate-spin"></span>
-                    Save Changes
-                </span>
-            </button>
-        </div>
+<div class="bg-[#F8FAFC] font-sans">
+    <div class="sticky top-0 z-10">
+        <app-tab-card [tabs]="navigationTabs" [activeTabId]="activeTab()" (activeTabIdChange)="switchTab($event)">
+        </app-tab-card>
     </div>
 
-    <!-- Map this strictly to tenantForm to reuse logic -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-8">
-        <form [formGroup]="tenantForm" class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-
-            <div class="lg:col-span-7 space-y-6">
-                <!-- Avatar block left unchanged visually -->
-                <div class="flex gap-6">
-                    <div
-                        class="w-32 h-32 border-2 border-dashed border-blue-400 rounded flex flex-col items-center justify-center bg-blue-50/30 text-blue-600 cursor-pointer hover:bg-blue-50 transition">
-                        <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span class="text-[10px] font-bold">Upload Logo</span>
-                        <span class="text-[9px] text-gray-400">PNG/JPG, max 5 MB.</span>
-                    </div>
-
-                    <div class="flex-1">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Business Name <span
-                                class="text-red-500">*</span></label>
-                        <!-- Updated formControlName to tenantName -->
-                        <input type="text" formControlName="tenantName"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all">
-                    </div>
-                    <div class="flex-1">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Company Phone Number</label>
-                            <!-- Updated formControlName to phone -->
-                            <input type="text" formControlName="phone"
-                                class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Company E-Mail</label>
-                            <!-- Updated formControlName to email -->
-                            <input type="email" formControlName="email" placeholder="Enter company e-mail"
-                                class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border border-gray-100 rounded-lg p-5 bg-gray-50/40">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700">Business Addresses</label>
-                            <p class="text-[10px] text-gray-500 mt-0.5">Manage office, billing, and shipping locations
-                            </p>
-                        </div>
-                        <button type="button" (click)="openAddAddress()"
-                            class="text-xs bg-white border border-gray-200 text-blue-600 hover:text-blue-700 hover:bg-gray-50 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1.5 shadow-sm">
-                            <span class="text-lg leading-none">+</span> Add Address
-                        </button>
-                    </div>
-                    <div class="space-y-3">
-                        <div *ngIf="addresses().length === 0"
-                            class="text-xs text-gray-400 p-6 border-2 border-dashed border-gray-200 rounded-lg text-center bg-white">
-                            No addresses added yet. Click 'Add Address' to create one.
-                        </div>
-                        <div *ngFor="let addr of addresses()"
-                            class="p-4 border border-gray-200 rounded-lg flex justify-between items-start bg-white shadow-sm hover:border-blue-300 transition-colors group">
-                            <div>
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span
-                                        class="inline-block text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold tracking-wide border border-indigo-100">{{
-                                        addr.type }}</span>
-                                </div>
-                                <p class="text-xs font-semibold text-gray-800">{{ addr.addressLine1 }} <span
-                                        *ngIf="addr.addressLine2">, {{ addr.addressLine2 }}</span></p>
-                                <p class="text-[11px] text-gray-500 mt-1">{{ addr.city }}, {{ addr.state }}, {{
-                                    addr.country }} - <span class="font-medium text-gray-700">{{ addr.pinCode }}</span>
-                                </p>
-                            </div>
-                            <button type="button" (click)="openEditAddress(addr)"
-                                class="text-gray-400 hover:text-blue-600 transition-colors p-1.5 opacity-0 group-hover:opacity-100 rounded-md hover:bg-blue-50">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-4 space-y-4">
-                    <div class="flex items-center justify-between p-3 bg-blue-50/50 border border-blue-100 rounded-lg">
-                        <span class="text-sm text-blue-700 font-medium">Enable e-Invoicing <span
-                                class="ml-2 bg-blue-400 text-white text-[10px] px-1.5 py-0.5 rounded italic">New</span></span>
-                        <div class="w-10 h-5 bg-gray-200 rounded-full relative cursor-pointer">
-                            <div class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Enable TDS</span>
-                        <div class="w-10 h-5 bg-gray-200 rounded-full relative cursor-pointer">
-                            <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-5 space-y-6">
-                <!-- Legal & Registration -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Legal Name</label>
-                        <input type="text" formControlName="legalName" placeholder="Registered Legal Name"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">GST Number</label>
-                        <input type="text" formControlName="gstNumber" placeholder="e.g. 06APTPS..."
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">PAN Number</label>
-                        <input type="text" formControlName="panNumber" placeholder="Enter PAN"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
-                    </div>
-                </div>
-
-                <!-- Currency & Timezone -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Base Currency</label>
-                        <select formControlName="baseCurrency"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none bg-white focus:ring-1 focus:ring-blue-500 transition-all">
-                            <option value="INR">INR (₹)</option>
-                            <option value="USD">USD ($)</option>
-                            <option value="EUR">EUR (€)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Time Zone</label>
-                        <select formControlName="timeZone"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none bg-white focus:ring-1 focus:ring-blue-500 transition-all">
-                            <option value="IST">IST (India)</option>
-                            <option value="UTC">UTC</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Business Type & Website -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Business Type</label>
-                        <select formControlName="businessType"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none bg-white focus:ring-1 focus:ring-blue-500 transition-all">
-                            <option value="RETAIL">Retail</option>
-                            <option value="WHOLESALE">Wholesale</option>
-                            <option value="MANUFACTURING">Manufacturing</option>
-                            <option value="DISTRIBUTION">Distribution</option>
-                            <option value="ECOMMERCE">E-Commerce</option>
-                            <option value="SERVICE_PROVIDER">Service Provider</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Website</label>
-                        <input type="text" formControlName="website" placeholder="www.domain.com"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
-                    </div>
-                </div>
-
-                <!-- Support Contacts -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Support E-Mail</label>
-                        <input type="email" formControlName="supportEmail" placeholder="support@domain.com"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Contact Phone</label>
-                        <input type="text" formControlName="contactPhone" placeholder="Support Phone"
-                            class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 p-3 rounded text-[11px] text-gray-500 mt-2">
-                    <strong>Note:</strong> Terms & Conditions and Signature added below will be shown on your Invoices
-                </div>
-
-                <div class="mt-2">
-                    <label class="block text-xs font-medium text-gray-500 mb-2">Signature</label>
-                    <div
-                        class="w-full h-24 border-2 border-dashed border-blue-300 rounded-lg flex items-center justify-center text-blue-500 cursor-pointer hover:bg-blue-50 transition">
-                        <span class="text-xs font-medium">+ Add Signature</span>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <div class="mt-6 bg-white border border-gray-100 rounded-lg p-4 flex items-center gap-4">
-        <div class="p-2 bg-blue-50 rounded">
-            <span class="text-xs font-bold text-blue-600">Tally</span>
+    <div [ngSwitch]="activeTab()">
+        <!-- Profile Tab -->
+        <div *ngSwitchCase="'Profile'">
+            <app-profile></app-profile>
         </div>
-        <div>
-            <h4 class="text-sm font-semibold text-gray-800">Data Export to Tally <span
-                    class="ml-2 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded italic">New</span></h4>
-            <p class="text-xs text-gray-400">Transfer vouchers, items and parties to Tally</p>
-        </div>
-    </div>
-
-    <!-- Address Modal -->
-    <div *ngIf="isAddressModalOpen()"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm animate-fade-in p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <h3 class="text-lg font-bold text-gray-800">{{ editingAddressId() ? 'Edit Address' : 'Add New Address'
-                    }}</h3>
-                <button type="button" (click)="closeAddressModal()"
-                    class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <form [formGroup]="addressForm" (ngSubmit)="onSaveAddress()" class="p-6 space-y-5">
-                <div class="grid grid-cols-2 gap-5">
-                    <div class="col-span-2 space-y-1.5">
-                        <label class="text-xs font-medium text-gray-600">Address Type</label>
-                        <select formControlName="type"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-shadow bg-white">
-                            <option value="OFFICE">Office</option>
-                            <option value="BILLING">Billing</option>
-                            <option value="SHIPPING">Shipping</option>
-                            <option value="WAREHOUSE">Warehouse</option>
-                        </select>
-                    </div>
-                    <div class="col-span-2 space-y-1.5">
-                        <label class="text-xs font-medium text-gray-600">Address Line 1 <span
-                                class="text-red-500">*</span></label>
-                        <input type="text" formControlName="addressLine1"
-                            placeholder="Flat, House no., Building, Company"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
-                    </div>
-                    <div class="col-span-2 space-y-1.5">
-                        <label class="text-xs font-medium text-gray-600">Address Line 2</label>
-                        <input type="text" formControlName="addressLine2" placeholder="Area, Street, Sector, Village"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-gray-600">City <span
-                                class="text-red-500">*</span></label>
-                        <input type="text" formControlName="city" placeholder="Town/City"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-gray-600">State <span
-                                class="text-red-500">*</span></label>
-                        <input type="text" formControlName="state" placeholder="State"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-gray-600">Country <span
-                                class="text-red-500">*</span></label>
-                        <input type="text" formControlName="country" placeholder="Country"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-gray-600">Pin Code <span
-                                class="text-red-500">*</span></label>
-                        <input type="text" formControlName="pinCode" placeholder="6 digits"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
-                    </div>
+        <!-- Business Tab -->
+        <div *ngSwitchCase="'Business'">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-800">Business Configuration</h2>
+                    <p class="text-xs text-gray-500 mt-1">Edit Your Company Settings And Legal Information</p>
                 </div>
-                <div class="pt-5 border-t border-gray-100 flex justify-end gap-3 mt-2">
-                    <button type="button" (click)="closeAddressModal()"
-                        class="px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" [disabled]="isSavingAddress() || addressForm.invalid"
-                        class="px-6 py-2.5 bg-[#4338CA] text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
-                        <span *ngIf="isSavingAddress()"
-                            class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                        Save Address
+                <div class="flex gap-2">
+                    <button
+                        class="bg-white border border-gray-200 px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-2 shadow-sm">
+                        <span class="material-icons text-sm">calendar_today</span> Close Financial Year
+                    </button>
+                    <button [disabled]="isSaving()" (click)="onSaveTenant()"
+                        class="bg-[#4338CA] text-white px-6 py-2 rounded text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-sm">
+                        <span class="flex items-center gap-2">
+                            <span *ngIf="isSaving()"
+                                class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            Save Configuration
+                        </span>
                     </button>
                 </div>
-            </form>
+            </div>
+
+            <!-- Map this strictly to tenantForm to reuse logic -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-8">
+                <form [formGroup]="tenantForm" class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+                    <div class="lg:col-span-7 space-y-6">
+                        <!-- Avatar block left unchanged visually -->
+                        <div class="flex gap-6">
+                            <div
+                                class="w-32 h-32 border-2 border-dashed border-blue-400 rounded flex flex-col items-center justify-center bg-blue-50/30 text-blue-600 cursor-pointer hover:bg-blue-50 transition">
+                                <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-[10px] font-bold">Upload Logo</span>
+                                <span class="text-[9px] text-gray-400">PNG/JPG, max 5 MB.</span>
+                            </div>
+
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Business Name <span
+                                        class="text-red-500">*</span></label>
+                                <!-- Updated formControlName to tenantName -->
+                                <input type="text" formControlName="tenantName"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all">
+                            </div>
+                            <div class="flex-1">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Company Phone
+                                        Number</label>
+                                    <!-- Updated formControlName to phone -->
+                                    <input type="text" formControlName="phone"
+                                        class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Company E-Mail</label>
+                                    <!-- Updated formControlName to email -->
+                                    <input type="email" formControlName="email" placeholder="Enter company e-mail"
+                                        class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-lg p-5 bg-gray-50/40">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700">Business Addresses</label>
+                                    <p class="text-[10px] text-gray-500 mt-0.5">Manage office, billing, and shipping
+                                        locations
+                                    </p>
+                                </div>
+                                <button type="button" (click)="openAddAddress()"
+                                    class="text-xs bg-white border border-gray-200 text-blue-600 hover:text-blue-700 hover:bg-gray-50 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1.5 shadow-sm">
+                                    <span class="text-lg leading-none">+</span> Add Address
+                                </button>
+                            </div>
+                            <div class="space-y-3">
+                                <div *ngIf="addresses().length === 0"
+                                    class="text-xs text-gray-400 p-6 border-2 border-dashed border-gray-200 rounded-lg text-center bg-white">
+                                    No addresses added yet. Click 'Add Address' to create one.
+                                </div>
+                                <div *ngFor="let addr of addresses()"
+                                    class="p-4 border border-gray-200 rounded-lg flex justify-between items-start bg-white shadow-sm hover:border-blue-300 transition-colors group">
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span
+                                                class="inline-block text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold tracking-wide border border-indigo-100">{{
+                                                addr.type }}</span>
+                                        </div>
+                                        <p class="text-xs font-semibold text-gray-800">{{ addr.addressLine1 }} <span
+                                                *ngIf="addr.addressLine2">, {{ addr.addressLine2 }}</span></p>
+                                        <p class="text-[11px] text-gray-500 mt-1">{{ addr.city }}, {{ addr.state }}, {{
+                                            addr.country }} - <span class="font-medium text-gray-700">{{ addr.pinCode
+                                                }}</span>
+                                        </p>
+                                    </div>
+                                    <button type="button" (click)="openEditAddress(addr)"
+                                        class="text-gray-400 hover:text-blue-600 transition-colors p-1.5 opacity-0 group-hover:opacity-100 rounded-md hover:bg-blue-50">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 space-y-4">
+                            <div
+                                class="flex items-center justify-between p-3 bg-blue-50/50 border border-blue-100 rounded-lg">
+                                <span class="text-sm text-blue-700 font-medium">Enable e-Invoicing <span
+                                        class="ml-2 bg-blue-400 text-white text-[10px] px-1.5 py-0.5 rounded italic">New</span></span>
+                                <div class="w-10 h-5 bg-gray-200 rounded-full relative cursor-pointer">
+                                    <div class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Enable TDS</span>
+                                <div class="w-10 h-5 bg-gray-200 rounded-full relative cursor-pointer">
+                                    <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 space-y-6">
+                        <!-- Legal & Registration -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Legal Name</label>
+                                <input type="text" formControlName="legalName" placeholder="Registered Legal Name"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">GST Number</label>
+                                <input type="text" formControlName="gstNumber" placeholder="e.g. 06APTPS..."
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">PAN Number</label>
+                                <input type="text" formControlName="panNumber" placeholder="Enter PAN"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Currency & Timezone -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Base Currency</label>
+                                <select formControlName="baseCurrency"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none bg-white focus:ring-1 focus:ring-blue-500 transition-all">
+                                    <option value="INR">INR (₹)</option>
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Time Zone</label>
+                                <select formControlName="timeZone"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none bg-white focus:ring-1 focus:ring-blue-500 transition-all">
+                                    <option value="IST">IST (India)</option>
+                                    <option value="UTC">UTC</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Business Type & Website -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Business Type</label>
+                                <select formControlName="businessType"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none bg-white focus:ring-1 focus:ring-blue-500 transition-all">
+                                    <option value="RETAIL">Retail</option>
+                                    <option value="WHOLESALE">Wholesale</option>
+                                    <option value="MANUFACTURING">Manufacturing</option>
+                                    <option value="DISTRIBUTION">Distribution</option>
+                                    <option value="ECOMMERCE">E-Commerce</option>
+                                    <option value="SERVICE_PROVIDER">Service Provider</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Website</label>
+                                <input type="text" formControlName="website" placeholder="www.domain.com"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Support Contacts -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Support E-Mail</label>
+                                <input type="email" formControlName="supportEmail" placeholder="support@domain.com"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Contact Phone</label>
+                                <input type="text" formControlName="contactPhone" placeholder="Support Phone"
+                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded text-[11px] text-gray-500 mt-2">
+                            <strong>Note:</strong> Terms & Conditions and Signature added below will be shown on your
+                            Invoices
+                        </div>
+
+                        <div class="mt-2">
+                            <label class="block text-xs font-medium text-gray-500 mb-2">Signature</label>
+                            <div
+                                class="w-full h-24 border-2 border-dashed border-blue-300 rounded-lg flex items-center justify-center text-blue-500 cursor-pointer hover:bg-blue-50 transition">
+                                <span class="text-xs font-medium">+ Add Signature</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mt-6 bg-white border border-gray-100 rounded-lg p-4 flex items-center gap-4">
+                <div class="p-2 bg-blue-50 rounded">
+                    <span class="text-xs font-bold text-blue-600">Tally</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-800">Data Export to Tally <span
+                            class="ml-2 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded italic">New</span></h4>
+                    <p class="text-xs text-gray-400">Transfer vouchers, items and parties to Tally</p>
+                </div>
+            </div>
+        </div>
+
+        <div *ngSwitchDefault class="animate-fade-in flex flex-col items-center justify-center p-20 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <span class="material-icons text-3xl text-gray-400">code</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800">{{ activeTab() }} Settings</h3>
+            <p class="text-sm text-gray-500 mt-2 max-w-sm">This section is currently under development. Additional
+                configurations will be available here soon.</p>
         </div>
     </div>
 </div>
