@@ -9,7 +9,7 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SalesOrderService } from './sales-order.service';
-import { ArrowRight, BadgeIndianRupee, Clock, FileText, XCircle } from 'lucide-angular';
+import { ArrowRight, BadgeIndianRupee, Clock, FileText, ListCheck, ListChevronsUpDown, XCircle } from 'lucide-angular';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
@@ -49,33 +49,33 @@ export class SalesOrderComponent implements OnInit {
 
   pagination: PaginationConfig = { pageSize: 20, currentPage: 1, totalItems: 0 };
 
-  // //DUMMY STATS DATA
+  // DUMMY STATS DATA
   salesOrderStats: StatCardConfig[] = [
     {
       key: 'totalValue',
       label: 'Total Sales Order Value',
-      value: '₹12,45,000',
+      value: '₹0.00',
+      icon: ListCheck,
+      color: 'emerald',
+    },
+    {
+      key: 'totalSOConvertedValue',
+      label: 'Total SO Converted Value',
+      value: '₹0.00',
       icon: BadgeIndianRupee,
       color: 'emerald',
     },
     {
-      key: 'pendingApproval',
-      label: 'Pending Approval',
-      value: '8 Orders',
-      icon: Clock,
-      color: 'gray',
-    },
-    {
       key: 'pendingInvoice',
       label: 'Pending Invoice',
-      value: '14 Orders',
+      value: '0 Orders',
       icon: FileText,
       color: 'amber',
     },
     {
       key: 'cancelled',
       label: 'Cancelled Orders',
-      value: '3',
+      value: '0',
       icon: XCircle,
       color: 'orange',
     }
@@ -157,6 +157,13 @@ export class SalesOrderComponent implements OnInit {
             key: 'totalValue',
             label: 'Total Sales Order Value',
             value: '₹' + response.data.totalValue,
+            icon: ListCheck,
+            color: 'emerald',
+          },
+          {
+            key: 'totalSOConvertedValue',
+            label: 'Total SO Converted Value',
+            value: '₹ ' + response.data.convertedSalesValue,
             icon: BadgeIndianRupee,
             color: 'emerald',
           },
@@ -165,13 +172,6 @@ export class SalesOrderComponent implements OnInit {
             label: 'Pending Approval',
             value: response.data.pendingApprovalCount + ' Orders',
             icon: Clock,
-            color: 'gray',
-          },
-          {
-            key: 'pendingInvoice',
-            label: 'Pending Invoice',
-            value: 0 + ' Orders',
-            icon: FileText,
             color: 'amber',
           },
           {

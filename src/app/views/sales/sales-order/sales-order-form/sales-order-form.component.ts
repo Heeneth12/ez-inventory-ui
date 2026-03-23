@@ -76,7 +76,6 @@ export class SalesOrderFormComponent implements OnInit {
     private salesOrderService: SalesOrderService,
     private approvalConsoleService: ApprovalConsoleService,
     private userService: UserManagementService,
-    private itemService: ItemService,
     private toast: ToastService,
     private drawerService: DrawerService,
     private modalService: ModalService,
@@ -376,7 +375,7 @@ export class SalesOrderFormComponent implements OnInit {
   onDiscountAmountChange(index: number, event: Event) {
     const inputElement = event.target as HTMLInputElement;
     const amountVal = parseFloat(inputElement.value) || 0;
-    
+
     const ctrl = this.items.at(index);
     const qty = ctrl.get('orderedQty')?.value || 0;
     const price = ctrl.get('unitPrice')?.value || 0;
@@ -395,7 +394,7 @@ export class SalesOrderFormComponent implements OnInit {
   onTaxAmountChange(index: number, event: Event) {
     const inputElement = event.target as HTMLInputElement;
     const amountVal = parseFloat(inputElement.value) || 0;
-    
+
     const ctrl = this.items.at(index);
     const qty = ctrl.get('orderedQty')?.value || 0;
     const price = ctrl.get('unitPrice')?.value || 0;
