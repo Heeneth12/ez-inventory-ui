@@ -170,7 +170,7 @@ export class SalesOrderFormComponent implements OnInit {
 
   private checkReadonlyStatus(order: any) {
     this.orderStatus = order.status;
-    if (this.orderStatus === 'FULLY_INVOICED' || this.orderStatus === 'REJECTED') {
+    if (this.orderStatus === 'FULLY_INVOICED' || this.orderStatus === 'REJECTED' || this.orderStatus === 'CANCELLED') {
       this.isReadonly = true;
       this.orderForm.disable();
     } else {
@@ -370,6 +370,48 @@ export class SalesOrderFormComponent implements OnInit {
     const current = ctrl?.value || 0;
     if (current + delta > 0) {
       ctrl?.setValue(current + delta);
+    }
+  }
+
+  onDiscountAmountChange(index: number, event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const amountVal = parseFloat(inputElement.value) || 0;
+    
+    const ctrl = this.items.at(index);
+    const qty = ctrl.get('orderedQty')?.value || 0;
+    const price = ctrl.get('unitPrice')?.value || 0;
+    const gross = this.round(qty * price);
+
+    if (gross > 0) {
+      let rate = (amountVal / gross) * 100;
+      rate = this.round(rate);
+      rate = Math.min(100, Math.max(0, rate));
+      ctrl.get('discountRate')?.setValue(rate);
+    } else {
+      ctrl.get('discountRate')?.setValue(0);
+    }
+  }
+
+  onTaxAmountChange(index: number, event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const amountVal = parseFloat(inputElement.value) || 0;
+    
+    const ctrl = this.items.at(index);
+    const qty = ctrl.get('orderedQty')?.value || 0;
+    const price = ctrl.get('unitPrice')?.value || 0;
+    const discRate = ctrl.get('discountRate')?.value || 0;
+
+    const gross = this.round(qty * price);
+    const discAmt = this.round(gross * (discRate / 100));
+    const taxable = gross - discAmt;
+
+    if (taxable > 0) {
+      let rate = (amountVal / taxable) * 100;
+      rate = this.round(rate);
+      rate = Math.max(0, rate);
+      ctrl.get('taxRate')?.setValue(rate);
+    } else {
+      ctrl.get('taxRate')?.setValue(0);
     }
   }
 

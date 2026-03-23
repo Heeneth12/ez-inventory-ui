@@ -43,6 +43,7 @@ import {
   ChevronsLeft,
   Sun,
   Moon,
+  MessageSquarePlus,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { TutorialService } from '../../service/common/tutorial.service';
@@ -202,6 +203,14 @@ export class InventoryLayoutComponent implements OnInit {
           this.tutorialService.startTour('general');
         }
       }
+    },
+    {
+      label: 'Feedback',
+      subLabel: 'Share your feedback with us',
+      icon: MessageSquarePlus,
+      iconBgClass: 'bg-slate-50',
+      colorClass: 'text-slate-600',
+      action: () => { }
     }
   ];
 
