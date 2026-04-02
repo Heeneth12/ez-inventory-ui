@@ -61,4 +61,26 @@ export class DeliveryService {
     getRouteSummary(successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/summary`, successfn, errorfn)
     }
+
+    getBulkDeliveryItems(filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/bulk-items`, filter, successfn, errorfn);
+    }
+
+    /**
+     * DOWNLOAD EXCEL
+     * Calls POST /bulk/download with filter criteria
+     */
+    downloadBulkDeliveryItemsExcel(filter: any, successCallback?: any, errorCallback?: any) {
+        const url = DeliveryService.DELIVERIES_BASE_URL + '/bulk-items/download';
+
+        this.httpService.postHttpBlob(url, filter,
+            (blob: Blob) => {
+                this.httpService.downloadFile(blob, "bulk_delivery_items.xlsx");
+                if (successCallback) successCallback();
+            },
+            (error: any) => {
+                if (errorCallback) errorCallback(error);
+            }
+        );
+    }
 }
