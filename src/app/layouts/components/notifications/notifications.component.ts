@@ -1,27 +1,28 @@
-import { Component, signal, computed, OnInit, OnDestroy, inject, ViewChild, TemplateRef } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, inject, ElementRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from './notification.service';
 import { Observable, Subscription } from 'rxjs';
 import { UserInitResponse } from '../../models/Init-response.model';
 import { AuthService } from '../../guards/auth.service';
 import { Notification } from './notification.model';
-import { DrawerService } from '../drawer/drawerService';
 import { Bell, Check, Trash2, AlertTriangle, Info, LucideAngularModule } from 'lucide-angular';
+import '@tailwindplus/elements';
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
-  templateUrl: './notifications.component.html'
+  templateUrl: './notifications.component.html',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class NotificationsComponent implements OnInit, OnDestroy {
-  @ViewChild('notificationTemplate') notificationTemplate!: TemplateRef<any>;
   private notificationService = inject(NotificationService);
   private sub: Subscription = new Subscription();
+
   filter = signal<'all' | 'unread'>('all');
   rawNotifications = signal<Notification[]>([]);
 
-  //icon
+  // Icons
   readonly BellIcon = Bell;
   readonly CheckIcon = Check;
   readonly TrashIcon = Trash2;
@@ -38,7 +39,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   constructor(
     private authSvs: AuthService,
-    private drawerSvc: DrawerService
+    private el: ElementRef
   ) {
     this.userData$ = this.authSvs.currentUser$;
   }
@@ -47,38 +48,28 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     const userSub = this.userData$.subscribe(user => {
       if (user) {
         console.log('Connecting to Notifications for:', user.fullName);
-        const myUserId = user.userUuid; // Use UUID for security
-        const myOrgId = String(user.tenantId); // Convert ID to string
-        console.log('user UUID: ' + myUserId)
+        const myUserId = user.userUuid;
+        const myOrgId = String(user.tenantId);
+        console.log('user UUID: ' + myUserId);
+
         const myGroupId = user.userRoles && user.userRoles.length > 0
           ? user.userRoles[0]
           : 'default-group';
+
         this.notificationService.connect(myUserId, myOrgId, myGroupId);
       }
     });
+
     const notifSub = this.notificationService.notifications$.subscribe(data => {
       this.rawNotifications.set(data);
     });
+
     this.sub.add(userSub);
     this.sub.add(notifSub);
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe(); // Unsubscribes from everything at once
-  }
-
-  openNotificationTemplate() {
-    if (!this.notificationTemplate) return;
-
-    this.drawerSvc.openTemplate(
-      this.notificationTemplate,
-      'Notifications',
-      'md'
-    );
-  }
-
-  close() {
-    this.drawerSvc.close();
+    this.sub.unsubscribe();
   }
 
   markAsRead(id: number) {

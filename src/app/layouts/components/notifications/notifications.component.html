@@ -1,86 +1,98 @@
-<button (click)="openNotificationTemplate()"
-  class="relative p-2 text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-lg hover:text-gray-600 transition-colors focus:outline-none">
-  <lucide-icon [img]="BellIcon" class="w-4 h-4 shrink-0 text-gray-600 group-hover:text-gray-500"></lucide-icon>
-  <span *ngIf="unreadCount() > 0" class="absolute top-0 right-0 flex h-2.5 w-2.5">
-    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-  </span>
-</button>
+<el-dropdown class="inline-block">
 
+  <button
+    class="relative p-2 text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-lg hover:text-gray-600 transition-colors focus:outline-none group inline-flex items-center justify-center">
+    <lucide-icon [img]="BellIcon" class="w-4 h-4 shrink-0 text-gray-600 group-hover:text-gray-500"></lucide-icon>
 
-<ng-template #notificationTemplate>
-  <div class="flex flex-col h-full bg-white w-full">
+    <span *ngIf="unreadCount() > 0" class="absolute top-0 right-0 flex h-2.5 w-2.5 pointer-events-none">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+    </span>
+  </button>
 
-    <div class="px-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
-      <div class="flex items-center justify-between py-3">
-        <div class="flex gap-1">
-          <button (click)="filter.set('all')"
-            [class]="filter() === 'all' ? 'bg-white text-blue-600 border-gray-200 shadow-sm' : 'text-gray-500 border-transparent hover:bg-gray-100'"
-            class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all">
-            All
-          </button>
-          <button (click)="filter.set('unread')"
-            [class]="filter() === 'unread' ? 'bg-white text-blue-600 border-gray-200 shadow-sm' : 'text-gray-500 border-transparent hover:bg-gray-100'"
-            class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5">
-            Unread
-            <span *ngIf="unreadCount() > 0" class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-          </button>
-        </div>
+  <el-menu [attr.anchor]="'bottom end'" popover
+    class="m-0 w-80 origin-top-right rounded-xl bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] ring-1 ring-slate-200 transition [--anchor-gap:8px] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:opacity-0 z-50">
 
-        <div class="flex gap-1">
-          <button (click)="markAllAsRead()" title="Mark all as read"
-            class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
-            <lucide-icon [img]="CheckIcon" class="w-4 h-4"></lucide-icon>
-          </button>
-          <button (click)="clearAll()" title="Clear all"
-            class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
-            <lucide-icon [img]="TrashIcon" class="w-4 h-4"></lucide-icon>
-          </button>
-        </div>
+    <div
+      class="flex items-center text-sm font-semibold justify-between py-3 px-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
+      <div class="flex justify-center items-center gap-2">
+        <lucide-icon [img]="BellIcon" class="w-3.5 h-3.5 text-gray-600"></lucide-icon>
+        <span class="text-gray-600 font-semibold text-sm">Notifications</span>
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto divide-y divide-gray-50">
+    <div class="flex flex-col overflow-hidden" style="max-height: 480px;">
 
-      <div *ngIf="notifications().length === 0"
-        class="flex flex-col items-center justify-center py-20 px-6 text-center">
-        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-          <lucide-icon [img]="BellIcon" class="w-8 h-8 text-gray-300"></lucide-icon>
+      <div class="px-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
+        <div class="flex items-center justify-between py-3">
+          <div class="flex gap-1">
+            <button (click)="filter.set('all')"
+              [class]="filter() === 'all' ? 'bg-white text-blue-600 border-gray-200 shadow-sm' : 'text-gray-500 border-transparent hover:bg-gray-100'"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all">
+              All
+            </button>
+            <button (click)="filter.set('unread')"
+              [class]="filter() === 'unread' ? 'bg-white text-blue-600 border-gray-200 shadow-sm' : 'text-gray-500 border-transparent hover:bg-gray-100'"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5">
+              Unread
+              <span *ngIf="unreadCount() > 0" class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+            </button>
+          </div>
+
+          <div class="flex gap-1">
+            <button (click)="markAllAsRead()" title="Mark all as read"
+              class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+              <lucide-icon [img]="CheckIcon" class="w-4 h-4"></lucide-icon>
+            </button>
+            <button (click)="clearAll()" title="Clear all"
+              class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+              <lucide-icon [img]="TrashIcon" class="w-4 h-4"></lucide-icon>
+            </button>
+          </div>
         </div>
-        <h3 class="text-sm font-medium text-gray-900">All caught up!</h3>
-        <p class="text-xs text-gray-500 mt-1">No new notifications.</p>
       </div>
 
-      <div *ngFor="let note of notifications()" (click)="markAsRead(note.id)"
-        class="relative group flex gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-all border-l-[3px]" [ngClass]="{
-          'bg-blue-50/40 border-blue-500': !note.isRead,
-          'border-transparent opacity-80': note.isRead
-        }">
+      <div class="overflow-y-auto divide-y divide-gray-50">
 
-        <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1" [ngClass]="{
-            'bg-amber-100 text-amber-600': note.type === 'WARNING',
-            'bg-green-100 text-green-600': note.type === 'SUCCESS',
-            'bg-blue-100 text-blue-600': note.type === 'INFO' || !note.type
+        <div *ngIf="notifications().length === 0"
+          class="flex flex-col items-center justify-center py-12 px-6 text-center">
+          <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+            <lucide-icon [img]="BellIcon" class="w-6 h-6 text-gray-300"></lucide-icon>
+          </div>
+          <h3 class="text-sm font-medium text-gray-900">All caught up!</h3>
+          <p class="text-xs text-gray-500 mt-1">No new notifications.</p>
+        </div>
+
+        <div *ngFor="let note of notifications()" (click)="markAsRead(note.id)"
+          class="relative group flex gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-all border-l-[3px]" [ngClass]="{
+            'bg-blue-50/40 border-blue-500': !note.isRead,
+            'border-transparent opacity-80': note.isRead
           }">
 
-          <lucide-icon *ngIf="note.type === 'WARNING'" [img]="AlertTriangleIcon" class="w-4 h-4"></lucide-icon>
-          <lucide-icon *ngIf="note.type === 'SUCCESS'" [img]="CheckIcon" class="w-4 h-4"></lucide-icon>
-          <lucide-icon *ngIf="note.type === 'INFO' || !note.type" [img]="InfoIcon" class="w-4 h-4"></lucide-icon>
-        </div>
-
-        <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-start mb-0.5">
-            <h4 class="text-sm font-semibold text-gray-900 truncate pr-4">{{ note.title }}</h4>
-            <span class="text-[10px] text-gray-400 whitespace-nowrap">
-              {{ note.timestamp | date:'shortTime' }}
-            </span>
+          <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-0.5" [ngClass]="{
+              'bg-amber-100 text-amber-600': note.type === 'WARNING',
+              'bg-green-100 text-green-600': note.type === 'SUCCESS',
+              'bg-blue-100 text-blue-600': note.type === 'INFO' || !note.type
+            }">
+            <lucide-icon *ngIf="note.type === 'WARNING'" [img]="AlertTriangleIcon" class="w-4 h-4"></lucide-icon>
+            <lucide-icon *ngIf="note.type === 'SUCCESS'" [img]="CheckIcon" class="w-4 h-4"></lucide-icon>
+            <lucide-icon *ngIf="note.type === 'INFO' || !note.type" [img]="InfoIcon" class="w-4 h-4"></lucide-icon>
           </div>
-          <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">
-            {{ note.message }}
-          </p>
-        </div>
-      </div>
 
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-start mb-0.5">
+              <h4 class="text-sm font-semibold text-gray-900 truncate pr-4">{{ note.title }}</h4>
+              <span class="text-[10px] text-gray-400 whitespace-nowrap">
+                {{ note.timestamp | date:'shortTime' }}
+              </span>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">
+              {{ note.message }}
+            </p>
+          </div>
+        </div>
+
+      </div>
     </div>
-  </div>
-</ng-template>
+  </el-menu>
+</el-dropdown>
