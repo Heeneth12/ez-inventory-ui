@@ -4,12 +4,12 @@ import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { Banknote, PieChart, ShoppingCart, Truck, Users } from 'lucide-angular';
+import { BadgeIndianRupee, Banknote, BanknoteArrowDown, BanknoteArrowUp, CheckCheckIcon, Clock, PieChart, ShoppingCart, Truck, Users } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { InvoiceFilterModal, InvoiceModal, InvoiceStatus } from './invoice.modal';
+import { InvoiceFilterModal, InvoiceModal } from './invoice.modal';
 import { PaymentService } from '../payments/payment.service';
 import { InvoicePaymentSummaryModal } from '../payments/payment.modal';
 import { ModalService } from '../../../layouts/components/modal/modalService';
@@ -76,6 +76,7 @@ export class InvoicesComponent {
       debounceTime(300),
     ).subscribe(() => {
       this.getAllInvoices();
+      this.getInvoiceStats();
     });
   }
 
@@ -154,6 +155,46 @@ export class InvoicesComponent {
       (error: any) => {
         this.toastSvc.show('Failed to load Payments', 'error');
         console.error('Error fetching payments:', error);
+      }
+    );
+  }
+
+  getInvoiceStats() {
+    this.invoiceService.getInvoiceStats(
+      this.invoicesFilter,
+      (response: any) => {
+        this.invoiceDashboardStats = [
+          {
+            key: 'totalInvoices',
+            label: 'Total Invoice Value',
+            value: '₹ ' + response.data.totalInvoiceValue,
+            icon: BadgeIndianRupee,
+            color: 'emerald',
+          },
+          {
+            key: 'collected',
+            label: 'Collected Amount',
+            value: '₹ ' + response.data.collectedAmount,
+            icon: BanknoteArrowUp,
+            color: 'blue',
+          },
+          {
+            key: 'uncollected',
+            label: 'Uncollected Amount',
+            value: '₹ ' + response.data.uncollectedAmount,
+            icon: BanknoteArrowDown,
+            color: 'orange',
+          },
+          {
+            key: 'pendingInvoices',
+            label: 'Pending Invoices',
+            value: response.data.pendingCount + ' Orders',
+            icon: Clock,
+            color: 'amber',
+          }]
+      },
+      (error: any) => {
+        console.error('Error fetching invoice stats:', error);
       }
     );
   }
@@ -306,28 +347,28 @@ export class InvoicesComponent {
       key: 'totalInvoices',
       label: 'Total Invoice Value',
       value: '$45,780',
-      icon: Banknote,
+      icon: BadgeIndianRupee,
       color: 'emerald',
     },
     {
       key: 'collected',
       label: 'Collected Amount',
       value: '$32,420',
-      icon: PieChart,
+      icon: BanknoteArrowUp,
       color: 'blue',
     },
     {
       key: 'uncollected',
       label: 'Uncollected Amount',
       value: '$13,360',
-      icon: ShoppingCart,
+      icon: BanknoteArrowDown,
       color: 'orange',
     },
     {
       key: 'pendingInvoices',
       label: 'Pending Invoices',
       value: '28',
-      icon: Users,
+      icon: Clock,
       color: 'amber',
     }
   ];

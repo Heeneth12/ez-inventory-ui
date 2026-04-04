@@ -37,7 +37,7 @@
                 </button>
             </div>
             <div class="flex items-center gap-2">
-                <button id="table-reload" (click)="resetFilters()"
+                <button id="table-reload" (click)="resetFilters()" title="Reset Filters"
                     class="text-xs p-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 hover:text-indigo-800 font-medium">
                     <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
                 </button>
@@ -52,7 +52,7 @@
                     <span>{{ btn.label }}</span>
                 </button>
             </ng-container>
-            <button
+            <button title="Settings"
                 class="flex items-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none"
                 (click)="showSettings.set(!showSettings())">
                 <lucide-icon [img]="Settings" class="w-4 h-4"></lucide-icon>

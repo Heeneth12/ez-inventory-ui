@@ -36,7 +36,11 @@ export class InvoiceService {
     searchInvoices(filter: any, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${InvoiceService.INVOICE_BASE_URL}/search`, filter, successfn, errorfn);
     }
-    
+
+    getInvoiceStats(filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${InvoiceService.INVOICE_BASE_URL}/stats`, filter, successfn, errorfn);
+    }
+
     downloadInvoicePdf(id: number, successfn: any, errorfn: any) {
         return this.httpService.getFile(`${InvoiceService.INVOICE_BASE_URL}/${id}/pdf`, successfn, errorfn);
     }

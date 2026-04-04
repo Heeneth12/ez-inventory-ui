@@ -41,7 +41,36 @@ export class StockComponent implements OnInit {
   page: number = 0;
   size: number = 10;
 
-  stockDashboardStats: StatCardConfig[] = [];
+  stockDashboardStats: StatCardConfig[] = [
+    {
+      key: 'totalStockValue',
+      label: 'Total Stock Value',
+      value: `₹0`,
+      icon: Package,
+      color: 'blue',
+    },
+    {
+      key: 'netMovement',
+      label: 'Net Stock Movement',
+      value: `+0 Units`,
+      icon: TrendingUp,
+      color: 'emerald',
+    },
+    {
+      key: 'fastMoving',
+      label: 'Fast-Moving Items',
+      value: `0 Items`,
+      icon: Zap,
+      color: 'orange',
+    },
+    {
+      key: 'outOfStock',
+      label: 'Out of Stock Items',
+      value: `0 Items`,
+      icon: AlertCircle,
+      color: 'rose',
+    },
+  ];
 
   headerActions: HeaderAction[] = [
     {

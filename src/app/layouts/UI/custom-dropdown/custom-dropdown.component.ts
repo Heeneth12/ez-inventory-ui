@@ -32,7 +32,7 @@ export interface DropdownMenuItem {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <el-dropdown class="inline-block">
-      <button
+      <button [title]="menuTitle"
         [class]="buttonClass">
         {{ menuTitle }}
         <lucide-icon [img]="triggerIcon" [class]="iconClass">

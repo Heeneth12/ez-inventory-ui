@@ -1,3 +1,5 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
+
 export class StockLedger {
     id!: number;
     itemId!: number;
@@ -12,14 +14,8 @@ export class StockLedger {
     createdAt!: string;
 }
 
-export class StockLedgerFilter {
-    id?: number;
+export class StockLedgerFilter extends CommonFilterModel {
     itemId?: number;
-    searchQuery?: string;
-    statuses?: string[];
-    warehouseId?: number;
-    fromDate?: string | null; // ISO string format
-    toDate?: string | null; // ISO string format
     transactionTypes?: string[] | null; // IN / OUT
     referenceTypes?: string[] | null; // GRN / SALE / TRANSFER / RETURN        
 }
