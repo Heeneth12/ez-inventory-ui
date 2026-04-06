@@ -1,5 +1,5 @@
 <div class="so-page font-sans bg-gray-50/30">
-    <form [formGroup]="orderForm" (ngSubmit)="saveOrder()">
+    <form [formGroup]="orderForm" (ngSubmit)="saveOrder()" (keydown.enter)="$event.preventDefault()">
         <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
             <div class="flex items-center gap-3">
                 @if(!customerId && !id){
