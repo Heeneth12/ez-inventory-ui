@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from "@angular/router";
 import { filter } from 'rxjs/operators';
 import {
@@ -43,6 +43,7 @@ import {
   ChevronsLeft,
   Sun,
   Moon,
+  MessageSquarePlus,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { TutorialService } from '../../service/common/tutorial.service';
@@ -202,6 +203,14 @@ export class InventoryLayoutComponent implements OnInit {
           this.tutorialService.startTour('general');
         }
       }
+    },
+    {
+      label: 'Feedback',
+      subLabel: 'Share your feedback with us',
+      icon: MessageSquarePlus,
+      iconBgClass: 'bg-slate-50',
+      colorClass: 'text-slate-600',
+      action: () => { }
     }
   ];
 
@@ -432,6 +441,14 @@ export class InventoryLayoutComponent implements OnInit {
       {},
       'md'
     )
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && (event.key === 'k' || event.key === 'K')) {
+      event.preventDefault();
+      this.openSmartSearch();
+    }
   }
 
   toggleSidebarCollapse() {

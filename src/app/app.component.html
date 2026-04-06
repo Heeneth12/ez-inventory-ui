@@ -7,6 +7,10 @@
 <app-inventory-layout>
   <router-outlet></router-outlet>
 </app-inventory-layout>
+} @else if (currentUser.userType === 'ADMIN') {
+<app-dev-layout>
+  <router-outlet></router-outlet>
+</app-dev-layout>
 } @else {
 <router-outlet></router-outlet>
 }

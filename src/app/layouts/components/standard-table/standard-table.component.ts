@@ -411,4 +411,37 @@ export class StandardTableComponent implements OnChanges {
       this.pageChange.emit(1);
     }
   }
+
+
+
+  // Add this property to your component
+  activeConfirm: { row: any, act: TableActionConfig } | null = null;
+
+  // Replace your current emit logic with this handler
+  handleActionClick(event: Event, act: TableActionConfig, row: any) {
+    event.stopPropagation();
+
+    if (act.confirmationRequired) {
+      // Open the confirmation popover for this specific row and action
+      this.activeConfirm = { row, act };
+    } else {
+      // Execute immediately if no confirmation is needed
+      this.emitCustomAction(act, row);
+    }
+  }
+
+  // Method for the "Proceed" button inside the popover
+  confirmAction(event: Event) {
+    event.stopPropagation();
+    if (this.activeConfirm) {
+      this.emitCustomAction(this.activeConfirm.act, this.activeConfirm.row);
+      this.activeConfirm = null; // Close popover
+    }
+  }
+
+  // Method for the "Cancel" button inside the popover
+  cancelConfirm(event: Event) {
+    event.stopPropagation();
+    this.activeConfirm = null; // Close popover
+  }
 }   

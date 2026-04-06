@@ -1,12 +1,11 @@
-<div class="flex h-screen bg-gray-50 font-sans text-slate-800 overflow-hidden">
-
+<div class="flex h-screen bg-slate-50 font-sans text-slate-800 overflow-hidden">
     @if (isMobileMenuOpen) {
     <div (click)="closeMenu()" class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity">
     </div>
     }
 
     <aside id="app-sidebar"
-        class="fixed inset-y-0 left-0 z-30 bg-[#0b1520] border-r border-slate-800/60 flex flex-col transition-all duration-300 ease-in-out lg:static shadow-xl"
+        class="fixed inset-y-0 left-0 z-30 bg-[#0f172a] border-r border-slate-800/60 flex flex-col transition-all duration-300 ease-in-out lg:static shadow-xl"
         [ngClass]="{
             'translate-x-0': isMobileMenuOpen, 
             '-translate-x-full lg:translate-x-0': !isMobileMenuOpen,
@@ -15,18 +14,18 @@
         }">
         <div class="h-16 flex items-center shrink-0 transition-all duration-300 border-b border-white/5"
             [ngClass]="isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'">
-            <a href="/dashboard">
+            <a href="/dev/dashboard">
                 <div class="flex items-center gap-0 overflow-hidden whitespace-nowrap">
                     <div class="p-1 rounded-sm shadow-sm shrink-0">
                         <img src="assets/images/new.png" alt="logo" class="w-9 h-9 object-contain" />
                     </div>
 
                     @if (!isSidebarCollapsed) {
-                    <div class="flex flex-col animate-in fade-in slide-in-from-left-4 duration-300">
+                    <div class="flex flex-col animate-in fade-in slide-in-from-left-4 duration-300 pl-2">
                         <span class="text-lg font-bold text-slate-100 tracking-tight leading-none">
-                            Inventory
+                            Platform
                         </span>
-                        <span class="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Management</span>
+                        <span class="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Super Admin</span>
                     </div>
                     }
                 </div>
@@ -40,120 +39,117 @@
         <nav class="flex-1 mt-4 px-3 space-y-1 custom-scrollbar transition-all duration-300"
             [ngClass]="isSidebarCollapsed ? 'overflow-visible' : 'overflow-y-auto overflow-x-hidden'">
             @for (item of visibleNavItems; track item.label + i; let i = $index) {
-            @if (item.isHeader) {
-            @if (!isSidebarCollapsed) {
-            <div class="px-3 py-2 text-[10px] font-bold text-slate-200 uppercase tracking-wider">
-                {{ item.label }}
-            </div>
-            } @else {
-            <div class="my-4 border-t border-slate-700/50 w-8 mx-auto"></div>
-            }
-            } @else {
-            @if (!item.subItems) {
-            <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i"
-                class="group relative flex items-center rounded-mb p-3 text-sm font-medium border transition-all duration-300 cursor-pointer outline-none"
-                [ngClass]="{
-                        'justify-center': isSidebarCollapsed,
-                        'opacity-100 cursor-not-allowed text-slate-600 border-none': item.isDisabled,
-                        'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item) && !item.isDisabled,
-                        'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isItemActive(item) && !item.isDisabled
-                    }">
-
-                <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300" [ngClass]="{
-                            'text-indigo-400': isItemActive(item) && !item.isDisabled,
-                            'text-white': isSidebarCollapsed && !(isItemActive(item) && !item.isDisabled)
-                        }">
-                </lucide-icon>
-
-                @if (!isSidebarCollapsed) {
-                <span class="ml-3 truncate animate-in fade-in slide-in-from-left-2 duration-300">{{ item.label }}</span>
-
-                @if (item.badge) {
-                <span [ngClass]="{
-                            'bg-slate-500 text-white': item.label === 'Approval',
-                            'bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold text-[10px]': item.label === 'AI Chat'
-                        }" class="ml-auto px-2 py-0.5 rounded-full text-[11px] shadow-sm">
-                    {{ item.badge }}
-                </span>
-                }
-                }
-
-                @if (isSidebarCollapsed) {
-                <div
-                    class="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-[100] whitespace-nowrap rounded-md bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 origin-left scale-95 group-hover:scale-100">
-                    <div
-                        class="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700">
+                @if (item.isHeader) {
+                    @if (!isSidebarCollapsed) {
+                    <div class="px-3 py-2 text-[10px] font-bold text-slate-200 uppercase tracking-wider">
+                        {{ item.label }}
                     </div>
-                    {{ item.label }}
-                </div>
-                }
-            </a>
-            }
+                    } @else {
+                    <div class="my-4 border-t border-slate-700/50 w-8 mx-auto"></div>
+                    }
+                } @else {
+                    @if (!item.subItems) {
+                    <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i"
+                        class="group relative flex items-center rounded-mb p-3 text-sm font-medium border transition-all duration-300 cursor-pointer outline-none"
+                        [ngClass]="{
+                                'justify-center': isSidebarCollapsed,
+                                'opacity-100 cursor-not-allowed text-slate-600 border-none': item.isDisabled,
+                                'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item) && !item.isDisabled,
+                                'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isItemActive(item) && !item.isDisabled
+                            }">
 
-            @if (item.subItems) {
-            <div class="space-y-1">
-                <div (click)="toggleDropdown(item.label)" [id]="'menu-item-' + i"
-                    class="group relative flex items-center justify-between rounded-mb p-3 text-sm font-medium border cursor-pointer transition-all duration-300 select-none"
-                    [ngClass]="{
-                            'bg-slate-800/50 text-indigo-300 border-slate-700/50': isDropdownOpen(item.label) && !isItemActive(item),
-                            'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item),
-                            'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isDropdownOpen(item.label) && !isItemActive(item),
-                            'justify-center': isSidebarCollapsed
-                        }">
-
-                    <div class="flex items-center" [ngClass]="{'w-full justify-center text-white': isSidebarCollapsed}">
-                        <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-colors"
-                            [ngClass]="(isDropdownOpen(item.label) || isItemActive(item)) ? 'text-indigo-400' : 'group-hover:text-slate-200'">
+                        <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300" [ngClass]="{
+                                    'text-indigo-400': isItemActive(item) && !item.isDisabled,
+                                    'text-white': isSidebarCollapsed && !(isItemActive(item) && !item.isDisabled)
+                                }">
                         </lucide-icon>
 
                         @if (!isSidebarCollapsed) {
-                        <span class="ml-3 truncate animate-in fade-in slide-in-from-left-2 duration-300">{{ item.label
-                            }}</span>
+                        <span class="ml-3 truncate animate-in fade-in slide-in-from-left-2 duration-300">{{ item.label }}</span>
+
+                        @if (item.badge) {
+                        <span [ngClass]="{
+                                    'bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold text-[10px]': item.badgeVariant === 'pro'
+                                }" class="ml-auto px-2 py-0.5 rounded-full text-[11px] shadow-sm">
+                            {{ item.badge }}
+                        </span>
                         }
-                    </div>
+                        }
 
-                    @if (!isSidebarCollapsed) {
-                    <lucide-icon [img]="ChevronDown" class="w-4 h-4 transition-transform duration-300" [ngClass]="{
-                                'rotate-180': isDropdownOpen(item.label),
-                                'text-indigo-400': isDropdownOpen(item.label) || isItemActive(item),
-                                'text-slate-500': !isDropdownOpen(item.label) && !isItemActive(item)
-                            }">
-                    </lucide-icon>
-                    }
-
-                    @if (isSidebarCollapsed) {
-                    <div
-                        class="absolute left-14 z-50 whitespace-nowrap rounded-md bg-slate-800 border border-slate-700 px-3 py-1.5 text-xs text-white shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity delay-100">
-                        {{ item.label }}
-                    </div>
-                    }
-                </div>
-
-                @if (isDropdownOpen(item.label) && !isSidebarCollapsed) {
-                <div class="mt-1 pl-3 pr-1 space-y-1 animate-in slide-in-from-top-1 duration-200">
-                    @for (sub of item.subItems; track sub.link) {
-                    <div class="relative pl-6">
+                        @if (isSidebarCollapsed) {
                         <div
-                            class="absolute left-[1.1rem] top-0 bottom-0 w-px bg-slate-800 group-hover:bg-slate-700 transition-colors">
+                            class="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-[100] whitespace-nowrap rounded-md bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 origin-left scale-95 group-hover:scale-100">
+                            <div
+                                class="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700">
+                            </div>
+                            {{ item.label }}
+                        </div>
+                        }
+                    </a>
+                    }
+
+                    @if (item.subItems) {
+                    <div class="space-y-1">
+                        <div (click)="toggleDropdown(item.label)" [id]="'menu-item-' + i"
+                            class="group relative flex items-center justify-between rounded-mb p-3 text-sm font-medium border cursor-pointer transition-all duration-300 select-none"
+                            [ngClass]="{
+                                    'bg-slate-800/50 text-indigo-300 border-slate-700/50': isDropdownOpen(item.label) && !isItemActive(item),
+                                    'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item),
+                                    'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isDropdownOpen(item.label) && !isItemActive(item),
+                                    'justify-center': isSidebarCollapsed
+                                }">
+
+                            <div class="flex items-center" [ngClass]="{'w-full justify-center text-white': isSidebarCollapsed}">
+                                <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-colors"
+                                    [ngClass]="(isDropdownOpen(item.label) || isItemActive(item)) ? 'text-indigo-400' : 'group-hover:text-slate-200'">
+                                </lucide-icon>
+
+                                @if (!isSidebarCollapsed) {
+                                <span class="ml-3 truncate animate-in fade-in slide-in-from-left-2 duration-300">{{ item.label }}</span>
+                                }
+                            </div>
+
+                            @if (!isSidebarCollapsed) {
+                            <lucide-icon [img]="ChevronDown" class="w-4 h-4 transition-transform duration-300" [ngClass]="{
+                                        'rotate-180': isDropdownOpen(item.label),
+                                        'text-indigo-400': isDropdownOpen(item.label) || isItemActive(item),
+                                        'text-slate-500': !isDropdownOpen(item.label) && !isItemActive(item)
+                                    }">
+                            </lucide-icon>
+                            }
+
+                            @if (isSidebarCollapsed) {
+                            <div
+                                class="absolute left-14 z-50 whitespace-nowrap rounded-md bg-slate-800 border border-slate-700 px-3 py-1.5 text-xs text-white shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity delay-100">
+                                {{ item.label }}
+                            </div>
+                            }
                         </div>
 
-                        <a [routerLink]="sub.link"
-                            routerLinkActive="text-white bg-indigo-500/10 text-white font-medium px-1 border border-indigo-500/20"
-                            class="block py-2 text-sm text-slate-500 hover:text-indigo-300 hover:translate-x-1 transition-all duration-200">
-                            {{ sub.label }}
-                        </a>
+                        @if (isDropdownOpen(item.label) && !isSidebarCollapsed) {
+                        <div class="mt-1 pl-3 pr-1 space-y-1 animate-in slide-in-from-top-1 duration-200">
+                            @for (sub of item.subItems; track sub.link) {
+                            <div class="relative pl-6">
+                                <div
+                                    class="absolute left-[1.1rem] top-0 bottom-0 w-px bg-slate-800 group-hover:bg-slate-700 transition-colors">
+                                </div>
+
+                                <a [routerLink]="sub.link"
+                                    routerLinkActive="text-indigo-400 bg-indigo-500/10 font-medium px-1 border border-indigo-500/20"
+                                    class="block py-2 text-sm text-slate-500 hover:text-indigo-300 hover:translate-x-1 transition-all duration-200">
+                                    {{ sub.label }}
+                                </a>
+                            </div>
+                            }
+                        </div>
+                        }
                     </div>
                     }
-                </div>
                 }
-            </div>
-            }
-            }
             }
         </nav>
 
         <div class="p-3 border-t border-white/5 bg-[#0b1120]">
-
             <button (click)="toggleSidebarCollapse()"
                 class="hidden lg:flex w-full items-center justify-center p-2 rounded-lg text-slate-500 hover:bg-white/5 hover:text-white transition-all mb-3 group">
                 <lucide-icon [img]="ChevronsLeft" [ngClass]="{'rotate-180': isSidebarCollapsed}"
@@ -211,30 +207,22 @@
                     </div>
                     <input type="text"
                         class="block w-full sm:w-80 pl-10 pr-3 py-2.5 border-none rounded-full bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all"
-                        placeholder="Search..." autocomplete="off" (click)="openSmartSearch()">
+                        placeholder="Search Platform..." autocomplete="off" (click)="openSmartSearch()">
                 </div>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-4">
 
-                <button (click)="openUserCalendar()"
+                <button
                     class="flex items-center gap-2 p-2 md:px-4 md:py-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-50 hover:border-slate-300 ">
                     <lucide-icon [img]="Calendar" class="w-4 h-4 md:w-3.5 md:h-3.5 text-slate-400"></lucide-icon>
                     <span class="hidden md:inline">{{ currentDate | date:'dd-MMM-yyyy' }}</span>
-                    <lucide-icon [img]="ChevronDown" class="hidden md:block w-3.5 h-3.5 text-slate-400"></lucide-icon>
                 </button>
 
-
-                <app-custom-dropdown id="quick-create-btn" [triggerIcon]="PlusIcon" [menuTitle]="'Quick Create'"
+                <app-custom-dropdown id="quick-create-btn" [triggerIcon]="PlusIcon" [menuTitle]="'Quick Action'"
                     [items]="quickCreateItems"
-                    [iconClass]="'h-4 w-4 shrink-0 text-green-700 group-hover:text-green-500 transition-colors'"
-                    buttonClass="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 text-xs font-medium rounded-lg hover:bg-green-50 hover:border-green-300 ">
-                </app-custom-dropdown>
-
-                <app-custom-dropdown id="help-center-btn" [triggerIcon]="helpIcon"
-                    [iconClass]="'h-4 w-4 shrink-0 text-gray-600 group-hover:text-gray-500 transition-colors'"
-                    buttonClass="flex items-center gap-2 p-2 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 hover:border-gray-300"
-                    [items]="helpCenterItems" anchor="bottom end">
+                    [iconClass]="'h-4 w-4 shrink-0 text-indigo-700 group-hover:text-indigo-500 transition-colors'"
+                    buttonClass="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-medium rounded-lg hover:bg-indigo-100 hover:border-indigo-300 ">
                 </app-custom-dropdown>
 
                 <app-notifications></app-notifications>
@@ -243,7 +231,7 @@
                     <button
                         class="flex items-center gap-3 border-l hover:transition-all duration-200 cursor-pointer border-gray-200 pl-4">
                         <div
-                            class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold hover:bg-slate-700 transition-colors">
+                            class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold hover:bg-indigo-700 transition-colors">
                             {{ user.initials }}
                         </div>
                     </button>
@@ -251,15 +239,13 @@
                     <el-menu [attr.anchor]="'bottom end'" popover
                         class="m-0 w-72 origin-top-right rounded-xl bg-white p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-200 transition [--anchor-gap:12px] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:opacity-0">
 
-
                         <div class="p-3 mb-2 bg-slate-50/50 rounded-lg border border-slate-200 flex items-center gap-3">
                             <div
                                 class="size-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-lg ring-2 ring-white">
                                 {{ user.initials }}
                             </div>
                             <div class="flex flex-col min-w-0">
-                                <span class="text-sm font-bold text-slate-900 truncate capitalize">{{ user.name
-                                    }}</span>
+                                <span class="text-sm font-bold text-slate-900 truncate capitalize">{{ user.name }}</span>
                                 <span class="text-[11px] text-slate-500 font-medium truncate">{{ user.email }}</span>
                                 <div class="mt-1">
                                     <span
@@ -297,6 +283,8 @@
         </header>
 
         <div class="flex-1 overflow-y-auto scroll-smooth">
+
+
             <ng-component></ng-component>
         </div>
     </main>

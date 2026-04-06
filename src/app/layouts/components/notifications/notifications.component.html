@@ -1,106 +1,159 @@
-<button (click)="openNotificationTemplate()" 
-  class="relative p-1 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none">
-  
-  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-    </path>
-  </svg>
+<el-dropdown class="inline-block">
 
-  <span *ngIf="unreadCount() > 0" 
-    class="absolute top-0 right-0 flex h-2.5 w-2.5">
-    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-  </span>
-</button>
+  <!-- Bell trigger -->
+  <button title="Notifications"
+    class="relative p-2 text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-lg hover:text-gray-600 transition-colors focus:outline-none group inline-flex items-center justify-center">
+    <lucide-icon [img]="BellIcon" class="w-4 h-4 shrink-0 text-gray-600 group-hover:text-gray-500"></lucide-icon>
 
+    <span *ngIf="unreadCount() > 0" class="absolute top-0 right-0 flex h-2.5 w-2.5 pointer-events-none">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+    </span>
+  </button>
 
-<ng-template #notificationTemplate>
-  <div class="flex flex-col h-full bg-white w-full">
-    
-    <div class="px-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
-      <div class="flex items-center justify-between py-3">
-        <div class="flex gap-1">
-          <button (click)="filter.set('all')"
-            [class]="filter() === 'all' ? 'bg-white text-blue-600 border-gray-200 shadow-sm' : 'text-gray-500 border-transparent hover:bg-gray-100'"
-            class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all">
-            All
-          </button>
-          <button (click)="filter.set('unread')"
-            [class]="filter() === 'unread' ? 'bg-white text-blue-600 border-gray-200 shadow-sm' : 'text-gray-500 border-transparent hover:bg-gray-100'"
-            class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5">
-            Unread
-            <span *ngIf="unreadCount() > 0" class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-          </button>
-        </div>
+  <!-- Dropdown panel -->
+  <el-menu [attr.anchor]="'bottom end'" popover
+    class="m-0 w-80 origin-top-right rounded-xl bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] ring-1 ring-slate-200 transition [--anchor-gap:8px] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:opacity-0 z-50">
 
-        <div class="flex gap-1">
-          <button (click)="markAllAsRead()" title="Mark all as read"
-            class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </button>
-          <button (click)="clearAll()" title="Clear all"
-            class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-        </div>
+    <!-- Header -->
+    <div class="flex items-center justify-between py-3 px-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="BellIcon" class="w-3.5 h-3.5 text-gray-600"></lucide-icon>
+        <span class="text-gray-600 font-semibold text-sm">Notifications</span>
       </div>
+      <span *ngIf="unreadCount() > 0"
+        class="text-[10px] font-semibold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
+        {{ unreadCount() }} new
+      </span>
     </div>
 
-    <div class="flex-1 overflow-y-auto divide-y divide-gray-50">
-      
-      <div *ngIf="notifications().length === 0" class="flex flex-col items-center justify-center py-20 px-6 text-center">
-        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-          <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-        </div>
-        <h3 class="text-sm font-medium text-gray-900">All caught up!</h3>
-        <p class="text-xs text-gray-500 mt-1">No new notifications.</p>
-      </div>
+    <div class="flex flex-col overflow-hidden" style="max-height: 480px;">
 
-      <div *ngFor="let note of notifications()" (click)="markAsRead(note.id)"
-        class="relative group flex gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-all border-l-[3px]"
-        [ngClass]="{
-          'bg-blue-50/40 border-blue-500': !note.isRead,
-          'border-transparent opacity-80': note.isRead
-        }">
-        
-        <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1" [ngClass]="{
-            'bg-amber-100 text-amber-600': note.type === 'WARNING',
-            'bg-green-100 text-green-600': note.type === 'SUCCESS',
-            'bg-blue-100 text-blue-600': note.type === 'INFO' || !note.type
-          }">
-          
-          <svg *ngIf="note.type === 'WARNING'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <svg *ngIf="note.type === 'SUCCESS'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <svg *ngIf="note.type === 'INFO' || !note.type" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
+      <!-- Filter + actions bar -->
+      <div class="px-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
+        <div class="flex items-center justify-between py-3">
 
-        <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-start mb-0.5">
-            <h4 class="text-sm font-semibold text-gray-900 truncate pr-4">{{ note.title }}</h4>
-            <span class="text-[10px] text-gray-400 whitespace-nowrap">
-              {{ note.timestamp | date:'shortTime' }}
-            </span>
+          <div class="flex gap-1">
+            <button (click)="filter.set('all')"
+              [class]="filter() === 'all'
+                ? 'bg-white text-blue-600 border-gray-200 shadow-sm'
+                : 'text-gray-500 border-transparent hover:bg-gray-100'"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all">
+              All
+            </button>
+            <button (click)="filter.set('unread')"
+              [class]="filter() === 'unread'
+                ? 'bg-white text-blue-600 border-gray-200 shadow-sm'
+                : 'text-gray-500 border-transparent hover:bg-gray-100'"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5">
+              Unread
+              <span *ngIf="unreadCount() > 0" class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+            </button>
           </div>
-          <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">
-            {{ note.message }}
-          </p>
+
+          <div class="flex gap-1">
+            <button (click)="markAllAsRead()" title="Mark all as read"
+              class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+              <lucide-icon [img]="CheckIcon" class="w-4 h-4"></lucide-icon>
+            </button>
+            <button (click)="clearAll()" title="Clear all"
+              class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+              <lucide-icon [img]="TrashIcon" class="w-4 h-4"></lucide-icon>
+            </button>
+          </div>
+
         </div>
       </div>
 
+      <!-- Feed -->
+      <div class="overflow-y-auto divide-y divide-gray-50">
+
+        <!-- Empty state -->
+        <div *ngIf="notifications().length === 0"
+          class="flex flex-col items-center justify-center py-12 px-6 text-center">
+          <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+            <lucide-icon [img]="BellIcon" class="w-6 h-6 text-gray-300"></lucide-icon>
+          </div>
+          <h3 class="text-sm font-medium text-gray-900">All caught up!</h3>
+          <p class="text-xs text-gray-500 mt-1">No new notifications.</p>
+        </div>
+
+        <!-- Notification row -->
+        <ng-container *ngFor="let note of notifications()">
+          <div (click)="markAsRead(note)"
+            class="relative group flex gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-all border-l-[3px]"
+            [ngClass]="{
+              'bg-blue-50/40 border-blue-500': !note.isRead,
+              'border-transparent opacity-80':  note.isRead
+            }">
+
+            <!-- Type icon -->
+            <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-0.5"
+              [ngClass]="{
+                'bg-amber-100 text-amber-600': note.type === 'WARNING',
+                'bg-green-100 text-green-600': note.type === 'SUCCESS',
+                'bg-red-100   text-red-600':   note.type === 'ERROR',
+                'bg-blue-100  text-blue-600':  note.type === 'INFO' || !note.type
+              }">
+              <lucide-icon *ngIf="note.type === 'WARNING'" [img]="AlertIcon"  class="w-4 h-4"></lucide-icon>
+              <lucide-icon *ngIf="note.type === 'SUCCESS'" [img]="CheckIcon"  class="w-4 h-4"></lucide-icon>
+              <lucide-icon *ngIf="note.type === 'ERROR'"   [img]="ErrorIcon"  class="w-4 h-4"></lucide-icon>
+              <lucide-icon *ngIf="note.type === 'INFO' || !note.type" [img]="InfoIcon" class="w-4 h-4"></lucide-icon>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+
+              <!-- Subject + time -->
+              <div class="flex justify-between items-start mb-0.5">
+                <h4 class="text-sm font-semibold text-gray-900 truncate pr-4">{{ note.subject }}</h4>
+                <span class="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
+                  {{ note.receivedAt | date:'shortTime' }}
+                </span>
+              </div>
+
+              <!-- Body -->
+              <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">{{ note.body }}</p>
+
+              <!-- Channel badge (single — which channel delivered this item) -->
+              <div class="mt-1.5">
+                <ng-container *ngTemplateOutlet="channelBadgeTpl; context: { $implicit: note }"></ng-container>
+              </div>
+
+            </div>
+
+            <!-- Unread dot -->
+            <div *ngIf="!note.isRead"
+              class="absolute top-4 right-3 w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+
+          </div>
+        </ng-container>
+
+      </div>
     </div>
-  </div>
+  </el-menu>
+</el-dropdown>
+
+<!-- Channel badge template -->
+<ng-template #channelBadgeTpl let-note>
+  <span *ngIf="note.channel === 'IN_APP'"
+    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-600">
+    <lucide-icon [img]="InAppIcon" class="w-2.5 h-2.5"></lucide-icon>
+    In-App
+  </span>
+  <span *ngIf="note.channel === 'EMAIL'"
+    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-600">
+    <lucide-icon [img]="MailIcon" class="w-2.5 h-2.5"></lucide-icon>
+    Email
+  </span>
+  <span *ngIf="note.channel === 'WHATSAPP'"
+    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-600">
+    <lucide-icon [img]="WhatsAppIcon" class="w-2.5 h-2.5"></lucide-icon>
+    WhatsApp
+  </span>
+  <span *ngIf="note.channel === 'PUSH'"
+    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-50 text-orange-600">
+    <lucide-icon [img]="PushIcon" class="w-2.5 h-2.5"></lucide-icon>
+    Push
+  </span>
 </ng-template>

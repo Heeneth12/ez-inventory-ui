@@ -14,6 +14,17 @@ export interface DropdownMenuItem {
   iconBgClass?: string;
 }
 
+/**
+ * @description
+ * This component is a custom dropdown menu component that can be used to display a list of menu items.
+ * 
+ * @example
+ * <app-custom-dropdown 
+ *   [triggerIcon]="helpIcon" 
+ *   menuTitle="Help & Support" 
+ *   [items]="supportMenuItems">
+ * </app-custom-dropdown>
+ */
 @Component({
   selector: 'app-custom-dropdown',
   standalone: true,
@@ -21,7 +32,7 @@ export interface DropdownMenuItem {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <el-dropdown class="inline-block">
-      <button
+      <button [title]="menuTitle"
         [class]="buttonClass">
         {{ menuTitle }}
         <lucide-icon [img]="triggerIcon" [class]="iconClass">

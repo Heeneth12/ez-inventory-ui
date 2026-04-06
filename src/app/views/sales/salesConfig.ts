@@ -37,7 +37,7 @@ export const SALES_ORDER_ACTIONS: TableActionConfig[] = [
         label: '',
         icon: CircleX,
         color: 'danger',
-        condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED'
+        condition: (row) => row['status'] === 'CREATED' || row['status'] === 'CONFIRMED' || row['status'] === 'PENDING_APPROVAL'
     }
 ];
 

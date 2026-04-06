@@ -1,1 +1,144 @@
-<p>search-modal works!</p>
+<div
+    class="bg-white w-full max-w-2xl rounded-lg shadow-2xl ring-1 ring-slate-900/5 overflow-hidden pointer-events-auto flex flex-col max-h-[75vh]">
+
+    <div class="flex flex-col border-b border-gray-100">
+        <div class="flex items-center px-4 py-3 relative">
+            <lucide-icon [img]="SearchIcon" class="w-5 h-5 text-gray-400 absolute left-5"></lucide-icon>
+            <input #searchInput type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchInput($event)"
+                placeholder="Find inventory, orders, contacts..."
+                class="w-full pl-10 pr-12 text-lg text-slate-800 placeholder:text-slate-400 border-none focus:ring-0 focus:outline-none bg-transparent h-10 font-normal"
+                autocomplete="off" spellcheck="false">
+
+            @if(isLoading){
+            <div class="absolute right-5 flex items-center gap-2">
+                <span class="text-xs text-slate-400 font-medium tracking-wide flex items-center gap-1"><lucide-icon
+                        [img]="LoaderIcon" class="animate-spin h-3.5 w-3.5 text-slate-400"></lucide-icon>
+                    Searching</span>
+            </div>
+            }@else{
+            <div class="hidden sm:flex absolute right-6">
+                <kbd
+                    class="hidden sm:inline-block border border-gray-200 rounded px-2 py-0.5 text-xs font-medium text-gray-400 bg-gray-50">ESC</kbd>
+            </div>
+            }
+        </div>
+
+        <div class="flex items-center gap-2 px-5 pb-3 overflow-x-auto no-scrollbar">
+            @for(filter of filters; track $index){
+            <button (click)="setFilter(filter.id)" [class.bg-slate-100]="activeFilter === filter.id"
+                [class.text-slate-900]="activeFilter === filter.id" [class.bg-transparent]="activeFilter !== filter.id"
+                [class.text-slate-500]="activeFilter !== filter.id"
+                class="px-2.5 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap hover:bg-slate-100 hover:text-slate-900">
+                {{ filter.label }}
+            </button>
+            }
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto scroll-smooth bg-slate-50/50 min-h-40">
+
+        @if(searchQuery && groupedResults.length === 0 && !isLoading){
+        <div class="py-16 text-center">
+            <div class="bg-white p-4 rounded-full shadow-sm w-16 h-16 mx-auto flex items-center justify-center mb-4">
+                <lucide-icon [img]="SearchIcon" class="w-8 h-8 text-gray-300"></lucide-icon>
+            </div>
+            <h3 class="text-slate-900 font-medium text-lg">No results found</h3>
+            <p class="text-slate-500 text-sm mt-1">We couldn't find anything for "{{searchQuery}}".</p>
+        </div>
+        }
+
+        @for(group of groupedResults; track $index){
+        <div class="pb-1">
+            <h3
+                class="sticky top-0 z-10 bg-white/95 backdrop-blur px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-gray-50 mb-1">
+                {{ group.category }}
+            </h3>
+
+            <ul class="px-2 pt-1 pb-2">
+                <li *ngFor="let item of group.items" class="mb-0.5">
+                    <button (click)="selectResult(item)" [id]="'result-' + item.id"
+                        [class.bg-slate-100]="isActive(item)" [class.bg-transparent]="!isActive(item)"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-75 group text-left outline-none cursor-pointer">
+
+                        <div class="shrink-0 relative">
+                            @if(item.image){
+                            <img [src]="item.image" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                            }
+                            @else{
+                            <div [class.text-indigo-600]="isActive(item)" [class.text-slate-400]="!isActive(item)"
+                                class="w-8 h-8 rounded-md flex items-center justify-center transition-colors">
+                                <ng-container [ngSwitch]="item.type">
+                                    <lucide-icon *ngSwitchCase="'products'" [img]="ProductIcon"
+                                        class="w-5 h-5"></lucide-icon>
+                                    <lucide-icon *ngSwitchCase="'orders'" [img]="OrderIcon"
+                                        class="w-5 h-5"></lucide-icon>
+                                    <lucide-icon *ngSwitchCase="'customers'" [img]="UserIcon"
+                                        class="w-5 h-5"></lucide-icon>
+                                    <lucide-icon *ngSwitchCase="'invoices'" [img]="InvoiceIcon"
+                                        class="w-5 h-5"></lucide-icon>
+                                    <lucide-icon *ngSwitchDefault [img]="FolderIcon" class="w-5 h-5"></lucide-icon>
+                                </ng-container>
+                            </div>
+                            }
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium text-sm text-slate-800 truncate"
+                                    [innerHTML]="highlightText(item.title, searchQuery, isActive(item))">
+                                </span>
+
+                                @if(item.meta){
+                                <span class="text-xs text-slate-500 font-medium">
+                                    {{ item.meta }}
+                                </span>
+                                }
+                            </div>
+
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-xs text-slate-500 truncate">
+                                    {{ item.subtitle }}
+                                </span>
+
+                                @if(item.statusLabel){
+                                <span [ngClass]="{
+                                  'text-emerald-600 bg-emerald-50': item.status === 'success',
+                                  'text-amber-600 bg-amber-50': item.status === 'warning',
+                                  'text-rose-600 bg-rose-50': item.status === 'danger',
+                                  'text-slate-500 bg-slate-100': item.status === 'neutral'
+                                }" class="text-[10px] px-1.5 py-0.5 rounded font-medium border border-transparent">
+                                    {{ item.statusLabel }}
+                                </span>
+                                }
+                            </div>
+                        </div>
+                        @if(isActive(item)){
+                        <div class="hidden sm:block">
+                            <lucide-icon [img]="ChevronRightIcon" class="w-4 h-4 text-slate-400"></lucide-icon>
+                        </div>
+                        }
+                    </button>
+                </li>
+            </ul>
+        </div>
+        }
+    </div>
+
+    <div
+        class="bg-white border-t border-slate-100 px-5 py-2.5 flex items-center justify-between text-xs text-slate-400">
+        <div class="flex gap-4">
+            <span class="flex items-center gap-1.5"><kbd
+                    class="font-sans font-medium bg-slate-100 text-slate-500 rounded px-1.5 border border-slate-200 shadow-sm leading-tight text-[10px] py-0.5">Enter</kbd>
+                to select</span>
+            <span class="flex items-center gap-1.5"><kbd
+                    class="font-sans font-medium bg-slate-100 text-slate-500 rounded px-1.5 border border-slate-200 shadow-sm leading-tight text-[10px] py-0.5">↑↓</kbd>
+                to navigate</span>
+        </div>
+        <div>
+            @if(groupedResults.length > 0){
+            <span class="text-slate-400 font-medium">{{ flatResults.length }} results
+                found</span>
+            }
+        </div>
+    </div>
+</div>

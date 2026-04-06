@@ -28,6 +28,15 @@ export const routes: Routes = [
         data: { moduleKey: 'EZH_INV_VENDOR' }
     },
 
+    // 1.6. DEVELOPER DASHBOARD (Lazy load single component)
+    {
+        path: 'developer',
+        loadComponent: () => import('./views/developer/developer.component')
+            .then(c => c.DeveloperComponent),
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_DEVELOPER' }
+    },
+
     // 2. ITEMS (Lazy load route file)
     {
         path: 'items',

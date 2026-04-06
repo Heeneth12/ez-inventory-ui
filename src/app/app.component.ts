@@ -10,11 +10,12 @@ import { ConfirmationModalComponent } from "./layouts/UI/confirmation-modal/conf
 import { ModalComponent } from "./layouts/components/modal/modal.component";
 import { DrawerComponent } from "./layouts/components/drawer/drawer.component";
 import { LoaderComponent } from "./layouts/components/loader/loader.component";
+import { DevLayoutComponent } from "./layouts/components/dev-layout/dev-layout.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, InventoryLayoutComponent, ToastComponent, BannerLoaderComponent, VendorLayoutComponent, ConfirmationModalComponent, ModalComponent, DrawerComponent, LoaderComponent],
+  imports: [CommonModule, RouterOutlet, InventoryLayoutComponent, ToastComponent, BannerLoaderComponent, VendorLayoutComponent, ConfirmationModalComponent, ModalComponent, DrawerComponent, LoaderComponent, DevLayoutComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

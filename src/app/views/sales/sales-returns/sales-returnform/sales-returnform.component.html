@@ -1,13 +1,16 @@
 <div class="so-page font-sans bg-gray-50/30 min-h-screen">
 
     <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+
         <div class="flex items-center gap-3">
+            @if(!invoiceData){
             <button (click)="cancel()" class="text-gray-500 hover:text-gray-800 transition-colors">
                 <lucide-icon [img]="ArrowLeft" class="w-5 h-5"></lucide-icon>
             </button>
             <h1 class="text-base font-semibold text-gray-800 tracking-tight">
                 New Sales Return
             </h1>
+            }
         </div>
         <div class="flex items-center gap-4">
             @if(invoiceData){

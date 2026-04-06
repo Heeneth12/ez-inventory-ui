@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, HostListener } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
 import { ItemService } from '../../../items/item.service';
 import { ItemModel } from '../../../items/models/Item.model';
 import { SalesOrderService } from '../sales-order.service';
-import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown, XIcon, ArrowLeft, Check, Eye, Trash } from 'lucide-angular';
+import { LucideAngularModule, Search, QrCode, Loader2, AlertTriangle, ShoppingBag, SettingsIcon, FileDown, XIcon, ArrowLeft, Check, Eye, Trash, Save } from 'lucide-angular';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { ApprovalConfigModel, ApprovalType } from '../../../approval-console/approval-console.model';
 import { ApprovalConsoleService } from '../../../approval-console/approval-console.service';
@@ -45,6 +45,7 @@ export class SalesOrderFormComponent implements OnInit {
   readonly eyeIcon = Eye;
   readonly checkIcon = Check;
   readonly TrashIcon = Trash;
+  readonly DraftIcon = Save;
 
   orderForm: FormGroup;
   isEditMode = false;
@@ -75,7 +76,6 @@ export class SalesOrderFormComponent implements OnInit {
     private salesOrderService: SalesOrderService,
     private approvalConsoleService: ApprovalConsoleService,
     private userService: UserManagementService,
-    private itemService: ItemService,
     private toast: ToastService,
     private drawerService: DrawerService,
     private modalService: ModalService,
@@ -107,6 +107,22 @@ export class SalesOrderFormComponent implements OnInit {
 
     this.checkEditMode();
     this.getSalesOrderApprovalConfig();
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (this.isReadonly) return;
+    // F2 to open Item Search
+    if (event.key === 'F2') {
+      event.preventDefault();
+      this.openItemSearch();
+    }
+    // F3 to focus on SO Search
+    if (event.key === 'F3') {
+      event.preventDefault();
+      const soSearchElem = document.querySelector('input[placeholder="Enter SO Number..."]') as HTMLInputElement;
+      if (soSearchElem) soSearchElem.focus();
+    }
   }
 
   private checkEditMode() {
@@ -153,7 +169,7 @@ export class SalesOrderFormComponent implements OnInit {
 
   private checkReadonlyStatus(order: any) {
     this.orderStatus = order.status;
-    if (this.orderStatus === 'FULLY_INVOICED' || this.orderStatus === 'REJECTED') {
+    if (this.orderStatus === 'FULLY_INVOICED' || this.orderStatus === 'REJECTED' || this.orderStatus === 'CANCELLED') {
       this.isReadonly = true;
       this.orderForm.disable();
     } else {
@@ -353,6 +369,48 @@ export class SalesOrderFormComponent implements OnInit {
     const current = ctrl?.value || 0;
     if (current + delta > 0) {
       ctrl?.setValue(current + delta);
+    }
+  }
+
+  onDiscountAmountChange(index: number, event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const amountVal = parseFloat(inputElement.value) || 0;
+
+    const ctrl = this.items.at(index);
+    const qty = ctrl.get('orderedQty')?.value || 0;
+    const price = ctrl.get('unitPrice')?.value || 0;
+    const gross = this.round(qty * price);
+
+    if (gross > 0) {
+      let rate = (amountVal / gross) * 100;
+      rate = this.round(rate);
+      rate = Math.min(100, Math.max(0, rate));
+      ctrl.get('discountRate')?.setValue(rate);
+    } else {
+      ctrl.get('discountRate')?.setValue(0);
+    }
+  }
+
+  onTaxAmountChange(index: number, event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const amountVal = parseFloat(inputElement.value) || 0;
+
+    const ctrl = this.items.at(index);
+    const qty = ctrl.get('orderedQty')?.value || 0;
+    const price = ctrl.get('unitPrice')?.value || 0;
+    const discRate = ctrl.get('discountRate')?.value || 0;
+
+    const gross = this.round(qty * price);
+    const discAmt = this.round(gross * (discRate / 100));
+    const taxable = gross - discAmt;
+
+    if (taxable > 0) {
+      let rate = (amountVal / taxable) * 100;
+      rate = this.round(rate);
+      rate = Math.max(0, rate);
+      ctrl.get('taxRate')?.setValue(rate);
+    } else {
+      ctrl.get('taxRate')?.setValue(0);
     }
   }
 

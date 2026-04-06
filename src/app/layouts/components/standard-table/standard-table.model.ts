@@ -30,6 +30,10 @@ export interface TableActionConfig {
     icon?: any;             // Lucide icon (optional)
     color?: 'primary' | 'danger' | 'success' | 'neutral'; // Button style
     condition?: (row: TableRow) => boolean; // Logic to show/hide this button per row
+    confirmationRequired?: boolean; // Confirmation tab for the action
+    confirmationMessage?: string; // Confirmation message for the action
+    confirmationIcon?: any; // Confirmation icon for the action
+    confirmationColor?: 'primary' | 'danger' | 'success' | 'neutral'; // Confirmation color for the action
 }
 
 // Update TableAction to include the custom definition
@@ -40,10 +44,10 @@ export interface TableAction {
 }
 
 export interface HeaderAction {
-  label: string;
-  icon?: any; // The Lucide icon component
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
-  key?: string; // Useful if you want to identify the button in a switch case
-  action?: () => void; // Direct callback function
-  hidden?: boolean; // Optional: to conditionally hide buttons
+    label: string;
+    icon?: any; // The Lucide icon component
+    variant?: 'primary' | 'secondary' | 'outline' | 'danger';
+    key?: string; // Useful if you want to identify the button in a switch case
+    action?: () => void; // Direct callback function
+    hidden?: boolean; // Optional: to conditionally hide buttons
 }

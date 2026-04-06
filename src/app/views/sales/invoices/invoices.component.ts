@@ -2,19 +2,19 @@ import { Component, Input } from '@angular/core';
 import { InvoiceService } from './invoice.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
+import { PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
-import { Banknote, FileDown, PieChart, ReceiptIndianRupee, ScrollText, ShoppingCart, Truck, Users } from 'lucide-angular';
+import { BadgeIndianRupee, Banknote, BanknoteArrowDown, BanknoteArrowUp, CheckCheckIcon, Clock, PieChart, ShoppingCart, Truck, Users } from 'lucide-angular';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { InvoiceFilterModal, InvoiceModal, InvoiceStatus } from './invoice.modal';
+import { InvoiceFilterModal, InvoiceModal } from './invoice.modal';
 import { PaymentService } from '../payments/payment.service';
 import { InvoicePaymentSummaryModal } from '../payments/payment.modal';
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { PaymentSymmaryComponent } from '../payments/payment-symmary/payment-symmary.component';
-import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
 import { INVOICE_ACTIONS, INVOICE_COLUMNS, INVOICE_DATE_CONFIG, INVOICE_FILTER_OPTIONS } from '../salesConfig';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
@@ -22,6 +22,7 @@ import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
 import { SalesReturnformComponent } from '../sales-returns/sales-returnform/sales-returnform.component';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
 
 @Component({
   selector: 'app-invoices',
@@ -75,6 +76,7 @@ export class InvoicesComponent {
       debounceTime(300),
     ).subscribe(() => {
       this.getAllInvoices();
+      this.getInvoiceStats();
     });
   }
 
@@ -119,6 +121,9 @@ export class InvoicesComponent {
     if (event.type === 'custom' && event.key === 'sales_return') {
       this.openSalesReturnForm(event.row.id);
     }
+    if (event.type === 'custom' && event.key === 'view_invoice') {
+      this.openOrderTracker(event.row.id);
+    }
     if (event.type === 'edit') {
       // Standard edit logic
     }
@@ -128,6 +133,15 @@ export class InvoicesComponent {
     this.router.navigate(['/sales/invoice/edit'], {
       queryParams: { invoiceId: invoiceId }
     });
+  }
+
+  openOrderTracker(invoiceNumber: any) {
+    this.drawerSvc.openComponent(
+      OrderTrackerComponent,
+      { invoiceNumber: invoiceNumber },
+      'Order Details',
+      'xl',
+    );
   }
 
   getPaymentsByInvoiceId(invoiceId: any) {
@@ -141,6 +155,46 @@ export class InvoicesComponent {
       (error: any) => {
         this.toastSvc.show('Failed to load Payments', 'error');
         console.error('Error fetching payments:', error);
+      }
+    );
+  }
+
+  getInvoiceStats() {
+    this.invoiceService.getInvoiceStats(
+      this.invoicesFilter,
+      (response: any) => {
+        this.invoiceDashboardStats = [
+          {
+            key: 'totalInvoices',
+            label: 'Total Invoice Value',
+            value: '₹ ' + response.data.totalInvoiceValue,
+            icon: BadgeIndianRupee,
+            color: 'emerald',
+          },
+          {
+            key: 'collected',
+            label: 'Collected Amount',
+            value: '₹ ' + response.data.collectedAmount,
+            icon: BanknoteArrowUp,
+            color: 'blue',
+          },
+          {
+            key: 'uncollected',
+            label: 'Uncollected Amount',
+            value: '₹ ' + response.data.uncollectedAmount,
+            icon: BanknoteArrowDown,
+            color: 'orange',
+          },
+          {
+            key: 'pendingInvoices',
+            label: 'Pending Invoices',
+            value: response.data.pendingCount + ' Orders',
+            icon: Clock,
+            color: 'amber',
+          }]
+      },
+      (error: any) => {
+        console.error('Error fetching invoice stats:', error);
       }
     );
   }
@@ -293,28 +347,28 @@ export class InvoicesComponent {
       key: 'totalInvoices',
       label: 'Total Invoice Value',
       value: '$45,780',
-      icon: Banknote,
+      icon: BadgeIndianRupee,
       color: 'emerald',
     },
     {
       key: 'collected',
       label: 'Collected Amount',
       value: '$32,420',
-      icon: PieChart,
+      icon: BanknoteArrowUp,
       color: 'blue',
     },
     {
       key: 'uncollected',
       label: 'Uncollected Amount',
       value: '$13,360',
-      icon: ShoppingCart,
+      icon: BanknoteArrowDown,
       color: 'orange',
     },
     {
       key: 'pendingInvoices',
       label: 'Pending Invoices',
       value: '28',
-      icon: Users,
+      icon: Clock,
       color: 'amber',
     }
   ];

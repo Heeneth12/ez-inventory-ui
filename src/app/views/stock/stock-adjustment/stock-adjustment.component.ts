@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { StockAdjustmentDetailModel, StockAdjustmentFilter, StockAdjustmentModel } from '../models/stock-adjustment.model';
+import { AdjustmentStatus, StockAdjustmentDetailModel, StockAdjustmentFilter, StockAdjustmentModel } from '../models/stock-adjustment.model';
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
 import { Router } from '@angular/router';
 import { ArrowRight, CircleX, FilePlusCorner } from 'lucide-angular';
@@ -14,6 +14,7 @@ import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { Subject } from 'rxjs/internal/Subject';
 import { debounceTime } from 'rxjs';
+import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 
 @Component({
   selector: 'app-stock-adjustment',
@@ -73,6 +74,7 @@ export class StockAdjustmentComponent implements OnInit {
         { label: 'COMPLETED', value: 'COMPLETED' },
         { label: 'PENDING APPROVAL', value: 'PENDING_APPROVAL' },
         { label: 'DRAFT', value: 'DRAFT' },
+        { label: 'CANCELLED', value: 'CANCELLED' },
         { label: 'REJECTED', value: 'REJECTED' }
       ]
     }
@@ -88,7 +90,8 @@ export class StockAdjustmentComponent implements OnInit {
     public drawerService: DrawerService,
     private toastSvc: ToastService,
     private router: Router,
-    private loaderSvc: LoaderService
+    private loaderSvc: LoaderService,
+    private confirmationModalService: ConfirmationModalService
   ) { }
 
   ngOnInit(): void {
@@ -159,17 +162,40 @@ export class StockAdjustmentComponent implements OnInit {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'view_stockadj_details') {
-      console.log('View stock adj details:', event.row.id);
       this.viewStockAdjustmentDetails(event.row.id);
     }
     if (event.type === 'custom' && event.key === 'cancel_stockadj') {
-      console.log('Cancel stock adj:', event.row.id);
-      this.cancelStockAdjustment(event.row.id);
+      this.confirmCancelStockAdjustment(event.row.id, AdjustmentStatus.CANCELLED);
     }
   }
 
-  cancelStockAdjustment(id: number | string) {
-    this.loaderSvc.show();
+  confirmCancelStockAdjustment(id: any, status: AdjustmentStatus) {
+    this.confirmationModalService.open({
+      title: `Cancel Stock Adjustment`,
+      message: `Are you sure you want to cancel this stock adjustment?`,
+      intent: 'danger',
+      confirmLabel: `Yes, Cancel`,
+      cancelLabel: 'No, Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.cancelStockAdjustment(id, status);
+      }
+    });
+  }
+
+  cancelStockAdjustment(id: number | string, status: AdjustmentStatus) {
+    this.stockService.updateStockAdjustmentStatus(
+      id,
+      status,
+      (response: any) => {
+        this.toastSvc.show("Stock Adjustment " + status, "success");
+        this.tableRefresh$.next();
+      },
+      (error: any) => {
+        this.loaderSvc.hide();
+        this.toastSvc.show("Failed to " + status + " Stock Adjustment", "error");
+      }
+    );
 
   }
 
@@ -184,7 +210,6 @@ export class StockAdjustmentComponent implements OnInit {
         break;
       case 'delete':
         console.log("Delete:", row.id);
-
         break;
       case 'toggle':
         break;
@@ -209,7 +234,7 @@ export class StockAdjustmentComponent implements OnInit {
   }
 
   onFilterUpdate($event: Record<string, any>) {
-    this.stockAdjustmentFilter.statuses = $event['type'] || null;
+    this.stockAdjustmentFilter.stockAdjustmentStatuses = $event['type'] || null;
     this.pagination.currentPage = 1;
     this.tableRefresh$.next();
   }
