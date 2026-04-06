@@ -379,7 +379,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
         }
 
         const options = {
-          key: order.razorpayKeyId || environment.razorpayKeyId,
+          key: order.razorpayKeyId,
           amount: order.amountInPaise,
           currency: order.currency || 'INR',
           name: 'EZ Inventory',
