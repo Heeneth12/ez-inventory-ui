@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, UsersRound, UserPlus, UserPen } from 'lucide-angular';
+import { LucideAngularModule, UsersRound, UserPlus, UserPen, ScrollTextIcon } from 'lucide-angular';
 import { TabCardComponent, TabItem } from '../../../layouts/UI/tab-card/tab-card.component';
 
 
@@ -26,8 +26,8 @@ export class SalesOrderAdapterComponent {
     isLoading = signal<boolean>(false);
 
     navigationTabs: TabItem[] = [
-        { id: 'salesOrder', label: 'All Sales order', icon: UsersRound },
-        { id: 'create', label: 'Create Sales order', icon: UserPlus },
+        { id: 'salesOrder', label: 'All Sales order', icon: ScrollTextIcon },
+        { id: 'create', label: 'Create Sales order', icon: UserPen },
         { id: 'edit', label: 'Edit Sales order', icon: UserPen }
     ];
 

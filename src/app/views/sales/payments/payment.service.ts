@@ -11,6 +11,7 @@ import { InvoiceService } from "../invoices/invoice.service";
 export class PaymentService {
 
     private static PAYMENT_BASE_URL = environment.devUrl + '/v1/payment';
+    private static RAZORPAY_BASE_URL = environment.devUrl + '/v1/razorpay';
 
     constructor(private httpService: HttpService) { }
 
@@ -71,10 +72,104 @@ export class PaymentService {
 
     /**
      * Download Payment Receipt PDF
-     * Note: For PDFs, you usually need to handle the blob response.
-     * If your httpService.getHttp doesn't support blobs, you might need a native HttpClient call.
      */
     downloadPaymentPdf(paymentId: number | string, successfn: any, errorfn: any) {
         return this.httpService.getFile(`${PaymentService.PAYMENT_BASE_URL}/${paymentId}/pdf`, successfn, errorfn);
+    }
+
+    // ─── Razorpay ──────────────────────────────────────────────────────────────
+
+    /**
+     * Dynamically loads the Razorpay Checkout script.
+     * Safe to call multiple times — skips if already loaded.
+     */
+    loadRazorpayScript(): Promise<boolean> {
+        return new Promise(resolve => {
+            if ((window as any).Razorpay) {
+                resolve(true);
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.async = true;
+            script.onload = () => resolve(true);
+            script.onerror = () => {
+                console.error('Failed to load Razorpay checkout script');
+                resolve(false);
+            };
+            document.body.appendChild(script);
+        });
+    }
+
+    /**
+     * Step 1 — Ask backend to create a Razorpay order.
+     * Backend calls Razorpay API, stores the order, and returns the order details.
+     *
+     * Expected request body:
+     *   { invoiceId, customerId, amount }   (amount in INR, backend converts to paise)
+     */
+    /**
+     * Step 1 — Create a Razorpay order.
+     * data must include: { customerId, amount, paymentMethod: 'UPI'|'QR'|'NET_BANKING',
+     *   upiId? (UPI), bankCode? (NET_BANKING), allocations?: [{invoiceId, amountToPay}] }
+     */
+    createRazorpayOrder(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(
+            `${PaymentService.RAZORPAY_BASE_URL}/order`,
+            data,
+            successfn,
+            errorfn
+        );
+    }
+
+    /**
+     * Step 2 — Verify signature and record payment.
+     * data: { razorpayOrderId, razorpayPaymentId, razorpaySignature,
+     *   customerId, amount, allocations, qrCodeId? }
+     */
+    verifyRazorpayPayment(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(
+            `${PaymentService.RAZORPAY_BASE_URL}/verify`,
+            data,
+            successfn,
+            errorfn
+        );
+    }
+
+    /**
+     * Send a generated payment link to a customer via email.
+     * data: { paymentLinkId, paymentLinkUrl, email, customerId, invoiceId? }
+     */
+    sendPaymentLinkEmail(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(
+            `${PaymentService.RAZORPAY_BASE_URL}/payment-link/send-email`,
+            data,
+            successfn,
+            errorfn
+        );
+    }
+
+    /**
+     * Poll the status of a Razorpay order (used for QR and payment link).
+     * Returns { status: 'CREATED' | 'PAID' | 'captured' }
+     */
+    checkOrderStatus(orderId: string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(
+            `${PaymentService.RAZORPAY_BASE_URL}/order/${orderId}/status`,
+            successfn,
+            errorfn
+        );
+    }
+
+    /**
+     * List all Razorpay transactions for a given invoice.
+     * Returns paginated RazorpayTransaction rows (CREATED / PAID / FAILED / EXPIRED).
+     */
+    getRazorpayTransactions(invoiceId: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(
+            `${PaymentService.RAZORPAY_BASE_URL}/transactions?invoiceId=${invoiceId}&size=50`,
+            successfn,
+            errorfn
+        );
     }
 }

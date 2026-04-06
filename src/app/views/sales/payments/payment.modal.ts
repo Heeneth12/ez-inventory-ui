@@ -74,3 +74,69 @@ export class PaymentFilterModal extends CommonFilterModel {
     paymentStatus!: string[];
     paymentMethod!: string[];
 }
+
+export interface RazorpayOrderResponse {
+    orderId: string;
+    currency: string;
+    amountInPaise: number;
+    razorpayKeyId: string;
+    qrImageUrl?: string;
+    qrCodeId?: string;
+    paymentLinkUrl?: string;
+    paymentLinkId?: string;
+    status: string;
+}
+export interface RazorpayVerifyRequest {
+    razorpayOrderId: string;
+    razorpayPaymentId: string;
+    razorpaySignature: string;
+    invoiceId: number;
+    customerId: number;
+    amount: number;
+}
+
+export interface RazorpayCheckoutOptions {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    prefill: {
+        name: string;
+        email: string;
+        contact: string;
+    };
+    notes?: Record<string, string>;
+    theme: { color: string };
+    handler: (response: RazorpaySuccessResponse) => void;
+    modal: {
+        ondismiss: () => void;
+        escape?: boolean;
+        backdropclose?: boolean;
+    };
+}
+
+/** Razorpay success callback payload */
+export interface RazorpaySuccessResponse {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+}
+
+/** One row from the razorpay_transaction table */
+export interface RazorpayTransactionModal {
+    id: number;
+    razorpayResourceId: string;   // plink_xxx / qr_xxx / order_xxx
+    razorpayPaymentId: string;    // pay_xxx — filled after payment
+    paymentMethod: string;        // PAYMENT_LINK / QR / CHECKOUT
+    amountInPaise: number;
+    status: 'CREATED' | 'PAID' | 'FAILED' | 'EXPIRED';
+    purpose: 'INVOICE' | 'MULTI_INVOICE' | 'ADVANCE';
+    invoiceIds: string;           // "101" or "101,102"
+    paymentRecordId: number;      // Payment.id once PAID
+    errorDescription: string;
+    notes: string;
+    createdAt: string;
+    updatedAt: string;
+}
