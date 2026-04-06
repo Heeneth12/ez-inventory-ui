@@ -7,7 +7,7 @@ export interface DeliveryModel {
     tenantId: number;
     deliveryNumber: string;  // DEV-2025-001
     invoiceId: number;
-    invoice:InvoiceModal;
+    invoice: InvoiceModal;
     contactMini: UserMiniModel;
     customerId: number;
     customerName: string;
@@ -20,7 +20,7 @@ export interface DeliveryModel {
     deliveryAddress: string;
     contactPerson: string;
     contactPhone: string;
-    remarks:string;
+    remarks: string;
 }
 
 export class DeliveryFilterModel extends CommonFilterModel {
@@ -29,6 +29,7 @@ export class DeliveryFilterModel extends CommonFilterModel {
     deliveryNumber!: string;
     shipmentTypes!: Type[] | null;
     shipmentStatuses!: ShipmentStatus[] | null;
+    invoiceIds!: number[] | null;
 
 }
 

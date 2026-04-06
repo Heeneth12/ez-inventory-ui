@@ -1,8 +1,8 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeliveryService } from '../delivery.service';
-import { DeliveryModel, RouteModel, ShipmentStatus } from '../delivery.model';
-import { Play, CheckCircle, MapPin, LucideAngularModule } from 'lucide-angular';
+import { DeliveryFilterModel, DeliveryModel, RouteModel, ShipmentStatus } from '../delivery.model';
+import { Play, CheckCircle, MapPin, LucideAngularModule, Download, ListCollapse } from 'lucide-angular';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
 import { StandardTableComponent } from '../../../../layouts/components/standard-table/standard-table.component';
 import { PaginationConfig, TableColumn, TableAction, TableActionConfig } from '../../../../layouts/components/standard-table/standard-table.model';
@@ -24,6 +24,7 @@ export class RoutesComponent implements OnInit {
 
   routeDetails: RouteModel[] = [];
   selectedRoute: RouteModel | null = null;
+  deliveryFilter: DeliveryFilterModel = new DeliveryFilterModel();
 
   pagination: PaginationConfig = { pageSize: 10, currentPage: 1, totalItems: 0 };
 
@@ -43,6 +44,13 @@ export class RoutesComponent implements OnInit {
       key: 'start_trip',
       label: 'Start Trip',
       icon: Play,
+      color: 'success',
+      condition: (row: any) => row.status === 'CREATED'
+    },
+    {
+      key: 'download_items_list',
+      label: '',
+      icon: Download,
       color: 'primary',
       condition: (row: any) => row.status === 'CREATED'
     },
@@ -52,7 +60,14 @@ export class RoutesComponent implements OnInit {
       icon: CheckCircle,
       color: 'success',
       condition: (row: any) => row.status === 'IN_TRANSIT'
-    }
+    },
+    {
+      key: 'view_delivery',
+      label: '',
+      icon: ListCollapse,
+      color: 'neutral',
+      condition: (row: any) => true
+    },
   ];
 
 
@@ -83,6 +98,20 @@ export class RoutesComponent implements OnInit {
     );
   }
 
+  getAllRouteItemList() {
+    this.deliveryService.getBulkDeliveryItems(this.deliveryFilter,
+      (res: any) => {
+        this.routeDetails = res.data.content;
+        this.pagination.totalItems = res.data.totalElements;
+        this.loader.hide();
+      },
+      (err: any) => {
+        this.loader.hide();
+        this.toast.show('Error loading routes', 'error');
+      }
+    );
+  }
+
   handleTableAction(event: TableAction) {
     if (event.key === 'start_trip') {
       this.deliveryService.startRoute(event.row.id, () => {
@@ -99,6 +128,12 @@ export class RoutesComponent implements OnInit {
     else if (event.type == 'view') {
       this.fetchAndShowDetails(event.row.id);
     }
+    else if (event.key === 'view_delivery') {
+      this.fetchAndShowDetails(event.row.id);
+    }
+    else if (event.key === 'download_items_list') {
+      this.downloadBulkDeliveryItemsExcel();
+    }
   }
 
   fetchAndShowDetails(routeId: string | number) {
@@ -113,6 +148,15 @@ export class RoutesComponent implements OnInit {
         this.loader.hide();
         this.toast.show('Failed to fetch route stops', 'error');
       }
+    );
+  }
+
+  downloadBulkDeliveryItemsExcel() {
+    this.deliveryService.downloadBulkDeliveryItemsExcel(this.deliveryFilter,
+      (res: any) => {
+        this.toast.show('Bulk delivery items downloaded successfully', 'success');
+      },
+      (err: any) => this.toast.show('Failed to download bulk delivery items', 'error')
     );
   }
 

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { TabCardComponent, TabItem } from '../../layouts/UI/tab-card/tab-card.component';
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { LucideAngularModule, UsersRound, UserPlus, UserPen, PackagePlus, Package2, PackageOpen } from 'lucide-angular';
+import { LucideAngularModule, PackagePlus, PackageOpen, Package } from 'lucide-angular';
 
 @Component({
   selector: 'app-items-management',
@@ -25,7 +25,7 @@ export class ItemsManagementComponent {
   isLoading = signal<boolean>(false);
 
   navigationTabs: TabItem[] = [
-    { id: 'item', label: 'All Items', icon: Package2 },
+    { id: 'item', label: 'All Items', icon: Package },
     { id: 'create', label: 'Create Item', icon: PackagePlus },
     { id: 'edit', label: 'Edit Item', icon: PackageOpen }
   ];

@@ -24,6 +24,11 @@ export class HttpService {
         this.http.put(apiUrl, data, { headers: this.headers }).subscribe({ next: successFunc, error: errorFunc });
     }
 
+    // HTTP PATCH request with headers
+    patchHttp(apiUrl: string, data: any, successFunc: any, errorFunc: any) {
+        this.http.patch(apiUrl, data, { headers: this.headers }).subscribe({ next: successFunc, error: errorFunc });
+    }
+
     // HTTP DELETE request with headers
     deleteHttp(apiUrl: string, successFunc: any, errorFunc: any) {
         this.http.delete(apiUrl, { headers: this.headers }).subscribe({ next: successFunc, error: errorFunc });

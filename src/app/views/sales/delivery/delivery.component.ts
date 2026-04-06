@@ -3,25 +3,23 @@ import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DeliveryFilterModel, DeliveryModel, RouteCreateRequest, ShipmentStatus } from './delivery.model';
 import { HeaderAction, PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
-import { Router } from '@angular/router';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DeliveryService } from './delivery.service';
 import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component';
-import { CalendarClock, CheckCircle, Clock, LucideAngularModule, MapPin, Route, Truck, User, XCircle } from 'lucide-angular';
+import { CalendarClock, CheckCircle, Clock, Download, LucideAngularModule, MapPin, Route, Truck, User, XCircle } from 'lucide-angular';
 import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { DELIVERY_ACTIONS, DELIVERY_COLUMNS, DELIVERY_DATE_CONFIG, DELIVERY_FILTER_OPTIONS } from '../salesConfig';
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
-import { StatusBadgeComponent } from "../../../layouts/components/status-badge/status-badge.component";
+import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-delivery',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent, StatGroupComponent, LucideAngularModule, StatusBadgeComponent],
+  imports: [CommonModule, StandardTableComponent, StatGroupComponent, LucideAngularModule],
   templateUrl: './delivery.component.html',
   styleUrl: './delivery.component.css'
 })
@@ -58,6 +56,12 @@ export class DeliveryComponent implements OnInit {
       icon: Truck,
       variant: 'primary',
       key: 'create_route',
+    },
+    {
+      label: 'Bulk Delivery Items',
+      icon: Download,
+      variant: 'secondary',
+      key: 'download_bulk_delivery_items',
     }
   ];
 
@@ -94,12 +98,11 @@ export class DeliveryComponent implements OnInit {
 
   constructor(
     private deliveryService: DeliveryService,
-    private router: Router,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
-    private modalService: ModalService,
     private drawerService: DrawerService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private confirmationModalService: ConfirmationModalService
   ) {
   }
 
@@ -156,11 +159,23 @@ export class DeliveryComponent implements OnInit {
       (response: any) => {
         this.toastService.show('Delivery updated successfully', 'success');
         this.tableState$.next();
+        // If the drawer is open with this delivery, update its status
+        if (this.selectedDelivery && this.selectedDelivery.id === id) {
+          //this.selectedDelivery.status ;
+        }
       },
       (error: any) => {
         this.toastService.show('Failed to update delivery', 'error');
       }
     );
+  }
+
+  markDeliveryAsShipped(id: any) {
+    this.updateDelivaryStatus(id, ShipmentStatus.SHIPPED);
+  }
+
+  markDeliveryAsDelivered(id: any) {
+    this.updateDelivaryStatus(id, ShipmentStatus.DELIVERED);
   }
 
 
@@ -196,6 +211,16 @@ export class DeliveryComponent implements OnInit {
         this.toastService.show('Failed to mark as delivered', 'error');
         console.error('Error marking as delivered:', error);
       }
+    );
+  }
+
+
+  downloadBulkDeliveryItemsExcel() {
+    this.deliveryService.downloadBulkDeliveryItemsExcel(this.deliveryFilter,
+      (res: any) => {
+        this.toastService.show('Bulk delivery items downloaded successfully', 'success');
+      },
+      (err: any) => this.toastService.show('Failed to download bulk delivery items', 'error')
     );
   }
 
@@ -308,7 +333,39 @@ export class DeliveryComponent implements OnInit {
 
   handleHeaderAction(event: HeaderAction) {
     if (event.key === 'create_route') {
-      this.processBatchAssignment();
+      if (this.selectedItemIds.length === 0) {
+        this.toastService.show('Please select at least one delivery item to create a route manifest.', 'info');
+        return;
+      }
+      this.confirmationModalService.open({
+        title: 'Create Route Manifest',
+        message: `Are you sure you want to create a route manifest for the ${this.selectedItemIds.length} selected deliveries?`,
+        intent: 'info',
+        confirmLabel: 'Yes, Create',
+        cancelLabel: 'No, Cancel'
+      }).then(confirmed => {
+        if (confirmed) {
+          this.processBatchAssignment();
+        }
+      });
+    }
+    if (event.key === 'download_bulk_delivery_items') {
+      const selectedCount = this.selectedItemIds.length;
+      const message = selectedCount > 0
+        ? `Are you sure you want to download bulk delivery items for the ${selectedCount} selected items?`
+        : 'Are you sure you want to download bulk delivery items?';
+
+      this.confirmationModalService.open({
+        title: 'Download Bulk Delivery Items',
+        message: message,
+        intent: 'info',
+        confirmLabel: 'Yes, Download',
+        cancelLabel: 'No, Cancel'
+      }).then(confirmed => {
+        if (confirmed) {
+          this.downloadBulkDeliveryItemsExcel();
+        }
+      });
     }
   }
 

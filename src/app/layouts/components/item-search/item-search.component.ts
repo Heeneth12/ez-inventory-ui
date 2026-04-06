@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, X, Package, Layers, Info, CheckCircle2, AlertCircle, Clock, Calendar } from 'lucide-angular';
+import { LucideAngularModule, Search, X, Package, Layers, Info, CheckCircle2, AlertCircle, Clock, Calendar, AlertTriangle } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ItemService } from '../../../views/items/item.service';
@@ -42,6 +42,7 @@ export class ItemSearchComponent implements OnInit {
   readonly CheckCircle2 = CheckCircle2;
   readonly Clock = Clock;
   readonly Calendar = Calendar;
+  readonly AlertTriangle = AlertTriangle;
 
   recentItems: any[] = [];
   private readonly RECENT_ITEMS_KEY: string = 'ez_recent_search_items';
@@ -56,7 +57,7 @@ export class ItemSearchComponent implements OnInit {
     this.loadRecentItems();
 
     this.searchSubject.pipe(
-      debounceTime(200), // Slightly faster debounce
+      debounceTime(200),
       distinctUntilChanged()
     ).subscribe(query => {
       this.performSearch(query);
@@ -65,7 +66,6 @@ export class ItemSearchComponent implements OnInit {
 
   ngAfterViewInit() {
     if (this.autoFocus) {
-      // Small delay to ensure modal transition is finishing
       setTimeout(() => this.searchInput?.nativeElement.focus(), 50);
     }
   }
@@ -96,13 +96,9 @@ export class ItemSearchComponent implements OnInit {
       });
     } else {
       this.stockService.searchItems(
-        {
-          searchQuery: query,
-          warehouseId: 1
-        },
+        { searchQuery: query, warehouseId: 1 },
         (res: any) => {
           this.results = res.data || [];
-          console.log(this.results);
           this.selectedIndex = 0;
           this.isLoading = false;
           this.cdr.markForCheck();
@@ -113,9 +109,50 @@ export class ItemSearchComponent implements OnInit {
     }
   }
 
+  // Flatten stock items by batch — each batch becomes its own selectable row
+  get displayResults(): any[] {
+    if (this.searchType !== 'STOCK') return this.results;
+
+    const rows: any[] = [];
+    for (const item of this.results) {
+      if (item.batches && item.batches.length > 0) {
+        item.batches.forEach((batch: any, idx: number) => {
+          rows.push({
+            ...item,
+            _batch: batch,
+            _isFirstInGroup: idx === 0,
+            _batchCount: item.batches.length
+          });
+        });
+      } else {
+        rows.push({ ...item, _batch: null, _isFirstInGroup: true, _batchCount: 0 });
+      }
+    }
+    return rows;
+  }
+
   selectItem(item: any) {
-    this.saveRecentItem(item);
-    this.selected.emit(item);
+    const { _batch, _isFirstInGroup, _batchCount, ...itemData } = item;
+    const emitItem = _batch
+      ? { ...itemData, batchNumber: _batch.batchNumber }
+      : itemData;
+
+    this.saveRecentItem(emitItem);
+    this.selected.emit(emitItem);
+  }
+
+  // Returns true if expiry is within 90 days
+  isNearExpiry(dateStr: string): boolean {
+    if (!dateStr) return false;
+    const expiry = new Date(dateStr).getTime();
+    const now = Date.now();
+    const ninetyDays = 90 * 24 * 60 * 60 * 1000;
+    return expiry - now < ninetyDays && expiry > now;
+  }
+
+  isExpired(dateStr: string): boolean {
+    if (!dateStr) return false;
+    return new Date(dateStr).getTime() < Date.now();
   }
 
   loadRecentItems() {
@@ -130,9 +167,9 @@ export class ItemSearchComponent implements OnInit {
   }
 
   saveRecentItem(item: any) {
-    // Keep only last 5 searched items based on item id
-    this.recentItems = this.recentItems.filter(i => this.trackByItemId(0, i) !== this.trackByItemId(0, item));
-    this.recentItems.unshift(item);
+    const { _batch, _isFirstInGroup, _batchCount, ...itemToSave } = item;
+    this.recentItems = this.recentItems.filter(i => this.trackByItemId(0, i) !== this.trackByItemId(0, itemToSave));
+    this.recentItems.unshift(itemToSave);
     if (this.recentItems.length > 5) {
       this.recentItems.pop();
     }
@@ -141,18 +178,18 @@ export class ItemSearchComponent implements OnInit {
 
   @HostListener('keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
+    const total = this.displayResults.length;
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.selectedIndex = (this.selectedIndex + 1) % this.results.length;
+      this.selectedIndex = (this.selectedIndex + 1) % total;
       this.scrollToSelected();
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.selectedIndex = (this.selectedIndex - 1 + this.results.length) % this.results.length;
+      this.selectedIndex = (this.selectedIndex - 1 + total) % total;
       this.scrollToSelected();
     } else if (event.key === 'Enter') {
-      if (this.results[this.selectedIndex]) {
-        this.selectItem(this.results[this.selectedIndex]);
-      }
+      const row = this.displayResults[this.selectedIndex];
+      if (row) this.selectItem(row);
     } else if (event.key === 'Escape') {
       this.close.emit();
     }

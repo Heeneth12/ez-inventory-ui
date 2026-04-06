@@ -1,3 +1,5 @@
+import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
+
 export interface ItemDetail {
     itemId: number;               // Long itemId
     itemName: string;             // String itemName
@@ -46,12 +48,8 @@ export enum AdjustmentStatus {
     REJECTED = 'REJECTED',
     PENDING_APPROVAL = 'PENDING_APPROVAL'
 }
-export class StockAdjustmentFilter {
-    id?: number;
-    itemId?: number;
-    searchQuery?: string;
-    statuses?: string[];
-    warehouseId?: number;
-    fromDate?: string | null;
-    toDate?: string | null;
+
+export class StockAdjustmentFilter extends CommonFilterModel {
+    stockAdjustmentStatuses?: AdjustmentStatus[] | null;
+    stockAdjustmentNumber!: string;
 }

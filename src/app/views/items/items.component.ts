@@ -201,12 +201,9 @@ export class ItemsComponent implements OnInit {
   viewItemDetails(item: ItemModel) {
     this.selectedMasterItem = item;
     this.selectedItemDetail = null;
-    this.loaderSvc.show();
-
     this.stockFilter.itemId = item.id;
     this.stockFilter.warehouseId = 1;
     this.stockService.searchItems(this.stockFilter, (response: any) => {
-      this.loaderSvc.hide();
       const data = response?.data || [];
       if (data.length > 0) {
         this.selectedItemDetail = data[0];
@@ -214,7 +211,6 @@ export class ItemsComponent implements OnInit {
       console.log("Selected Item Detail", this.selectedItemDetail);
       this.drawerSvc.openTemplate(this.stockItemDetail, "Full Item Inventory", 'lg');
     }, (error: any) => {
-      this.loaderSvc.hide();
       this.toastService.show('Error loading stock', 'error');
     });
   }

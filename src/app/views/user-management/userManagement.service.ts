@@ -87,6 +87,13 @@ export class UserManagementService {
         return this.httpService.deleteHttp(`${UserManagementService.USER_BASE_URL}/${id}`, successfn, errorfn);
     }
 
+    addUserAddress(userId: number, data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/${userId}/address`, data, successfn, errorfn);
+    }
+
+    updateUserAddress(userId: number, addressId: number, data: any, successfn: any, errorfn: any) {
+        return this.httpService.putHttp(`${UserManagementService.USER_BASE_URL}/${userId}/address/${addressId}`, data, successfn, errorfn);
+    }
 
     // common / REFERENCE
     getAllApplications(successfn: any, errorfn: any) {

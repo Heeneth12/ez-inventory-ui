@@ -1,21 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Input, OnInit, signal } from '@angular/core';
+import { Component, computed, HostListener, Input, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../layouts/components/toast/toastService';
-import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
 import { SalesOrderService } from '../../sales-order/sales-order.service';
-import { ItemModel, ItemSearchFilter } from '../../../items/models/Item.model';
-import { ItemService } from '../../../items/item.service';
 import { SalesOrderModal } from '../../sales-order/sales-order.modal';
 import { InvoiceService } from '../invoice.service';
 import { LoaderService } from '../../../../layouts/components/loader/loaderService';
-import { ArrowLeft, BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, EyeIcon, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Truck, TruckIcon, User, XIcon } from "lucide-angular";
+import { ArrowLeft, BoxIcon, CalculatorIcon, Check, ChevronRight, ChevronsLeftRight, CreditCard, EyeIcon, FileText, HistoryIcon, LucideAngularModule, QrCode, ReceiptIndianRupee, SaveIcon, Search, SettingsIcon, ShoppingBag, Trash, Truck, TruckIcon, User, XIcon } from "lucide-angular";
 import { InvoiceModal, InvoiceItemModal, DeliveryOption, InvoiceFilterModal } from '../invoice.modal';
 import { InvoiceHeaderComponent } from "../../../../layouts/components/invoice-header/invoice-header.component";
 import { AddressType, UserModel } from '../../../user-management/models/user.model';
 import { UserManagementService } from '../../../user-management/userManagement.service';
 import { DrawerService } from '../../../../layouts/components/drawer/drawerService';
+import { ModalService } from '../../../../layouts/components/modal/modalService';
+import { ItemSearchComponent } from '../../../../layouts/components/item-search/item-search.component';
 
 @Component({
   selector: 'app-invoice-form',
@@ -33,6 +32,7 @@ export class InvoiceFormComponent implements OnInit {
 
   //icons
   readonly TruckIcon = Truck;
+  readonly TrashIcon = Trash;
   readonly ReceiptIndianRupeeIcon = ReceiptIndianRupee;
   readonly checkIcon = Check;
   readonly creditCardIcon = CreditCard;
@@ -65,10 +65,7 @@ export class InvoiceFormComponent implements OnInit {
   isLoadingOrders = false;
 
   // Item Search
-  itemSearchResults: ItemModel[] = [];
   itemSearchQuery = "";
-  showItemResults = false;
-  private searchSubject = new Subject<string>();
 
   //delivery config
   currentDeliveryType = signal<DeliveryOption>('IN_HOUSE_DELIVERY');
@@ -86,12 +83,12 @@ export class InvoiceFormComponent implements OnInit {
     private invoiceService: InvoiceService,
     private salesOrderService: SalesOrderService,
     private userService: UserManagementService,
-    private itemService: ItemService,
     private loaderSvc: LoaderService,
     private toast: ToastService,
     private router: Router,
     private route: ActivatedRoute,
-    private drawerService: DrawerService
+    private drawerService: DrawerService,
+    private modalService: ModalService
   ) {
     this.invoiceForm = this.fb.group({
       id: [null],
@@ -113,8 +110,26 @@ export class InvoiceFormComponent implements OnInit {
       this.setUserById(this.customerId, "Loading...");
       this.invoiceForm.get('customerId')?.setValue(this.customerId);
     }
-    this.setupItemSearch();
     this.checkEditMode();
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'F2') {
+      event.preventDefault();
+      this.openItemSearch();
+    }
+  }
+
+  openItemSearch() {
+    this.modalService.openComponent(ItemSearchComponent, {
+      searchType: 'STOCK',
+      placeholder: 'Search stock by name, SKU or code...',
+      onSelected: (item: any) => {
+        this.selectItemFromSearch(item);
+        this.modalService.close();
+      }
+    }, 'lg');
   }
 
   private checkEditMode() {
@@ -270,30 +285,9 @@ export class InvoiceFormComponent implements OnInit {
     );
   }
 
-  private setupItemSearch() {
-    this.searchSubject.pipe(
-      debounceTime(400),
-      distinctUntilChanged(),
-      switchMap(query => {
-        if (!query || query.trim() === '') return of([]);
-        const filter = new ItemSearchFilter();
-        filter.searchQuery = query;
-        filter.active = true;
-        return new Promise(resolve => {
-          this.itemService.searchItems(filter,
-            (res: { data: { content: ItemModel[] } }) => resolve(res.data || []),
-            () => resolve([])
-          );
-        });
-      })
-    ).subscribe((results: any) => {
-      this.itemSearchResults = results;
-      this.showItemResults = results.length > 0;
-    });
-  }
-
-  selectItemFromSearch(item: ItemModel) {
-    const existingItemIndex = this.findItemIndexById(item.id);
+selectItemFromSearch(item: any) {
+    const itemId = item.id || item.itemId;
+    const existingItemIndex = this.findItemIndexById(itemId);
 
     if (existingItemIndex > -1) {
       this.adjustQuantity(existingItemIndex, 1);
@@ -303,7 +297,6 @@ export class InvoiceFormComponent implements OnInit {
     }
 
     this.itemSearchQuery = "";
-    this.showItemResults = false;
   }
 
   private findItemIndexById(itemId: number): number {
@@ -343,12 +336,15 @@ export class InvoiceFormComponent implements OnInit {
     } else if (sourceType === 'PRODUCT') {
       id = null;
       soItemId = null;
-      itemId = data.id;
+      itemId = data.itemId || data.id;
       name = data.name;
-      unitPrice = data.sellingPrice;
+      // Stock items have no sellingPrice — fall back to buyPrice from the selected batch
+      unitPrice = data.sellingPrice || data.buyPrice || data.batches?.[0]?.buyPrice || 0;
       quantity = 1;
       discountRate = 0;
       taxRate = 0;
+      // batchNumber already set on the emitted item by ItemSearchComponent
+      batchNumber = data.batchNumber || data.batches?.[0]?.batchNumber || '';
     }
 
     return this.fb.group({
@@ -356,7 +352,8 @@ export class InvoiceFormComponent implements OnInit {
       soItemId: [soItemId],
       itemId: [itemId, Validators.required],
       name: [name],
-      unitPrice: [unitPrice || 0, [Validators.required, Validators.min(0)]],
+      hsn: [data.hsnSacCode || data.hsn || null],
+      unitPrice: [Number(unitPrice) || 0, [Validators.required, Validators.min(0)]],
       orderedQty: [Math.max(1, quantity), [Validators.required, Validators.min(1)]],
       discountRate: [discountRate, [Validators.min(0), Validators.max(100)]],
       taxRate: [taxRate, [Validators.min(0), Validators.max(100)]],
@@ -397,10 +394,10 @@ export class InvoiceFormComponent implements OnInit {
 
   getLineDetails(index: number) {
     const ctrl = this.items.at(index);
-    const qty = ctrl.get('orderedQty')?.value || 0;
-    const price = ctrl.get('unitPrice')?.value || 0;
-    const discRate = ctrl.get('discountRate')?.value || 0;
-    const taxRate = ctrl.get('taxRate')?.value || 0;
+    const qty = Number(ctrl.get('orderedQty')?.value) || 0;
+    const price = Number(ctrl.get('unitPrice')?.value) || 0;
+    const discRate = Number(ctrl.get('discountRate')?.value) || 0;
+    const taxRate = Number(ctrl.get('taxRate')?.value) || 0;
 
     const gross = this.round(qty * price);
     const discAmt = this.round(gross * (discRate / 100));
@@ -444,18 +441,52 @@ export class InvoiceFormComponent implements OnInit {
     this.items.removeAt(index);
   }
 
+  onDiscountAmountChange(index: number, event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const amountVal = parseFloat(inputElement.value) || 0;
+
+    const ctrl = this.items.at(index);
+    const qty = ctrl.get('orderedQty')?.value || 0;
+    const price = ctrl.get('unitPrice')?.value || 0;
+    const gross = this.round(qty * price);
+
+    if (gross > 0) {
+      let rate = (amountVal / gross) * 100;
+      rate = this.round(Math.min(100, Math.max(0, rate)));
+      ctrl.get('discountRate')?.setValue(rate);
+    } else {
+      ctrl.get('discountRate')?.setValue(0);
+    }
+  }
+
+  onTaxAmountChange(index: number, event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const amountVal = parseFloat(inputElement.value) || 0;
+
+    const ctrl = this.items.at(index);
+    const qty = ctrl.get('orderedQty')?.value || 0;
+    const price = ctrl.get('unitPrice')?.value || 0;
+    const discRate = ctrl.get('discountRate')?.value || 0;
+
+    const gross = this.round(qty * price);
+    const discAmt = this.round(gross * (discRate / 100));
+    const taxable = gross - discAmt;
+
+    if (taxable > 0) {
+      let rate = (amountVal / taxable) * 100;
+      rate = this.round(Math.max(0, rate));
+      ctrl.get('taxRate')?.setValue(rate);
+    } else {
+      ctrl.get('taxRate')?.setValue(0);
+    }
+  }
+
   adjustQuantity(index: number, delta: number) {
     const ctrl = this.items.at(index).get('orderedQty');
     const current = ctrl?.value || 0;
     if (current + delta > 0) {
       ctrl?.setValue(current + delta);
     }
-  }
-
-  onItemSearchInput(event: any) {
-    const query = event.target.value;
-    this.itemSearchQuery = query;
-    this.searchSubject.next(query);
   }
 
   // --- SAVE LOGIC ---

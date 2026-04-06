@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './new-orders-header.component.css'
 })
 export class NewOrdersHeaderComponent {
-  
+
   // Outputs: Tell parent when a user is chosen or cleared
   @Output() userSelected = new EventEmitter<UserModel>();
 
@@ -63,7 +63,6 @@ export class NewOrdersHeaderComponent {
       const tenantId = parseInt(tenantIdString, 10);
       this.userService.fetchTenantObservable(tenantId).subscribe(data => {
         this.tenantDetails = data;
-        console.log('Tenant Details are ready:', this.tenantDetails);
       });
     }
 
@@ -72,7 +71,6 @@ export class NewOrdersHeaderComponent {
       const userId = parseInt(currentUserDetails, 10);
       this.userService.fetchUserObservable(userId).subscribe(data => {
         this.currentUserDetails = data;
-        console.log('Tenant Details are ready:', this.tenantDetails);
       });
     }
   }

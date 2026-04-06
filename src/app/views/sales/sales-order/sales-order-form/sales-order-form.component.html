@@ -1,9 +1,10 @@
 <div class="so-page font-sans bg-gray-50/30">
-    <form [formGroup]="orderForm" (ngSubmit)="saveOrder()">
+    <form [formGroup]="orderForm" (ngSubmit)="saveOrder()" (keydown.enter)="$event.preventDefault()">
         <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
             <div class="flex items-center gap-3">
                 @if(!customerId && !id){
-                <button (click)="back()" type="button" class="text-gray-500 hover:text-gray-800 transition-colors">
+                <button (click)="back()" title="Go Back" type="button"
+                    class="text-gray-500 hover:text-gray-800 transition-colors">
                     <lucide-icon [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-icon>
                 </button>
 
@@ -15,12 +16,12 @@
                 }
             </div>
             <div class="flex items-center gap-2">
+                @if(!isReadonly){
                 <button type="button"
                     class="px-4 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2">
-                    <lucide-icon [img]="eyeIcon" class="w-4 h-4"></lucide-icon>
-                    Preview
+                    <lucide-icon [img]="DraftIcon" class="w-4 h-4"></lucide-icon>
+                    Draft
                 </button>
-                @if(!isReadonly){
                 <button type="submit" [disabled]="isLoading"
                     class="px-5 py-1.5 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center gap-2 shadow-sm">
                     @if(isLoading){
@@ -37,12 +38,48 @@
         </div>
 
         @if(isReadonly) {
+        @switch (orderStatus) {
+        @case ('CANCELLED') {
+        <div class="bg-red-50 border-b border-red-200 px-6 py-3 flex items-center gap-3">
+            <lucide-icon [img]="xIconIcon" class="w-5 h-5 text-red-500"></lucide-icon>
+            <p class="text-sm font-medium text-red-800">
+                This Sales Order is <strong>{{ orderStatus }}</strong> and cannot be edited.
+            </p>
+        </div>
+        }
+        @case ('REJECTED') {
+        <div class="bg-rose-50 border-b border-rose-200 px-6 py-3 flex items-center gap-3">
+            <lucide-icon [img]="WarningIcon" class="w-5 h-5 text-rose-500"></lucide-icon>
+            <p class="text-sm font-medium text-rose-800">
+                This Sales Order is <strong>{{ orderStatus }}</strong> and cannot be edited.
+            </p>
+        </div>
+        }
+        @case ('DRAFT') {
+        <div class="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-3">
+            <lucide-icon [img]="DraftIcon" class="w-5 h-5 text-slate-500"></lucide-icon>
+            <p class="text-sm font-medium text-slate-800">
+                This Sales Order is a <strong>{{ orderStatus }}</strong> and is in read-only mode.
+            </p>
+        </div>
+        }
+        @case ('FULLY_INVOICED') {
+        <div class="bg-emerald-50 border-b border-emerald-200 px-6 py-3 flex items-center gap-3">
+            <lucide-icon [img]="checkIcon" class="w-5 h-5 text-emerald-500"></lucide-icon>
+            <p class="text-sm font-medium text-emerald-800">
+                This Sales Order is <strong>{{ orderStatus }}</strong> and cannot be edited.
+            </p>
+        </div>
+        }
+        @default {
         <div class="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center gap-3">
             <lucide-icon [img]="WarningIcon" class="w-5 h-5 text-amber-500"></lucide-icon>
             <p class="text-sm font-medium text-amber-800">
                 This Sales Order is <strong>{{ orderStatus }}</strong> and cannot be edited.
             </p>
         </div>
+        }
+        }
         }
 
         <div class="w-full mx-auto space-y-0">
@@ -59,7 +96,11 @@
                     <div class="md:col-span-3 p-5 bg-gray-50/30">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1 font-medium">Search by SO Number</label>
+                                <label class="block text-xs text-gray-500 mb-1 font-medium flex items-center gap-2">
+                                    Search by SO Number
+                                    <kbd
+                                        class="hidden md:inline-block px-1 py-0.5 text-[9px] bg-gray-100 border border-gray-200 rounded text-gray-400">F3</kbd>
+                                </label>
                                 <div class="flex gap-2">
                                     <input type="text" #soSearch placeholder="Enter SO Number..."
                                         [(ngModel)]="orderNumber" [ngModelOptions]="{standalone: true}"
@@ -100,6 +141,8 @@
                                 <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
 
                                 <span>Search products by name or SKU...</span>
+                                <kbd
+                                    class="hidden md:inline-flex items-center ml-auto px-1.5 py-0.5 text-[10px] font-sans font-bold text-gray-500 bg-gray-100 border border-gray-300 rounded shrink-0 shadow-sm leading-none">F2</kbd>
                             </button>
                         </div>
                     </div>
@@ -109,14 +152,14 @@
                 </div>
 
                 <div
-                    class="grid grid-cols-12 gap-2 px-5 py-2.5 bg-gray-50 border-t border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                    class="grid grid-cols-12 gap-2 px-5 py-2.5 bg-gray-50 border-t border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider items-center">
                     <div class="col-span-1 text-left">NO</div>
-                    <div class="col-span-3">ITEM DETAILS</div>
-                    <div class="col-span-1">HSN</div>
-                    <div class="col-span-2 text-right">UNIT PRICE (₹)</div>
+                    <div class="col-span-2">ITEM DETAILS</div>
+                    <div class="col-span-1 text-center">MRP</div>
+                    <div class="col-span-1 text-center">UNIT PRICE (₹)</div>
                     <div class="col-span-2 text-center">QTY</div>
-                    <div class="col-span-1 text-center">DISC %</div>
-                    <div class="col-span-1 text-center">TAX %</div>
+                    <div class="col-span-2 text-center">DISCOUNT</div>
+                    <div class="col-span-2 text-center">TAX</div>
                     <div class="col-span-1 text-right">TOTAL (₹)</div>
                 </div>
 
@@ -129,53 +172,96 @@
                             <span class="text-xs font-medium text-gray-400">{{ $index + 1 }}</span>
                         </div>
 
-                        <div class="col-span-3 min-w-0">
-                            <p class="text-sm font-semibold text-gray-900 truncate">{{ item.get('name')?.value }}</p>
+                        <div class="col-span-2 min-w-0 flex flex-col justify-center">
+                            <p class="text-sm font-semibold text-gray-900 truncate"
+                                title="{{ item.get('name')?.value }}">{{ item.get('name')?.value }}</p>
+                            @if(item.get('hsn')?.value) {
+                            <span
+                                class="text-[10px] text-gray-500 font-medium mt-0.5 inline-flex items-center px-1.5 py-0.5 rounded-sm bg-gray-100 border border-gray-200 w-fit">
+                                HSN: {{ item.get('hsn')?.value }}
+                            </span>
+                            } @else {
+                            <span
+                                class="text-[10px] text-gray-400 font-medium mt-0.5 inline-flex items-center w-fit">HSN:
+                                N/A</span>
+                            }
                         </div>
 
-                        <div class="col-span-1 min-w-0">
-                            <p class="text-xs font-medium text-gray-500 truncate">{{ item.get('hsn')?.value || 'N/A' }}
-                            </p>
+                        <div class="col-span-1 flex justify-center">
+                            <input type="number" readonly
+                                class="w-full max-w-[100px] text-right border border-gray-200 group-hover:border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none rounded-md text-sm font-medium text-gray-800 py-1.5 px-2 transition-all shadow-sm group-hover:shadow bg-transparent group-hover:bg-white">
                         </div>
 
-                        <div class="col-span-2 flex justify-end">
+                        <div class="col-span-1 flex justify-center">
                             <input type="number" formControlName="unitPrice"
-                                class="w-full max-w-[100px] text-right border-b border-transparent group-hover:border-gray-200 focus:border-indigo-500 focus:outline-none text-sm font-medium text-gray-800 py-1 transition-all">
+                                class="w-full max-w-[100px] text-right border border-gray-200 group-hover:border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none rounded-md text-sm font-medium text-gray-800 py-1.5 px-2 transition-all shadow-sm group-hover:shadow bg-transparent group-hover:bg-white">
                         </div>
 
                         <div class="col-span-2 flex justify-center">
-                            <div class="inline-flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm"
+                            <div class="inline-flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all"
                                 [class.pointer-events-none]="isReadonly" [class.opacity-50]="isReadonly">
                                 <button type="button" (click)="adjustQuantity($index, -1)"
-                                    class="px-2 py-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-50 border-r border-gray-200 transition-colors">−</button>
+                                    class="px-2.5 py-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 border-r border-gray-200 transition-colors">−</button>
                                 <input type="number" formControlName="orderedQty"
-                                    class="w-10 text-center text-sm font-semibold border-none focus:outline-none">
+                                    class="w-10 text-center text-sm font-semibold border-none focus:ring-0 p-0 py-1.5 bg-transparent focus:outline-none">
                                 <button type="button" (click)="adjustQuantity($index, 1)"
-                                    class="px-2 py-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-50 border-l border-gray-200 transition-colors">+</button>
+                                    class="px-2.5 py-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 border-l border-gray-200 transition-colors">+</button>
                             </div>
                         </div>
 
-                        <div class="col-span-1 flex flex-col items-center">
-                            <input type="number" formControlName="discountRate"
-                                class="w-12 text-center border-b border-transparent group-hover:border-gray-200 focus:border-indigo-500 focus:outline-none text-sm text-gray-600">
-                            <span class="text-[8px] text-emerald-600 mt-1 font-medium">-{{
-                                getLineDetails($index).discAmt |
-                                currency:'INR':'symbol':'1.0-0' }}</span>
+                        <div class="col-span-2 flex justify-center">
+                            <div
+                                class="flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm w-full max-w-[140px] focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all">
+                                <div class="relative w-1/2 group/input">
+                                    <input type="number" formControlName="discountRate"
+                                        class="w-full text-right text-xs font-medium text-gray-700 bg-transparent border-none py-1.5 pr-4 pl-1 focus:ring-0 focus:outline-none placeholder-gray-300"
+                                        placeholder="0">
+                                    <span
+                                        class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold pointer-events-none group-hover/input:text-emerald-500 transition-colors tooltip"
+                                        title="Discount Percentage">%</span>
+                                </div>
+                                <div class="w-px self-stretch bg-gray-200"></div>
+                                <div class="relative w-1/2 bg-gray-50/50 group/input">
+                                    <input type="number" [value]="getLineDetails($index).discAmt"
+                                        (change)="onDiscountAmountChange($index, $event)"
+                                        class="w-full text-right text-xs font-medium text-emerald-600 bg-transparent border-none py-1.5 pr-1.5 pl-4 focus:ring-0 focus:outline-none placeholder-gray-300"
+                                        placeholder="0">
+                                    <span
+                                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-semibold pointer-events-none group-hover/input:text-emerald-600 transition-colors">₹</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="col-span-1 flex flex-col items-center">
-                            <input type="number" formControlName="taxRate"
-                                class="w-12 text-center border-b border-transparent group-hover:border-gray-200 focus:border-indigo-500 focus:outline-none text-sm text-gray-600">
-                            <span class="text-[8px] text-gray-400 mt-1 font-medium">+{{ getLineDetails($index).taxAmt |
-                                currency:'INR':'symbol':'1.0-0' }}</span>
+                        <div class="col-span-2 flex justify-center">
+                            <div
+                                class="flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm w-full max-w-[140px] focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all">
+                                <div class="relative w-1/2 group/input">
+                                    <input type="number" formControlName="taxRate"
+                                        class="w-full text-right text-xs font-medium text-gray-700 bg-transparent border-none py-1.5 pr-4 pl-1 focus:ring-0 focus:outline-none placeholder-gray-300"
+                                        placeholder="0">
+                                    <span
+                                        class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold pointer-events-none group-hover/input:text-indigo-500 transition-colors">%</span>
+                                </div>
+                                <div class="w-px self-stretch bg-gray-200"></div>
+                                <div class="relative w-1/2 bg-gray-50/50 group/input">
+                                    <span
+                                        class="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-semibold pointer-events-none group-hover/input:text-indigo-600 transition-colors">₹</span>
+                                    <input type="number" [value]="getLineDetails($index).taxAmt"
+                                        (change)="onTaxAmountChange($index, $event)"
+                                        class="w-full text-right text-xs font-medium text-gray-600 bg-transparent border-none py-1.5 pr-1.5 pl-4 focus:ring-0 focus:outline-none placeholder-gray-300"
+                                        placeholder="0">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="col-span-1 flex items-center justify-end gap-2">
-                            <span class="text-sm font-bold text-gray-900">{{ getLineDetails($index).lineTotal |
-                                currency:'INR' }}</span>
+                        <div class="col-span-1 flex items-center justify-end gap-1">
+                            <div class="flex flex-col items-end min-w-[60px]">
+                                <span class="text-sm font-bold text-gray-900">{{ getLineDetails($index).lineTotal |
+                                    currency:'INR':'symbol':'1.0-2' }}</span>
+                            </div>
                             @if(!isReadonly) {
                             <button type="button" (click)="removeItem($index)"
-                                class="text-red-300 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">
+                                class="text-red-300 hover:text-red-500 transition-colors p-1.5 rounded-md hover:bg-red-50 shrink-0 opacity-0 group-hover:opacity-100 ring-1 ring-transparent hover:ring-red-200">
                                 <lucide-icon [img]="TrashIcon" class="w-4 h-4"></lucide-icon>
                             </button>
                             }

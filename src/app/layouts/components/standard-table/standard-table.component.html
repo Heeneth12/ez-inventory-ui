@@ -37,7 +37,7 @@
                 </button>
             </div>
             <div class="flex items-center gap-2">
-                <button id="table-reload" (click)="resetFilters()"
+                <button id="table-reload" (click)="resetFilters()" title="Reset Filters"
                     class="text-xs p-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 hover:text-indigo-800 font-medium">
                     <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
                 </button>
@@ -52,7 +52,7 @@
                     <span>{{ btn.label }}</span>
                 </button>
             </ng-container>
-            <button
+            <button title="Settings"
                 class="flex items-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none"
                 (click)="showSettings.set(!showSettings())">
                 <lucide-icon [img]="Settings" class="w-4 h-4"></lucide-icon>
@@ -247,18 +247,63 @@
                             <div *ngSwitchCase="'action'"
                                 class="flex items-center justify-end gap-2 relative action-menu-container">
                                 <ng-container *ngFor="let act of customActions">
-                                    <button *ngIf="!act.condition || act.condition(row)"
-                                        (click)="emitCustomAction(act, row); $event.stopPropagation()"
-                                        class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors border"
-                                        [ngClass]="{
-                                        'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100': !act.color || act.color === 'primary',
-                                        'bg-green-50 text-green-700 border-green-200 hover:bg-green-100': act.color === 'success',
-                                        'bg-red-50 text-red-700 border-red-200 hover:bg-red-100': act.color === 'danger',
-                                        'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100': act.color === 'neutral'
-                                    }">
-                                        <lucide-icon [img]="act.icon || ArrowRight" class="w-3.5 h-3.5"></lucide-icon>
-                                        <span *ngIf="act.label" class="px-0.5">{{ act.label }}</span>
-                                    </button>
+                                    <div class="relative inline-block" *ngIf="!act.condition || act.condition(row)">
+
+                                        <button (click)="handleActionClick($event, act, row)"
+                                            class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors border"
+                                            [ngClass]="{
+                                                        'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100': !act.color || act.color === 'primary',
+                                                        'bg-green-50 text-green-700 border-green-200 hover:bg-green-100': act.color === 'success',
+                                                        'bg-red-50 text-red-700 border-red-200 hover:bg-red-100': act.color === 'danger',
+                                                        'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100': act.color === 'neutral'
+                                                    }">
+                                            <lucide-icon [img]="act.icon || ArrowRight"
+                                                class="w-3.5 h-3.5"></lucide-icon>
+                                            <span *ngIf="act.label" class="px-0.5">{{ act.label }}</span>
+                                        </button>
+
+                                        <div *ngIf="activeConfirm?.row === row && activeConfirm?.act === act"
+                                            class="absolute right-0 bottom-full mb-2 w-64 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 z-50 p-4 transform origin-bottom-right transition-all">
+
+                                            <div class="flex items-start gap-3 mb-4">
+                                                <div *ngIf="act.confirmationIcon" class="shrink-0 mt-0.5" [ngClass]="{
+                                                        'text-indigo-500': !act.confirmationColor || act.confirmationColor === 'primary',
+                                                        'text-green-500': act.confirmationColor === 'success',
+                                                        'text-red-500': act.confirmationColor === 'danger',
+                                                        'text-gray-500': act.confirmationColor === 'neutral'
+                                                    }">
+                                                    <lucide-icon [img]="act.confirmationIcon"
+                                                        class="w-5 h-5"></lucide-icon>
+                                                </div>
+
+                                                <div>
+                                                    <h4 class="text-sm font-semibold text-gray-900">Are you sure?</h4>
+                                                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                                                        {{ act.confirmationMessage || 'Do you want to proceed with this
+                                                        action?' }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex justify-end gap-2">
+                                                <button (click)="cancelConfirm($event)"
+                                                    class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-transparent">
+                                                    Cancel
+                                                </button>
+                                                <button (click)="confirmAction($event)"
+                                                    class="px-2 py-1 text-xs font-medium rounded-lg transition-colors border"
+                                                    [ngClass]="{
+                                                            'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100': !act.confirmationColor || act.confirmationColor === 'primary',
+                                                            'bg-green-50 text-green-700 border-green-200 hover:bg-green-100': act.confirmationColor === 'success',
+                                                            'bg-red-50 text-red-700 border-red-200 hover:bg-red-100': act.confirmationColor === 'danger',
+                                                            'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100': act.confirmationColor === 'neutral'
+                                                        }">
+                                                    Proceed
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </ng-container>
 
                                 <button (click)="toggleActionMenu(row.id, $event)"

@@ -1,22 +1,24 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, forkJoin } from 'rxjs';
+import { map, delay } from 'rxjs/operators';
+import { ItemService } from '../../../views/items/item.service';
+import { SalesOrderService } from '../../../views/sales/sales-order/sales-order.service';
+import { InvoiceService } from '../../../views/sales/invoices/invoice.service';
+import { UserManagementService } from '../../../views/user-management/userManagement.service';
 
-export type SearchCategory = 'all' | 'products' | 'orders' | 'customers' | 'pages';
+export type SearchCategory = 'all' | 'products' | 'orders' | 'customers' | 'invoices';
 
 export interface SearchResult {
   id: string | number;
   title: string;
-  subtitle?: string;     // e.g. "SKU-123" or "john@example.com"
-  category: string;      // Visual grouping header: "Pages", "Products"
-  type: SearchCategory;  // Logic grouping for icons/filtering
+  subtitle?: string;
+  category: string;
+  type: SearchCategory;
   route: string | any[];
-  
-  // Rich UI Props
   image?: string;        
   status?: 'success' | 'warning' | 'danger' | 'neutral'; 
   statusLabel?: string;  
-  meta?: string;         // e.g. "$1,200.00" or "Qty: 50"
+  meta?: string;
 }
 
 @Injectable({
@@ -27,90 +29,154 @@ export class SearchService {
   public isOpen$ = this.isOpenSubject.asObservable();
   private recentSearchesKey = 'ezh_recent_searches';
 
-  // --- MOCK DATA: Rich Inventory Examples ---
-  private mockData: SearchResult[] = [
-    // 1. Pages
-    { 
-      id: 'p1', title: 'Dashboard', subtitle: 'Analytics & Overview', 
-      category: 'Pages', type: 'pages', route: '/dashboard' 
-    },
-    { 
-      id: 'p2', title: 'Inventory List', subtitle: 'Manage stock', 
-      category: 'Pages', type: 'pages', route: '/inventory' 
-    },
-    { 
-      id: 'p3', title: 'Settings', subtitle: 'System configuration', 
-      category: 'Pages', type: 'pages', route: '/settings' 
-    },
-
-    // 2. Products (With Images & Stock Status)
-    { 
-      id: 'prod1', title: 'MacBook Pro 16"', subtitle: 'SKU: APP-MBP-16', 
-      category: 'Products', type: 'products', route: '/inventory/products/1',
-      status: 'success', statusLabel: 'In Stock', meta: 'Qty: 124',
-      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=100&q=80'
-    },
-    { 
-      id: 'prod2', title: 'Wireless Mouse M1', subtitle: 'SKU: LOGI-M1', 
-      category: 'Products', type: 'products', route: '/inventory/products/2',
-      status: 'warning', statusLabel: 'Low Stock', meta: 'Qty: 5',
-      image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=100&q=80'
-    },
-    { 
-      id: 'prod3', title: 'Office Chair Ergonomic', subtitle: 'SKU: FURN-001', 
-      category: 'Products', type: 'products', route: '/inventory/products/3',
-      status: 'danger', statusLabel: 'Out of Stock', meta: 'Qty: 0'
-    },
-
-    // 3. Orders (With Status Colors & Value)
-    { 
-      id: 'ord1', title: 'Order #10234', subtitle: 'Acme Corp', 
-      category: 'Orders', type: 'orders', route: '/orders/10234',
-      status: 'success', statusLabel: 'Paid', meta: '$5,200.00'
-    },
-    { 
-      id: 'ord2', title: 'Order #10235', subtitle: 'Global Logistics Inc', 
-      category: 'Orders', type: 'orders', route: '/orders/10235',
-      status: 'warning', statusLabel: 'Pending', meta: '$1,450.00'
-    },
-
-    // 4. Customers (With Avatars)
-    { 
-      id: 'u1', title: 'Sarah Connor', subtitle: 'sarah@skynet.com', 
-      category: 'Customers', type: 'customers', route: '/customers/1',
-      image: 'https://ui-avatars.com/api/?name=Sarah+Connor&background=0D8ABC&color=fff'
-    },
-    { 
-      id: 'u2', title: 'John Wick', subtitle: 'babayaga@gmail.com', 
-      category: 'Customers', type: 'customers', route: '/customers/2',
-      image: 'https://ui-avatars.com/api/?name=John+Wick&background=333&color=fff'
-    },
+  private mockPages: SearchResult[] = [
+    { id: 'p1', title: 'Dashboard', subtitle: 'Analytics & Overview', category: 'Pages', type: 'all', route: '/dashboard' },
+    { id: 'p2', title: 'Inventory List', subtitle: 'Manage stock', category: 'Pages', type: 'all', route: '/inventory' },
+    { id: 'p3', title: 'Settings', subtitle: 'System configuration', category: 'Pages', type: 'all', route: '/settings' },
   ];
 
-  constructor() {}
+  constructor(
+    private itemService: ItemService,
+    private salesOrderService: SalesOrderService,
+    private invoiceService: InvoiceService,
+    private userService: UserManagementService
+  ) {}
 
-  // --- Visibility Control ---
+  // --- Visibility Control (Legacy, can be kept for compatibility) ---
   toggle() { this.isOpenSubject.next(!this.isOpenSubject.value); }
   open()   { this.isOpenSubject.next(true); }
   close()  { this.isOpenSubject.next(false); }
 
+  private searchItemsApi(term: string): Observable<SearchResult[]> {
+    return new Observable(observer => {
+      this.itemService.searchItems({ searchQuery: term, name: term }, (res: any) => {
+        const data = res?.data || [];
+        const results = data.map((d: any) => ({
+          id: 'prod_' + d.id,
+          title: d.name,
+          subtitle: d.sku || d.hsnSacCode || 'Item',
+          category: 'Products',
+          type: 'products' as SearchCategory,
+          route: `/items/view/${d.id}`,
+          status: d.active ? 'success' : 'neutral',
+          statusLabel: d.active ? 'Active' : 'Inactive',
+          meta: '₹' + (d.sellingPrice || 0)
+        }));
+        observer.next(results);
+        observer.complete();
+      }, () => {
+         observer.next([]);
+         observer.complete();
+      });
+    });
+  }
+
+  private searchSalesOrdersApi(term: string): Observable<SearchResult[]> {
+    return new Observable(observer => {
+      this.salesOrderService.searchSalesOrders({ soNumber: term, searchQuery: term }, (res: any) => {
+        const data = res?.data || [];
+        const results = data.map((d: any) => ({
+          id: 'so_' + d.id,
+          title: 'SO: ' + d.soNumber,
+          subtitle: 'Orders',
+          category: 'Orders',
+          type: 'orders' as SearchCategory,
+          route: `/sales/order`, // Routing assumes global list or specific view if known
+          status: d.status === 'CONFIRMED' ? 'success' : 'warning',
+          statusLabel: d.status,
+          meta: '₹' + (d.grandTotal || 0)
+        }));
+        observer.next(results);
+        observer.complete();
+      }, () => {
+         observer.next([]);
+         observer.complete();
+      });
+    });
+  }
+
+  private searchInvoicesApi(term: string): Observable<SearchResult[]> {
+    return new Observable(observer => {
+      this.invoiceService.searchInvoices({ invNumber: term, searchQuery: term }, (res: any) => {
+        const data = res?.data || [];
+        const results = data.map((d: any) => ({
+          id: 'inv_' + d.id,
+          title: 'INV: ' + d.invoiceNumber,
+          subtitle: 'Invoice',
+          category: 'Invoices',
+          type: 'invoices' as SearchCategory,
+          route: `/sales/invoice`, 
+          status: d.status === 'PAID' ? 'success' : 'neutral',
+          statusLabel: d.status,
+          meta: '₹' + (d.grandTotal || 0)
+        }));
+        observer.next(results);
+        observer.complete();
+      }, () => {
+         observer.next([]);
+         observer.complete();
+      });
+    });
+  }
+
+  private searchUsersApi(term: string): Observable<SearchResult[]> {
+    return new Observable(observer => {
+      this.userService.searchUsers({ searchQuery: term }, (res: any) => {
+        const data = res?.data || [];
+        const results = data.map((d: any) => ({
+          id: 'user_' + d.id,
+          title: d.fullName || d.name || 'User',
+          subtitle: d.email || d.phone || 'Customer',
+          category: 'Customers',
+          type: 'customers' as SearchCategory,
+          route: `/admin/users`, 
+          image: `https://ui-avatars.com/api/?name=${encodeURIComponent(d.fullName || d.name || 'U')}&background=0D8ABC&color=fff`
+        }));
+        observer.next(results);
+        observer.complete();
+      }, () => {
+         observer.next([]);
+         observer.complete();
+      });
+    });
+  }
+
   // --- Search Logic ---
   search(query: string, filter: SearchCategory = 'all'): Observable<SearchResult[]> {
     const term = query.toLowerCase().trim();
-    
-    // 1. Filter by Text (Title or Subtitle)
-    let results = this.mockData.filter(item => 
-      item.title.toLowerCase().includes(term) || 
-      (item.subtitle && item.subtitle.toLowerCase().includes(term))
-    );
+    if (!term) return of([]);
 
-    // 2. Filter by Category Tab (if not 'all')
-    if (filter !== 'all') {
-      results = results.filter(item => item.type === filter);
+    const observables: Observable<SearchResult[]>[] = [];
+
+    if (filter === 'all' || filter === 'products') {
+      observables.push(this.searchItemsApi(term));
+    }
+    if (filter === 'all' || filter === 'orders') {
+      observables.push(this.searchSalesOrdersApi(term));
+    }
+    if (filter === 'all' || filter === 'invoices') {
+      observables.push(this.searchInvoicesApi(term));
+    }
+    if (filter === 'all' || filter === 'customers') {
+      observables.push(this.searchUsersApi(term));
     }
 
-    // Return with slight delay to simulate API
-    return of(results).pipe(delay(150));
+    if (observables.length === 0) return of([]);
+
+    return forkJoin(observables).pipe(
+      map(resultsArray => {
+        let combined: SearchResult[] = [];
+        resultsArray.forEach(res => combined = combined.concat(res));
+
+        // Add mock pages if matching in 'all' search
+        if (filter === 'all') {
+           const pagesMatches = this.mockPages.filter(p => p.title.toLowerCase().includes(term));
+           combined = combined.concat(pagesMatches);
+        }
+
+        return combined;
+      })
+    );
   }
 
   // --- Recent Searches Persistence ---
@@ -121,11 +187,8 @@ export class SearchService {
 
   addRecentSearch(item: SearchResult) {
     let recent = this.getRecentSearches();
-    // Remove if exists (to move to top)
     recent = recent.filter(r => r.id !== item.id);
-    // Add to start
     recent.unshift(item);
-    // Keep max 5
     recent = recent.slice(0, 5);
     localStorage.setItem(this.recentSearchesKey, JSON.stringify(recent));
   }
