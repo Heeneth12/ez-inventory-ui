@@ -7,16 +7,22 @@ import { InvoiceModal } from '../../../views/sales/invoices/invoice.modal';
 import { LoaderService } from '../loader/loaderService';
 import { ToastService } from '../toast/toastService';
 import { StepConfig, StepperComponent } from "../../UI/stepper/stepper.component";
-import { User, ReceiptText, Truck, ReceiptIndianRupee } from 'lucide-angular';
+import { User, ReceiptText, Truck, ReceiptIndianRupee, LucideAngularModule, Copy, Calendar, Package } from 'lucide-angular';
 import { DeliveryService } from '../../../views/sales/delivery/delivery.service';
 import { DeliveryModel } from '../../../views/sales/delivery/delivery.model';
 import { PaymentService } from '../../../views/sales/payments/payment.service';
 import { InvoicePaymentSummaryModal } from '../../../views/sales/payments/payment.modal';
+import { DrawerService } from '../drawer/drawerService';
+import { ModalService } from '../modal/modalService';
+import { ConfirmationModalService } from '../../UI/confirmation-modal/confirmation-modal.service';
+import { InvoiceFormComponent } from '../../../views/sales/invoices/invoice-form/invoice-form.component';
+import { PaymentSymmaryComponent } from '../../../views/sales/payments/payment-symmary/payment-symmary.component';
+import { filter, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-order-tracking',
   standalone: true,
-  imports: [CommonModule, StepperComponent],
+  imports: [CommonModule, StepperComponent, LucideAngularModule],
   templateUrl: './order-tracker.component.html',
   styleUrls: ['./order-tracker.component.css']
 })
@@ -25,6 +31,10 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
   @Input() salesOrderId: number | null = null;
   @Input() invoiceNumber: string | null = null;
   contactId: number | string | null = 0;
+  currentId: number | string | null = null;
+  readonly copy = Copy;
+  readonly calendar = Calendar;
+  readonly package = Package;
 
   salesOrderDetails: SalesOrderModal | null = null;
   invoiceDetails: InvoiceModal | null = null;
@@ -74,7 +84,10 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     private loaderService: LoaderService,
     private deliveryService: DeliveryService,
     private paymentService: PaymentService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private drawerService: DrawerService,
+    private modalService: ModalService,
+    private confirmService: ConfirmationModalService
   ) {
   }
 
@@ -119,13 +132,20 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     if (status === 'CREATED' || status === 'PENDING' || status === 'PENDING_APPROVAL' || status === 'CONFIRMED') {
       // Only SO step is active, nothing else loaded
       this.steps[0].state = 'active';
+      //rest all block it 
+      this.steps[1].state = 'pending';
+      this.steps[1].disabled = true;
+      this.steps[2].state = 'pending';
+      this.steps[2].disabled = true;
+      this.steps[3].state = 'pending';
+      this.steps[3].disabled = true;
     } else if (status === 'PARTIALLY_INVOICED' || status === 'FULLY_INVOICED') {
       // SO is done, Invoice step is active/available
+      // SO now we can Both Sales Order and Invoice
       this.steps[0].state = 'completed';
       this.steps[1].state = 'active';
       this.steps[1].disabled = false;
       this.currentStep = 1;
-
       // Fetch invoice details linked to this SO
       this.getInvoiceBySalesOrderId(this.salesOrderDetails.id);
     }
@@ -258,5 +278,220 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
       case 'IN_HOUSE_DELIVERY': return 'In-House Delivery';
       default: return type.replace(/_/g, ' ');
     }
+  }
+
+  // ── Display helpers ──────────────────────────────────────────────────────────
+
+  getCurrentDisplayStatus(): string | undefined {
+    switch (this.currentStep) {
+      case 0: return this.salesOrderDetails?.status;
+      case 1: return this.invoiceDetails?.status;
+      case 2: return this.deliveryDetails?.status;
+      case 3: return this.paymentSummary?.status;
+    }
+    return undefined;
+  }
+
+  getCurrentDisplayNumber(): string | undefined {
+    switch (this.currentStep) {
+      case 0: return this.salesOrderDetails?.orderNumber;
+      case 1: return this.invoiceDetails?.invoiceNumber;
+      case 2: return this.deliveryDetails?.deliveryNumber;
+      case 3: return this.paymentSummary?.invoiceNumber;
+    }
+    return undefined;
+  }
+
+  getCurrentDisplayDate(): string | undefined {
+    switch (this.currentStep) {
+      case 0: return this.salesOrderDetails?.orderDate;
+      case 1: return this.invoiceDetails?.invoiceDate;
+      case 2: return this.deliveryDetails?.scheduledDate as any;
+      case 3: return undefined;
+    }
+    return undefined;
+  }
+
+  // ── Condition getters
+
+  get canCancelSO(): boolean {
+    return this.salesOrderDetails?.status === 'CONFIRMED';
+  }
+
+  get canConvertToInvoice(): boolean {
+    return this.salesOrderDetails?.status === 'CONFIRMED';
+  }
+
+  get isSOInvoiced(): boolean {
+    const status = this.salesOrderDetails?.status;
+    return status === 'PARTIALLY_INVOICED' || status === 'FULLY_INVOICED';
+  }
+
+  get isSOTerminal(): boolean {
+    const status = this.salesOrderDetails?.status;
+    return status === 'CANCELLED' || status === 'REJECTED';
+  }
+
+  get isSOPending(): boolean {
+    const status = this.salesOrderDetails?.status;
+    return status === 'CREATED' || status === 'PENDING' || status === 'PENDING_APPROVAL';
+  }
+
+  get canRecordPayment(): boolean {
+    const ps = this.invoiceDetails?.paymentStatus;
+    return ps === 'UNPAID' || ps === 'PARTIALLY_PAID';
+  }
+
+  get canMarkDelivered(): boolean {
+    if (!this.deliveryDetails) return false;
+    const ds = this.deliveryDetails.status;
+    return ds === 'PENDING' || ds === 'SCHEDULED' || ds === 'SHIPPED';
+  }
+
+  get isOrderFulfilled(): boolean {
+    return (this.paymentSummary?.balanceDue === 0) &&
+      (this.deliveryDetails?.status === 'DELIVERED');
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────────────
+
+  refreshCurrentOrder() {
+    if (this.salesOrderId != null) {
+      this.invoiceLoaded = false;
+      this.deliveryLoaded = false;
+      this.paymentLoaded = false;
+      this.invoiceDetails = null;
+      this.deliveryDetails = null;
+      this.paymentSummary = null;
+      this.currentStep = 0;
+      this.steps[0].state = 'active';
+      this.steps[1].state = 'pending'; this.steps[1].disabled = true;
+      this.steps[2].state = 'pending'; this.steps[2].disabled = true;
+      this.steps[3].state = 'pending'; this.steps[3].disabled = true;
+      this.getSalesOrderDetails(this.salesOrderId);
+    }
+  }
+
+  goToInvoiceStep() {
+    if (this.isSOInvoiced && !this.steps[1].disabled) {
+      this.currentStep = 1;
+    }
+  }
+
+  convertToInvoice() {
+    if (!this.salesOrderDetails) return;
+    this.drawerService.openComponent(
+      InvoiceFormComponent,
+      { salesOrderId: this.salesOrderDetails.id, customerId: this.salesOrderDetails.customerId },
+      'Create Invoice',
+      '2xl'
+    );
+    this.drawerService.drawerState$.pipe(
+      filter(open => !open),
+      take(1)
+    ).subscribe(() => {
+      this.refreshCurrentOrder();
+    });
+  }
+
+  async cancelSalesOrder() {
+    if (!this.salesOrderDetails) return;
+    const confirmed = await this.confirmService.open({
+      title: 'Cancel Sales Order',
+      message: `Are you sure you want to cancel order #${this.salesOrderDetails.orderNumber}? This action cannot be undone.`,
+      intent: 'danger',
+      confirmLabel: 'Cancel Order',
+      cancelLabel: 'Keep Order'
+    });
+    if (!confirmed) return;
+    this.loaderService.show();
+    this.salesOrderService.updateSalesOrderStatus(
+      this.salesOrderDetails.id,
+      'CANCELLED',
+      (res: any) => {
+        this.loaderService.hide();
+        this.toastService.show('Sales order cancelled', 'success');
+        this.refreshCurrentOrder();
+      },
+      (err: any) => {
+        this.loaderService.hide();
+        this.toastService.show('Failed to cancel order', 'error');
+      }
+    );
+  }
+
+  downloadInvoice() {
+    if (!this.invoiceDetails) return;
+    this.loaderService.show();
+    this.invoiceService.downloadInvoicePdf(
+      this.invoiceDetails.id,
+      (response: any) => {
+        this.loaderService.hide();
+        const blob = new Blob([response.body], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, 'invoicePopup', 'width=900,height=800,top=50,left=100,toolbar=no,menubar=no,scrollbars=yes,resizable=yes');
+      },
+      (error: any) => {
+        this.loaderService.hide();
+        this.toastService.show('Failed to download invoice', 'error');
+      }
+    );
+  }
+
+  recordPayment() {
+    if (!this.invoiceDetails) return;
+    this.modalService.openComponent(
+      PaymentSymmaryComponent,
+      { invoiceId: this.invoiceDetails.id, customerId: this.invoiceDetails.customerId },
+      'lg'
+    );
+    this.modalService.isOpen$.pipe(
+      filter(open => !open),
+      take(1)
+    ).subscribe(() => {
+      this.refreshCurrentOrder();
+    });
+  }
+
+  async markAsDelivered() {
+    if (!this.deliveryDetails) return;
+    const isPickup = this.deliveryDetails.type === 'CUSTOMER_PICKUP';
+    const confirmed = await this.confirmService.open({
+      title: isPickup ? 'Mark as Picked Up' : 'Mark as Delivered',
+      message: isPickup
+        ? 'Confirm that the customer has picked up the order?'
+        : 'Confirm that this delivery has been completed?',
+      intent: 'success',
+      confirmLabel: isPickup ? 'Yes, Picked Up' : 'Yes, Delivered'
+    });
+    if (!confirmed) return;
+    this.loaderService.show();
+    this.deliveryService.markAsDelivered(
+      this.deliveryDetails.id,
+      (res: any) => {
+        this.loaderService.hide();
+        this.toastService.show(isPickup ? 'Order marked as picked up' : 'Delivery completed', 'success');
+        this.refreshCurrentOrder();
+      },
+      (err: any) => {
+        this.loaderService.hide();
+        this.toastService.show('Failed to update delivery status', 'error');
+      }
+    );
+  }
+
+  getStepTitle(step: number): string {
+    const titles: { [key: number]: string } = {
+      0: 'Sales Order',
+      1: 'Invoice',
+      2: 'Delivery',
+      3: 'Payment'
+    };
+    return titles[step] || 'Inventory Task';
+  }
+
+  copyToClipboard(text: string | undefined) {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
   }
 }
