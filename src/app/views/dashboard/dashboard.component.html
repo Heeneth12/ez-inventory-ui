@@ -1,65 +1,84 @@
-<div class="lg:p-4 p-2 font-sans antialiased text-[#1A1C1E]">
-  <div class="max-w-[1750px] mx-auto space-y-4">
-    <div class="space-y-6">
-      @if (userData$ | async; as user) {
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="font-sans antialiased text-[#1A1C1E]">
+  <div class="max-w-[1750px] p-2 mx-auto space-y-4">
 
-        <div class="flex items-center gap-4">
-          <button
-            class="w-14 h-14 rounded-md bg-slate-200 text-slate-800 flex items-center justify-center font-bold text-xl hover:scale-105 transition-transform">
+    @if (userData$ | async; as user) {
+    <div
+      class="bg-white rounded-md border border-slate-300/50 px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+
+      <div class="flex items-center gap-4">
+        <!-- Gradient avatar -->
+        <div class="relative flex-shrink-0">
+          <div
+            class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-black text-xl shadow-md shadow-indigo-200 select-none">
             {{ getInitials(user.fullName) }}
-          </button>
-
-          <div>
-            <h1 class="text-2xl font-black text-slate-800 tracking-tight capitalize">Hello, {{ user.fullName }}</h1>
-            <p class="text-[13px] text-slate-500 font-medium">{{ user.userRoles[0] || 'User' }}</p>
           </div>
+          <span
+            class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></span>
         </div>
 
-        <div class="flex items-center gap-4 self-end md:self-center">
-          <div class="text-right hidden sm:block border-r border-slate-200 pr-4">
-            <h2 class="text-sm font-bold text-slate-900">{{ user.tenantName }}</h2>
-            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Tenant ID: {{ user.tenantId }}</p>
+        <!-- Text block -->
+        <div>
+          <p class="text-[11px] font-bold text-indigo-500 uppercase tracking-widest mb-0.5">{{ getGreeting() }}</p>
+          <h1 class="text-xl font-black text-slate-900 tracking-tight capitalize leading-tight">{{ user.fullName }}</h1>
+          <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 text-[11px] font-bold tracking-wide">
+              {{ user.userRoles[0] || 'User' }}
+            </span>
+            <span class="text-slate-300 text-xs">·</span>
+            <span class="text-[12px] text-slate-500 font-semibold">{{ user.tenantName }}</span>
           </div>
         </div>
       </div>
-      } @else {
-      <div class="animate-pulse flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-md bg-slate-200"></div>
-          <div>
-            <div class="h-6 bg-slate-200 w-48 rounded mb-2"></div>
-            <div class="h-4 bg-slate-200 w-32 rounded"></div>
-          </div>
-        </div>
-        <div class="flex items-center gap-4 self-end md:self-center">
-          <div class="text-right hidden sm:block border-r border-slate-200 pr-4">
-            <div class="h-5 bg-slate-200 w-32 rounded mb-2 ml-auto"></div>
-            <div class="h-3 bg-slate-200 w-24 rounded ml-auto"></div>
-          </div>
-        </div>
-      </div>
-      }
 
-      <div>
-        <div class="flex items-center gap-8 border-b border-slate-200/80">
-          @for(tab of allTabs; track tab){
-          <button (click)="handleTabChange(tab)"
-            class="relative pb-2 text-[14px] font-bold text-slate-500 hover:text-slate-900 transition-colors capitalize"
-            [ngClass]="{'text-slate-900': currentTab === tab}">
-            {{tab}}
-            @if(currentTab === tab){
-            <div class="absolute bottom-0 left-0 w-full h-[3px] bg-slate-900 rounded-t-full"></div>
-            }
-          </button>
+      <!-- Right: Date + status chips -->
+      <div class="flex flex-col items-start sm:items-end gap-2">
+        <p class="text-[12px] text-slate-400 font-medium">{{ today | date:'EEEE, MMMM d, y' }}</p>
+        <div class="flex items-center gap-2 flex-wrap">
+          @if(pendingApprovalsCount > 0) {
+          <span
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-bold border border-amber-100">
+            <lucide-icon [img]="icons.bell" class="w-3 h-3"></lucide-icon>
+            {{ pendingApprovalsCount }} Pending Approval{{ pendingApprovalsCount > 1 ? 's' : '' }}
+          </span>
+          } @else {
+          <span
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-100">
+            <lucide-icon [img]="icons.packageCheck" class="w-3 h-3"></lucide-icon>
+            All caught up
+          </span>
           }
+          <span
+            class="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-50 text-slate-500 text-[11px] font-bold border border-slate-100">
+            Tenant #{{ user.tenantId }}
+          </span>
         </div>
       </div>
-
     </div>
-    @if(currentTab === 'dashboard'){
+    } @else {
+    <!-- Skeleton -->
+    <div
+      class="bg-white rounded-xl border border-slate-100 shadow-sm px-6 py-5 flex items-center justify-between gap-5 animate-pulse">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-xl bg-slate-200"></div>
+        <div class="space-y-2">
+          <div class="h-3 w-20 bg-slate-200 rounded"></div>
+          <div class="h-5 w-44 bg-slate-200 rounded"></div>
+          <div class="h-3 w-32 bg-slate-200 rounded"></div>
+        </div>
+      </div>
+      <div class="hidden sm:flex flex-col items-end gap-2">
+        <div class="h-3 w-36 bg-slate-200 rounded"></div>
+        <div class="h-7 w-48 bg-slate-200 rounded-full"></div>
+      </div>
+    </div>
+    }
+
+    <!-- ── Stat Cards Row ──────────────────────────────────────────── -->
     <div class="grid grid-cols-12 gap-4">
-      <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-6 border border-slate-100">
+
+      <!-- Total Sale -->
+      <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-6 border border-slate-300/50">
         <div class="flex justify-between items-start">
           <div class="space-y-1">
             <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Sale</h2>
@@ -67,21 +86,27 @@
             <div class="flex items-center gap-2 pt-3">
               <span
                 class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold">
-                <lucide-icon [img]="icons.trendingUp" class="w-3 h-3 mr-1"></lucide-icon>
-                +19%
+                <lucide-icon [img]="icons.trendingUp" class="w-3 h-3 mr-1"></lucide-icon>+19%
               </span>
               <p class="text-[14px] text-slate-400">
                 Yeay! your sales have surged by <span class="font-bold text-slate-700">₹723.12</span> from last month!
               </p>
             </div>
           </div>
-
-          <button
-            class="group flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
-            Last 7 days
-            <lucide-icon [img]="icons.chevronDown"
-              class="w-4 h-4 text-slate-400 group-hover:text-slate-600"></lucide-icon>
-          </button>
+          <div class="flex gap-2">
+            <button
+              class="group flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+              Sales
+              <lucide-icon [img]="icons.chevronDown"
+                class="w-4 h-4 text-slate-400 group-hover:text-slate-600"></lucide-icon>
+            </button>
+            <button
+              class="group flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+              Last 7 days
+              <lucide-icon [img]="icons.chevronDown"
+                class="w-4 h-4 text-slate-400 group-hover:text-slate-600"></lucide-icon>
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
@@ -89,11 +114,10 @@
             class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group hover:border-slate-300 transition-colors">
             <div class="flex items-center gap-2 mb-3">
               <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
-              <span class="text-[11px] font-black text-slate-500 uppercase">In-Stores Sales</span>
+              <span class="text-[11px] font-black text-slate-500 uppercase">In-Store Sales</span>
             </div>
             <div class="text-2xl font-bold text-slate-900">₹5,045.00</div>
           </div>
-
           <div
             class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group hover:border-slate-300 transition-colors">
             <div class="flex items-center gap-2 mb-3">
@@ -102,7 +126,6 @@
             </div>
             <div class="text-2xl font-bold text-slate-900">₹1,001.00</div>
           </div>
-
           <div
             class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group hover:border-slate-300 transition-colors">
             <div class="flex items-center gap-2 mb-3">
@@ -114,8 +137,9 @@
         </div>
       </div>
 
+      <!-- Total Orders -->
       <div
-        class="col-span-12 lg:col-span-4 bg-white rounded-lg p-6 border border-slate-100 flex flex-col justify-between overflow-hidden">
+        class="col-span-12 lg:col-span-4 bg-white rounded-lg p-6 border border-slate-300/50 flex flex-col justify-between overflow-hidden">
         <div>
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Orders</h2>
@@ -124,67 +148,119 @@
               <lucide-icon [img]="icons.eye" class="w-4 h-4"></lucide-icon>
             </button>
           </div>
-
           <div class="flex items-baseline gap-3">
             <h1 class="text-5xl font-extrabold text-slate-900">352</h1>
             <span class="text-emerald-500 font-bold text-sm flex items-center">
-              <lucide-icon [img]="icons.trendingUp" class="w-4 h-4 mr-0.5"></lucide-icon>
-              +23%
+              <lucide-icon [img]="icons.trendingUp" class="w-4 h-4 mr-0.5"></lucide-icon>+23%
             </span>
           </div>
           <p class="text-sm text-slate-400 mt-4 leading-relaxed max-w-[200px]">
             Year! your order have surged by <span class="font-bold text-slate-700">25</span> from last month!
           </p>
         </div>
-
         <div class="h-32 -mx-4 -mb-4 opacity-80">
           <canvas #activityChart></canvas>
         </div>
       </div>
     </div>
-    <div class="grid grid-cols-12 gap-4 mt-4">
-      <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-6 border border-slate-100 flex flex-col">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Quick To-Do</h2>
-          <button class="text-slate-400 hover:text-slate-900 transition-colors">
-            <lucide-icon [img]="icons.plus" class="w-5 h-5"></lucide-icon>
-          </button>
+
+    <!-- ── Bottom Row ─────────────────────────────────────────────── -->
+    <div class="grid grid-cols-12 gap-4">
+
+      <!-- Quick Actions -->
+      <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-4 border border-slate-300/50">
+        <div class="flex justify-between items-center mb-5">
+          <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Quick Actions</h2>
         </div>
 
-        <div class="space-y-4">
-          <div
-            class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg group hover:bg-slate-100 transition-colors cursor-pointer">
+        <div class="grid grid-cols-2 gap-3">
+
+          <!-- New Sales Order -->
+          <button (click)="navigateToCreateOrder()"
+            class="flex flex-col gap-3 p-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 hover:border-indigo-200 transition-all text-left group">
             <div
-              class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center group-hover:border-indigo-500 transition-colors">
-              <div class="w-2 h-2 bg-indigo-500 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
+              <lucide-icon [img]="icons.shoppingCart" class="w-5 h-5 text-indigo-600"></lucide-icon>
             </div>
-            <span class="text-sm font-semibold text-slate-700">Restock Sector 7 - Brake Pads</span>
-            <span
-              class="ml-auto text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded uppercase">High</span>
-          </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">New Sales Order</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Create & confirm order</p>
+            </div>
+          </button>
 
-          <div
-            class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg group hover:bg-slate-100 transition-colors cursor-pointer">
-            <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center"></div>
-            <span class="text-sm font-semibold text-slate-700">Quarterly safety inspection</span>
-            <span
-              class="ml-auto text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded uppercase">Low</span>
-          </div>
+          <!-- Create Invoice -->
+          <button (click)="navigateToCreateInvoice()"
+            class="flex flex-col gap-3 p-4 rounded-xl bg-violet-50 hover:bg-violet-100 border border-violet-100 hover:border-violet-200 transition-all text-left group">
+            <div
+              class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
+              <lucide-icon [img]="icons.fileText" class="w-5 h-5 text-violet-600"></lucide-icon>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">Create Invoice</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Bill & track payments</p>
+            </div>
+          </button>
+
+          <!-- Add Product -->
+          <button (click)="navigateToItems()"
+            class="flex flex-col gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 hover:border-emerald-200 transition-all text-left group">
+            <div
+              class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
+              <lucide-icon [img]="icons.packageCheck" class="w-5 h-5 text-emerald-600"></lucide-icon>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">Add Product</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Manage inventory items</p>
+            </div>
+          </button>
+
+          <!-- Pending Approvals shortcut -->
+          <button (click)="navigateToApprovals()"
+            class="flex flex-col gap-3 p-4 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-100 hover:border-amber-200 transition-all text-left group">
+            <div class="flex items-center justify-between w-full">
+              <div
+                class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
+                <lucide-icon [img]="icons.bell" class="w-5 h-5 text-amber-600"></lucide-icon>
+              </div>
+              @if(pendingApprovalsCount > 0) {
+              <span
+                class="text-[10px] font-black text-amber-700 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full">
+                {{ pendingApprovalsCount }} NEW
+              </span>
+              }
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">Approvals</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Review pending requests</p>
+            </div>
+          </button>
+
+          <!-- Add Quick Actions -->
+          <button
+            class="flex flex-col gap-3 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-100 hover:border-gray-200 transition-all text-left group">
+            <div class="flex items-center justify-between w-full">
+              <div
+                class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
+                <lucide-icon [img]="icons.plus" class="w-5 h-5 text-gray-600"></lucide-icon>
+              </div>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">Add Quick Actions</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Add quick actions to dashboard</p>
+            </div>
+          </button>
+
         </div>
-
-        <button
-          class="mt-auto pt-6 text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors">
-          View all tasks <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 -rotate-90"></lucide-icon>
-        </button>
       </div>
 
-      <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-6 border border-slate-100 flex flex-col">
+      <!-- Pending Approvals -->
+      <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-2 border border-slate-300/50 flex flex-col">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Pending Approvals</h2>
           @if (pendingApprovalsCount > 0) {
-          <span
-            class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-600 text-[10px] font-black">{{pendingApprovalsCount}}
-            NEW</span>
+          <span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-600 text-[10px] font-black">
+            {{ pendingApprovalsCount }} NEW
+          </span>
           }
         </div>
 
@@ -216,64 +292,55 @@
                     Actions</th>
                 </tr>
               </thead>
-
               <tbody class="divide-y divide-slate-100">
                 @for (approval of pendingApprovals; track approval.id) {
                 <tr class="hover:bg-slate-50/50 transition-colors group">
                   <td class="px-4 py-3">
                     <div class="flex flex-col gap-0.5">
-                      <span class="text-[12px] font-bold text-indigo-600 truncate cursor-pointer hover:underline">APP-{{
-                        approval.id || 'N/A' }}</span>
+                      <span class="text-[12px] font-bold text-indigo-600 cursor-pointer hover:underline">APP-{{
+                        approval.id }}</span>
                       <span class="text-[11px] text-slate-500 font-medium">{{ approval.createdAt | date:'dd-MMM-yyyy'
                         }}</span>
                     </div>
                   </td>
-
                   <td class="px-4 py-3">
                     <div class="flex flex-col gap-0.5">
-                      <span class="text-[12px] font-bold text-indigo-600 truncate cursor-pointer hover:underline">{{
+                      <span class="text-[12px] font-bold text-indigo-600 cursor-pointer hover:underline">{{
                         approval.referenceCode || 'N/A' }}</span>
                       <span class="text-[11px] text-slate-500 font-medium whitespace-nowrap">{{ (approval.approvalType |
                         titlecase).replace('_', ' ') }}</span>
                     </div>
                   </td>
-
                   <td class="px-4 py-3 text-right">
                     <span class="text-[12px] font-bold text-slate-700">
                       {{ approval.valueAmount ? (approval.valueAmount | currency:'INR':'symbol':'1.2-2') : '-' }}
                     </span>
                   </td>
-
                   <td class="px-4 py-3 text-center">
                     <span
                       class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
                       [ngClass]="{
-                            'bg-amber-100 text-amber-700': approval.status === 'PENDING',
-                            'bg-emerald-100 text-emerald-700': approval.status === 'APPROVED',
-                            'bg-rose-100 text-rose-700': approval.status === 'REJECTED'
-                          }">
+                        'bg-amber-100 text-amber-700': approval.status === 'PENDING',
+                        'bg-emerald-100 text-emerald-700': approval.status === 'APPROVED',
+                        'bg-rose-100 text-rose-700': approval.status === 'REJECTED'
+                      }">
                       {{ approval.status }}
                     </span>
                   </td>
-
                   <td class="px-4 py-3">
                     <div class="flex items-center justify-end gap-2">
                       <button
                         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-100/50"
-                        title="Approve"
                         (click)="approvalConformation('APPROVED', approval.id); $event.stopPropagation()">
                         <lucide-icon [img]="icons.check" class="w-3.5 h-3.5"></lucide-icon>
                         <span>Approve</span>
                       </button>
-
                       <button
                         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors border border-rose-100/50"
-                        title="Reject"
                         (click)="approvalConformation('REJECTED', approval.id); $event.stopPropagation()">
                         <lucide-icon [img]="icons.x" class="w-3.5 h-3.5"></lucide-icon>
                         <span>Reject</span>
                       </button>
-
                       <button
                         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-100/50"
                         (click)="navigateToApprovals()">
@@ -286,7 +353,6 @@
                 }
               </tbody>
             </table>
-
             <div class="p-2 border-t border-slate-100 bg-slate-50/30 text-center">
               <button (click)="navigateToApprovals()"
                 class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 underline-offset-4 hover:underline">
@@ -294,18 +360,15 @@
               </button>
             </div>
           </div>
-
           }
         </div>
 
         <button (click)="navigateToApprovals()"
           class="mt-auto pt-6 text-[12px] font-bold text-indigo-600 underline hover:text-indigo-700 flex items-center gap-1 transition-colors self-start">
-          Go to Approval Console <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 -rotate-90"></lucide-icon>
+          Go to Approval Console
+          <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 -rotate-90"></lucide-icon>
         </button>
       </div>
     </div>
-    }@else if (currentTab === 'tasks') {
-    <app-todo></app-todo>
-    }
   </div>
 </div>
