@@ -6,8 +6,8 @@ import { SalesOrderModal } from '../../../views/sales/sales-order/sales-order.mo
 import { InvoiceModal } from '../../../views/sales/invoices/invoice.modal';
 import { LoaderService } from '../loader/loaderService';
 import { ToastService } from '../toast/toastService';
-import { StepConfig, StepperComponent } from "../../UI/stepper/stepper.component";
-import { User, ReceiptText, Truck, ReceiptIndianRupee, LucideAngularModule, Copy, Calendar, Package } from 'lucide-angular';
+import { StepConfig } from "../../UI/stepper/stepper.component";
+import { User, ReceiptText, Truck, ReceiptIndianRupee, LucideAngularModule, Copy, Calendar, Package, ArrowRight, ArrowLeft, Download } from 'lucide-angular';
 import { DeliveryService } from '../../../views/sales/delivery/delivery.service';
 import { DeliveryModel } from '../../../views/sales/delivery/delivery.model';
 import { PaymentService } from '../../../views/sales/payments/payment.service';
@@ -22,7 +22,7 @@ import { filter, take } from 'rxjs/operators';
 @Component({
   selector: 'app-order-tracking',
   standalone: true,
-  imports: [CommonModule, StepperComponent, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './order-tracker.component.html',
   styleUrls: ['./order-tracker.component.css']
 })
@@ -35,6 +35,10 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
   readonly copy = Copy;
   readonly calendar = Calendar;
   readonly package = Package;
+  readonly arrowRight = ArrowRight;
+  readonly arrowLeft = ArrowLeft;
+  readonly download = Download;
+
 
   salesOrderDetails: SalesOrderModal | null = null;
   invoiceDetails: InvoiceModal | null = null;
@@ -48,16 +52,17 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
 
   currentStep = 0;
   steps: StepConfig[] = [
-    { key: 'so', label: 'Sales Order', icon: User, state: 'active' },
-    { key: 'inv', label: 'Invoice', icon: ReceiptText, state: 'pending', disabled: true },
-    { key: 'dele', label: 'Delivery', icon: Truck, state: 'pending', disabled: true },
-    { key: 'pay', label: 'Payment', icon: ReceiptIndianRupee, state: 'pending', disabled: true }
+    { key: 'so', label: 'Sales Order', icon: User, state: 'active', current: true },
+    { key: 'inv', label: 'Invoice', icon: ReceiptText, state: 'pending', disabled: true, current: false },
+    { key: 'dele', label: 'Delivery', icon: Truck, state: 'pending', disabled: true, current: false },
+    { key: 'pay', label: 'Payment', icon: ReceiptIndianRupee, state: 'pending', disabled: true, current: false }
   ];
 
   handleStepChange(step: StepConfig) {
     const index = this.steps.findIndex(s => s.key === step.key);
     if (index !== -1 && !step.disabled) {
       this.currentStep = index;
+      this.steps[index].current = true;
     }
   }
 
@@ -67,6 +72,7 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
       this.currentStep++;
       this.steps[this.currentStep].state = 'active';
       this.steps[this.currentStep].disabled = false;
+      this.steps[this.currentStep].current = true;
     }
   }
 
@@ -75,6 +81,7 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
       this.steps[this.currentStep].state = 'pending';
       this.currentStep--;
       this.steps[this.currentStep].state = 'active';
+      this.steps[this.currentStep].current = true;
     }
   }
 
