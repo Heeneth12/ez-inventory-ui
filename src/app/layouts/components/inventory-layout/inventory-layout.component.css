@@ -1,0 +1,36 @@
+/* Custom Scrollbar for dark sidebar */
+.custom-scrollbar {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(71, 85, 105, 0.5) transparent;
+    /* tailwind slate-600 with opacity */
+}
+
+/* Chrome, Edge, and Safari */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    /* Very thin width */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    /* Seamless background */
+    border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(71, 85, 105, 0.5);
+    /* Slate-600 with 50% opacity */
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(99, 102, 241, 0.8);
+    /* Indigo-500 on hover for a nice accent */
+}
+
+/* Hide scrollbar completely when collapsed to prevent graphical glitches */
+.overflow-visible::-webkit-scrollbar {
+    display: none;
+}

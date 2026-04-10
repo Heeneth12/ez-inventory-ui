@@ -44,6 +44,10 @@ import {
   Sun,
   Moon,
   MessageSquarePlus,
+  CheckIcon,
+  Clock,
+  PanelLeftClose,
+  PanelRightOpen,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { TutorialService } from '../../service/common/tutorial.service';
@@ -71,6 +75,7 @@ export class InventoryLayoutComponent implements OnInit {
   @ViewChild('app-sidebar') sidebar!: any;
   currentDate = new Date();
   private readonly STORAGE_KEY = 'catalyst_tour_completed';
+  showPlanAds: boolean = true;
 
   //icons
   readonly Calendar = Calendar
@@ -95,6 +100,12 @@ export class InventoryLayoutComponent implements OnInit {
   readonly ChevronsLeft = ChevronsLeft;
   readonly Sun = Sun;
   readonly Moon = Moon;
+  readonly Clock = Clock;
+  readonly CheckIcon = CheckIcon;
+  readonly PanelLeftClose = PanelLeftClose;
+  readonly PanelRightOpen = PanelRightOpen;
+
+  proFeatures = ['Unlimited storage', 'Priority support', 'Advanced analytics'];
 
   quickCreateItems: DropdownMenuItem[] = [
     {
@@ -473,6 +484,10 @@ export class InventoryLayoutComponent implements OnInit {
         'md'
       )
     }
+  }
+
+  openUpgradeModal() {
+
   }
 }
 
