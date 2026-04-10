@@ -29,6 +29,7 @@ export class UserManagementAdapterComponent implements OnInit {
         //{ id: 'tenants', label: 'Tenants', icon: UsersRound },
         { id: 'users', label: 'Users', icon: UsersRound },
         { id: 'users/form', label: 'User Form', icon: UserPenIcon },
+        { id: 'subscriptions', label: 'Subscriptions', icon: UsersRound },
         //{ id: 'apps', label: 'Apps', icon: AppWindow },
     ];
 

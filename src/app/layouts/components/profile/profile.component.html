@@ -1,6 +1,6 @@
 <div class="bg-[#F4F5F7]">
-    <div class="p-1 flex flex-col gap-2">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-8">
+    <div class="flex flex-col">
+        <div class="bg-white border border-gray-100 p-8">
             <h2 class="text-xl font-bold text-gray-900 tracking-tight flex items-center mb-6">Personal Information</h2>
 
             <form [formGroup]="personalForm" (ngSubmit)="onSavePersonal()"
@@ -152,7 +152,7 @@
         </div>
 
         <!-- Notifications Section -->
-        <section id="notifications" class="bg-white rounded-md border border-slate-200 shadow-sm overflow-hidden">
+        <section id="notifications" class="bg-white border border-slate-200 overflow-hidden">
             <div class="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100 bg-slate-50/60">
                 <div class="w-7 h-7 rounded-lg bg-sky-100 flex items-center justify-center">
                     <lucide-icon [img]="BellIcon" class="w-3.5 h-3.5 text-sky-600" [size]="14"></lucide-icon>

@@ -324,7 +324,7 @@
               }
               <div class="col-span-4">
                 <button type="submit"
-                  [disabled]="paymentForm.invalid || isSubmitting || isRazorpayLoading || isGeneratingLink() || isGeneratingQr()"
+                  [disabled]="paymentForm.invalid || isSubmitting() || isRazorpayLoading() || isGeneratingLink() || isGeneratingQr()"
                   [ngClass]="isRazorpaySelected ? 'bg-[#4f46e5] hover:bg-[#4338ca]'
                     : isPaymentLinkSelected ? 'bg-[#0891b2] hover:bg-[#0e7490]'
                     : isQrCodeSelected ? 'bg-[#7c3aed] hover:bg-[#6d28d9]'
