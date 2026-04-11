@@ -48,6 +48,8 @@ import {
   Clock,
   PanelLeftClose,
   PanelRightOpen,
+  HandbagIcon,
+  Undo2,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { TutorialService } from '../../service/common/tutorial.service';
@@ -249,7 +251,7 @@ export class InventoryLayoutComponent implements OnInit {
     {
       label: 'Purchases',
       link: '/purchases',
-      icon: ShoppingCart,
+      icon: HandbagIcon,
       moduleKey: 'EZH_INV_PURCHASES',
       subItems: [
         { label: 'Purchase Request (PRQ)', link: '/purchases/prq' },
@@ -261,14 +263,14 @@ export class InventoryLayoutComponent implements OnInit {
     {
       label: 'Sales',
       link: '/sales',
-      icon: Truck,
+      icon: ShoppingCart,
       moduleKey: 'EZH_INV_SALES',
       subItems: [
-        { label: 'Sales Order', link: '/sales/order' },
-        { label: 'Invoices', link: '/sales/invoice' },
-        { label: 'Delivery', link: '/sales/delivery' },
-        { label: 'Payments', link: '/sales/payments' },
-        { label: 'Sales Return', link: '/sales/return' },
+        { icon: ShoppingCart, label: 'Sales Order', link: '/sales/order' },
+        { icon: Receipt, label: 'Invoices', link: '/sales/invoice' },
+        { icon: Truck, label: 'Delivery', link: '/sales/delivery' },
+        { icon: CreditCard, label: 'Payments', link: '/sales/payments' },
+        { icon: Undo2, label: 'Sales Return', link: '/sales/return' },
       ]
     },
     {
@@ -304,7 +306,7 @@ export class InventoryLayoutComponent implements OnInit {
       moduleKey: 'EZH_INV_REPORTS',
       badge: 'Pro',
       badgeVariant: 'pro',
-      isDisabled: true,
+      isDisabled: false,
       section: 'Settings'
     },
     {
@@ -494,6 +496,7 @@ export class InventoryLayoutComponent implements OnInit {
 export interface SubMenuItem {
   label: string;
   link: string;
+  icon?: any;
 }
 
 export interface NavItem {
