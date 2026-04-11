@@ -29,6 +29,7 @@ export class InvoiceFormComponent implements OnInit {
   @Input() salesOrderId: number | null = null;
   @Input() id: number | null = null;
   @Input() invoiceNumber: string | null = null;
+  isReadonly = false;
 
   //icons
   readonly TruckIcon = Truck;
@@ -285,7 +286,7 @@ export class InvoiceFormComponent implements OnInit {
     );
   }
 
-selectItemFromSearch(item: any) {
+  selectItemFromSearch(item: any) {
     const itemId = item.id || item.itemId;
     const existingItemIndex = this.findItemIndexById(itemId);
 
@@ -295,6 +296,7 @@ selectItemFromSearch(item: any) {
     } else {
       this.items.push(this.createItemControl(item, 'PRODUCT'));
     }
+    this.focusFirstItemUnitPrice(this.items.length - 1);
 
     this.itemSearchQuery = "";
   }
@@ -609,6 +611,16 @@ selectItemFromSearch(item: any) {
         this.isLoadingOrders = false;
       }
     );
+  }
+
+  focusFirstItemUnitPrice(index: number) {
+    // Use 150ms to ensure Angular has finished rendering the new DOM element
+    setTimeout(() => {
+      const unitPriceInput = document.getElementById('unitPriceInput' + index) as HTMLInputElement;
+      if (unitPriceInput) {
+        unitPriceInput.focus();
+      }
+    }, 150);
   }
 }
 

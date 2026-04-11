@@ -331,16 +331,20 @@ export class SalesOrderFormComponent implements OnInit {
 
   selectItemFromSearch(item: any) {
     const selectedId = item.id || item.itemId;
-    const existingIndex = this.items.controls.findIndex(
+    let targetIndex = this.items.controls.findIndex(
       (control) => control.get('itemId')?.value === selectedId
     );
 
-    if (existingIndex !== -1) {
-      this.adjustQuantity(existingIndex, 1);
+    if (targetIndex !== -1) {
+      this.adjustQuantity(targetIndex, 1);
       this.toast.show(`${item.name} quantity updated`, 'success');
     } else {
       this.items.push(this.createItemControl(item));
+      targetIndex = this.items.length - 1;
     }
+
+    // Now focus the input at the correct index
+    this.focusFirstItemUnitPrice(targetIndex);
 
     this.itemSearchQuery = "";
     this.itemSearchResults = [];
@@ -559,5 +563,16 @@ export class SalesOrderFormComponent implements OnInit {
     setTimeout(() => {
       this.itemSearchInput.nativeElement.focus();
     }, 100);
+  }
+
+
+  focusFirstItemUnitPrice(index: number) {
+    // Use 150ms to ensure Angular has finished rendering the new DOM element
+    setTimeout(() => {
+      const unitPriceInput = document.getElementById('unitPriceInput' + index) as HTMLInputElement;
+      if (unitPriceInput) {
+        unitPriceInput.focus();
+      }
+    }, 150);
   }
 }
