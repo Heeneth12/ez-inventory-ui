@@ -67,8 +67,8 @@
                     }">
 
                 <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300" [ngClass]="{
-                            'text-indigo-400': isItemActive(item) && !item.isDisabled,
-                            'text-white': isSidebarCollapsed && !(isItemActive(item) && !item.isDisabled)
+                            'text-white': isItemActive(item) && !item.isDisabled,
+                            'text-gray-100': isSidebarCollapsed && !(isItemActive(item) && !item.isDisabled)
                         }">
                 </lucide-icon>
 
@@ -102,7 +102,7 @@
                 <div (click)="toggleDropdown(item.label)" [id]="'menu-item-' + i"
                     class="group relative flex items-center justify-between rounded-mb p-3 text-sm font-medium border cursor-pointer transition-all duration-300 select-none"
                     [ngClass]="{
-                            'bg-slate-800/50 text-indigo-300 border-slate-700/50': isDropdownOpen(item.label) && !isItemActive(item),
+                            'bg-slate-800/50 text-white border-slate-700/50': isDropdownOpen(item.label) && !isItemActive(item),
                             'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item),
                             'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isDropdownOpen(item.label) && !isItemActive(item),
                             'justify-center': isSidebarCollapsed
@@ -110,7 +110,7 @@
 
                     <div class="flex items-center" [ngClass]="{'w-full justify-center text-white': isSidebarCollapsed}">
                         <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-colors"
-                            [ngClass]="(isDropdownOpen(item.label) || isItemActive(item)) ? 'text-indigo-400' : 'group-hover:text-slate-200'">
+                            [ngClass]="(isDropdownOpen(item.label) || isItemActive(item)) ? 'text-white' : 'group-hover:text-slate-200'">
                         </lucide-icon>
 
                         @if (!isSidebarCollapsed) {
