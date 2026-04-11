@@ -1,5 +1,5 @@
 <div class="bg-[#F8FAFC] font-sans">
-    <div class="sticky top-0 z-10">
+    <div class="sticky top-0">
         <app-tab-card [tabs]="navigationTabs" [activeTabId]="activeTab()" (activeTabIdChange)="switchTab($event)">
         </app-tab-card>
     </div>
@@ -238,6 +238,10 @@
                     <p class="text-xs text-gray-400">Transfer vouchers, items and parties to Tally</p>
                 </div>
             </div>
+        </div>
+
+        <div *ngSwitchCase="'Subscriptions'" class="animate-fade-in">
+            <app-subscriptions></app-subscriptions>
         </div>
 
         <div *ngSwitchDefault class="animate-fade-in flex flex-col items-center justify-center p-20 text-center">

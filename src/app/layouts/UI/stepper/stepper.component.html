@@ -19,16 +19,12 @@
           class="flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300 shadow-sm"
           [ngClass]="{
                 'bg-white border-slate-200 text-slate-400': step.state === 'pending',
-                'border-transparent text-white ring-4 ring-indigo-50': step.state === 'active',
-                'bg-white border-transparent text-indigo-600 ring-2 ring-indigo-600': step.state === 'completed'
-              }" [class]="step.state === 'active' ? activeColor : ''">
+                'bg-white border-indigo-600 text-indigo-600 ring-4 ring-indigo-50 animate-pulse': step.state === 'active',
+                'bg-white border-indigo-600 text-indigo-600 ring-indigo-600': step.state === 'completed',
+                'bg-white border-indigo-600 text-indigo-600 ring-2 ring-indigo-300': step.current
+              }">
 
-          @if(step.state === 'completed'){
-          <lucide-icon name="check" [size]="20" strokeWidth="3"></lucide-icon>
-          }
-          @else{
           <lucide-icon [name]="step.icon" [size]="18"></lucide-icon>
-          }
         </span>
 
         <div class="absolute top-12 flex flex-col items-center min-w-[120px]">

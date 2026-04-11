@@ -44,6 +44,12 @@ import {
   Sun,
   Moon,
   MessageSquarePlus,
+  CheckIcon,
+  Clock,
+  PanelLeftClose,
+  PanelRightOpen,
+  HandbagIcon,
+  Undo2,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { TutorialService } from '../../service/common/tutorial.service';
@@ -71,6 +77,7 @@ export class InventoryLayoutComponent implements OnInit {
   @ViewChild('app-sidebar') sidebar!: any;
   currentDate = new Date();
   private readonly STORAGE_KEY = 'catalyst_tour_completed';
+  showPlanAds: boolean = true;
 
   //icons
   readonly Calendar = Calendar
@@ -95,6 +102,12 @@ export class InventoryLayoutComponent implements OnInit {
   readonly ChevronsLeft = ChevronsLeft;
   readonly Sun = Sun;
   readonly Moon = Moon;
+  readonly Clock = Clock;
+  readonly CheckIcon = CheckIcon;
+  readonly PanelLeftClose = PanelLeftClose;
+  readonly PanelRightOpen = PanelRightOpen;
+
+  proFeatures = ['Unlimited storage', 'Priority support', 'Advanced analytics'];
 
   quickCreateItems: DropdownMenuItem[] = [
     {
@@ -238,7 +251,7 @@ export class InventoryLayoutComponent implements OnInit {
     {
       label: 'Purchases',
       link: '/purchases',
-      icon: ShoppingCart,
+      icon: HandbagIcon,
       moduleKey: 'EZH_INV_PURCHASES',
       subItems: [
         { label: 'Purchase Request (PRQ)', link: '/purchases/prq' },
@@ -250,14 +263,14 @@ export class InventoryLayoutComponent implements OnInit {
     {
       label: 'Sales',
       link: '/sales',
-      icon: Truck,
+      icon: ShoppingCart,
       moduleKey: 'EZH_INV_SALES',
       subItems: [
-        { label: 'Sales Order', link: '/sales/order' },
-        { label: 'Invoices', link: '/sales/invoice' },
-        { label: 'Delivery', link: '/sales/delivery' },
-        { label: 'Payments', link: '/sales/payments' },
-        { label: 'Sales Return', link: '/sales/return' },
+        { icon: ShoppingCart, label: 'Sales Order', link: '/sales/order' },
+        { icon: Receipt, label: 'Invoices', link: '/sales/invoice' },
+        { icon: Truck, label: 'Delivery', link: '/sales/delivery' },
+        { icon: CreditCard, label: 'Payments', link: '/sales/payments' },
+        { icon: Undo2, label: 'Sales Return', link: '/sales/return' },
       ]
     },
     {
@@ -293,7 +306,7 @@ export class InventoryLayoutComponent implements OnInit {
       moduleKey: 'EZH_INV_REPORTS',
       badge: 'Pro',
       badgeVariant: 'pro',
-      isDisabled: true,
+      isDisabled: false,
       section: 'Settings'
     },
     {
@@ -474,11 +487,16 @@ export class InventoryLayoutComponent implements OnInit {
       )
     }
   }
+
+  openUpgradeModal() {
+
+  }
 }
 
 export interface SubMenuItem {
   label: string;
   link: string;
+  icon?: any;
 }
 
 export interface NavItem {

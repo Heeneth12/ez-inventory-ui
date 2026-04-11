@@ -7,6 +7,7 @@ import { UserManagementComponent } from './user-management.component';
 import { TenantFormComponent } from './tenants/tenant-form/tenant-form.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { CalendarComponent } from '../../layouts/components/calendar/calendar.component';
+import { SubscriptionsComponent } from '../../layouts/components/subscriptions/subscriptions.component';
 
 export const UserManagementRoutes: Routes = [
     {
@@ -41,5 +42,9 @@ export const UserManagementRoutes: Routes = [
             { path: 'calendar', component: CalendarComponent },
             { path: 'profile/:id', component: UserProfileComponent },
         ]
+    },
+    {
+        path: 'subscriptions',
+        component: SubscriptionsComponent,
     },
 ];

@@ -10,6 +10,7 @@ import { Observable, take } from 'rxjs';
 import { ProfileComponent } from '../../layouts/components/profile/profile.component';
 import { TabCardComponent, TabItem } from '../../layouts/UI/tab-card/tab-card.component';
 import { LucideAngularModule, User, Briefcase, Sliders, CreditCard } from 'lucide-angular';
+import { SubscriptionsComponent } from "../../layouts/components/subscriptions/subscriptions.component";
 
 // Defined tabs based on your request
 type Tab = 'Profile' | 'Business' | 'Preferences' | 'Billing';
@@ -17,7 +18,7 @@ type Tab = 'Profile' | 'Business' | 'Preferences' | 'Billing';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ProfileComponent, TabCardComponent, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, ProfileComponent, TabCardComponent, LucideAngularModule, SubscriptionsComponent],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
@@ -34,6 +35,7 @@ export class SettingsComponent implements OnInit {
   navigationTabs: TabItem[] = [
     { id: 'Profile', label: 'Profile', icon: User },
     { id: 'Business', label: 'Business', icon: Briefcase },
+    { id: 'Subscriptions', label: 'Subscriptions', icon: CreditCard },
     { id: 'Preferences', label: 'Preferences', icon: Sliders },
     { id: 'Billing', label: 'Billing', icon: CreditCard }
   ];
@@ -51,7 +53,7 @@ export class SettingsComponent implements OnInit {
   isAddressModalOpen = signal<boolean>(false);
   editingAddressId = signal<number | null>(null);
   isSavingAddress = signal<boolean>(false);
-  
+
   userInitials = signal<string>('');
   avatarUrl = signal<string | null>(null); // Placeholder for avatar
 
@@ -68,7 +70,7 @@ export class SettingsComponent implements OnInit {
       lastName: [''],
       email: [{ value: '', disabled: false }, [Validators.required, Validators.email]], // Enabled in design
       city: [''],
-      phone:[''],
+      phone: [''],
       timezone: ['UTC/GMT -4 hours'], // Default mock
       dateFormat: ['dd/mm/yyyy 00:00'], // Default mock
       function: [''],
@@ -160,14 +162,14 @@ export class SettingsComponent implements OnInit {
   }
 
   patchTenantForm(tenant: TenantModel | null) {
-    if(!tenant) return;
+    if (!tenant) return;
     this.tenantForm.patchValue({
       tenantName: tenant.tenantName,
       tenantCode: tenant.tenantCode,
       email: tenant.email,
       phone: tenant.phone
     });
-    
+
     if (tenant.tenantDetails) {
       this.tenantForm.patchValue({
         businessType: tenant.tenantDetails.businessType,
@@ -217,9 +219,9 @@ export class SettingsComponent implements OnInit {
   onSaveTenant() {
     if (this.tenantForm.invalid || !this.currentTenantId) return;
     this.isSaving.set(true);
-    
+
     const formVals = this.tenantForm.getRawValue();
-    
+
     // Prepare Tenant Details Data
     const tenantDetailsData = {
       businessType: formVals.businessType,
@@ -273,7 +275,7 @@ export class SettingsComponent implements OnInit {
   onSaveAddress() {
     if (this.addressForm.invalid || !this.currentTenantId) return;
     this.isSavingAddress.set(true);
-    
+
     const addrData = this.addressForm.getRawValue();
     const addressId = this.editingAddressId();
 

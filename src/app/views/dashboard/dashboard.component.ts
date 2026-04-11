@@ -22,32 +22,20 @@ import {
   List
 } from 'lucide-angular';
 import { Chart, registerables } from 'chart.js';
-import { TodoComponent } from "../../layouts/components/todo/todo.component";
 import { ApprovalConsoleService } from '../approval-console/approval-console.service';
 import { ApprovalRequestModel } from '../approval-console/approval-console.model';
 import { Router } from '@angular/router';
-
-interface PurchaseItem {
-  id: string;
-  vendor: string;
-  itemsCount: number;
-  totalAmount: number;
-  status: 'Pending' | 'Verified' | 'Discrepancy';
-  receivedDate: string;
-}
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TodoComponent],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
 
-  currentTab: 'dashboard' | 'tasks' = 'dashboard';
-  allTabs = ['dashboard', 'tasks'] as const;
   @ViewChild('profitChart') profitChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('activityChart') activityChartRef!: ElementRef<HTMLCanvasElement>;
 
@@ -87,6 +75,18 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   };
 
   hoveredDayIndex: number | null = null;
+  today = new Date();
+
+  getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
+  navigateToCreateOrder() { this.router.navigate(['/sales/order']); }
+  navigateToCreateInvoice() { this.router.navigate(['/sales/invoice']); }
+  navigateToItems() { this.router.navigate(['/items']); }
 
   // Top Metrics
   metrics = [
@@ -146,41 +146,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   maxActivity = Math.max(...this.dailyActivity.map(d => d.value));
 
-  // Dummy data for the Purchase Queue (Incoming Stock)
-  purchaseQueue: PurchaseItem[] = [
-    {
-      id: 'PUR-2026-001',
-      vendor: 'Global Tech Supplies',
-      itemsCount: 45,
-      totalAmount: 1250.50,
-      status: 'Pending',
-      receivedDate: '2026-02-25 10:30 AM'
-    },
-    {
-      id: 'PUR-2026-002',
-      vendor: 'Nexus Logistics',
-      itemsCount: 12,
-      totalAmount: 450.00,
-      status: 'Pending',
-      receivedDate: '2026-02-25 01:15 PM'
-    },
-    {
-      id: 'PUR-2026-003',
-      vendor: 'Prime Wholesale',
-      itemsCount: 150,
-      totalAmount: 3200.75,
-      status: 'Pending',
-      receivedDate: '2026-02-25 03:45 PM'
-    },
-    {
-      id: 'PUR-2026-004',
-      vendor: 'Office Depot Inc',
-      itemsCount: 5,
-      totalAmount: 89.99,
-      status: 'Pending',
-      receivedDate: '2026-02-25 04:20 PM'
-    }
-  ];
+
 
   // Data for the Cash Denominations section
   notes = [
@@ -379,10 +345,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   setHoveredDay(index: number | null) {
     this.hoveredDayIndex = index;
-  }
-
-  handleTabChange(tab: 'dashboard' | 'tasks') {
-    this.currentTab = tab;
   }
 
   ngOnDestroy() {

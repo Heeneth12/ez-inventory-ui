@@ -7,7 +7,8 @@ export interface StepConfig {
   label: string;
   description?: string;
   icon: any;
-  state: 'pending' | 'active' | 'completed';
+  current: boolean;
+  state: 'pending' | 'active' | 'completed'; // current is for the current step
   disabled?: boolean;
 }
 

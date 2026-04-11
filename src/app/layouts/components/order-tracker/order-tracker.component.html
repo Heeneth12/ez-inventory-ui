@@ -1,48 +1,102 @@
 <div class="min-h-screen bg-[#F8FAFC] font-sans flex flex-col">
 
-  <div class="bg-white border-b border-gray-100 px-4 md:px-8 py-4">
-    <app-stepper [steps]="steps" (stepClick)="handleStepChange($event)"></app-stepper>
+  <!-- Stepper -->
+  <div class="bg-white border-b border-gray-100 px-6 py-4">
+    <div class="flex items-center px-4">
+      @for(step of steps; track $index; let i = $index, last = $last) {
+
+      <!-- Step -->
+      <button (click)="handleStepChange(step)" [disabled]="step.disabled"
+        class="flex flex-col items-center gap-1.5 focus:outline-none" [class.cursor-not-allowed]="step.disabled"
+        [class.cursor-pointer]="!step.disabled">
+
+        <!-- Circle -->
+        <span class="flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-200"
+          [ngClass]="{
+              'border-gray-200 bg-white text-gray-300': step.state === 'pending',
+              'border-indigo-600 bg-white text-indigo-600 ring-4 ring-indigo-50': step.state === 'active',
+              'border-emerald-400 bg-emerald-50 text-emerald-600': step.state === 'completed',
+              'breath-animation animate-pulse': i === currentStep
+            }">
+          <lucide-icon [img]="step.icon" [size]="13"></lucide-icon>
+        </span>
+
+        <!-- Label -->
+        <span class="text-[12px] font-semibold tracking-wide whitespace-nowrap transition-colors" [ngClass]="{
+              'text-gray-300': step.state === 'pending',
+              'text-gray-700': step.state !== 'pending',
+              'text-gray-900 underline underline-offset-4 decoration-2': i === currentStep
+            }">
+          {{ step.label }}
+        </span>
+      </button>
+
+      <!-- Connector line -->
+      @if(!last) {
+      <div class="flex-1 mx-2 mb-4 h-px relative overflow-hidden bg-gray-200 rounded-full">
+        <div class="absolute inset-0 bg-emerald-400 transition-all duration-500 origin-left"
+          [style.transform]="step.state === 'completed' ? 'scaleX(1)' : 'scaleX(0)'">
+        </div>
+      </div>
+      }
+      }
+    </div>
   </div>
 
-  <div class="bg-white border-b border-gray-100 px-4 md:px-8 py-4">
-    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <h1 class="text-base font-semibold text-gray-800 flex items-center gap-2">
-          @if(currentStep === 0) {
-          Sales Order
-          } @else if (currentStep === 1) {
-          Purchase Order
-          } @else if (currentStep === 2) {
-          Stock Transfer
-          } @else if (currentStep === 3) {
-          Stock Adjustment
-          } @else if (currentStep === 4) {
-          Stock Count
-          } @else if (currentStep === 5) {
-          Stock Movement
-          } @else if (currentStep === 6) {
-          Stock Return
-          } @else if (currentStep === 7) {
-          Stock Write-off
-          } @else if (currentStep === 8) {
-          Stock Transfer
-          } @else if (currentStep === 9) {
-          Stock Transfer
-          }
-          <span *ngIf="salesOrderDetails?.orderNumber"
-            class="text-xs font-normal bg-indigo-50 text-indigo-600 border border-indigo-100 px-2 py-0.5 rounded-full">
-            #{{ salesOrderDetails?.orderNumber }}
+  <div class="bg-white border-b border-t border-gray-200 px-4 md:px-8 py-5">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+      <div class="space-y-1">
+        <div class="flex items-center gap-3">
+          <h1 class="text-lg font-bold text-gray-900 tracking-tight">
+            {{ getStepTitle(currentStep) }}
+          </h1>
+
+          @if(salesOrderDetails?.status === 'active') {
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </span>
-        </h1>
-        <p class="text-xs text-gray-400">{{ salesOrderDetails?.orderDate | date:'mediumDate' }}</p>
-        <p class="text-xs text-gray-400 mt-0.5">Track the full lifecycle of your sales order</p>
+          }
+        </div>
+
+        <div class="flex items-center flex-wrap gap-3">
+          @if(getCurrentDisplayNumber()) {
+          <div
+            class="group flex items-center gap-2 bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200 rounded-md px-2 py-1">
+            <span class="text-xs font-mono font-bold text-blue-700">
+              #{{ getCurrentDisplayNumber() }}
+            </span>
+            <button (click)="copyToClipboard(getCurrentDisplayNumber())"
+              class="text-gray-400 group-hover:text-blue-600 transition-colors" title="Copy ID">
+              <lucide-icon [img]="copy" class="size-3.5"></lucide-icon>
+            </button>
+          </div>
+
+          @if(getCurrentDisplayDate()) {
+          <div class="flex items-center gap-1.5 text-gray-500">
+            <lucide-icon [img]="calendar" class="size-3.5"></lucide-icon>
+            <p class="text-xs font-medium">{{ getCurrentDisplayDate() | date:'mediumDate' }}</p>
+          </div>
+          }
+          } @else {
+          <div class="h-4 w-32 bg-gray-100 animate-pulse rounded"></div>
+          }
+        </div>
       </div>
 
-      <!-- Overall status badge -->
-      <span class="self-start sm:self-auto inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border
-        {{ getStatusBadgeClass(salesOrderDetails?.status) }}">
-        {{ formatStatus(salesOrderDetails?.status) || 'Loading…' }}
-      </span>
+      <div class="flex items-center gap-3">
+        @if(getCurrentDisplayStatus()) {
+        <span
+          [class]="'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm ' + getStatusBadgeClass(getCurrentDisplayStatus())">
+          <span class="mr-1.5 h-1.5 w-1.5 rounded-full fill-current"></span>
+          {{ formatStatus(getCurrentDisplayStatus()) }}
+        </span>
+        } @else {
+        <div class="h-8 w-24 bg-gray-100 animate-pulse rounded-full"></div>
+        }
+      </div>
+
     </div>
   </div>
 
@@ -50,605 +104,733 @@
     <div class="max-w-6xl mx-auto space-y-4">
 
       @if(currentStep === 0) {
-      <!-- Info Pills -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Source</p>
-          <p class="text-sm font-semibold text-gray-800">{{ formatStatus(salesOrderDetails?.source) || '—' }}</p>
-        </div>
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Payment Terms</p>
-          <p class="text-sm font-semibold text-gray-800">{{ salesOrderDetails?.paymentTerms || '—' }}</p>
-        </div>
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Items</p>
-          <p class="text-sm font-semibold text-gray-800">{{ salesOrderDetails?.items?.length || 0 }}</p>
-        </div>
-        <div class="bg-white border border-indigo-100 rounded-lg p-4 shadow-sm bg-indigo-50/40">
-          <p class="text-[10px] font-semibold text-indigo-400 uppercase tracking-widest mb-1">Grand Total</p>
-          <p class="text-sm font-bold text-indigo-700">{{ salesOrderDetails?.grandTotal ?? 0 | currency }}</p>
-        </div>
-      </div>
-
-      <!-- Items Table -->
-      <div class="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-          <h3 class="text-sm font-semibold text-gray-700">Order Items</h3>
-          <span class="text-xs text-gray-400">{{ salesOrderDetails?.items?.length || 0 }} item(s)</span>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50 border-b border-gray-100">
-                <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Item
-                </th>
-                <th class="px-5 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-                  Ordered</th>
-                <th class="px-5 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-                  Invoiced</th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Unit
-                  Price</th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-                  Discount</th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Tax
-                </th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Total
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr *ngFor="let item of salesOrderDetails?.items" class="hover:bg-gray-50/70 transition-colors">
-                <td class="px-5 py-3">
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="h-8 w-8 rounded-md bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">
-                      {{ item.itemName.charAt(0) }}
-                    </div>
-                    <span class="font-medium text-gray-800">{{ item.itemName }}</span>
-                  </div>
-                </td>
-                <td class="px-5 py-3 text-center text-gray-600">{{ item.quantity }}</td>
-                <td class="px-5 py-3 text-center">
-                  <span
-                    class="font-semibold {{ item.invoicedQty >= item.quantity ? 'text-emerald-600' : 'text-amber-600' }}">
-                    {{ item.invoicedQty }}
-                  </span>
-                </td>
-                <td class="px-5 py-3 text-right text-gray-600">{{ item.unitPrice | currency }}</td>
-                <td class="px-5 py-3 text-right text-red-400 font-medium">-{{ item.discountAmount | currency }}</td>
-                <td class="px-5 py-3 text-right text-gray-500">{{ item.taxAmount | currency }}</td>
-                <td class="px-5 py-3 text-right font-semibold text-gray-800">{{ item.lineTotal | currency }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div *ngIf="!salesOrderDetails?.items?.length" class="py-14 text-center text-gray-400 text-sm">
-          No items found in this order.
-        </div>
-      </div>
-
-      <!-- Summary -->
-      <div class="flex justify-end">
-        <div class="w-full sm:w-80 bg-white border border-gray-100 rounded-lg shadow-sm p-5 space-y-2.5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">Order Summary</h3>
-          <div class="flex justify-between text-sm text-gray-500">
-            <span>Gross Total</span>
-            <span class="font-medium text-gray-700">{{ salesOrderDetails?.itemGrossTotal ?? 0 | currency }}</span>
-          </div>
-          <div class="flex justify-between text-sm text-gray-500">
-            <span>Item Discount</span>
-            <span class="text-red-400 font-medium">-{{ salesOrderDetails?.itemTotalDiscount ?? 0 | currency }}</span>
-          </div>
-          <div *ngIf="salesOrderDetails?.flatDiscountAmount" class="flex justify-between text-sm text-gray-500">
-            <span>Flat Discount ({{ salesOrderDetails?.flatDiscountRate }}%)</span>
-            <span class="text-red-400 font-medium">-{{ salesOrderDetails?.flatDiscountAmount | currency }}</span>
-          </div>
-          <div class="flex justify-between text-sm text-gray-500">
-            <span>Tax</span>
-            <span class="font-medium text-gray-700">{{ salesOrderDetails?.itemTotalTax ?? 0 | currency }}</span>
-          </div>
-          <div *ngIf="salesOrderDetails?.flatTaxAmount" class="flex justify-between text-sm text-gray-500">
-            <span>Flat Tax ({{ salesOrderDetails?.flatTaxRate }}%)</span>
-            <span class="font-medium text-gray-700">{{ salesOrderDetails?.flatTaxAmount | currency }}</span>
-          </div>
-          <div class="border-t border-gray-100 pt-3 flex justify-between items-center">
-            <span class="font-semibold text-gray-800">Grand Total</span>
-            <span class="text-lg font-bold text-indigo-600">{{ salesOrderDetails?.grandTotal ?? 0 | currency }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Remarks -->
-      <div *ngIf="salesOrderDetails?.remarks" class="bg-amber-50 border border-amber-100 rounded-lg p-4">
-        <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-widest mb-1">Remarks</p>
-        <p class="text-sm text-amber-700">{{ salesOrderDetails?.remarks }}</p>
-      </div>
+      <ng-container *ngTemplateOutlet="salesOrder"></ng-container>
       }
-
-      <!-- ──────────── STEP 1 : INVOICE ──────────── -->
       @else if (currentStep === 1) {
-
-      @if(invoiceDetails) {
-      <!-- Invoice Header -->
-      <div class="bg-white border border-gray-100 rounded-lg px-5 py-4 shadow-sm flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <p class="text-sm font-semibold text-gray-800">Invoice #{{ invoiceDetails.invoiceNumber }}</p>
-              <span *ngIf="invoiceDetails.salesOrderNumber"
-                class="text-[10px] bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full">
-                SO: {{ invoiceDetails.salesOrderNumber }}
-              </span>
-            </div>
-            <p class="text-xs text-gray-400">{{ invoiceDetails.invoiceDate | date:'mediumDate' }}</p>
-          </div>
-        </div>
-        <span
-          class="px-2.5 py-1 rounded-full text-xs font-semibold border {{ getStatusBadgeClass(invoiceDetails.status) }}">
-          {{ formatStatus(invoiceDetails.status) }}
-        </span>
-      </div>
-
-      <!-- Status Pills -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Invoice Type</p>
-          <p class="text-sm font-semibold text-gray-800">{{ formatStatus(invoiceDetails.invoiceType) || '—' }}</p>
-        </div>
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Delivery Status</p>
-          <span
-            class="text-xs font-semibold px-2 py-1 rounded-full border {{ getStatusBadgeClass(invoiceDetails.deliveryStatus) }}">
-            {{ formatStatus(invoiceDetails.deliveryStatus) || 'N/A' }}
-          </span>
-        </div>
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Payment Status</p>
-          <span
-            class="text-xs font-semibold px-2 py-1 rounded-full border {{ getStatusBadgeClass(invoiceDetails.paymentStatus) }}">
-            {{ formatStatus(invoiceDetails.paymentStatus) || 'N/A' }}
-          </span>
-        </div>
-        <div class="bg-violet-50/60 border border-violet-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-violet-400 uppercase tracking-widest mb-1">Grand Total</p>
-          <p class="text-sm font-bold text-violet-700">{{ invoiceDetails.grandTotal ?? 0 | currency }}</p>
-        </div>
-      </div>
-
-      <!-- Payment Progress -->
-      <div *ngIf="invoiceDetails.grandTotal" class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-xs font-semibold text-gray-600">Payment Progress</p>
-          <!-- <p class="text-xs font-semibold text-gray-500">
-            {{ invoiceDetails.grandTotal > 0 ? ((invoiceDetails.amountPaid / invoiceDetails.grandTotal) * 100 |
-            number:'1.0-0') : 0 }}%
-          </p> -->
-        </div>
-        <div class="w-full bg-gray-100 rounded-full h-2">
-          <!-- <div class="h-2 rounded-full transition-all duration-700"
-            [class]="(invoiceDetails.paymentStatus === 'PAID') ? 'bg-emerald-500' : 'bg-indigo-500'"
-            [style.width.%]="invoiceDetails.grandTotal > 0 ? (invoiceDetails.amountPaid / invoiceDetails.grandTotal) * 100 : 0">
-          </div> -->
-        </div>
-        <div class="flex justify-between mt-2 text-xs text-gray-400">
-          <span>Paid: <strong class="text-emerald-600">{{ invoiceDetails.amountPaid | currency }}</strong></span>
-          <span>Due: <strong class="text-red-500">{{ invoiceDetails.balance | currency }}</strong></span>
-        </div>
-      </div>
-
-      <!-- Invoice Items Table -->
-      <div class="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-          <h3 class="text-sm font-semibold text-gray-700">Invoice Items</h3>
-          <span class="text-xs text-gray-400">{{ invoiceDetails.items.length || 0 }} item(s)</span>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50 border-b border-gray-100">
-                <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Item
-                </th>
-                <th class="px-5 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Qty
-                </th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Unit
-                  Price</th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-                  Discount</th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Tax
-                </th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Total
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr *ngFor="let item of invoiceDetails.items" class="hover:bg-gray-50/70 transition-colors">
-                <td class="px-5 py-3">
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="h-8 w-8 rounded-md bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">
-                      {{ item.itemName?.charAt(0) }}
-                    </div>
-                    <div>
-                      <p class="font-medium text-gray-800">{{ item.itemName }}</p>
-                      <p *ngIf="item.sku" class="text-[10px] text-gray-400">SKU: {{ item.sku }}</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-5 py-3 text-center text-gray-600">{{ item.quantity }}</td>
-                <td class="px-5 py-3 text-right text-gray-600">{{ item.unitPrice | currency }}</td>
-                <td class="px-5 py-3 text-right text-red-400 font-medium">-{{ item.discountAmount ?? 0 | currency }}
-                </td>
-                <td class="px-5 py-3 text-right text-gray-500">{{ item.taxAmount ?? 0 | currency }}</td>
-                <td class="px-5 py-3 text-right font-semibold text-gray-800">{{ item.lineTotal | currency }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div *ngIf="!invoiceDetails.items?.length" class="py-14 text-center text-gray-400 text-sm">
-          No items in this invoice.
-        </div>
-      </div>
-
-      <!-- Invoice Summary -->
-      <div class="flex justify-end">
-        <div class="w-full sm:w-80 bg-white border border-gray-100 rounded-lg shadow-sm p-5 space-y-2.5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">Invoice Summary</h3>
-          <div class="flex justify-between text-sm text-gray-500">
-            <span>Gross Total</span>
-            <span class="font-medium text-gray-700">{{ invoiceDetails.itemGrossTotal ?? 0 | currency }}</span>
-          </div>
-          <div class="flex justify-between text-sm text-gray-500">
-            <span>Discount</span>
-            <span class="text-red-400 font-medium">-{{ invoiceDetails.itemTotalDiscount ?? 0 | currency }}</span>
-          </div>
-          <div class="flex justify-between text-sm text-gray-500">
-            <span>Tax</span>
-            <span class="font-medium text-gray-700">{{ invoiceDetails.itemTotalTax ?? 0 | currency }}</span>
-          </div>
-          <div class="border-t border-gray-100 pt-3 flex justify-between items-center">
-            <span class="font-semibold text-gray-800">Grand Total</span>
-            <span class="text-lg font-bold text-violet-600">{{ invoiceDetails.grandTotal ?? 0 | currency }}</span>
-          </div>
-          <div *ngIf="invoiceDetails.amountPaid != null"
-            class="flex justify-between text-sm text-emerald-600 font-medium">
-            <span>Amount Paid</span>
-            <span>{{ invoiceDetails.amountPaid | currency }}</span>
-          </div>
-          <div *ngIf="invoiceDetails.balance != null" class="flex justify-between text-sm text-red-500 font-medium">
-            <span>Balance Due</span>
-            <span>{{ invoiceDetails.balance | currency }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Invoice Remarks -->
-      <div *ngIf="invoiceDetails.remarks" class="bg-amber-50 border border-amber-100 rounded-lg p-4">
-        <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-widest mb-1">Remarks</p>
-        <p class="text-sm text-amber-700">{{ invoiceDetails.remarks }}</p>
-      </div>
-      } @else {
-      <div class="bg-white border border-gray-100 rounded-lg py-20 flex flex-col items-center text-center shadow-sm">
-        <div class="h-14 w-14 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg class="h-7 w-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-          </svg>
-        </div>
-        <p class="text-sm font-semibold text-gray-600 mb-1">No Invoice Yet</p>
-        <p class="text-xs text-gray-400 max-w-xs">This sales order hasn't been converted to an invoice. Create one to
-          proceed.</p>
-      </div>
+      <ng-container *ngTemplateOutlet="invoice"></ng-container>
       }
-      }
-
-      <!-- ──────────── STEP 2 : DELIVERY ──────────── -->
       @else if (currentStep === 2) {
-
-      @if(deliveryDetails) {
-      <!-- Delivery Header -->
-      <div class="bg-white border border-gray-100 rounded-lg px-5 py-4 shadow-sm flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-3.75M12 6.75h5.25c.621 0 1.125.504 1.125 1.125v5.25M12 6.75L8.25 10.5M12 6.75v5.25" />
-            </svg>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <p class="text-sm font-semibold text-gray-800">Delivery #{{ deliveryDetails.deliveryNumber }}</p>
-              <span *ngIf="deliveryDetails.invoice?.invoiceNumber"
-                class="text-[10px] bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full">
-                Inv: {{ deliveryDetails.invoice.invoiceNumber }}
-              </span>
-            </div>
-            <p class="text-xs text-gray-400">{{ getDeliveryTypeLabel(deliveryDetails.type) }}</p>
-          </div>
-        </div>
-        <span
-          class="px-2.5 py-1 rounded-full text-xs font-semibold border {{ getStatusBadgeClass(deliveryDetails.status) }}">
-          {{ formatStatus(deliveryDetails.status) }}
-        </span>
-      </div>
-
-      <!-- Delivery Info -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Delivery Type</p>
-          <p class="text-sm font-semibold text-gray-800">{{ getDeliveryTypeLabel(deliveryDetails.type) }}</p>
-        </div>
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Contact Person</p>
-          <p class="text-sm font-semibold text-gray-800">{{ deliveryDetails.contactPerson || '—' }}</p>
-        </div>
-        <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Contact Phone</p>
-          <p class="text-sm font-semibold text-gray-800">{{ deliveryDetails.contactPhone || '—' }}</p>
-        </div>
-      </div>
-
-      <!-- Delivery Timeline -->
-      <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-        <h3 class="text-sm font-semibold text-gray-700 mb-5">Delivery Timeline</h3>
-        <div class="flex flex-col sm:flex-row sm:items-start gap-0 sm:gap-0">
-
-          <!-- Step: Scheduled -->
-          <div class="flex sm:flex-col items-start sm:items-center sm:flex-1 gap-4 sm:gap-2 relative">
-            <div
-              class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 z-10
-              {{ deliveryDetails.scheduledDate ? 'bg-indigo-500 border-indigo-500 text-white' : 'bg-white border-gray-200 text-gray-300' }}">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <!-- Connector line (horizontal on sm+) -->
-            <div
-              class="hidden sm:block absolute top-5 left-1/2 right-0 h-0.5 {{ deliveryDetails.shippedDate ? 'bg-blue-300' : 'bg-gray-200' }}">
-            </div>
-            <div class="sm:text-center pb-6 sm:pb-0">
-              <p
-                class="text-xs font-semibold {{ deliveryDetails.scheduledDate ? 'text-indigo-700' : 'text-gray-400' }}">
-                Scheduled</p>
-              <p class="text-[10px] text-gray-400 mt-0.5">
-                {{ deliveryDetails.scheduledDate ? (deliveryDetails.scheduledDate | date:'medium') : 'Not scheduled' }}
-              </p>
-            </div>
-            <!-- Connector line (vertical on mobile) -->
-            <div
-              class="sm:hidden absolute left-5 top-10 bottom-0 w-0.5 {{ deliveryDetails.shippedDate ? 'bg-blue-300' : 'bg-gray-200' }}">
-            </div>
-          </div>
-
-          <!-- Step: Shipped -->
-          <div class="flex sm:flex-col items-start sm:items-center sm:flex-1 gap-4 sm:gap-2 relative">
-            <div
-              class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 z-10
-              {{ deliveryDetails.shippedDate ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white border-gray-200 text-gray-300' }}">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1 2 1 2-1 2 1 2-1zm0 0l4 2 3-1V6l-3 1-4-2z" />
-              </svg>
-            </div>
-            <div
-              class="hidden sm:block absolute top-5 left-1/2 right-0 h-0.5 {{ deliveryDetails.deliveredDate ? 'bg-emerald-300' : 'bg-gray-200' }}">
-            </div>
-            <div class="sm:text-center pb-6 sm:pb-0">
-              <p class="text-xs font-semibold {{ deliveryDetails.shippedDate ? 'text-blue-700' : 'text-gray-400' }}">
-                Shipped</p>
-              <p class="text-[10px] text-gray-400 mt-0.5">
-                {{ deliveryDetails.shippedDate ? (deliveryDetails.shippedDate | date:'medium') : 'Not shipped' }}
-              </p>
-            </div>
-            <div
-              class="sm:hidden absolute left-5 top-10 bottom-0 w-0.5 {{ deliveryDetails.deliveredDate ? 'bg-emerald-300' : 'bg-gray-200' }}">
-            </div>
-          </div>
-
-          <!-- Step: Delivered -->
-          <div class="flex sm:flex-col items-start sm:items-center sm:flex-1 gap-4 sm:gap-2 relative">
-            <div
-              class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 z-10
-              {{ deliveryDetails.deliveredDate ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-gray-200 text-gray-300' }}">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div class="sm:text-center">
-              <p
-                class="text-xs font-semibold {{ deliveryDetails.deliveredDate ? 'text-emerald-700' : 'text-gray-400' }}">
-                Delivered</p>
-              <p class="text-[10px] text-gray-400 mt-0.5">
-                {{ deliveryDetails.deliveredDate ? (deliveryDetails.deliveredDate | date:'medium') : 'Not delivered' }}
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Address -->
-      <div *ngIf="deliveryDetails.deliveryAddress" class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-        <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Delivery Address</h3>
-        <p class="text-sm text-gray-700">{{ deliveryDetails.deliveryAddress }}</p>
-      </div>
-
-      <!-- Delivery Remarks -->
-      <div *ngIf="deliveryDetails.remarks" class="bg-amber-50 border border-amber-100 rounded-lg p-4">
-        <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-widest mb-1">Remarks</p>
-        <p class="text-sm text-amber-700">{{ deliveryDetails.remarks }}</p>
-      </div>
-      } @else {
-      <div class="bg-white border border-gray-100 rounded-lg py-20 flex flex-col items-center text-center shadow-sm">
-        <div class="h-14 w-14 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg class="h-7 w-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-3.75M12 6.75h5.25c.621 0 1.125.504 1.125 1.125v5.25M12 6.75L8.25 10.5M12 6.75v5.25" />
-          </svg>
-        </div>
-        <p class="text-sm font-semibold text-gray-600 mb-1">No Delivery Created Yet</p>
-        <p class="text-xs text-gray-400 max-w-xs">Once the invoice is processed for delivery, tracking details will
-          appear here.</p>
-      </div>
+      <ng-container *ngTemplateOutlet="delivery"></ng-container>
       }
-      }
-
-      <!-- ──────────── STEP 3 : PAYMENT ──────────── -->
       @else if (currentStep === 3) {
-
-      @if(paymentSummary) {
-      <!-- Payment Header -->
-      <div class="bg-white border border-gray-100 rounded-lg px-5 py-4 shadow-sm flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm font-semibold text-gray-800">Payment for Invoice #{{ paymentSummary.invoiceNumber }}</p>
-          </div>
-        </div>
-        <span
-          class="px-2.5 py-1 rounded-full text-xs font-semibold border {{ getStatusBadgeClass(paymentSummary.status) }}">
-          {{ formatStatus(paymentSummary.status) }}
-        </span>
-      </div>
-
-      <!-- Payment Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Total Bill</p>
-          <p class="text-xl font-bold text-gray-800">{{ paymentSummary.grandTotal | currency }}</p>
-        </div>
-        <div class="bg-emerald-50/60 border border-emerald-100 rounded-lg p-5 shadow-sm">
-          <p class="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest mb-2">Total Paid</p>
-          <p class="text-xl font-bold text-emerald-600">{{ paymentSummary.totalPaid | currency }}</p>
-        </div>
-        <div class="bg-red-50/50 border border-red-100 rounded-lg p-5 shadow-sm">
-          <p class="text-[10px] font-semibold text-red-400 uppercase tracking-widest mb-2">Balance Due</p>
-          <p class="text-xl font-bold text-red-600">{{ paymentSummary.balanceDue | currency }}</p>
-        </div>
-      </div>
-
-      <!-- Payment Progress Bar -->
-      <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-        <div class="flex justify-between items-center mb-2">
-          <p class="text-xs font-semibold text-gray-600">Payment Progress</p>
-          <p class="text-xs font-semibold text-gray-500">
-            {{ paymentSummary.grandTotal > 0 ? ((paymentSummary.totalPaid / paymentSummary.grandTotal) * 100 |
-            number:'1.0-0') : 0 }}%
-          </p>
-        </div>
-        <div class="w-full bg-gray-100 rounded-full h-2.5">
-          <div class="h-2.5 rounded-full transition-all duration-700"
-            [class]="paymentSummary.balanceDue === 0 ? 'bg-emerald-500' : 'bg-indigo-500'"
-            [style.width.%]="paymentSummary.grandTotal > 0 ? (paymentSummary.totalPaid / paymentSummary.grandTotal) * 100 : 0">
-          </div>
-        </div>
-        <div class="flex justify-between mt-2 text-xs text-gray-400">
-          <span>{{ paymentSummary.totalPaid | currency }} paid</span>
-          <span>{{ paymentSummary.balanceDue | currency }} remaining</span>
-        </div>
-      </div>
-
-      <!-- Payment History Table -->
-      <div *ngIf="paymentSummary.paymentHistory?.length"
-        class="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-          <h3 class="text-sm font-semibold text-gray-700">Payment History</h3>
-          <span class="text-xs text-gray-400">{{ paymentSummary.paymentHistory.length }} transaction(s)</span>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50 border-b border-gray-100">
-                <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-                  Payment #</th>
-                <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Date
-                </th>
-                <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Method
-                </th>
-                <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Ref #
-                </th>
-                <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-                  Amount</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr *ngFor="let payment of paymentSummary.paymentHistory" class="hover:bg-gray-50/70 transition-colors">
-                <td class="px-5 py-3">
-                  <span class="text-xs font-semibold text-indigo-600">{{ payment.paymentNumber }}</span>
-                </td>
-                <td class="px-5 py-3 text-gray-500">{{ payment.paymentDate | date:'mediumDate' }}</td>
-                <td class="px-5 py-3">
-                  <span
-                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                    {{ formatStatus(payment.method) }}
-                  </span>
-                </td>
-                <td class="px-5 py-3 text-gray-400">{{ payment.referenceNumber || '—' }}</td>
-                <td class="px-5 py-3 text-right font-semibold text-emerald-600">{{ payment.amount | currency }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- No Payment History -->
-      <div *ngIf="!paymentSummary.paymentHistory?.length"
-        class="bg-gray-50 border border-gray-100 rounded-lg p-6 text-center">
-        <p class="text-sm text-gray-400">No payment transactions recorded yet.</p>
-      </div>
-      } @else {
-      <div class="bg-white border border-gray-100 rounded-lg py-20 flex flex-col items-center text-center shadow-sm">
-        <div class="h-14 w-14 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg class="h-7 w-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-          </svg>
-        </div>
-        <p class="text-sm font-semibold text-gray-600 mb-1">No Payment Recorded Yet</p>
-        <p class="text-xs text-gray-400 max-w-xs">Once a payment is received against the invoice, details will appear
-          here.</p>
-      </div>
+      <ng-container *ngTemplateOutlet="payment"></ng-container>
       }
-      }
-
     </div>
   </div>
 
-  <!-- ══════════════════════ BOTTOM NAV ══════════════════════ -->
   <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 md:px-8 py-3 z-40 shadow-md">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
 
+      <!-- Left: Back navigation -->
       <button
-        class="px-5 py-2 text-sm font-semibold rounded border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-        [disabled]="currentStep === 0" (click)="goToPrevious()">
-        ← Previous
+        class="px-4 py-2 text-sm font-semibold rounded border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2 flex-shrink-0"
+        [disabled]="currentStep === 0" (click)="handleStepChange(steps[currentStep - 1])">
+        ← Back
       </button>
 
-      <!-- Step dots -->
+      <!-- Center: Step dots -->
       <div class="flex items-center gap-1.5">
         <span *ngFor="let step of steps; let i = index" class="h-2 rounded-full transition-all duration-300
           {{ i === currentStep ? 'w-5 bg-indigo-500' : (i < currentStep ? 'w-2 bg-indigo-200' : 'w-2 bg-gray-200') }}">
         </span>
       </div>
 
-      <button
-        class="px-5 py-2 text-sm font-semibold rounded bg-[#C7D2FE] text-[#4338CA] hover:bg-[#a5b4fc] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-        [disabled]="currentStep === steps.length - 1 || steps[currentStep + 1].disabled" (click)="goToNext()">
-        Next →
-      </button>
+      <!-- Right: Contextual action buttons -->
+      <div class="flex items-center gap-2 flex-shrink-0">
 
+        <!-- Step 0: Sales Order actions -->
+        @if(currentStep === 0) {
+        @if(isSOPending) {
+        <span class="px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-md">
+          Awaiting Confirmation
+        </span>
+        }
+        @if(isSOTerminal) {
+        <span class="px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-md">
+          Order {{ formatStatus(salesOrderDetails?.status) }}
+        </span>
+        }
+        @if(canCancelSO) {
+        <button (click)="cancelSalesOrder()"
+          class="px-4 py-2 text-sm font-semibold rounded-md border border-red-200 text-red-600 bg-white hover:bg-red-50 transition-colors">
+          Order
+        </button>
+        }
+        @if(canConvertToInvoice) {
+        <button (click)="convertToInvoice()"
+          class="px-4 py-2 flex items-center gap-2 text-sm font-semibold rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+          Convert to Invoice <lucide-icon size="4" [img]="arrowRight"></lucide-icon>
+        </button>
+        }
+        @if(isSOInvoiced) {
+        <button (click)="goToInvoiceStep()"
+          class="px-4 py-2 flex items-center gap-2 text-sm font-semibold rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+          View Invoice <lucide-icon size="4" [img]="arrowRight"></lucide-icon>
+        </button>
+        }
+        }
+
+        <!-- Step 1: Invoice actions -->
+        @if(currentStep === 1 && invoiceDetails) {
+        <button (click)="downloadInvoice()"
+          class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+          ↓ Download Invoice
+        </button>
+        @if(canRecordPayment) {
+        <button (click)="recordPayment()"
+          class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+          Record Payment
+        </button>
+        }
+        }
+
+        <!-- Step 2: Delivery actions -->
+        @if(currentStep === 2) {
+        @if(canMarkDelivered && deliveryDetails?.type !== 'CUSTOMER_PICKUP') {
+        <button (click)="markAsDelivered()"
+          class="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">
+          Mark as Delivered
+        </button>
+        }
+        @if(canMarkDelivered && deliveryDetails?.type === 'CUSTOMER_PICKUP') {
+        <button (click)="markAsDelivered()"
+          class="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">
+          Mark as Picked Up
+        </button>
+        }
+        @if(deliveryDetails?.status === 'DELIVERED') {
+        <span
+          class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">
+          ✓ Delivery Completed
+        </span>
+        }
+        }
+
+        <!-- Step 3: Payment actions -->
+        @if(currentStep === 3) {
+        @if(paymentSummary && paymentSummary.balanceDue > 0) {
+        <button (click)="recordPayment()"
+          class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+          Record Payment
+        </button>
+        }
+        @if(paymentSummary && paymentSummary.balanceDue === 0) {
+        <span
+          class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">
+          ✓ Order Fulfilled
+        </span>
+        }
+        }
+
+      </div>
     </div>
   </div>
 
 </div>
+
+<ng-template #salesOrder>
+  <div class="space-y-6 antialiased">
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+      <div
+        class="bg-white border border-gray-200 rounded-md  p-4 transition-all hover:shadow-md hover:shadow-gray-100/50">
+        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Source</p>
+        <p class="text-base font-semibold text-gray-900">{{ formatStatus(salesOrderDetails?.source) || '—' }}</p>
+      </div>
+
+      <div
+        class="bg-white border border-gray-200 rounded-md p-4 transition-all hover:shadow-md hover:shadow-gray-100/50">
+        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Payment Terms</p>
+        <p class="text-base font-semibold text-gray-900">{{ salesOrderDetails?.paymentTerms || '—' }}</p>
+      </div>
+
+      <div
+        class="bg-white border border-gray-200 rounded-md p-4 transition-all hover:shadow-md hover:shadow-gray-100/50">
+        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Items Count</p>
+        <p class="text-base font-semibold text-gray-900">{{ salesOrderDetails?.items?.length || 0 }}</p>
+      </div>
+
+      <div
+        class="bg-indigo-50/30 border border-indigo-100 rounded-md p-4 transition-all hover:shadow-md hover:shadow-indigo-100/30">
+        <p class="text-[11px] font-bold text-indigo-500 uppercase tracking-wider mb-1">Grand Total</p>
+        <p class="text-base font-bold text-indigo-700">{{ salesOrderDetails?.grandTotal ?? 0 | currency:'INR' }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+        <h3 class="text-sm font-bold text-gray-800 tracking-tight">Order Items</h3>
+        <span class="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+          {{ salesOrderDetails?.items?.length || 0 }} Position(s)
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-100">
+          <thead>
+            <tr class="bg-white">
+              <th scope="col" class="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                Item Details</th>
+              <th scope="col"
+                class="px-6 py-3 text-center text-[11px] font-bold text-gray-400 uppercase tracking-wider">Ordered</th>
+              <th scope="col"
+                class="px-6 py-3 text-center text-[11px] font-bold text-gray-400 uppercase tracking-wider">Invoiced</th>
+              <th scope="col" class="px-6 py-3 text-right text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                Unit Price</th>
+              <th scope="col" class="px-6 py-3 text-right text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 bg-white">
+            @for(item of salesOrderDetails?.items; track item.id){
+            <tr class="hover:bg-gray-50/80 transition-colors group">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="h-9 w-9 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center flex-shrink-0 text-xs font-bold border border-gray-200 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-100 transition-colors">
+                    {{ item.itemName.charAt(0) }}
+                  </div>
+                  <div>
+                    <p class="font-semibold text-gray-900 tracking-tight">{{ item.itemName }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center text-sm font-medium text-gray-600">{{ item.quantity }}</td>
+              <td class="px-6 py-4 text-center">
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold {{ item.invoicedQty >= item.quantity ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' }}">
+                  {{ item.invoicedQty }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right text-sm text-gray-600 font-medium">
+                {{ item.unitPrice | currency:'INR' }}
+                @if(item.discountAmount > 0) {
+                <p class="text-[10px] text-rose-500">-{{ item.discountAmount | currency:'INR' }}</p>
+                }
+              </td>
+              <td class="px-6 py-4 text-right">
+                <span class="text-sm font-bold text-gray-900">{{ item.lineTotal | currency:'INR' }}</span>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="5" class="py-20 text-center">
+                <lucide-icon [img]="package" class="size-8 mx-auto text-gray-200 mb-2"></lucide-icon>
+                <p class="text-gray-400 text-sm font-medium">No items found in this order.</p>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="flex flex-col-reverse lg:flex-row gap-6">
+      <div class="flex-1">
+        @if(salesOrderDetails?.remarks){
+        <div class="bg-gray-50/50 border border-gray-200 rounded-md p-5">
+          <div class="flex items-center gap-2 mb-2 text-gray-500">
+            <p class="text-[11px] font-bold uppercase tracking-wider">Internal Remarks</p>
+          </div>
+          <p class="text-sm text-gray-600 leading-relaxed">{{ salesOrderDetails?.remarks }}</p>
+        </div>
+        }
+      </div>
+
+      <div class="w-full lg:w-96 bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/30">
+          <h3 class="text-sm font-bold text-gray-800">Payment Summary</h3>
+        </div>
+        <div class="p-5 space-y-3">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500 font-medium">Gross Total</span>
+            <span class="font-semibold text-gray-800">{{ salesOrderDetails?.itemGrossTotal ?? 0 | currency:'INR'
+              }}</span>
+          </div>
+
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500 font-medium">Discounts</span>
+            <span class="text-rose-600 font-bold">-{{ (salesOrderDetails?.itemTotalDiscount || 0) +
+              (salesOrderDetails?.flatDiscountAmount || 0) | currency:'INR' }}</span>
+          </div>
+
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500 font-medium">Tax</span>
+            <span class="font-semibold text-gray-800">{{ (salesOrderDetails?.itemTotalTax || 0) +
+              (salesOrderDetails?.flatTaxAmount || 0) | currency:'INR' }}</span>
+          </div>
+
+          <div class="pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-sm font-bold text-gray-900">Amount Due</span>
+            <span class="text-xl font-black text-indigo-600 tracking-tight">
+              {{ salesOrderDetails?.grandTotal ?? 0 | currency:'INR' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #invoice>
+  @if(invoiceDetails) {
+  <div class="bg-white border border-gray-100 rounded-lg px-5 py-4 shadow-sm flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <p class="text-sm font-semibold text-gray-800">Invoice #{{ invoiceDetails.invoiceNumber }}</p>
+          <span *ngIf="invoiceDetails.salesOrderNumber"
+            class="text-[10px] bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full">
+            SO: {{ invoiceDetails.salesOrderNumber }}
+          </span>
+        </div>
+        <p class="text-xs text-gray-400">{{ invoiceDetails.invoiceDate | date:'mediumDate' }}</p>
+      </div>
+    </div>
+    <span
+      class="px-2.5 py-1 rounded-full text-xs font-semibold border {{ getStatusBadgeClass(invoiceDetails.status) }}">
+      {{ formatStatus(invoiceDetails.status) }}
+    </span>
+  </div>
+
+  <!-- Status Pills -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Invoice Type</p>
+      <p class="text-sm font-semibold text-gray-800">{{ formatStatus(invoiceDetails.invoiceType) || '—' }}</p>
+    </div>
+    <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Delivery Status</p>
+      <span
+        class="text-xs font-semibold px-2 py-1 rounded-full border {{ getStatusBadgeClass(invoiceDetails.deliveryStatus) }}">
+        {{ formatStatus(invoiceDetails.deliveryStatus) || 'N/A' }}
+      </span>
+    </div>
+    <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Payment Status</p>
+      <span
+        class="text-xs font-semibold px-2 py-1 rounded-full border {{ getStatusBadgeClass(invoiceDetails.paymentStatus) }}">
+        {{ formatStatus(invoiceDetails.paymentStatus) || 'N/A' }}
+      </span>
+    </div>
+    <div class="bg-violet-50/60 border border-violet-100 rounded-lg p-4 shadow-sm">
+      <p class="text-[10px] font-semibold text-violet-400 uppercase tracking-widest mb-1">Grand Total</p>
+      <p class="text-sm font-bold text-violet-700">{{ invoiceDetails.grandTotal ?? 0 | currency:'INR' }}</p>
+    </div>
+  </div>
+
+  <!-- Payment Progress -->
+  <div *ngIf="invoiceDetails.grandTotal" class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
+    <div class="flex items-center justify-between mb-2">
+      <p class="text-xs font-semibold text-gray-600">Payment Progress</p>
+      <p class="text-xs font-semibold text-gray-500">
+        {{ invoiceDetails.grandTotal > 0 ? (((invoiceDetails.amountPaid || 0) / invoiceDetails.grandTotal) * 100 |
+        number:'1.0-0') : 0 }}%
+      </p>
+    </div>
+    <div class="w-full bg-gray-100 rounded-full h-2">
+      <div class="h-2 rounded-full transition-all duration-700"
+        [class]="(invoiceDetails.balance === 0) ? 'bg-emerald-500' : 'bg-indigo-500'"
+        [style.width.%]="invoiceDetails.grandTotal > 0 ? ((invoiceDetails.amountPaid || 0) / invoiceDetails.grandTotal) * 100 : 0">
+      </div>
+    </div>
+    <div class="flex justify-between mt-2 text-xs text-gray-400">
+      <span>Paid: <strong class="text-emerald-600">{{ invoiceDetails.amountPaid | currency:'INR' }}</strong></span>
+      <span>Due: <strong class="text-red-500">{{ invoiceDetails.balance | currency:'INR' }}</strong></span>
+    </div>
+  </div>
+
+  <!-- Invoice Items Table -->
+  <div class="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-gray-700">Invoice Items</h3>
+      <span class="text-xs text-gray-400">{{ invoiceDetails.items.length || 0 }} item(s)</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-100">
+            <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Item
+            </th>
+            <th class="px-5 py-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Qty
+            </th>
+            <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Unit
+              Price</th>
+            <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+              Discount</th>
+            <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Tax
+            </th>
+            <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Total
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (item of invoiceDetails.items; track $index) {
+          <tr class="hover:bg-gray-50/70 transition-colors">
+            <td class="px-5 py-3">
+              <div class="flex items-center gap-3">
+                <div
+                  class="h-8 w-8 rounded-md bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                  {{ item.itemName?.charAt(0) }}
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">{{ item.itemName }}</p>
+                  <p *ngIf="item.sku" class="text-[10px] text-gray-400">SKU: {{ item.sku }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-3 text-center text-gray-600">{{ item.quantity }}</td>
+            <td class="px-5 py-3 text-right text-gray-600">{{ item.unitPrice | currency:'INR' }}</td>
+            <td class="px-5 py-3 text-right text-red-400 font-medium">-{{ item.discountAmount ?? 0 | currency:'INR' }}
+            </td>
+            <td class="px-5 py-3 text-right text-gray-500">{{ item.taxAmount ?? 0 | currency:'INR' }}</td>
+            <td class="px-5 py-3 text-right font-semibold text-gray-800">{{ item.lineTotal | currency:'INR' }}</td>
+          </tr>
+          }@empty {
+          <tr class="hover:bg-gray-50/70 transition-colors">
+            <td class="px-5 py-3 text-center text-gray-600">No items in this invoice.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Invoice Summary -->
+  <div class="flex justify-end">
+    <div class="w-full sm:w-80 bg-white border border-gray-100 rounded-lg shadow-sm p-5 space-y-2.5">
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">Invoice Summary</h3>
+      <div class="flex justify-between text-sm text-gray-500">
+        <span>Gross Total</span>
+        <span class="font-medium text-gray-700">{{ invoiceDetails.itemGrossTotal ?? 0 | currency:'INR' }}</span>
+      </div>
+      <div class="flex justify-between text-sm text-gray-500">
+        <span>Discount</span>
+        <span class="text-red-400 font-medium">-{{ invoiceDetails.itemTotalDiscount ?? 0 | currency:'INR' }}</span>
+      </div>
+      <div class="flex justify-between text-sm text-gray-500">
+        <span>Tax</span>
+        <span class="font-medium text-gray-700">{{ invoiceDetails.itemTotalTax ?? 0 | currency:'INR' }}</span>
+      </div>
+      <div class="border-t border-gray-100 pt-3 flex justify-between items-center">
+        <span class="font-semibold text-gray-800">Grand Total</span>
+        <span class="text-lg font-bold text-violet-600">{{ invoiceDetails.grandTotal ?? 0 | currency:'INR' }}</span>
+      </div>
+      @if(invoiceDetails.amountPaid != null){
+      <div class="flex justify-between text-sm text-emerald-600 font-medium">
+        <span>Amount Paid</span>
+        <span>{{ invoiceDetails.amountPaid | currency:'INR' }}</span>
+      </div>
+      }
+      @if(invoiceDetails.balance != null){
+      <div class="flex justify-between text-sm text-red-500 font-medium">
+        <span>Balance Due</span>
+        <span>{{ invoiceDetails.balance | currency:'INR' }}</span>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Invoice Remarks -->
+  @if(invoiceDetails.remarks){
+  <div class="bg-amber-50 border border-amber-100 rounded-lg p-4">
+    <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-widest mb-1">Remarks</p>
+    <p class="text-sm text-amber-700">{{ invoiceDetails.remarks }}</p>
+  </div>
+  } @else {
+  <div class="bg-white border border-gray-100 rounded-lg py-20 flex flex-col items-center text-center shadow-sm">
+    <div class="h-14 w-14 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-4">
+      <svg class="h-7 w-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+      </svg>
+    </div>
+    <p class="text-sm font-semibold text-gray-600 mb-1">No Invoice Yet</p>
+    <p class="text-xs text-gray-400 max-w-xs">This sales order hasn't been converted to an invoice. Create one to
+      proceed.</p>
+  </div>
+  }
+  }
+</ng-template>
+
+<ng-template #delivery>
+  @if(deliveryDetails) {
+  <div class="bg-white border border-gray-100 rounded-lg px-5 py-4 shadow-sm flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-3.75M12 6.75h5.25c.621 0 1.125.504 1.125 1.125v5.25M12 6.75L8.25 10.5M12 6.75v5.25" />
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <p class="text-sm font-semibold text-gray-800">Delivery #{{ deliveryDetails.deliveryNumber }}</p>
+          <span *ngIf="deliveryDetails.invoice.invoiceNumber"
+            class="text-[10px] bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full">
+            Inv: {{ deliveryDetails.invoice.invoiceNumber }}
+          </span>
+        </div>
+        <p class="text-xs text-gray-400">{{ getDeliveryTypeLabel(deliveryDetails.type) }}</p>
+      </div>
+    </div>
+    <span
+      class="px-2.5 py-1 rounded-full text-xs font-semibold border {{ getStatusBadgeClass(deliveryDetails.status) }}">
+      {{ formatStatus(deliveryDetails.status) }}
+    </span>
+  </div>
+
+  <!-- Delivery Info -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+    <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Delivery Type</p>
+      <p class="text-sm font-semibold text-gray-800">{{ getDeliveryTypeLabel(deliveryDetails.type) }}</p>
+    </div>
+    <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Contact Person</p>
+      <p class="text-sm font-semibold text-gray-800">{{ deliveryDetails.contactPerson || '—' }}</p>
+    </div>
+    <div class="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Contact Phone</p>
+      <p class="text-sm font-semibold text-gray-800">{{ deliveryDetails.contactPhone || '—' }}</p>
+    </div>
+  </div>
+
+  <!-- Delivery Timeline -->
+  <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
+    <h3 class="text-sm font-semibold text-gray-700 mb-5">Delivery Timeline</h3>
+    <div class="flex flex-col sm:flex-row sm:items-start gap-0 sm:gap-0">
+
+      <!-- Step: Scheduled -->
+      <div class="flex sm:flex-col items-start sm:items-center sm:flex-1 gap-4 sm:gap-2 relative">
+        <div
+          class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 z-10
+              {{ deliveryDetails.scheduledDate ? 'bg-indigo-500 border-indigo-500 text-white' : 'bg-white border-gray-200 text-gray-300' }}">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <!-- Connector line (horizontal on sm+) -->
+        <div
+          class="hidden sm:block absolute top-5 left-1/2 right-0 h-0.5 {{ deliveryDetails.shippedDate ? 'bg-blue-300' : 'bg-gray-200' }}">
+        </div>
+        <div class="sm:text-center pb-6 sm:pb-0">
+          <p class="text-xs font-semibold {{ deliveryDetails.scheduledDate ? 'text-indigo-700' : 'text-gray-400' }}">
+            Scheduled</p>
+          <p class="text-[10px] text-gray-400 mt-0.5">
+            {{ deliveryDetails.scheduledDate ? (deliveryDetails.scheduledDate | date:'medium') : 'Not scheduled' }}
+          </p>
+        </div>
+        <!-- Connector line (vertical on mobile) -->
+        <div
+          class="sm:hidden absolute left-5 top-10 bottom-0 w-0.5 {{ deliveryDetails.shippedDate ? 'bg-blue-300' : 'bg-gray-200' }}">
+        </div>
+      </div>
+
+      <!-- Step: Shipped -->
+      <div class="flex sm:flex-col items-start sm:items-center sm:flex-1 gap-4 sm:gap-2 relative">
+        <div
+          class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 z-10
+              {{ deliveryDetails.shippedDate ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white border-gray-200 text-gray-300' }}">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1 2 1 2-1 2 1 2-1zm0 0l4 2 3-1V6l-3 1-4-2z" />
+          </svg>
+        </div>
+        <div
+          class="hidden sm:block absolute top-5 left-1/2 right-0 h-0.5 {{ deliveryDetails.deliveredDate ? 'bg-emerald-300' : 'bg-gray-200' }}">
+        </div>
+        <div class="sm:text-center pb-6 sm:pb-0">
+          <p class="text-xs font-semibold {{ deliveryDetails.shippedDate ? 'text-blue-700' : 'text-gray-400' }}">
+            Shipped</p>
+          <p class="text-[10px] text-gray-400 mt-0.5">
+            {{ deliveryDetails.shippedDate ? (deliveryDetails.shippedDate | date:'medium') : 'Not shipped' }}
+          </p>
+        </div>
+        <div
+          class="sm:hidden absolute left-5 top-10 bottom-0 w-0.5 {{ deliveryDetails.deliveredDate ? 'bg-emerald-300' : 'bg-gray-200' }}">
+        </div>
+      </div>
+
+      <!-- Step: Delivered -->
+      <div class="flex sm:flex-col items-start sm:items-center sm:flex-1 gap-4 sm:gap-2 relative">
+        <div
+          class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center border-2 z-10
+              {{ deliveryDetails.deliveredDate ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-gray-200 text-gray-300' }}">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div class="sm:text-center">
+          <p class="text-xs font-semibold {{ deliveryDetails.deliveredDate ? 'text-emerald-700' : 'text-gray-400' }}">
+            Delivered</p>
+          <p class="text-[10px] text-gray-400 mt-0.5">
+            {{ deliveryDetails.deliveredDate ? (deliveryDetails.deliveredDate | date:'medium') : 'Not delivered' }}
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Address -->
+  @if(deliveryDetails.deliveryAddress){
+  <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
+    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Delivery Address</h3>
+    <p class="text-sm text-gray-700">{{ deliveryDetails.deliveryAddress }}</p>
+  </div>
+  }
+
+  <!-- Delivery Remarks -->
+  @if(deliveryDetails.remarks){
+  <div class="bg-amber-50 border border-amber-100 rounded-lg p-4">
+    <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-widest mb-1">Remarks</p>
+    <p class="text-sm text-amber-700">{{ deliveryDetails.remarks }}</p>
+  </div>
+  } @else {
+  <div class="bg-white border border-gray-100 rounded-lg py-20 flex flex-col items-center text-center shadow-sm">
+    <div class="h-14 w-14 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-4">
+      <svg class="h-7 w-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-3.75M12 6.75h5.25c.621 0 1.125.504 1.125 1.125v5.25M12 6.75L8.25 10.5M12 6.75v5.25" />
+      </svg>
+    </div>
+    <p class="text-sm font-semibold text-gray-600 mb-1">No Delivery Created Yet</p>
+    <p class="text-xs text-gray-400 max-w-xs">Once the invoice is processed for delivery, tracking details will
+      appear here.</p>
+  </div>
+  }
+  }
+
+</ng-template>
+
+<ng-template #payment>
+  @if(paymentSummary) {
+  <!-- Payment Header -->
+  <div class="bg-white border border-gray-100 rounded-lg px-5 py-4 shadow-sm flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-800">Payment for Invoice #{{ paymentSummary.invoiceNumber }}</p>
+      </div>
+    </div>
+    <span
+      class="px-2.5 py-1 rounded-full text-xs font-semibold border {{ getStatusBadgeClass(paymentSummary.status) }}">
+      {{ formatStatus(paymentSummary.status) }}
+    </span>
+  </div>
+
+  <!-- Payment Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Total Bill</p>
+      <p class="text-xl font-bold text-gray-800">{{ paymentSummary.grandTotal | currency:'INR' }}</p>
+    </div>
+    <div class="bg-emerald-50/60 border border-emerald-100 rounded-lg p-5 shadow-sm">
+      <p class="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest mb-2">Total Paid</p>
+      <p class="text-xl font-bold text-emerald-600">{{ paymentSummary.totalPaid | currency:'INR' }}</p>
+    </div>
+    <div class="bg-red-50/50 border border-red-100 rounded-lg p-5 shadow-sm">
+      <p class="text-[10px] font-semibold text-red-400 uppercase tracking-widest mb-2">Balance Due</p>
+      <p class="text-xl font-bold text-red-600">{{ paymentSummary.balanceDue | currency:'INR' }}</p>
+    </div>
+  </div>
+
+  <!-- Payment Progress Bar -->
+  <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
+    <div class="flex justify-between items-center mb-2">
+      <p class="text-xs font-semibold text-gray-600">Payment Progress</p>
+      <p class="text-xs font-semibold text-gray-500">
+        {{ paymentSummary.grandTotal > 0 ? ((paymentSummary.totalPaid / paymentSummary.grandTotal) * 100 |
+        number:'1.0-0') : 0 }}%
+      </p>
+    </div>
+    <div class="w-full bg-gray-100 rounded-full h-2.5">
+      <div class="h-2.5 rounded-full transition-all duration-700"
+        [class]="paymentSummary.balanceDue === 0 ? 'bg-emerald-500' : 'bg-indigo-500'"
+        [style.width.%]="paymentSummary.grandTotal > 0 ? (paymentSummary.totalPaid / paymentSummary.grandTotal) * 100 : 0">
+      </div>
+    </div>
+    <div class="flex justify-between mt-2 text-xs text-gray-400">
+      <span>{{ paymentSummary.totalPaid | currency:'INR' }} paid</span>
+      <span>{{ paymentSummary.balanceDue | currency:'INR' }} remaining</span>
+    </div>
+  </div>
+
+  <!-- Payment History Table -->
+  @if(paymentSummary.paymentHistory.length) {
+  <div class="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-gray-700">Payment History</h3>
+      <span class="text-xs text-gray-400">{{ paymentSummary.paymentHistory.length }} transaction(s)</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-100">
+            <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+              Payment #</th>
+            <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Date
+            </th>
+            <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Method
+            </th>
+            <th class="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Ref #
+            </th>
+            <th class="px-5 py-3 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+              Amount</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (payment of paymentSummary.paymentHistory; track payment.id) {
+          <tr class="hover:bg-gray-50/70 transition-colors">
+            <td class="px-5 py-3">
+              <span class="text-xs font-semibold text-indigo-600">{{ payment.paymentNumber }}</span>
+            </td>
+            <td class="px-5 py-3 text-gray-500">{{ payment.paymentDate | date:'mediumDate' }}</td>
+            <td class="px-5 py-3">
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                {{ formatStatus(payment.method) }}
+              </span>
+            </td>
+            <td class="px-5 py-3 text-gray-400">{{ payment.referenceNumber || '—' }}</td>
+            <td class="px-5 py-3 text-right font-semibold text-emerald-600">{{ payment.amount | currency:'INR' }}</td>
+          </tr>
+          }@empty {
+          <tr class="hover:bg-gray-50/70 transition-colors">
+            <td class="px-5 py-3 text-center" colspan="5">
+              <span class="text-xs text-gray-400">No payment transactions recorded yet.</span>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+  } @else {
+  <div class="bg-white border border-gray-100 rounded-lg py-20 flex flex-col items-center text-center shadow-sm">
+    <div class="h-14 w-14 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-4">
+      <svg class="h-7 w-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+      </svg>
+    </div>
+    <p class="text-sm font-semibold text-gray-600 mb-1">No Payment Recorded Yet</p>
+    <p class="text-xs text-gray-400 max-w-xs">Once a payment is received against the invoice, details will appear
+      here.</p>
+  </div>
+  }
+</ng-template>
