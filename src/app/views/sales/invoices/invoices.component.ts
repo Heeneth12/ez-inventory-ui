@@ -10,10 +10,7 @@ import { StandardTableComponent } from "../../../layouts/components/standard-tab
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InvoiceFilterModal, InvoiceModal } from './invoice.modal';
-import { PaymentService } from '../payments/payment.service';
-import { InvoicePaymentSummaryModal } from '../payments/payment.modal';
 import { ModalService } from '../../../layouts/components/modal/modalService';
-import { PaymentSymmaryComponent } from '../payments/payment-symmary/payment-symmary.component';
 import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
 import { INVOICE_ACTIONS, INVOICE_COLUMNS, INVOICE_DATE_CONFIG, INVOICE_FILTER_OPTIONS } from '../salesConfig';
@@ -23,6 +20,9 @@ import { SalesReturnformComponent } from '../sales-returns/sales-returnform/sale
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { OrderTrackerComponent } from '../../../layouts/components/order-tracker/order-tracker.component';
+import { PaymentSymmaryComponent } from '../../payments/payment-symmary/payment-symmary.component';
+import { InvoicePaymentSummaryModal } from '../../payments/payment.modal';
+import { PaymentService } from '../../payments/payment.service';
 
 @Component({
   selector: 'app-invoices',

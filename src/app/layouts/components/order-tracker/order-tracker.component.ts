@@ -10,14 +10,15 @@ import { StepConfig } from "../../UI/stepper/stepper.component";
 import { User, ReceiptText, Truck, ReceiptIndianRupee, LucideAngularModule, Copy, Calendar, Package, ArrowRight, ArrowLeft, Download } from 'lucide-angular';
 import { DeliveryService } from '../../../views/sales/delivery/delivery.service';
 import { DeliveryModel } from '../../../views/sales/delivery/delivery.model';
-import { PaymentService } from '../../../views/sales/payments/payment.service';
-import { InvoicePaymentSummaryModal } from '../../../views/sales/payments/payment.modal';
+
+import { filter, take } from 'rxjs/operators';
+import { PaymentSymmaryComponent } from '../../../views/payments/payment-symmary/payment-symmary.component';
+import { InvoicePaymentSummaryModal } from '../../../views/payments/payment.modal';
+import { PaymentService } from '../../../views/payments/payment.service';
+import { InvoiceFormComponent } from '../../../views/sales/invoices/invoice-form/invoice-form.component';
+import { ConfirmationModalService } from '../../UI/confirmation-modal/confirmation-modal.service';
 import { DrawerService } from '../drawer/drawerService';
 import { ModalService } from '../modal/modalService';
-import { ConfirmationModalService } from '../../UI/confirmation-modal/confirmation-modal.service';
-import { InvoiceFormComponent } from '../../../views/sales/invoices/invoice-form/invoice-form.component';
-import { PaymentSymmaryComponent } from '../../../views/sales/payments/payment-symmary/payment-symmary.component';
-import { filter, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-order-tracking',

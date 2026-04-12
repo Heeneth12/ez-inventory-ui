@@ -6,8 +6,6 @@ import { LoaderService } from '../../../layouts/components/loader/loaderService'
 import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DatePickerConfig } from '../../../layouts/UI/date-picker/date-picker.component';
-import { PaymentSymmaryComponent } from '../../sales/payments/payment-symmary/payment-symmary.component';
-import { PaymentService } from '../../sales/payments/payment.service';
 import { UserAddressModel, UserModel, UserType } from '../models/user.model';
 import { UserManagementService } from '../userManagement.service';
 import { PurchaseRequestComponent } from "../../purchases/purchase-request/purchase-request.component";
@@ -16,7 +14,6 @@ import { GoodsReceiptComponent } from "../../purchases/goods-receipt/goods-recei
 import { PurchaseReturnsComponent } from "../../purchases/purchase-returns/purchase-returns.component";
 import { SalesOrderComponent } from "../../sales/sales-order/sales-order.component";
 import { InvoicesComponent } from "../../sales/invoices/invoices.component";
-import { PaymentsComponent } from "../../sales/payments/payments.component";
 import { DeliveryComponent } from "../../sales/delivery/delivery.component";
 import { SalesReturnsComponent } from "../../sales/sales-returns/sales-returns.component";
 import { SalesOrderFormComponent } from '../../sales/sales-order/sales-order-form/sales-order-form.component';
@@ -24,6 +21,9 @@ import { DrawerService } from '../../../layouts/components/drawer/drawerService'
 import { SkeletonLoaderComponent } from "../../../layouts/UI/skeleton-loader/skeleton-loader.component";
 import { InvoiceFormComponent } from '../../sales/invoices/invoice-form/invoice-form.component';
 import { SalesReturnformComponent } from '../../sales/sales-returns/sales-returnform/sales-returnform.component';
+import { PaymentSymmaryComponent } from '../../payments/payment-symmary/payment-symmary.component';
+import { PaymentService } from '../../payments/payment.service';
+import { PaymentsComponent } from '../../payments/payments.component';
 
 @Component({
   selector: 'app-user-profile',

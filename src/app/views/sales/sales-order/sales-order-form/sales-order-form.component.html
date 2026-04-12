@@ -89,7 +89,8 @@
                     <div class="md:col-span-6 p-2 border-r border-gray-200" [class.pointer-events-none]="isReadonly"
                         [class.opacity-75]="isReadonly">
                         <app-invoice-header [selectedUser]="selectedUser" [searchType]="'CUSTOMER'" [autoFocus]="true"
-                            (userSelected)="onUserSelected($event)" (userCleared)="onUserCleared()">
+                            [isReadonly]="customerId ? true : false" (userSelected)="onUserSelected($event)"
+                            (userCleared)="onUserCleared()">
                         </app-invoice-header>
                     </div>
 

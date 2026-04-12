@@ -1,4 +1,4 @@
-import { ListRestart, ListCollapse, PenLineIcon, Undo2, XCircle, ArrowRight, CircleX, FileDown, ReceiptIndianRupee, ScrollText, Truck, PackageCheck } from "lucide-angular";
+import { ListRestart, ListCollapse, PenLineIcon, Undo2, XCircle, ArrowRight, CircleX, FileDown, ReceiptIndianRupee, ScrollText, Truck, PackageCheck, Eye, CheckCircle, RotateCcw } from "lucide-angular";
 import { TableColumn, TableActionConfig } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
@@ -318,6 +318,119 @@ export const SALES_RETURNS_FILTER_OPTIONS: FilterOption[] = [
 ];
 
 export const SALES_RETURNS_DATE_CONFIG: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+};
+
+// ─── ADVANCE PAYMENTS ───────────────────────────────────────────────────────
+
+export const ADVANCE_COLUMNS: TableColumn[] = [
+    { key: 'contactMini', label: 'Customer', width: '160px', type: 'fullProfile', align: 'left' },
+    { key: 'advanceNumber', label: 'Advance #', width: '160px', type: 'link' },
+    { key: 'receivedDate', label: 'Received Date', width: '120px', type: 'date' },
+    { key: 'amount', label: 'Amount', width: '100px', type: 'currency', align: 'right' },
+    { key: 'availableBalance', label: 'Available', width: '110px', type: 'currency', align: 'right' },
+    { key: 'paymentMethod', label: 'Method', width: '110px', type: 'text', align: 'center' },
+    { key: 'status', label: 'Status', width: '120px', type: 'badge', align: 'center' },
+    { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
+];
+
+export const ADVANCE_ACTIONS: TableActionConfig[] = [
+    {
+        key: 'view_detail',
+        label: 'View Detail',
+        icon: Eye,
+        color: 'primary',
+        condition: () => true
+    },
+    {
+        key: 'utilize',
+        label: 'Apply to Invoice',
+        icon: CheckCircle,
+        color: 'success',
+        condition: (row) => row['status'] === 'ACTIVE' && row['availableBalance'] > 0
+    },
+    {
+        key: 'refund',
+        label: 'Refund',
+        icon: RotateCcw,
+        color: 'neutral',
+        condition: (row) => row['status'] === 'ACTIVE' && row['availableBalance'] > 0
+    }
+];
+
+export const ADVANCE_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: false,
+        options: [
+            { label: 'ACTIVE', value: 'ACTIVE' },
+            { label: 'EXHAUSTED', value: 'EXHAUSTED' },
+            { label: 'REFUNDED', value: 'REFUNDED' },
+            { label: 'PARTIALLY_REFUNDED', value: 'PARTIALLY_REFUNDED' }
+        ]
+    }
+];
+
+export const ADVANCE_DATE_CONFIG: DatePickerConfig = {
+    type: 'both',
+    placeholder: 'Start - End'
+};
+
+// ─── CREDIT NOTES ───────────────────────────────────────────────────────────
+
+export const CREDIT_NOTE_COLUMNS: TableColumn[] = [
+    { key: 'contactMini', label: 'Customer', width: '160px', type: 'fullProfile', align: 'left' },
+    { key: 'creditNoteNumber', label: 'Credit Note #', width: '160px', type: 'link' },
+    { key: 'issueDate', label: 'Issue Date', width: '120px', type: 'date' },
+    { key: 'amount', label: 'Amount', width: '100px', type: 'currency', align: 'right' },
+    { key: 'availableBalance', label: 'Available', width: '110px', type: 'currency', align: 'right' },
+    { key: 'status', label: 'Status', width: '120px', type: 'badge', align: 'center' },
+    { key: 'actions', label: 'Actions', width: '120px', type: 'action', align: 'center', sortable: false }
+];
+
+export const CREDIT_NOTE_ACTIONS: TableActionConfig[] = [
+    {
+        key: 'view_detail',
+        label: 'View Detail',
+        icon: Eye,
+        color: 'primary',
+        condition: () => true
+    },
+    {
+        key: 'utilize',
+        label: 'Apply to Invoice',
+        icon: CheckCircle,
+        color: 'success',
+        condition: (row) => row['status'] === 'ACTIVE' && row['availableBalance'] > 0
+    },
+    {
+        key: 'refund',
+        label: 'Refund',
+        icon: RotateCcw,
+        color: 'neutral',
+        condition: (row) => row['status'] === 'ACTIVE' && row['availableBalance'] > 0
+    }
+];
+
+export const CREDIT_NOTE_FILTER_OPTIONS: FilterOption[] = [
+    {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        searchable: false,
+        options: [
+            { label: 'ACTIVE', value: 'ACTIVE' },
+            { label: 'EXHAUSTED', value: 'EXHAUSTED' },
+            { label: 'REFUNDED', value: 'REFUNDED' },
+            { label: 'PARTIALLY_REFUNDED', value: 'PARTIALLY_REFUNDED' }
+        ]
+    }
+];
+
+export const CREDIT_NOTE_DATE_CONFIG: DatePickerConfig = {
     type: 'both',
     placeholder: 'Start - End'
 };

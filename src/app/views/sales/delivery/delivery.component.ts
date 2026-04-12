@@ -7,7 +7,7 @@ import { LoaderService } from '../../../layouts/components/loader/loaderService'
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DeliveryService } from './delivery.service';
 import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component';
-import { CalendarClock, CheckCircle, Clock, Download, LucideAngularModule, MapPin, Route, Truck, User, XCircle } from 'lucide-angular';
+import { CalendarClock, Check, CheckCircle, Clock, Download, LucideAngularModule, MapPin, Route, Truck, User, XCircle } from 'lucide-angular';
 import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { DELIVERY_ACTIONS, DELIVERY_COLUMNS, DELIVERY_DATE_CONFIG, DELIVERY_FILTER_OPTIONS } from '../salesConfig';
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
@@ -34,6 +34,10 @@ export class DeliveryComponent implements OnInit {
   readonly CalendarClockIcon = CalendarClock;
   readonly UserIcon = User;
   readonly TruckIcon = Truck;
+  readonly CheckCircleIcon = CheckCircle;
+  readonly ClockIcon = Clock;
+  readonly XCircleIcon = XCircle;
+  readonly CheckIcon = Check;
 
   deliveryDetails: DeliveryModel[] = [];
   selectedDelivery: DeliveryModel | null = null;
@@ -159,15 +163,79 @@ export class DeliveryComponent implements OnInit {
       (response: any) => {
         this.toastService.show('Delivery updated successfully', 'success');
         this.tableState$.next();
-        // If the drawer is open with this delivery, update its status
         if (this.selectedDelivery && this.selectedDelivery.id === id) {
-          //this.selectedDelivery.status ;
+          this.deliveryService.getDeliveryById(String(id),
+            (res: any) => { this.selectedDelivery = res.data; },
+            () => { }
+          );
         }
       },
       (error: any) => {
         this.toastService.show('Failed to update delivery', 'error');
       }
     );
+  }
+
+  rescheduleDelivery(id: any) {
+    // Default new date = tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const isoDate = tomorrow.toISOString().split('T')[0];
+
+    this.confirmationModalService.open({
+      title: 'Reschedule Delivery',
+      message: `Customer was not available. This delivery will be rescheduled to ${isoDate}. Confirm?`,
+      intent: 'info',
+      confirmLabel: 'Yes, Reschedule',
+      cancelLabel: 'Cancel'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.deliveryService.rescheduleDelivery(
+          id,
+          isoDate,
+          'Customer not available at delivery address',
+          (res: any) => {
+            this.toastService.show('Delivery rescheduled successfully', 'success');
+            this.tableState$.next();
+            if (this.selectedDelivery && this.selectedDelivery.id === id) {
+              this.deliveryService.getDeliveryById(String(id),
+                (r: any) => { this.selectedDelivery = r.data; },
+                () => { }
+              );
+            }
+          },
+          () => this.toastService.show('Failed to reschedule delivery', 'error')
+        );
+      }
+    });
+  }
+
+  cancelDelivery(id: any) {
+    this.confirmationModalService.open({
+      title: 'Cancel Delivery',
+      message: `Are you sure you want to cancel this delivery?`,
+      intent: 'danger',
+      confirmLabel: 'Yes, Cancel',
+      cancelLabel: 'No'
+    }).then(confirmed => {
+      if (confirmed) {
+        this.deliveryService.cancelDelivery(
+          id,
+          'Customer not available at delivery address',
+          (res: any) => {
+            this.toastService.show('Delivery cancelled successfully', 'success');
+            this.tableState$.next();
+            if (this.selectedDelivery && this.selectedDelivery.id === id) {
+              this.deliveryService.getDeliveryById(String(id),
+                (r: any) => { this.selectedDelivery = r.data; },
+                () => { }
+              );
+            }
+          },
+          () => this.toastService.show('Failed to cancel delivery', 'error')
+        );
+      }
+    });
   }
 
   markDeliveryAsShipped(id: any) {

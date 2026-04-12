@@ -25,6 +25,7 @@ export class InvoiceHeaderComponent implements OnInit, AfterViewInit {
   @Input() selectedUser: UserModel | null = null;
   @Input() searchType: 'CUSTOMER' | 'VENDOR' | 'EMPLOYEE' = 'VENDOR'
   @Input() autoFocus: boolean = false;
+  @Input() isReadonly: boolean = false;
 
   // Outputs: Tell parent when a user is chosen or cleared
   @Output() userSelected = new EventEmitter<UserModel>();
