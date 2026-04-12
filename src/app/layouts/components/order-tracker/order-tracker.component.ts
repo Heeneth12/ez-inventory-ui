@@ -52,10 +52,10 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
 
   currentStep = 0;
   steps: StepConfig[] = [
-    { key: 'so', label: 'Sales Order', icon: User, state: 'active', current: true },
-    { key: 'inv', label: 'Invoice', icon: ReceiptText, state: 'pending', disabled: true, current: false },
-    { key: 'dele', label: 'Delivery', icon: Truck, state: 'pending', disabled: true, current: false },
-    { key: 'pay', label: 'Payment', icon: ReceiptIndianRupee, state: 'pending', disabled: true, current: false }
+    { key: 'so', label: 'Sales Order', icon: User, state: 'active', current: true, description: '' },
+    { key: 'inv', label: 'Invoice', icon: ReceiptText, state: 'pending', disabled: true, current: false, description: '' },
+    { key: 'dele', label: 'Delivery', icon: Truck, state: 'pending', disabled: true, current: false, description: '' },
+    { key: 'pay', label: 'Payment', icon: ReceiptIndianRupee, state: 'pending', disabled: true, current: false, description: '' }
   ];
 
   handleStepChange(step: StepConfig) {
@@ -114,6 +114,7 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     this.salesOrderService.getSalesOrderById(soId,
       (response: any) => {
         this.salesOrderDetails = response.data;
+        this.steps[0].description = this.salesOrderDetails?.orderDate || '';
         this.loaderService.hide();
         if (this.salesOrderDetails != null) {
           this.contactId = this.salesOrderDetails.customerId;
@@ -166,6 +167,7 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     this.invoiceService.searchInvoices(filter,
       (response: any) => {
         const invoices = response.data?.content || response.data;
+        this.steps[1].description = invoices[0].invoiceDate || '';
         if (invoices && invoices.length > 0) {
           this.invoiceDetails = invoices[0]; // Take the first/primary invoice
           this.invoiceLoaded = true;
@@ -232,6 +234,7 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     this.deliveryService.searchDeliveryDetails(filter,
       (response: any) => {
         const deliveries = response.data?.content || response.data;
+        this.steps[2].description = deliveries[0].deliveryDate || '';
         if (deliveries && deliveries.length > 0) {
           this.deliveryDetails = deliveries[0];
           this.deliveryLoaded = true;
@@ -268,7 +271,7 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     if (s.includes('INVOICED') || s.includes('SHIPPED') || s.includes('SCHEDULED')) return 'bg-indigo-50 text-indigo-700 border-indigo-200';
     if (s.includes('DELIVERED') || s.includes('PAID') || s.includes('COMPLETED')) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     if (s.includes('PARTIALLY')) return 'bg-orange-50 text-orange-700 border-orange-200';
-    if (s.includes('CANCELLED') || s.includes('REJECTED')) return 'bg-red-50 text-red-700 border-red-200';
+    if (s.includes('CANCELLED') || s.includes('REJECTED') || s.includes('UNPAID')) return 'bg-red-50 text-red-700 border-red-200';
     return 'bg-gray-100 text-gray-600 border-gray-200';
   }
 
