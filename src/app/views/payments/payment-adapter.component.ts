@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, UsersRound, UserPlus, UserPen, Receipt, FilePlus, FilePen } from 'lucide-angular';
-import { TabCardComponent, TabItem } from '../../../layouts/UI/tab-card/tab-card.component';
+import { LucideAngularModule, Receipt, Wallet, FileText } from 'lucide-angular';
+import { TabCardComponent, TabItem } from '../../layouts/UI/tab-card/tab-card.component';
 
 
 @Component({
@@ -27,6 +27,8 @@ export class PaymentAdapterComponent {
 
     navigationTabs: TabItem[] = [
         { id: 'payments', label: 'All Payments', icon: Receipt },
+        { id: 'advance', label: 'Advance', icon: Wallet },
+        { id: 'credit-note', label: 'Credit Notes', icon: FileText },
     ];
 
     constructor(
@@ -35,10 +37,10 @@ export class PaymentAdapterComponent {
     ) {
         this.router.events.subscribe(() => {
             const currentUrl = this.router.url;
-            if (currentUrl.includes('/invoice/edit')) {
-                this.activeTab.set('edit');
-            } else if (currentUrl.includes('/invoice/create')) {
-                this.activeTab.set('create');
+            if (currentUrl.includes('/payments/advance')) {
+                this.activeTab.set('advance');
+            } else if (currentUrl.includes('/payments/credit-note')) {
+                this.activeTab.set('credit-note');
             } else {
                 this.activeTab.set('payments');
             }
@@ -46,14 +48,13 @@ export class PaymentAdapterComponent {
     }
 
     onTabChange(newTabId: string) {
-        // Simulate API network delay for better UX feel
         this.isLoading.set(true);
         if (newTabId === 'payments') {
             this.router.navigate(['./'], { relativeTo: this.route });
-        } else if (newTabId === 'create') {
-            this.router.navigate(['create'], { relativeTo: this.route });
-        } else if (newTabId === 'edit') {
-            this.router.navigate(['edit'], { relativeTo: this.route });
+        } else if (newTabId === 'advance') {
+            this.router.navigate(['advance'], { relativeTo: this.route });
+        } else if (newTabId === 'credit-note') {
+            this.router.navigate(['credit-note'], { relativeTo: this.route });
         }
     }
 }

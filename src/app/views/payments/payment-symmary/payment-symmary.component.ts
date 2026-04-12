@@ -1,17 +1,12 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, signal } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { LoaderService } from '../../../../layouts/components/loader/loaderService';
-import { ToastService } from '../../../../layouts/components/toast/toastService';
-import {
-  InvoicePaymentSummaryModal,
-  RazorpayOrderResponse,
-  RazorpaySuccessResponse,
-  RazorpayTransactionModal
-} from '../payment.modal';
+import { LoaderService } from '../../../layouts/components/loader/loaderService';
+import { ModalService } from '../../../layouts/components/modal/modalService';
+import { ToastService } from '../../../layouts/components/toast/toastService';
+import { AdvanceModal, InvoicePaymentSummaryModal, RazorpayTransactionModal, RazorpayOrderResponse, RazorpaySuccessResponse } from '../payment.modal';
 import { PaymentService } from '../payment.service';
-import { ModalService } from '../../../../layouts/components/modal/modalService';
-import { environment } from '../../../../../environments/environment.development';
+
 
 export type PaymentMethodKey = 'CASH' | 'BANK_TRANSFER' | 'UPI' | 'CHEQUE' | 'RAZORPAY' | 'PAYMENT_LINK' | 'QR';
 
@@ -38,7 +33,8 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
 
   // Data
   paymentSummary: InvoicePaymentSummaryModal | null = null;
-  customerSummary: any = { walletBalance: 0, totalOutstandingAmount: 0 };
+  customerSummary: any = { advanceBalance: 0, creditNoteBalance: 0, totalOutstandingAmount: 0 };
+  customerAdvances: AdvanceModal[] = [];
   razorpayTransactions: RazorpayTransactionModal[] = [];
   isLoadingTransactions = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
@@ -105,7 +101,10 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
 
 
   refreshAllData(): void {
-    if (this.customerId) this.loadCustomerWallet();
+    if (this.customerId) {
+      this.loadCustomerSummary();
+      this.loadCustomerAdvances();
+    }
     if (this.invoiceId) {
       this.loadPaymentSummary();
     } else {
@@ -131,11 +130,19 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     );
   }
 
-  loadCustomerWallet(): void {
+  loadCustomerSummary(): void {
     this.paymentService.getCustomerSummary(
       this.customerId,
       (res: any) => { this.customerSummary = res.data; },
-      (err: any) => console.error('Failed to load wallet', err)
+      (err: any) => console.error('Failed to load customer summary', err)
+    );
+  }
+
+  loadCustomerAdvances(): void {
+    this.paymentService.getAdvancesByCustomer(
+      this.customerId,
+      (res: any) => { this.customerAdvances = res.data ?? []; },
+      () => { }
     );
   }
 
@@ -242,26 +249,34 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     this.walletForm.patchValue({ paymentMethod: method });
   }
 
-  // Wallet / Advance
+  // Advance
 
   payWithWallet(): void {
-    if (this.customerSummary.walletBalance <= 0) return;
-    const amountToApply = Math.min(
-      this.customerSummary.walletBalance,
-      this.paymentSummary?.balanceDue || 0
+    const advanceBalance = this.customerSummary?.advanceBalance || 0;
+    if (advanceBalance <= 0) return;
+
+    // Find the first ACTIVE advance with available balance to draw from
+    const advance = this.customerAdvances.find(
+      a => a.status === 'ACTIVE' && a.availableBalance > 0
     );
+    if (!advance) {
+      this.toastSvc.show('No active advance found to apply', 'warning');
+      return;
+    }
+
+    const amountToApply = Math.min(advance.availableBalance, this.paymentSummary?.balanceDue || 0);
     this.loaderSvc.show();
-    this.paymentService.applyWalletToInvoice(
-      { customerId: this.customerId, invoiceId: this.invoiceId, amount: amountToApply },
+    this.paymentService.utilizeAdvance(
+      { advanceId: advance.id, invoiceId: this.invoiceId, amount: amountToApply },
       (res: any) => {
         this.loaderSvc.hide();
-        this.toastSvc.show('Wallet balance applied successfully', 'success');
+        this.toastSvc.show('Advance applied to invoice', 'success');
         this.refreshAllData();
         this.paymentSuccess.emit();
       },
-      () => {
+      (err: any) => {
         this.loaderSvc.hide();
-        this.toastSvc.show('Failed to apply wallet balance', 'error');
+        this.toastSvc.show(err?.error?.message || 'Failed to apply advance', 'error');
       }
     );
   }
@@ -274,7 +289,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     }
     this.isSubmitting.set(true);
     const val = this.walletForm.value;
-    this.paymentService.addMoneyToWallet(
+    this.paymentService.createAdvance(
       {
         customerId: this.customerId,
         amount: val.amount,
@@ -292,7 +307,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
       },
       (err: any) => {
         this.isSubmitting.set(false);
-        this.toastSvc.show(err?.message || 'Transaction failed', 'error');
+        this.toastSvc.show(err?.error?.message || 'Transaction failed', 'error');
       }
     );
   }

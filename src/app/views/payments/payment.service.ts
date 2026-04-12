@@ -1,9 +1,6 @@
 import { Injectable } from "@angular/core";
-import { environment } from "../../../../environments/environment.development";
-import { HttpService } from "../../../layouts/service/http-svc/http.service";
-import { InvoiceService } from "../invoices/invoice.service";
-
-
+import { environment } from "../../../environments/environment.development";
+import { HttpService } from "../../layouts/service/http-svc/http.service";
 
 @Injectable({
     providedIn: 'root'
@@ -12,6 +9,8 @@ export class PaymentService {
 
     private static PAYMENT_BASE_URL = environment.devUrl + '/v1/payment';
     private static RAZORPAY_BASE_URL = environment.devUrl + '/v1/razorpay';
+    private static ADVANCE_BASE_URL = environment.devUrl + '/v1/advance';
+    private static CREDIT_NOTE_BASE_URL = environment.devUrl + '/v1/credit-note';
 
     constructor(private httpService: HttpService) { }
 
@@ -48,26 +47,6 @@ export class PaymentService {
      */
     getCustomerSummary(customerId: number | string, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/summary/customer/${customerId}`, successfn, errorfn);
-    }
-
-    /**
-     * Apply existing wallet/credit balance to a specific invoice
-     * data should match WalletApplyDto { paymentId, invoiceId, amount }
-     */
-    applyWalletToInvoice(data: any, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/wallet/apply`, data, successfn, errorfn);
-    }
-
-    /**
-     * Refund an unallocated amount back to the customer
-     */
-    refundWalletAmount(paymentId: number | string, amount: number, successfn: any, errorfn: any) {
-        // Since the backend uses @RequestParam, we append the amount to the URL
-        return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/wallet/refund/${paymentId}?amount=${amount}`, {}, successfn, errorfn);
-    }
-
-    addMoneyToWallet(data: any, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${PaymentService.PAYMENT_BASE_URL}/wallet/add`, data, successfn, errorfn);
     }
 
     /**
@@ -147,6 +126,62 @@ export class PaymentService {
             successfn,
             errorfn
         );
+    }
+
+    // ─── Advance ────────────────────────────────────────────────────────────────
+
+    createAdvance(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.ADVANCE_BASE_URL}`, data, successfn, errorfn);
+    }
+
+    getAllAdvances(page: number, size: number, filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.ADVANCE_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
+    }
+
+    utilizeAdvance(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.ADVANCE_BASE_URL}/utilize`, data, successfn, errorfn);
+    }
+
+    refundAdvance(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.ADVANCE_BASE_URL}/refund`, data, successfn, errorfn);
+    }
+
+    confirmAdvanceRefund(refundId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.patchHttp(`${PaymentService.ADVANCE_BASE_URL}/refund/${refundId}/confirm`, {}, successfn, errorfn);
+    }
+
+    getAdvance(advanceId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PaymentService.ADVANCE_BASE_URL}/${advanceId}`, successfn, errorfn);
+    }
+
+    getAdvancesByCustomer(customerId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PaymentService.ADVANCE_BASE_URL}/customer/${customerId}`, successfn, errorfn);
+    }
+
+    // ─── Credit Note ────────────────────────────────────────────────────────────
+
+    utilizeCreditNote(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.CREDIT_NOTE_BASE_URL}/utilize`, data, successfn, errorfn);
+    }
+
+    getAllCreditNotes(page: number, size: number, filter: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.CREDIT_NOTE_BASE_URL}/all?page=${page}&size=${size}`, filter, successfn, errorfn);
+    }
+
+    refundCreditNote(data: any, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${PaymentService.CREDIT_NOTE_BASE_URL}/refund`, data, successfn, errorfn);
+    }
+
+    confirmCreditNoteRefund(refundId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.patchHttp(`${PaymentService.CREDIT_NOTE_BASE_URL}/refund/${refundId}/confirm`, {}, successfn, errorfn);
+    }
+
+    getCreditNote(creditNoteId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PaymentService.CREDIT_NOTE_BASE_URL}/${creditNoteId}`, successfn, errorfn);
+    }
+
+    getCreditNotesByCustomer(customerId: number | string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${PaymentService.CREDIT_NOTE_BASE_URL}/customer/${customerId}`, successfn, errorfn);
     }
 
     /**

@@ -1,20 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { ModalService } from '../../../layouts/components/modal/modalService';
 import { Router } from '@angular/router';
-import { LoaderService } from '../../../layouts/components/loader/loaderService';
-import { PaginationConfig, TableColumn, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
-import { ToastService } from '../../../layouts/components/toast/toastService';
-import { PaymentService } from './payment.service';
-import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
-import { Banknote, PieChart, ScrollText, ShoppingCart, Users } from 'lucide-angular';
-import { DrawerService } from '../../../layouts/components/drawer/drawerService';
-import { PaymentModal, PaymentFilterModal } from './payment.modal';
-import { StatCardConfig, StatGroupComponent } from "../../../layouts/UI/stat-group/stat-group.component";
-import { PAYMENTS_ACTIONS, PAYMENTS_COLUMNS, PAYMENTS_DATE_CONFIG, PAYMENTS_FILTER_OPTIONS } from '../salesConfig';
-import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
+import { Banknote, PieChart, ShoppingCart, Users } from 'lucide-angular';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { DrawerService } from '../../layouts/components/drawer/drawerService';
+import { LoaderService } from '../../layouts/components/loader/loaderService';
+import { ModalService } from '../../layouts/components/modal/modalService';
+import { StandardTableComponent } from '../../layouts/components/standard-table/standard-table.component';
+import { PaginationConfig, TableColumn, TableAction } from '../../layouts/components/standard-table/standard-table.model';
+import { ToastService } from '../../layouts/components/toast/toastService';
+import { DatePickerConfig, DateRangeEmit } from '../../layouts/UI/date-picker/date-picker.component';
+import { StatGroupComponent, StatCardConfig } from '../../layouts/UI/stat-group/stat-group.component';
+import { PAYMENTS_COLUMNS, PAYMENTS_FILTER_OPTIONS, PAYMENTS_DATE_CONFIG, PAYMENTS_ACTIONS } from '../sales/salesConfig';
+import { PaymentFilterModal, PaymentModal, } from './payment.modal';
+import { PaymentService } from './payment.service';
 
 @Component({
   selector: 'app-payments',
@@ -54,7 +54,7 @@ export class PaymentsComponent {
 
   ngOnInit(): void {
     if (this.customerId) {
-      //this.salesOrderFilter.customerId = this.customerId;
+      this.paymentFilter.customerId = this.customerId;
     }
     this.setupTablePipeline();
     this.tableState$.next();

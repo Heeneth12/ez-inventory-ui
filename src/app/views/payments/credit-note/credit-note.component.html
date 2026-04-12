@@ -1,0 +1,211 @@
+<div class="flex gap-4 items-start">
+
+  <!-- Main Table -->
+  <div class="flex-1 min-w-0">
+    <div class="h-[calc(100vh-198px)] overflow-y-auto">
+      <app-standard-table
+        [title]="'Credit Notes'"
+        [columns]="columns"
+        [data]="creditNoteList"
+        [pagination]="pagination"
+        [isServerSide]="true"
+        [customActions]="creditNoteActions"
+        [isLoading]="isLoading"
+        [datePickerConfig]="dateConfig"
+        [filterConfig]="filterOptions"
+        (action)="onTableAction($event)"
+        (pageChange)="onPageChange($event)"
+        (loadMore)="onLoadMore()"
+        (dateChange)="onFilterDate($event)"
+        (filterChanged)="onFilterUpdate($event)">
+      </app-standard-table>
+    </div>
+  </div>
+
+  <!-- Side Panel -->
+  @if(panelMode !== 'none') {
+  <div class="w-[360px] shrink-0 bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden self-start sticky top-0">
+
+    <!-- Panel Header -->
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <span class="text-xs font-bold text-gray-700 uppercase tracking-widest">
+        @if(panelMode === 'utilize') { Apply to Invoice }
+        @else if(panelMode === 'refund') { Refund Credit Note }
+        @else if(panelMode === 'detail') { Credit Note Detail }
+      </span>
+      <button (click)="closePanel()"
+        class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 text-gray-400 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-4 space-y-4 overflow-y-auto max-h-[80vh]">
+
+      <!-- UTILIZE FORM -->
+      @if(panelMode === 'utilize' && selectedNote) {
+      <div class="p-3 bg-indigo-50 rounded-sm border border-indigo-100 mb-1">
+        <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Available Balance</p>
+        <p class="text-xl font-bold text-indigo-700 mt-0.5">
+          {{ selectedNote.availableBalance | currency:'INR':'symbol':'1.0-0' }}
+        </p>
+        <p class="text-[10px] text-indigo-400 mt-1">{{ selectedNote.creditNoteNumber }}</p>
+      </div>
+      <form [formGroup]="utilizeForm" (ngSubmit)="submitUtilize()" class="space-y-3">
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Invoice ID *</label>
+          <input formControlName="invoiceId" type="number" min="1" placeholder="Enter invoice ID"
+            class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Amount to Apply *</label>
+          <input formControlName="amount" type="number" min="1" [max]="selectedNote.availableBalance"
+            placeholder="0.00"
+            class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Remarks</label>
+          <textarea formControlName="remarks" rows="2" placeholder="Optional"
+            class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400 resize-none"></textarea>
+        </div>
+        <button type="submit" [disabled]="utilizeForm.invalid || isSubmitting()"
+          class="w-full py-2 text-xs font-bold uppercase bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition-colors">
+          {{ isSubmitting() ? 'Applying...' : 'Apply to Invoice' }}
+        </button>
+      </form>
+      }
+
+      <!-- REFUND FORM -->
+      @if(panelMode === 'refund' && selectedNote) {
+      <div class="p-3 bg-amber-50 rounded-sm border border-amber-100 mb-1">
+        <p class="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Available to Refund</p>
+        <p class="text-xl font-bold text-amber-700 mt-0.5">
+          {{ selectedNote.availableBalance | currency:'INR':'symbol':'1.0-0' }}
+        </p>
+        <p class="text-[10px] text-amber-400 mt-1">{{ selectedNote.creditNoteNumber }}</p>
+      </div>
+      <form [formGroup]="refundForm" (ngSubmit)="submitRefund()" class="space-y-3">
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Refund Amount *</label>
+          <input formControlName="refundAmount" type="number" min="1" [max]="selectedNote.availableBalance"
+            placeholder="0.00"
+            class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Refund Method *</label>
+          <select formControlName="refundMethod"
+            class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400">
+            @for(m of PAYMENT_METHODS; track m) {
+            <option [value]="m">{{ m }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Reference Number</label>
+          <input formControlName="refundReferenceNumber" type="text" placeholder="UTR / Cheque no."
+            class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Remarks</label>
+          <textarea formControlName="remarks" rows="2" placeholder="Optional"
+            class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400 resize-none"></textarea>
+        </div>
+        <button type="submit" [disabled]="refundForm.invalid || isSubmitting()"
+          class="w-full py-2 text-xs font-bold uppercase bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 transition-colors">
+          {{ isSubmitting() ? 'Processing...' : 'Initiate Refund' }}
+        </button>
+      </form>
+      }
+
+      <!-- DETAIL VIEW -->
+      @if(panelMode === 'detail' && selectedNote) {
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-gray-50 rounded-sm">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Amount</p>
+            <p class="text-base font-bold text-gray-800 mt-0.5">{{ selectedNote.amount | currency:'INR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="p-3 bg-green-50 rounded-sm">
+            <p class="text-[10px] font-bold text-green-400 uppercase tracking-widest">Available</p>
+            <p class="text-base font-bold text-green-700 mt-0.5">{{ selectedNote.availableBalance | currency:'INR':'symbol':'1.0-0' }}</p>
+          </div>
+        </div>
+        <div class="text-xs text-gray-500 space-y-1.5">
+          <div class="flex justify-between">
+            <span class="text-gray-400">Credit Note #</span>
+            <span class="font-mono font-semibold text-indigo-700">{{ selectedNote.creditNoteNumber }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">Customer</span>
+            <span>{{ selectedNote.customerName }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">Issue Date</span>
+            <span>{{ selectedNote.issueDate | date:'dd MMM yyyy' }}</span>
+          </div>
+          @if(selectedNote.sourceReturnId) {
+          <div class="flex justify-between">
+            <span class="text-gray-400">Source Return</span>
+            <span class="font-mono">#{{ selectedNote.sourceReturnId }}</span>
+          </div>
+          }
+          @if(selectedNote.remarks) {
+          <div class="flex justify-between">
+            <span class="text-gray-400">Remarks</span>
+            <span>{{ selectedNote.remarks }}</span>
+          </div>
+          }
+        </div>
+
+        @if(selectedNote.utilizations && selectedNote.utilizations.length > 0) {
+        <div>
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Applied to Invoices</p>
+          <div class="space-y-1.5">
+            @for(u of selectedNote.utilizations; track u.id) {
+            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-sm border border-gray-100">
+              <div>
+                <p class="text-xs font-semibold text-gray-700">{{ u.invoiceNumber }}</p>
+                <p class="text-[10px] text-gray-400">{{ u.utilizationDate | date:'dd MMM yyyy' }}</p>
+              </div>
+              <span class="text-sm font-bold text-gray-800">{{ u.utilizedAmount | currency:'INR':'symbol':'1.0-0' }}</span>
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        @if(selectedNote.refunds && selectedNote.refunds.length > 0) {
+        <div>
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Refunds</p>
+          <div class="space-y-1.5">
+            @for(r of selectedNote.refunds; track r.id) {
+            <div class="p-2.5 bg-gray-50 rounded-sm border border-gray-100">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold text-gray-700">{{ r.refundNumber }}</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase"
+                  [ngClass]="refundStatusBadge(r.status)">{{ r.status }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] text-gray-400">{{ r.refundMethod }} • {{ r.refundDate | date:'dd MMM yyyy' }}</span>
+                <span class="text-sm font-bold text-amber-700">{{ r.refundAmount | currency:'INR':'symbol':'1.0-0' }}</span>
+              </div>
+              @if(r.status === 'PENDING') {
+              <button (click)="confirmRefund(r)"
+                class="mt-2 w-full py-1 text-[10px] font-bold uppercase bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                Confirm Cleared
+              </button>
+              }
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+    </div>
+  </div>
+  }
+
+</div>
