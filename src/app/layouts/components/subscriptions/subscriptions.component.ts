@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   LucideAngularModule, Crown, Calendar, CheckCircle, XCircle,
   Clock, Users, Zap, Star, ShieldCheck, Plus, Ban, RefreshCw,
-  AlertTriangle, Package
+  AlertTriangle, Package, X
 } from 'lucide-angular';
 import { SubscriptionsService } from './subscriptions.service';
 import { SubscriptionModel, SubscriptionPlanModel } from './subscriptions.model';
@@ -21,9 +21,8 @@ import { ModalService } from '../modal/modalService';
 })
 export class SubscriptionsComponent implements OnInit {
 
-  @ViewChild('createPlanModal') createPlanModalTemplate!: any;
-  @ViewChild('cancelConfirmModal') cancelConfirmModalTemplate!: any;
-  @ViewChild('subscribePlanModal') subscribePlanModalTemplate!: any;
+  @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: TemplateRef<any>;
+  @ViewChild('subscribeModal') subscribeModal!: TemplateRef<any>;
 
   // Icons
   readonly CrownIcon = Crown;
@@ -40,6 +39,7 @@ export class SubscriptionsComponent implements OnInit {
   readonly RefreshCwIcon = RefreshCw;
   readonly AlertTriangleIcon = AlertTriangle;
   readonly PackageIcon = Package;
+  readonly XIcon = X;
 
   // State
   currentSubscription = signal<SubscriptionModel | null>(null);
@@ -53,6 +53,7 @@ export class SubscriptionsComponent implements OnInit {
   isCreatingPlan = signal(false);
   selectedPlan = signal<SubscriptionPlanModel | null>(null);
 
+
   createPlanForm!: FormGroup;
 
   readonly planTypes = ['BASIC', 'STANDARD', 'PREMIUM', 'ENTERPRISE'];
@@ -61,7 +62,7 @@ export class SubscriptionsComponent implements OnInit {
     private subscriptionsSvc: SubscriptionsService,
     private authSvc: AuthService,
     private toastSvc: ToastService,
-    private modalService: ModalService,
+    private modalSvc: ModalService,
     private fb: FormBuilder
   ) { }
 
@@ -124,7 +125,11 @@ export class SubscriptionsComponent implements OnInit {
 
   openSubscribeModal(plan: SubscriptionPlanModel) {
     this.selectedPlan.set(plan);
-    this.modalService.openTemplate(this.subscribePlanModalTemplate, null, 'md');
+    this.modalSvc.openTemplate(
+      this.subscribeModal,
+      plan,
+      'md'
+    )
   }
 
   confirmSubscribe() {
@@ -134,10 +139,10 @@ export class SubscriptionsComponent implements OnInit {
     this.subscriptionsSvc.subscribeTenant(
       this.tenantId(),
       plan.id,
-      (res: any) => {
+      (_res: any) => {
         this.isSubscribing.set(false);
         this.toastSvc.show(`Subscribed to ${plan.name} successfully!`, 'success');
-        this.modalService.close();
+        this.closeModal();
         this.loadCurrentSubscription();
       },
       (err: any) => {
@@ -148,7 +153,11 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   openCancelModal() {
-    this.modalService.openTemplate(this.cancelConfirmModalTemplate, null, 'sm');
+    this.modalSvc.openTemplate(
+      this.cancelSubscriptionModal,
+      this.currentSubscription(),
+      'md'
+    )
   }
 
   confirmCancel() {
@@ -160,7 +169,7 @@ export class SubscriptionsComponent implements OnInit {
       (_res: any) => {
         this.isCancelling.set(false);
         this.toastSvc.show('Subscription cancelled successfully', 'success');
-        this.modalService.close();
+        this.closeModal();
         this.loadCurrentSubscription();
       },
       (err: any) => {
@@ -170,11 +179,10 @@ export class SubscriptionsComponent implements OnInit {
     );
   }
 
-  openCreatePlanModal() {
-    this.createPlanForm.reset({
-      type: 'BASIC', price: 0, durationDays: 30, maxUsers: 5, isActive: true
-    });
-    this.modalService.openTemplate(this.createPlanModalTemplate, null, 'lg');
+
+  toggleCreatePlanActive() {
+    const current = this.createPlanForm.get('isActive')?.value;
+    this.createPlanForm.patchValue({ isActive: !current });
   }
 
   onCreatePlan() {
@@ -185,7 +193,7 @@ export class SubscriptionsComponent implements OnInit {
       (_res: any) => {
         this.isCreatingPlan.set(false);
         this.toastSvc.show('Plan created successfully!', 'success');
-        this.modalService.close();
+        this.closeModal();
         this.loadActivePlans();
       },
       (err: any) => {
@@ -196,7 +204,8 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   closeModal() {
-    this.modalService.close();
+    this.modalSvc.close();
+    this.selectedPlan.set(null);
   }
 
   isCurrentPlan(planId: number): boolean {
@@ -214,31 +223,42 @@ export class SubscriptionsComponent implements OnInit {
     return map[status] || 'bg-gray-100 text-gray-500 border border-gray-200';
   }
 
-  getPlanAccentClass(type: string): { border: string; badge: string; icon: string; btn: string } {
+  getPlanAccentClass(type: string): {
+    border: string; badge: string; icon: string; btn: string;
+    iconBg: string; iconColor: string;
+  } {
     const map: Record<string, any> = {
       'BASIC': {
         border: 'border-slate-200 hover:border-slate-300',
-        badge: 'bg-slate-100 text-slate-600',
+        badge: 'bg-slate-100 text-slate-600 border-slate-200',
         icon: 'text-slate-400',
-        btn: 'bg-slate-800 hover:bg-slate-900 text-white'
+        iconBg: 'bg-slate-100',
+        iconColor: 'text-slate-500',
+        btn: 'bg-slate-800 hover:bg-slate-900 text-white border-slate-800'
       },
       'STANDARD': {
         border: 'border-blue-100 hover:border-blue-300',
-        badge: 'bg-blue-50 text-blue-600',
+        badge: 'bg-blue-50 text-blue-600 border-blue-100',
         icon: 'text-blue-500',
-        btn: 'bg-blue-600 hover:bg-blue-700 text-white'
+        iconBg: 'bg-blue-50',
+        iconColor: 'text-blue-500',
+        btn: 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'
       },
       'PREMIUM': {
         border: 'border-purple-100 hover:border-purple-300',
-        badge: 'bg-purple-50 text-purple-600',
+        badge: 'bg-purple-50 text-purple-600 border-purple-100',
         icon: 'text-purple-500',
-        btn: 'bg-purple-600 hover:bg-purple-700 text-white'
+        iconBg: 'bg-purple-50',
+        iconColor: 'text-purple-500',
+        btn: 'bg-purple-600 hover:bg-purple-700 text-white border-purple-600'
       },
       'ENTERPRISE': {
         border: 'border-amber-100 hover:border-amber-300',
-        badge: 'bg-amber-50 text-amber-700',
+        badge: 'bg-amber-50 text-amber-700 border-amber-100',
         icon: 'text-amber-500',
-        btn: 'bg-amber-500 hover:bg-amber-600 text-white'
+        iconBg: 'bg-amber-50',
+        iconColor: 'text-amber-500',
+        btn: 'bg-amber-500 hover:bg-amber-600 text-white border-amber-500'
       }
     };
     return map[type] || map['BASIC'];

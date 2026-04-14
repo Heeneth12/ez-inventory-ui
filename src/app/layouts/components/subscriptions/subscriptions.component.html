@@ -1,393 +1,361 @@
-<div class="bg-[#F4F5F7] min-h-full p-1 flex flex-col gap-3">
-
-  <!-- Page Header -->
-  <div class="bg-white rounded-lg border border-gray-100 shadow-sm px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center">
-        <lucide-icon [img]="CrownIcon" [size]="18" class="text-indigo-600"></lucide-icon>
-      </div>
-      <div>
-        <h1 class="text-[15px] font-bold text-gray-900">Subscription Management</h1>
-        <p class="text-[11px] text-gray-400 mt-0.5">Manage plans and billing for your organization</p>
-      </div>
-    </div>
-    <!-- Admin: Create Plan Button -->
-    <button *ngIf="isAdmin()" (click)="openCreatePlanModal()"
-      class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-[13px] font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
-      <lucide-icon [img]="PlusIcon" [size]="14"></lucide-icon>
-      Create Plan
-    </button>
-  </div>
-
-  <!-- Current Subscription Card -->
-  <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
-    <h2 class="text-[13px] font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-      <lucide-icon [img]="ShieldCheckIcon" [size]="15" class="text-gray-400"></lucide-icon>
-      Current Subscription
-    </h2>
-
-    <!-- Loading State -->
-    <div *ngIf="isLoading()" class="flex items-center gap-3 py-6">
-      <div class="w-5 h-5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-      <span class="text-[13px] text-gray-400">Loading subscription details...</span>
-    </div>
-
-    <!-- No Subscription -->
-    <div *ngIf="!isLoading() && !currentSubscription()"
-      class="flex flex-col items-center justify-center py-10 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50/40">
-      <lucide-icon [img]="PackageIcon" [size]="36" class="text-gray-300 mb-3"></lucide-icon>
-      <p class="text-[13px] font-semibold text-gray-500">No Active Subscription</p>
-      <p class="text-[11px] text-gray-400 mt-1">Choose a plan below to get started</p>
-    </div>
-
-    <!-- Subscription Details -->
-    <div *ngIf="!isLoading() && currentSubscription()" class="flex flex-col lg:flex-row gap-6">
-      <!-- Plan Info -->
-      <div class="flex-1 flex items-start gap-4">
-        <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
-          <lucide-icon [img]="CrownIcon" [size]="22" class="text-indigo-500"></lucide-icon>
-        </div>
-        <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-[16px] font-bold text-gray-900">{{ currentSubscription()!.plan.name }}</span>
-            <span [class]="'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wide ' + getStatusClass(currentSubscription()!.status)">
-              {{ currentSubscription()!.status }}
-            </span>
-            <span *ngIf="!currentSubscription()!.isValid"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-600 border border-red-100">
-              <lucide-icon [img]="AlertTriangleIcon" [size]="10"></lucide-icon> Invalid
-            </span>
-          </div>
-          <p class="text-[12px] text-gray-500 mt-1">{{ currentSubscription()!.plan.description }}</p>
-          <span class="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded"
-            [ngClass]="getPlanAccentClass(currentSubscription()!.plan.type).badge">
-            {{ currentSubscription()!.plan.type }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Stats Grid -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:w-auto">
-        <div class="bg-gray-50 rounded-lg px-4 py-3 border border-gray-100 text-center">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Start Date</p>
-          <p class="text-[12px] font-bold text-gray-700">{{ currentSubscription()!.startDate | date:'dd MMM yyyy' }}</p>
-        </div>
-        <div class="bg-gray-50 rounded-lg px-4 py-3 border border-gray-100 text-center">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">End Date</p>
-          <p class="text-[12px] font-bold text-gray-700">{{ currentSubscription()!.endDate | date:'dd MMM yyyy' }}</p>
-        </div>
-        <div class="bg-gray-50 rounded-lg px-4 py-3 border border-gray-100 text-center">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Days Left</p>
-          <p class="text-[14px] font-bold"
-            [ngClass]="currentSubscription()!.daysRemaining <= 7 ? 'text-red-600' : 'text-indigo-600'">
-            {{ currentSubscription()!.daysRemaining }}
-          </p>
-        </div>
-        <div class="bg-gray-50 rounded-lg px-4 py-3 border border-gray-100 text-center">
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Max Users</p>
-          <p class="text-[14px] font-bold text-gray-700">{{ currentSubscription()!.plan.maxUsers }}</p>
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="flex flex-col gap-2 justify-start lg:justify-center shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="text-[11px] text-gray-500">Auto-Renew</span>
-          <span class="inline-flex items-center gap-1 text-[11px] font-semibold"
-            [ngClass]="currentSubscription()!.autoRenew ? 'text-green-600' : 'text-gray-400'">
-            <lucide-icon [img]="currentSubscription()!.autoRenew ? CheckCircleIcon : XCircleIcon" [size]="13"></lucide-icon>
-            {{ currentSubscription()!.autoRenew ? 'On' : 'Off' }}
-          </span>
-        </div>
-        <button *ngIf="currentSubscription()!.status === 'ACTIVE'"
-          (click)="openCancelModal()"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
-          <lucide-icon [img]="BanIcon" [size]="13"></lucide-icon>
-          Cancel Plan
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Available Plans -->
-  <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
-    <div class="flex items-center justify-between mb-5">
-      <h2 class="text-[13px] font-bold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-        <lucide-icon [img]="ZapIcon" [size]="15" class="text-gray-400"></lucide-icon>
-        Available Plans
-      </h2>
-      <button (click)="loadActivePlans()"
-        class="flex items-center gap-1.5 text-[11px] text-gray-400 hover:text-indigo-600 transition-colors">
-        <lucide-icon [img]="RefreshCwIcon" [size]="12"></lucide-icon>
-        Refresh
-      </button>
-    </div>
-
-    <!-- Plans Loading -->
-    <div *ngIf="isPlansLoading()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div *ngFor="let _ of [1,2,3,4]"
-        class="border border-gray-100 rounded-xl p-5 animate-pulse bg-gray-50 h-48"></div>
-    </div>
-
-    <!-- No Plans -->
-    <div *ngIf="!isPlansLoading() && activePlans().length === 0"
-      class="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50/40">
-      <lucide-icon [img]="PackageIcon" [size]="32" class="text-gray-300 mb-2 mx-auto"></lucide-icon>
-      <p class="text-[13px] text-gray-400">No active plans available</p>
-      <p *ngIf="isAdmin()" class="text-[11px] text-gray-400 mt-1">Use "Create Plan" to add plans</p>
-    </div>
-
-    <!-- Plan Cards Grid -->
-    <div *ngIf="!isPlansLoading() && activePlans().length > 0"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-
-      <div *ngFor="let plan of activePlans()"
-        class="relative border rounded-xl p-5 flex flex-col gap-4 transition-all duration-200 bg-white"
-        [ngClass]="[getPlanAccentClass(plan.type).border, isCurrentPlan(plan.id) ? 'ring-2 ring-indigo-500 ring-offset-1' : '']">
-
-        <!-- Current Plan Badge -->
-        <div *ngIf="isCurrentPlan(plan.id)"
-          class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-bold px-3 py-0.5 rounded-full shadow-sm whitespace-nowrap">
-          Current Plan
-        </div>
-
-        <!-- Plan Header -->
-        <div class="flex items-start justify-between">
-          <div>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded"
-              [ngClass]="getPlanAccentClass(plan.type).badge">{{ plan.type }}</span>
-            <h3 class="text-[14px] font-bold text-gray-900 mt-2">{{ plan.name }}</h3>
-          </div>
-          <lucide-icon [img]="StarIcon" [size]="18" [ngClass]="getPlanAccentClass(plan.type).icon"></lucide-icon>
-        </div>
-
-        <!-- Description -->
-        <p class="text-[11px] text-gray-500 leading-relaxed line-clamp-2 flex-1">{{ plan.description }}</p>
-
-        <!-- Plan Meta -->
-        <div class="space-y-1.5">
-          <div class="flex items-center gap-2 text-[11px] text-gray-500">
-            <lucide-icon [img]="UsersIcon" [size]="12" class="text-gray-400"></lucide-icon>
-            Up to <span class="font-semibold text-gray-700">{{ plan.maxUsers }} users</span>
-          </div>
-          <div class="flex items-center gap-2 text-[11px] text-gray-500">
-            <lucide-icon [img]="CalendarIcon" [size]="12" class="text-gray-400"></lucide-icon>
-            <span class="font-semibold text-gray-700">{{ plan.durationDays }} days</span> duration
-          </div>
-        </div>
-
-        <!-- Price & Action -->
-        <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
-          <div>
-            <span class="text-[18px] font-bold text-gray-900">
-              {{ plan.price === 0 ? 'Free' : ('₹' + plan.price) }}
-            </span>
-            <span *ngIf="plan.price > 0" class="text-[10px] text-gray-400 ml-1">/ {{ plan.durationDays }}d</span>
-          </div>
-          <button
-            (click)="openSubscribeModal(plan)"
-            [disabled]="isCurrentPlan(plan.id)"
-            class="px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            [ngClass]="isCurrentPlan(plan.id) ? 'bg-gray-100 text-gray-400' : getPlanAccentClass(plan.type).btn">
-            {{ isCurrentPlan(plan.id) ? 'Active' : 'Subscribe' }}
-          </button>
-        </div>
-      </div>
-
-    </div>
+<div class="bg-gray-50/60 px-2">
+  <div class="space-y-2">
+    <ng-component [ngTemplateOutlet]="subscriptionTemplate"></ng-component>
   </div>
 </div>
 
 
-<!-- Subscribe Confirm Modal -->
-<ng-template #subscribePlanModal>
-  <div class="bg-white rounded-xl shadow-2xl w-full overflow-hidden border border-slate-200">
-    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-      <h3 class="text-[15px] font-bold text-slate-800">Confirm Subscription</h3>
-      <button (click)="closeModal()"
-        class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-    <div class="p-6" *ngIf="selectedPlan()">
-      <div class="flex items-start gap-4 p-4 rounded-lg bg-indigo-50 border border-indigo-100 mb-5">
-        <lucide-icon [img]="CrownIcon" [size]="24" class="text-indigo-500 shrink-0 mt-0.5"></lucide-icon>
+<ng-template #subscriptionTemplate>
+  <div class="space-y-4">
+    <!-- CURRENT SUBSCRIPTION -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
         <div>
-          <p class="text-[14px] font-bold text-indigo-900">{{ selectedPlan()!.name }}</p>
-          <p class="text-[11px] text-indigo-600 mt-0.5">{{ selectedPlan()!.description }}</p>
-          <div class="flex items-center gap-4 mt-2">
-            <span class="text-[11px] text-indigo-700 font-semibold">
-              {{ selectedPlan()!.price === 0 ? 'Free' : '₹' + selectedPlan()!.price }}
-            </span>
-            <span class="text-[11px] text-indigo-600">
-              <lucide-icon [img]="CalendarIcon" [size]="11" class="inline -mt-0.5 mr-0.5"></lucide-icon>
-              {{ selectedPlan()!.durationDays }} days
-            </span>
-            <span class="text-[11px] text-indigo-600">
-              <lucide-icon [img]="UsersIcon" [size]="11" class="inline -mt-0.5 mr-0.5"></lucide-icon>
-              {{ selectedPlan()!.maxUsers }} users max
+          <h2 class="text-[15px] font-semibold text-gray-900">Current subscription</h2>
+          <p class="text-[11px] text-gray-400 mt-0.5">Your active plan and usage details</p>
+        </div>
+        <lucide-icon [img]="ShieldCheckIcon" [size]="18" class="text-gray-300"></lucide-icon>
+      </div>
+
+      <!-- Loading -->
+      @if (isLoading()) {
+      <div class="flex items-center gap-3 px-6 py-10">
+        <div class="w-5 h-5 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+        <span class="text-[13px] text-gray-400">Loading subscription details…</span>
+      </div>
+      }
+
+      <!-- No subscription -->
+      @if (!isLoading() && !currentSubscription()) {
+      <div
+        class="flex flex-col items-center justify-center mx-6 my-6 py-10 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/40 text-center">
+        <lucide-icon [img]="PackageIcon" [size]="32" class="text-gray-300 mb-3"></lucide-icon>
+        <p class="text-[13px] font-semibold text-gray-500">No active subscription</p>
+        <p class="text-[11px] text-gray-400 mt-1">Choose a plan below to get started</p>
+      </div>
+      }
+
+      <!-- Subscription detail -->
+      @if (!isLoading() && currentSubscription()) {
+      <div class="p-6">
+        <div class="flex flex-col lg:flex-row gap-6">
+
+          <!-- Plan identity -->
+          <div class="flex items-start gap-4 flex-1">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-gray-200"
+              [ngClass]="getPlanAccentClass(currentSubscription()!.plan.type).iconBg">
+              <lucide-icon [img]="CrownIcon" [size]="22"
+                [ngClass]="getPlanAccentClass(currentSubscription()!.plan.type).iconColor"></lucide-icon>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[16px] font-semibold text-gray-900">{{ currentSubscription()!.plan.name }}</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                  [ngClass]="getStatusClass(currentSubscription()!.status)">
+                  {{ currentSubscription()!.status }}
+                </span>
+                @if (!currentSubscription()!.isValid) {
+                <span
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-600 border border-red-200">
+                  <lucide-icon [img]="AlertTriangleIcon" [size]="10"></lucide-icon> Invalid
+                </span>
+                }
+              </div>
+              <p class="text-[12px] text-gray-400 mt-1 leading-relaxed">{{ currentSubscription()!.plan.description }}
+              </p>
+              <span class="inline-flex items-center mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full border"
+                [ngClass]="getPlanAccentClass(currentSubscription()!.plan.type).badge">
+                {{ currentSubscription()!.plan.type }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 lg:w-auto">
+            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center">
+              <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Start date</p>
+              <p class="text-[12px] font-semibold text-gray-700">{{ currentSubscription()!.startDate | date:'dd MMM yy'
+                }}</p>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center">
+              <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">End date</p>
+              <p class="text-[12px] font-semibold text-gray-700">{{ currentSubscription()!.endDate | date:'dd MMM yy' }}
+              </p>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center">
+              <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Days left</p>
+              <p class="text-[15px] font-bold" [class.text-red-600]="currentSubscription()!.daysRemaining <= 7"
+                [class.text-blue-600]="currentSubscription()!.daysRemaining > 7">
+                {{ currentSubscription()!.daysRemaining }}
+              </p>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center">
+              <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Max users</p>
+              <p class="text-[15px] font-bold text-gray-700">{{ currentSubscription()!.plan.maxUsers }}</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col gap-2.5 justify-center shrink-0">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-gray-500">Auto-renew</span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold"
+                [class.text-green-600]="currentSubscription()!.autoRenew"
+                [class.text-gray-400]="!currentSubscription()!.autoRenew">
+                <lucide-icon [img]="currentSubscription()!.autoRenew ? CheckCircleIcon : XCircleIcon"
+                  [size]="13"></lucide-icon>
+                {{ currentSubscription()!.autoRenew ? 'On' : 'Off' }}
+              </span>
+            </div>
+            @if (currentSubscription()!.status === 'ACTIVE') {
+            <button (click)="openCancelModal()"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+              <lucide-icon [img]="BanIcon" [size]="13"></lucide-icon>
+              Cancel plan
+            </button>
+            }
+          </div>
+
+        </div>
+
+        <!-- Days remaining progress bar -->
+        @if (currentSubscription()!.plan.durationDays > 0) {
+        <div class="mt-5 pt-5 border-t border-gray-200">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] text-gray-400">Plan usage</span>
+            <span class="text-[11px] font-semibold text-gray-500">
+              {{ currentSubscription()!.daysRemaining }} / {{ currentSubscription()!.plan.durationDays }} days remaining
             </span>
           </div>
+          <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all"
+              [class.bg-red-500]="currentSubscription()!.daysRemaining <= 7"
+              [class.bg-blue-500]="currentSubscription()!.daysRemaining > 7"
+              [style.width.%]="(currentSubscription()!.daysRemaining / currentSubscription()!.plan.durationDays) * 100">
+            </div>
+          </div>
         </div>
+        }
+
       </div>
-      <p class="text-[12px] text-gray-500 mb-5">
-        By confirming, your organization will be subscribed to this plan. Any existing active subscription will be
-        replaced.
-      </p>
-      <div class="flex justify-end gap-3">
-        <button (click)="closeModal()"
-          class="px-4 py-2 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-          Cancel
+      }
+    </div>
+
+    <!-- AVAILABLE PLANS -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h2 class="text-[15px] font-semibold text-gray-900">Available plans</h2>
+          <p class="text-[11px] text-gray-400 mt-0.5">Compare and subscribe to a plan that suits your team</p>
+        </div>
+        <button (click)="loadActivePlans()"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all">
+          <lucide-icon [img]="RefreshCwIcon" [size]="12"></lucide-icon>
+          Refresh
         </button>
-        <button (click)="confirmSubscribe()" [disabled]="isSubscribing()"
-          class="px-5 py-2 bg-indigo-600 text-white text-[13px] font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
-          <span *ngIf="isSubscribing()"
-            class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-          Confirm Subscribe
-        </button>
+      </div>
+
+      <div class="p-6">
+
+        <!-- Skeleton loading -->
+        <div *ngIf="isPlansLoading()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div *ngFor="let _ of [1,2,3,4]" class="border border-gray-200 rounded-xl p-5 animate-pulse bg-gray-50 h-52">
+          </div>
+        </div>
+
+        <!-- Empty -->
+        <div *ngIf="!isPlansLoading() && activePlans().length === 0"
+          class="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/40 text-center">
+          <lucide-icon [img]="PackageIcon" [size]="30" class="text-gray-300 mb-3"></lucide-icon>
+          <p class="text-[13px] text-gray-400">No active plans available</p>
+          <p *ngIf="isAdmin()" class="text-[11px] text-gray-400 mt-1">Use "Create plan" to add packages</p>
+        </div>
+
+        <!-- Plan cards -->
+        <div *ngIf="!isPlansLoading() && activePlans().length > 0"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
+          <div *ngFor="let plan of activePlans()"
+            class="relative flex flex-col gap-4 border rounded-xl p-5 bg-white transition-all duration-200 hover:shadow-md"
+            [ngClass]="isCurrentPlan(plan.id)
+              ? 'border-blue-400 ring-2 ring-blue-500/20'
+              : getPlanAccentClass(plan.type).border">
+
+            <!-- Current plan badge -->
+            <div *ngIf="isCurrentPlan(plan.id)"
+              class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold px-3 py-0.5 rounded-full shadow-sm whitespace-nowrap">
+              Current plan
+            </div>
+
+            <!-- Plan type + icon -->
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                  [ngClass]="getPlanAccentClass(plan.type).badge">
+                  {{ plan.type }}
+                </span>
+                <h3 class="text-[14px] font-semibold text-gray-900 mt-2">{{ plan.name }}</h3>
+              </div>
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200"
+                [ngClass]="getPlanAccentClass(plan.type).iconBg">
+                <lucide-icon [img]="StarIcon" [size]="15"
+                  [ngClass]="getPlanAccentClass(plan.type).iconColor"></lucide-icon>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <p class="text-[11px] text-gray-400 leading-relaxed line-clamp-2 flex-1">{{ plan.description }}</p>
+
+            <!-- Meta chips -->
+            <div class="flex flex-wrap gap-1.5">
+              <span
+                class="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-[11px] text-gray-500 font-medium">
+                <lucide-icon [img]="UsersIcon" [size]="11" class="text-gray-400"></lucide-icon>
+                {{ plan.maxUsers }} users
+              </span>
+              <span
+                class="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-[11px] text-gray-500 font-medium">
+                <lucide-icon [img]="CalendarIcon" [size]="11" class="text-gray-400"></lucide-icon>
+                {{ plan.durationDays }}d
+              </span>
+            </div>
+
+            <!-- Price + action -->
+            <div class="pt-3 border-t border-gray-200 flex items-center justify-between">
+              <div>
+                <span class="text-[18px] font-bold text-gray-900">
+                  {{ plan.price === 0 ? 'Free' : ('₹' + plan.price) }}
+                </span>
+                <span *ngIf="plan.price > 0" class="text-[10px] text-gray-400 ml-1">/ {{ plan.durationDays }}d</span>
+              </div>
+              <button (click)="openSubscribeModal(plan)" [disabled]="isCurrentPlan(plan.id)"
+                class="px-3 py-1.5 text-[12px] font-semibold rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                [ngClass]="isCurrentPlan(plan.id)
+                  ? 'bg-gray-100 text-gray-400 border-gray-200'
+                  : getPlanAccentClass(plan.type).btn">
+                {{ isCurrentPlan(plan.id) ? 'Active' : 'Subscribe' }}
+              </button>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 </ng-template>
 
+<!-- SUBSCRIBE CONFIRM MODAL -->
+<ng-template #subscribeModal>
+  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/40">
+    <h3 class="text-[15px] font-semibold text-gray-900">Confirm subscription</h3>
+    <button (click)="closeModal()"
+      class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+      <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
+    </button>
+  </div>
 
-<!-- Cancel Confirm Modal -->
-<ng-template #cancelConfirmModal>
-  <div class="bg-white rounded-xl shadow-2xl w-full overflow-hidden border border-slate-200">
-    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-red-50/60">
-      <div class="flex items-center gap-2">
-        <lucide-icon [img]="AlertTriangleIcon" [size]="16" class="text-red-500"></lucide-icon>
-        <h3 class="text-[15px] font-bold text-slate-800">Cancel Subscription</h3>
+  @if (selectedPlan()) {
+  <div class="p-6">
+    <div class="flex items-start gap-4 p-4 rounded-xl border border-blue-200 bg-blue-50/50 mb-5">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+        [ngClass]="getPlanAccentClass(selectedPlan()!.type).iconBg">
+        <lucide-icon [img]="CrownIcon" [size]="18"
+          [ngClass]="getPlanAccentClass(selectedPlan()!.type).iconColor"></lucide-icon>
       </div>
+      <div>
+        <p class="text-[14px] font-semibold text-gray-900">{{ selectedPlan()!.name }}</p>
+        <p class="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{{ selectedPlan()!.description }}</p>
+        <div class="flex items-center gap-3 mt-2.5 flex-wrap">
+          <span
+            class="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold text-gray-600">
+            {{ selectedPlan()!.price === 0 ? 'Free' : '₹' + selectedPlan()!.price }}
+          </span>
+          <span
+            class="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-gray-200 rounded-lg text-[11px] text-gray-500">
+            <lucide-icon [img]="CalendarIcon" [size]="11" class="text-gray-400"></lucide-icon>
+            {{ selectedPlan()!.durationDays }} days
+          </span>
+          <span
+            class="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-gray-200 rounded-lg text-[11px] text-gray-500">
+            <lucide-icon [img]="UsersIcon" [size]="11" class="text-gray-400"></lucide-icon>
+            {{ selectedPlan()!.maxUsers }} users
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-2.5 p-3 bg-amber-50/60 border border-amber-200 rounded-xl mb-5">
+      <lucide-icon [img]="AlertTriangleIcon" [size]="13" class="text-amber-500 mt-0.5 shrink-0"></lucide-icon>
+      <p class="text-[11px] text-amber-700 leading-relaxed">
+        Any existing active subscription will be replaced when you confirm.
+      </p>
+    </div>
+
+    <div class="flex justify-end gap-3">
       <button (click)="closeModal()"
-        class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
+        class="px-4 py-2.5 text-[13px] font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+        Cancel
+      </button>
+      <button (click)="confirmSubscribe()" [disabled]="isSubscribing()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+        @if (isSubscribing()) {
+        <span class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        }
+        @else {
+        <lucide-icon [img]="CheckCircleIcon" [size]="13" class="text-white/80"></lucide-icon>
+        }
+        Confirm subscription
       </button>
     </div>
+  </div>
+  }
+</ng-template>
+
+<!-- CANCEL CONFIRM MODAL -->
+<ng-template #cancelSubscriptionModal>
+  <div class="bg-white w-full rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-red-50/50">
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="AlertTriangleIcon" [size]="15" class="text-red-500"></lucide-icon>
+        <h3 class="text-[15px] font-semibold text-gray-900">Cancel subscription</h3>
+      </div>
+      <button (click)="closeModal()"
+        class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-red-100 transition-colors">
+        <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
+      </button>
+    </div>
+
     <div class="p-6">
-      <p class="text-[13px] text-gray-600 mb-2">
+      <p class="text-[13px] text-gray-600 leading-relaxed mb-2">
         Are you sure you want to cancel your
-        <span class="font-semibold text-gray-900">{{ currentSubscription()?.plan?.name }}</span> subscription?
+        <span class="font-semibold text-gray-900">{{ currentSubscription()?.plan?.name }}</span> plan?
       </p>
-      <p class="text-[12px] text-red-500 mb-5">
-        This action cannot be undone. Access will remain until
-        <span class="font-semibold">{{ currentSubscription()?.endDate | date:'dd MMM yyyy' }}</span>.
-      </p>
+      <div class="flex items-start gap-2.5 p-3 bg-red-50 border border-red-200 rounded-xl mb-5 mt-3">
+        <lucide-icon [img]="AlertTriangleIcon" [size]="13" class="text-red-400 mt-0.5 shrink-0"></lucide-icon>
+        <p class="text-[11px] text-red-600 leading-relaxed">
+          This cannot be undone. Access will remain until
+          <span class="font-semibold">{{ currentSubscription()?.endDate | date:'dd MMM yyyy' }}</span>.
+        </p>
+      </div>
       <div class="flex justify-end gap-3">
         <button (click)="closeModal()"
-          class="px-4 py-2 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-          Keep Plan
+          class="px-4 py-2.5 text-[13px] font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+          Keep plan
         </button>
         <button (click)="confirmCancel()" [disabled]="isCancelling()"
-          class="px-5 py-2 bg-red-600 text-white text-[13px] font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
-          <span *ngIf="isCancelling()"
-            class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-          Yes, Cancel
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white text-[13px] font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+          @if (isCancelling()) {
+          <span class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          } @else {
+          <lucide-icon [img]="BanIcon" [size]="13" class="text-white/80"></lucide-icon>
+          }
+          Yes, cancel
         </button>
       </div>
     </div>
-  </div>
-</ng-template>
-
-
-<!-- Admin: Create Plan Modal -->
-<ng-template #createPlanModal>
-  <div class="bg-white rounded-xl shadow-2xl w-full overflow-hidden border border-slate-200">
-    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-      <div class="flex items-center gap-2">
-        <lucide-icon [img]="PlusIcon" [size]="15" class="text-indigo-500"></lucide-icon>
-        <h3 class="text-[15px] font-bold text-slate-800">Create Subscription Plan</h3>
-      </div>
-      <button (click)="closeModal()"
-        class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-    <form [formGroup]="createPlanForm" (ngSubmit)="onCreatePlan()" class="p-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-
-        <div class="sm:col-span-2 space-y-1.5">
-          <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
-            Plan Name <span class="text-red-400 normal-case">*</span>
-          </label>
-          <input type="text" formControlName="name" placeholder="e.g. Pro Monthly"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-          <p *ngIf="createPlanForm.get('name')?.invalid && createPlanForm.get('name')?.touched"
-            class="text-[10px] text-red-500">Name must be at least 3 characters</p>
-        </div>
-
-        <div class="sm:col-span-2 space-y-1.5">
-          <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
-            Description <span class="text-red-400 normal-case">*</span>
-          </label>
-          <textarea formControlName="description" rows="2" placeholder="Brief description of the plan features..."
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow resize-none"></textarea>
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
-            Plan Type <span class="text-red-400 normal-case">*</span>
-          </label>
-          <select formControlName="type"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow bg-white">
-            <option *ngFor="let t of planTypes" [value]="t">{{ t }}</option>
-          </select>
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
-            Price (₹) <span class="text-red-400 normal-case">*</span>
-          </label>
-          <input type="number" formControlName="price" min="0" placeholder="0 for free"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
-            Duration (Days) <span class="text-red-400 normal-case">*</span>
-          </label>
-          <input type="number" formControlName="durationDays" min="1" placeholder="30"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
-            Max Users <span class="text-red-400 normal-case">*</span>
-          </label>
-          <input type="number" formControlName="maxUsers" min="1" placeholder="5"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-        </div>
-
-        <div class="sm:col-span-2 flex items-center gap-3">
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" formControlName="isActive" class="sr-only peer">
-            <div
-              class="w-10 h-5 bg-slate-200 peer-checked:bg-indigo-600 rounded-full transition-colors duration-200 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-[18px] after:shadow-sm">
-            </div>
-          </label>
-          <span class="text-[12px] font-medium text-slate-600">Make plan active immediately</span>
-        </div>
-
-      </div>
-
-      <div class="pt-5 border-t border-slate-100 flex justify-end gap-3 mt-5">
-        <button type="button" (click)="closeModal()"
-          class="px-5 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-          Cancel
-        </button>
-        <button type="submit" [disabled]="isCreatingPlan() || createPlanForm.invalid"
-          class="px-5 py-2.5 bg-indigo-600 text-white text-[13px] font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
-          <span *ngIf="isCreatingPlan()"
-            class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-          Create Plan
-        </button>
-      </div>
-    </form>
   </div>
 </ng-template>
