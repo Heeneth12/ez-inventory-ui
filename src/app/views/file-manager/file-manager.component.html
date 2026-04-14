@@ -1,0 +1,535 @@
+<div class="bg-[#F4F5F7] min-h-full p-1 flex flex-col gap-3">
+
+  <!-- Header -->
+  <div class="bg-white rounded-lg border border-gray-100 shadow-sm px-6 py-4">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
+          <lucide-icon [img]="FolderOpenIcon" [size]="18" class="text-blue-600"></lucide-icon>
+        </div>
+        <div>
+          <h1 class="text-[15px] font-bold text-gray-900">File Manager</h1>
+          <p class="text-[11px] text-gray-400 mt-0.5">
+            {{ filteredFiles().length }} file{{ filteredFiles().length !== 1 ? 's' : '' }}
+            &nbsp;·&nbsp;{{ totalSizeDisplay() }} total
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <!-- View toggle -->
+        <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+          <button (click)="setViewMode('grid')" class="px-2.5 py-1.5 transition-colors"
+            [ngClass]="viewMode() === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'">
+            <lucide-icon [img]="GridIcon" [size]="15"></lucide-icon>
+          </button>
+          <button (click)="setViewMode('list')" class="px-2.5 py-1.5 transition-colors border-l border-gray-200"
+            [ngClass]="viewMode() === 'list' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'">
+            <lucide-icon [img]="ListIcon" [size]="15"></lucide-icon>
+          </button>
+        </div>
+        <!-- Refresh -->
+        <button (click)="loadFiles()"
+          class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200"
+          title="Refresh">
+          <lucide-icon [img]="RefreshCwIcon" [size]="15" [ngClass]="isLoading() ? 'animate-spin' : ''"></lucide-icon>
+        </button>
+        <!-- Upload -->
+        <button (click)="openUploadModal()"
+          class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-[13px] font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+          <lucide-icon [img]="UploadIcon" [size]="14"></lucide-icon>
+          Upload File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Filters -->
+  <div class="bg-white rounded-lg border border-gray-100 shadow-sm px-4 py-3">
+    <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+      <!-- Search -->
+      <div class="relative flex-1 min-w-0">
+        <lucide-icon [img]="SearchIcon" [size]="14"
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></lucide-icon>
+        <input type="text" placeholder="Search by name, description, tags, reference ID…" [value]="searchTerm()"
+          (input)="onSearch($event)"
+          class="w-full pl-9 pr-4 py-2 text-[13px] border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+      </div>
+      <!-- Reference Type Filter -->
+      <select [value]="filterRefType()" (change)="filterRefType.set($any($event.target).value)"
+        class="border border-gray-200 rounded-lg px-3 py-2 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white text-gray-600 min-w-[150px]">
+        <option value="">All Reference Types</option>
+        <option *ngFor="let t of referenceTypes" [value]="t">{{ labelFor(t) }}</option>
+      </select>
+      <!-- File Type Filter -->
+      <select [value]="filterFileType()" (change)="filterFileType.set($any($event.target).value)"
+        class="border border-gray-200 rounded-lg px-3 py-2 text-[12px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white text-gray-600 min-w-[160px]">
+        <option value="">All File Types</option>
+        <option *ngFor="let t of fileTypes" [value]="t">{{ labelFor(t) }}</option>
+      </select>
+      <!-- Clear Filters -->
+      <button *ngIf="hasActiveFilters()" (click)="clearFilters()"
+        class="flex items-center gap-1.5 text-[12px] text-red-500 hover:text-red-700 px-3 py-2 border border-red-200 rounded-lg bg-red-50 hover:bg-red-100 transition-colors whitespace-nowrap">
+        <lucide-icon [img]="XIcon" [size]="12"></lucide-icon>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1">
+
+    <!-- Loading -->
+    <div *ngIf="isLoading()"
+      class="bg-white rounded-lg border border-gray-100 p-12 flex flex-col items-center gap-3 shadow-sm">
+      <div class="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+      <p class="text-[13px] text-gray-400">Loading files…</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading() && filteredFiles().length === 0"
+      class="bg-white rounded-lg border border-gray-100 shadow-sm p-14 flex flex-col items-center gap-3">
+      <div
+        class="w-16 h-16 rounded-full bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center">
+        <lucide-icon [img]="FolderOpenIcon" [size]="28" class="text-gray-300"></lucide-icon>
+      </div>
+      <p class="text-[14px] font-semibold text-gray-500">
+        {{ hasActiveFilters() ? 'No files match your filters' : 'No files uploaded yet' }}
+      </p>
+      <p class="text-[12px] text-gray-400">
+        {{ hasActiveFilters() ? 'Try adjusting your search or filters' : 'Click Upload File to get started' }}
+      </p>
+      <button *ngIf="!hasActiveFilters()" (click)="openUploadModal()"
+        class="mt-2 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-[13px] font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+        <lucide-icon [img]="UploadIcon" [size]="14"></lucide-icon>
+        Upload File
+      </button>
+    </div>
+
+    <!-- ── GRID VIEW ── -->
+    <div *ngIf="!isLoading() && filteredFiles().length > 0 && viewMode() === 'grid'"
+      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+
+      <div *ngFor="let file of filteredFiles()"
+        class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-200 flex flex-col overflow-hidden group">
+
+        <!-- File Preview / Icon area -->
+        <div class="relative h-28 flex items-center justify-center border-b border-gray-100"
+          [ngClass]="getFileIconBg(file.mimeType)">
+          <!-- Image thumbnail -->
+          <img *ngIf="isImage(file.mimeType) && file.preSignedUrl" [src]="file.preSignedUrl"
+            [alt]="file.originalFileName" class="h-full w-full object-cover">
+          <!-- Icon fallback -->
+          <lucide-icon *ngIf="!isImage(file.mimeType) || !file.preSignedUrl" [img]="getFileIcon(file.mimeType)"
+            [size]="36" [ngClass]="getFileIconClass(file.mimeType)">
+          </lucide-icon>
+
+          <!-- Hover Actions overlay -->
+          <div
+            class="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button (click)="openPreview(file)"
+              class="p-1.5 bg-white rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
+              title="Preview">
+              <lucide-icon [img]="EyeIcon" [size]="14"></lucide-icon>
+            </button>
+            <button (click)="downloadFile(file)"
+              class="p-1.5 bg-white rounded-lg text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors shadow-sm"
+              title="Download">
+              <lucide-icon [img]="DownloadIcon" [size]="14"></lucide-icon>
+            </button>
+            <button (click)="openDeleteModal(file)"
+              class="p-1.5 bg-white rounded-lg text-gray-700 hover:text-red-600 hover:bg-red-50 transition-colors shadow-sm"
+              title="Delete">
+              <lucide-icon [img]="Trash2Icon" [size]="14"></lucide-icon>
+            </button>
+          </div>
+
+          <!-- Public badge -->
+          <span *ngIf="file.isPublic"
+            class="absolute top-2 right-2 bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+            PUBLIC
+          </span>
+        </div>
+
+        <!-- File Info -->
+        <div class="p-3 flex flex-col gap-1.5 flex-1">
+          <p class="text-[12px] font-semibold text-gray-800 truncate" [title]="file.originalFileName">
+            {{ file.originalFileName }}
+          </p>
+          <div class="flex items-center gap-1 flex-wrap">
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">
+              {{ labelFor(file.referenceType) }}
+            </span>
+          </div>
+          <div class="flex items-center justify-between mt-auto pt-1">
+            <span class="text-[10px] text-gray-400">{{ formatBytes(file.fileSizeBytes) }}</span>
+            <span class="text-[10px] text-gray-400">{{ file.createdAt | date:'dd MMM yy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LIST VIEW ── -->
+    <div *ngIf="!isLoading() && filteredFiles().length > 0 && viewMode() === 'list'"
+      class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+
+      <!-- Table Header -->
+      <div
+        class="grid grid-cols-12 gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+        <div class="col-span-4">File Name</div>
+        <div class="col-span-2">Reference Type</div>
+        <div class="col-span-2">File Type</div>
+        <div class="col-span-1">Size</div>
+        <div class="col-span-2">Uploaded</div>
+        <div class="col-span-1 text-right">Actions</div>
+      </div>
+
+      <!-- Rows -->
+      <div *ngFor="let file of filteredFiles(); let last = last"
+        class="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-gray-50/70 transition-colors"
+        [ngClass]="!last ? 'border-b border-gray-50' : ''">
+
+        <!-- File Name -->
+        <div class="col-span-4 flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+            [ngClass]="getFileIconBg(file.mimeType)">
+            <lucide-icon [img]="getFileIcon(file.mimeType)" [size]="15"
+              [ngClass]="getFileIconClass(file.mimeType)"></lucide-icon>
+          </div>
+          <div class="min-w-0">
+            <p class="text-[12px] font-semibold text-gray-800 truncate" [title]="file.originalFileName">
+              {{ file.originalFileName }}
+            </p>
+            <p *ngIf="file.description" class="text-[10px] text-gray-400 truncate">{{ file.description }}</p>
+          </div>
+        </div>
+
+        <!-- Reference Type -->
+        <div class="col-span-2">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-600">
+            {{ labelFor(file.referenceType) }}
+          </span>
+        </div>
+
+        <!-- File Type -->
+        <div class="col-span-2">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-600">
+            {{ labelFor(file.fileType) }}
+          </span>
+        </div>
+
+        <!-- Size -->
+        <div class="col-span-1 text-[11px] text-gray-500">{{ formatBytes(file.fileSizeBytes) }}</div>
+
+        <!-- Date -->
+        <div class="col-span-2">
+          <p class="text-[11px] text-gray-600">{{ file.createdAt | date:'dd MMM yyyy' }}</p>
+          <p class="text-[10px] text-gray-400">{{ file.uploadedBy }}</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="col-span-1 flex items-center justify-end gap-1">
+          <button (click)="openPreview(file)"
+            class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            title="Preview">
+            <lucide-icon [img]="EyeIcon" [size]="14"></lucide-icon>
+          </button>
+          <button (click)="downloadFile(file)"
+            class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+            title="Download">
+            <lucide-icon [img]="DownloadIcon" [size]="14"></lucide-icon>
+          </button>
+          <button (click)="openDeleteModal(file)"
+            class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+            <lucide-icon [img]="Trash2Icon" [size]="14"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     UPLOAD MODAL
+════════════════════════════════════════════════════════════════════════════ -->
+<ng-template #uploadModal>
+  <div class="bg-white rounded-xl shadow-2xl w-full overflow-hidden border border-slate-200">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="UploadIcon" [size]="15" class="text-blue-500"></lucide-icon>
+        <h3 class="text-[15px] font-bold text-slate-800">Upload File</h3>
+      </div>
+      <button (click)="closeModal()"
+        class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6">
+      <!-- Drop Zone -->
+      <div (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)"
+        class="border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 mb-5 cursor-pointer"
+        [ngClass]="isDragOver() ? 'border-blue-400 bg-blue-50' : (uploadFileName() ? 'border-green-400 bg-green-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/30')"
+        (click)="fileInput.click()">
+        <input #fileInput type="file" class="hidden" (change)="onFileSelected($event)">
+
+        <div *ngIf="!uploadFileName()" class="flex flex-col items-center gap-2">
+          <lucide-icon [img]="UploadIcon" [size]="30" class="text-gray-300"></lucide-icon>
+          <p class="text-[13px] font-semibold text-gray-600">Drag & drop or click to select file</p>
+          <p class="text-[11px] text-gray-400">Any file type · Max 50 MB</p>
+        </div>
+        <div *ngIf="uploadFileName()" class="flex flex-col items-center gap-2">
+          <lucide-icon [img]="CheckCircleIcon" [size]="28" class="text-green-500"></lucide-icon>
+          <p class="text-[13px] font-semibold text-green-700">{{ uploadFileName() }}</p>
+          <p class="text-[11px] text-gray-400">Click to change file</p>
+        </div>
+      </div>
+
+      <!-- Metadata Form -->
+      <form [formGroup]="uploadForm" (ngSubmit)="onUpload()">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
+              Reference ID <span class="text-red-400 normal-case">*</span>
+            </label>
+            <input type="text" formControlName="referenceId" placeholder="UUID of the owning entity"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
+              Reference Type <span class="text-red-400 normal-case">*</span>
+            </label>
+            <select formControlName="referenceType"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white transition-shadow">
+              <option *ngFor="let t of referenceTypes" [value]="t">{{ labelFor(t) }}</option>
+            </select>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">
+              File Type <span class="text-red-400 normal-case">*</span>
+            </label>
+            <select formControlName="fileType"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white transition-shadow">
+              <option *ngFor="let t of fileTypes" [value]="t">{{ labelFor(t) }}</option>
+            </select>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Description</label>
+            <input type="text" formControlName="description" placeholder="Optional description"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide flex items-center gap-1">
+              <lucide-icon [img]="TagIcon" [size]="11"></lucide-icon> Tags
+            </label>
+            <input type="text" formControlName="tags" placeholder="comma-separated tags"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+          </div>
+
+          <div class="flex items-center gap-3 pt-4">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" formControlName="isPublic" class="sr-only peer">
+              <div
+                class="w-10 h-5 bg-slate-200 peer-checked:bg-blue-600 rounded-full transition-colors duration-200 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-[18px] after:shadow-sm">
+              </div>
+            </label>
+            <span class="text-[12px] font-medium text-slate-600">Public file (no auth required)</span>
+          </div>
+
+        </div>
+
+        <div class="pt-5 border-t border-slate-100 flex justify-end gap-3 mt-5">
+          <button type="button" (click)="closeModal()"
+            class="px-5 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="isUploading() || uploadForm.invalid || !selectedUploadFile"
+            class="px-5 py-2.5 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
+            <span *ngIf="isUploading()"
+              class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            {{ isUploading() ? 'Uploading…' : 'Upload File' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PREVIEW MODAL
+════════════════════════════════════════════════════════════════════════════ -->
+<ng-template #previewModal>
+  <div class="bg-white rounded-xl shadow-2xl w-full overflow-hidden border border-slate-200" *ngIf="selectedFile()">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+          [ngClass]="getFileIconBg(selectedFile()!.mimeType)">
+          <lucide-icon [img]="getFileIcon(selectedFile()!.mimeType)" [size]="14"
+            [ngClass]="getFileIconClass(selectedFile()!.mimeType)"></lucide-icon>
+        </div>
+        <h3 class="text-[14px] font-bold text-slate-800 truncate">{{ selectedFile()!.originalFileName }}</h3>
+      </div>
+      <button (click)="closeModal()"
+        class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 flex flex-col gap-5">
+      <!-- File Meta Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p class="text-[10px] font-semibold text-gray-400 uppercase mb-1">Reference Type</p>
+          <p class="text-[12px] font-bold text-gray-700">{{ labelFor(selectedFile()!.referenceType) }}</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p class="text-[10px] font-semibold text-gray-400 uppercase mb-1">File Type</p>
+          <p class="text-[12px] font-bold text-gray-700">{{ labelFor(selectedFile()!.fileType) }}</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p class="text-[10px] font-semibold text-gray-400 uppercase mb-1">File Size</p>
+          <p class="text-[12px] font-bold text-gray-700">{{ formatBytes(selectedFile()!.fileSizeBytes) }}</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p class="text-[10px] font-semibold text-gray-400 uppercase mb-1">MIME Type</p>
+          <p class="text-[12px] font-bold text-gray-700">{{ selectedFile()!.mimeType || '—' }}</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p class="text-[10px] font-semibold text-gray-400 uppercase mb-1">Uploaded By</p>
+          <p class="text-[12px] font-bold text-gray-700">{{ selectedFile()!.uploadedBy || '—' }}</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p class="text-[10px] font-semibold text-gray-400 uppercase mb-1">Uploaded On</p>
+          <p class="text-[12px] font-bold text-gray-700">{{ selectedFile()!.createdAt | date:'dd MMM yyyy, HH:mm' }}</p>
+        </div>
+        <div *ngIf="selectedFile()!.description"
+          class="col-span-2 sm:col-span-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p class="text-[10px] font-semibold text-gray-400 uppercase mb-1">Description</p>
+          <p class="text-[12px] text-gray-700">{{ selectedFile()!.description }}</p>
+        </div>
+        <div *ngIf="selectedFile()!.tags"
+          class="col-span-2 sm:col-span-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p class="text-[10px] font-semibold text-gray-400 uppercase mb-1 flex items-center gap-1">
+            <lucide-icon [img]="TagIcon" [size]="10"></lucide-icon> Tags
+          </p>
+          <div class="flex flex-wrap gap-1 mt-1">
+            <span *ngFor="let tag of selectedFile()!.tags!.split(',')"
+              class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+              {{ tag.trim() }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Presigned URL Section -->
+      <div class="border border-gray-200 rounded-xl overflow-hidden">
+        <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
+          <lucide-icon [img]="LinkIcon" [size]="13" class="text-gray-500"></lucide-icon>
+          <span class="text-[12px] font-semibold text-gray-600">Pre-signed Download URL</span>
+          <span class="ml-auto flex items-center gap-1 text-[10px] text-amber-600 font-medium">
+            <lucide-icon [img]="ClockIcon" [size]="10"></lucide-icon>
+            Expires in 60 min
+          </span>
+        </div>
+        <div class="p-4">
+          <div *ngIf="isLoadingPresigned()" class="flex items-center gap-2">
+            <div class="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <span class="text-[12px] text-gray-400">Generating link…</span>
+          </div>
+          <div *ngIf="!isLoadingPresigned() && presignedUrl()" class="flex gap-2">
+            <input type="text" [value]="presignedUrl()!" readonly
+              class="flex-1 min-w-0 border border-gray-200 rounded-lg px-3 py-2 text-[11px] text-gray-600 bg-gray-50 outline-none">
+            <button (click)="copyPresignedLink()"
+              class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-[12px] font-medium rounded-lg transition-colors whitespace-nowrap">
+              Copy
+            </button>
+            <button (click)="openInNewTab()"
+              class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-lg transition-colors whitespace-nowrap">
+              Open
+            </button>
+          </div>
+          <p *ngIf="!isLoadingPresigned() && !presignedUrl()" class="text-[12px] text-red-500">
+            Could not generate URL
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <button (click)="openDeleteModal(selectedFile()!); closeModal()"
+          class="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+          <lucide-icon [img]="Trash2Icon" [size]="14"></lucide-icon>
+          Delete File
+        </button>
+        <button (click)="downloadFile(selectedFile()!)"
+          class="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+          <lucide-icon [img]="DownloadIcon" [size]="14"></lucide-icon>
+          Download
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     DELETE CONFIRM MODAL
+════════════════════════════════════════════════════════════════════════════ -->
+<ng-template #deleteModal>
+  <div class="bg-white rounded-xl shadow-2xl w-full overflow-hidden border border-slate-200">
+    <div class="px-6 py-4 border-b border-red-100 flex items-center gap-2 bg-red-50/60">
+      <lucide-icon [img]="AlertTriangleIcon" [size]="16" class="text-red-500"></lucide-icon>
+      <h3 class="text-[15px] font-bold text-slate-800">
+        {{ deleteMode() === 'permanent' ? 'Permanently Delete File' : 'Delete File' }}
+      </h3>
+    </div>
+    <div class="p-6" *ngIf="fileToDelete()">
+      <p class="text-[13px] text-gray-600 mb-1">
+        Are you sure you want to delete
+        <span class="font-semibold text-gray-900">{{ fileToDelete()!.originalFileName }}</span>?
+      </p>
+      <p *ngIf="deleteMode() === 'soft'" class="text-[12px] text-gray-400 mb-5">
+        The file will be marked as deleted. The S3 object is retained.
+      </p>
+      <p *ngIf="deleteMode() === 'permanent'" class="text-[12px] text-red-500 mb-5">
+        This will permanently remove the file from S3 and the database. This cannot be undone.
+      </p>
+
+      <!-- Toggle permanent delete -->
+      <div class="flex items-center gap-2 mb-5 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" class="sr-only peer" [checked]="deleteMode() === 'permanent'"
+            (change)="deleteMode.set($any($event.target).checked ? 'permanent' : 'soft')">
+          <div
+            class="w-9 h-5 bg-slate-200 peer-checked:bg-red-500 rounded-full transition-colors duration-200 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-[16px] after:shadow-sm">
+          </div>
+        </label>
+        <span class="text-[12px] font-medium text-slate-600">Permanent delete (also removes from S3)</span>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button (click)="closeModal()"
+          class="px-4 py-2 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+          Cancel
+        </button>
+        <button (click)="confirmDelete()" [disabled]="isDeletingUuid() === fileToDelete()!.uuid"
+          class="px-5 py-2 bg-red-600 text-white text-[13px] font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
+          <span *ngIf="isDeletingUuid() === fileToDelete()!.uuid"
+            class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          {{ deleteMode() === 'permanent' ? 'Delete Permanently' : 'Delete File' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
