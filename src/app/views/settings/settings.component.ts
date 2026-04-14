@@ -11,6 +11,7 @@ import { ProfileComponent } from '../../layouts/components/profile/profile.compo
 import { TabCardComponent, TabItem } from '../../layouts/UI/tab-card/tab-card.component';
 import { LucideAngularModule, User, Briefcase, Sliders, CreditCard } from 'lucide-angular';
 import { SubscriptionsComponent } from "../../layouts/components/subscriptions/subscriptions.component";
+import { TenantComponent } from "../../layouts/components/tenant/tenant.component";
 
 // Defined tabs based on your request
 type Tab = 'Profile' | 'Business' | 'Preferences' | 'Billing';
@@ -18,7 +19,7 @@ type Tab = 'Profile' | 'Business' | 'Preferences' | 'Billing';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ProfileComponent, TabCardComponent, LucideAngularModule, SubscriptionsComponent],
+  imports: [CommonModule, ReactiveFormsModule, ProfileComponent, TabCardComponent, LucideAngularModule, SubscriptionsComponent, TenantComponent],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
