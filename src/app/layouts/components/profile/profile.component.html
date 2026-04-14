@@ -1,349 +1,656 @@
-<div class="bg-[#F4F5F7]">
-    <div class="flex flex-col">
-        <div class="bg-white border border-gray-100 p-8">
-            <h2 class="text-xl font-bold text-gray-900 tracking-tight flex items-center mb-6">Personal Information</h2>
+<div class="bg-gray-50/60 p-2">
+    <div class="space-y-2">
 
-            <form [formGroup]="personalForm" (ngSubmit)="onSavePersonal()"
-                class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                <!-- Left Column: Personal Info & Avatar -->
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="flex flex-col md:flex-row gap-6">
-                        <!-- Avatar -->
-                        <div
-                            class="w-32 h-32 shrink-0 border-2 border-dashed border-blue-400 rounded flex flex-col items-center justify-center bg-blue-50/30 text-blue-600 cursor-pointer hover:bg-blue-50 transition relative overflow-hidden group">
-                            <div *ngIf="!user()?.fullName" class="flex flex-col items-center">
-                                <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span class="text-[10px] font-bold">Upload Photo</span>
-                                <span class="text-[9px] text-gray-400">PNG/JPG, max 5 MB.</span>
-                            </div>
-                            <!-- If User Initials/Photo exists (simulated as text placeholder) -->
-                            <div *ngIf="user()?.fullName"
-                                class="absolute inset-0 bg-blue-600 text-white flex items-center justify-center text-5xl font-bold">
-                                {{ user()?.fullName?.charAt(0) || 'U' }}
-                            </div>
-                            <!-- Hover Overlay for photo update -->
-                            <div *ngIf="user()?.fullName"
-                                class="absolute inset-0 bg-black/50 text-white flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity flex">
-                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <span class="text-[10px] font-bold">Change</span>
-                            </div>
-                        </div>
+        <!-- User Profile -->
+        <ng-component [ngTemplateOutlet]="userProfileTemplate"></ng-component>
 
-                        <!-- Form Inputs next to Avatar -->
-                        <div class="flex-1 space-y-4">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Full Name <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" formControlName="fullName" placeholder="Enter your full name"
-                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all">
-                            </div>
+        <!-- Notification preferences -->
+        <ng-component [ngTemplateOutlet]="notificationTemplate"></ng-component>
 
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Phone Number <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" formControlName="phone" placeholder="91 98765 43210"
-                                    class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all">
-                            </div>
+        <!-- Document Verification -->
+        <ng-component [ngTemplateOutlet]="documentVerificationTemplate"></ng-component>
 
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Email Address</label>
-                                <div class="relative">
-                                    <input type="email" formControlName="email"
-                                        class="w-full border border-gray-200 rounded px-3 py-2 pr-20 text-sm bg-gray-50 text-gray-500 cursor-not-allowed outline-none border-transparent">
-                                    <div
-                                        class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">
-                                        <lucide-icon [img]="CheckCircleIcon" [size]="10"
-                                            class="text-green-500"></lucide-icon>
-                                        Verified
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Privacy & Data -->
+        <ng-component [ngTemplateOutlet]="privacyDataTemplate"></ng-component>
 
-                    <!-- Additional Details (Roles, App Access) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">User Role</label>
-                            <input type="text" [value]="userDetails()?.roles?.join(', ') || 'No Role Assigned'" disabled
-                                class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-50 text-gray-500 cursor-not-allowed outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">User Type</label>
-                            <input type="text" [value]="userDetails()?.userType || 'N/A'" disabled
-                                class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-50 text-gray-500 cursor-not-allowed outline-none">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Application Access</label>
-                            <input type="text" value="Inventory Management" disabled
-                                class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-50 text-gray-500 cursor-not-allowed outline-none">
-                        </div>
-                    </div>
-
-                    <div class="pt-4 flex items-center justify-between border-t border-gray-100">
-                        <button type="button" (click)="openSecurityModal()"
-                            class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1.5 transition-colors">
-                            <lucide-icon [img]="KeyIcon" [size]="14"></lucide-icon> Update Password
-                        </button>
-
-                        <button type="submit" [disabled]="personalForm.invalid || isSavingPersonal()"
-                            class="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
-                            <span *ngIf="isSavingPersonal()"
-                                class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                            <span>{{ isSavingPersonal() ? 'Saving...' : 'Save Changes' }}</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Right Column: Addresses -->
-                <div class="lg:col-span-5">
-                    <div class="border border-gray-100 rounded-lg p-5 bg-gray-50/40 h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700">Saved Addresses</label>
-                                <p class="text-[10px] text-gray-500 mt-0.5">Manage your personal and office locations.
-                                </p>
-                            </div>
-                            <button type="button" (click)="openFromAddress()"
-                                class="text-xs bg-white border border-gray-200 text-blue-600 hover:text-blue-700 hover:bg-gray-50 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center gap-1.5 shadow-sm">
-                                <span class="text-lg leading-none relative top-[-1px]">+</span> Add Address
-                            </button>
-                        </div>
-
-                        <div class="space-y-3 flex-1 overflow-y-auto pr-1">
-                            <div *ngIf="!userDetails()?.addresses?.length"
-                                class="text-xs text-gray-400 p-6 border-2 border-dashed border-gray-200 rounded-lg text-center bg-white h-full flex flex-col justify-center">
-                                No addresses added yet. Click 'Add Address' to create one.
-                            </div>
-                            <div *ngFor="let addr of userDetails()?.addresses"
-                                class="p-4 border border-gray-200 rounded-lg flex justify-between items-start bg-white shadow-sm hover:border-blue-300 transition-colors group">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span
-                                            class="inline-block text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold tracking-wide border border-blue-100">{{
-                                            addr.type }}</span>
-                                    </div>
-                                    <p class="text-xs font-semibold text-gray-800">{{ addr.addressLine1 }} <span
-                                            *ngIf="addr.addressLine2">, {{ addr.addressLine2 }}</span></p>
-                                    <p class="text-[11px] text-gray-500 mt-1">{{ addr.city }}, {{ addr.state }}, {{
-                                        addr.country }} - <span class="font-medium text-gray-700">{{ addr.pinCode
-                                            }}</span></p>
-                                </div>
-                                <button type="button" (click)="openFromAddress(addr)"
-                                    class="text-gray-400 hover:text-blue-600 transition-colors p-1.5 opacity-0 group-hover:opacity-100 rounded-md hover:bg-blue-50">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Notifications Section -->
-        <section id="notifications" class="bg-white border border-slate-200 overflow-hidden">
-            <div class="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100 bg-slate-50/60">
-                <div class="w-7 h-7 rounded-lg bg-sky-100 flex items-center justify-center">
-                    <lucide-icon [img]="BellIcon" class="w-3.5 h-3.5 text-sky-600" [size]="14"></lucide-icon>
-                </div>
-                <div>
-                    <h2 class="text-[13px] font-semibold text-slate-800">Notification Preferences</h2>
-                    <p class="text-[11px] text-slate-400">Control what alerts and updates you receive</p>
-                </div>
-            </div>
-
-            <div class="divide-y divide-slate-100">
-
-                <!-- System Alerts -->
-                <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-                    <div class="flex items-center gap-3.5">
-                        <div
-                            class="w-9 h-9 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
-                            <lucide-icon [img]="ShieldAlertIcon" class="text-red-500" [size]="16"></lucide-icon>
-                        </div>
-                        <div>
-                            <p class="text-[13px] font-semibold text-slate-800">System Alerts</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Critical inventory and system notifications
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[11px] text-slate-400 hidden sm:inline">Enabled</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked class="sr-only peer">
-                            <div
-                                class="w-10 h-5.5 bg-slate-200 peer-checked:bg-indigo-600 rounded-full transition-colors duration-200 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-[18px] after:shadow-sm">
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Marketing -->
-                <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-                    <div class="flex items-center gap-3.5">
-                        <div
-                            class="w-9 h-9 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0">
-                            <lucide-icon [img]="BellIcon" class="text-sky-500" [size]="16"></lucide-icon>
-                        </div>
-                        <div>
-                            <p class="text-[13px] font-semibold text-slate-800">Marketing Updates</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">New features, tips, and community insights
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[11px] text-slate-400 hidden sm:inline">Disabled</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer">
-                            <div
-                                class="w-10 h-5.5 bg-slate-200 peer-checked:bg-indigo-600 rounded-full transition-colors duration-200 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-[18px] after:shadow-sm">
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="px-6 py-3 bg-slate-50/50">
-                    <p class="text-[11px] text-slate-400">Changes to notification preferences are saved
-                        automatically.</p>
-                </div>
-            </div>
-        </section>
     </div>
 </div>
 
 
-<ng-template #addressModal let-modal>
-    <div class="bg-white rounded-xl shadow-2xl w-full overflow-hidden border border-slate-200">
-        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-            <h3 class="text-lg font-bold text-slate-800">{{ editingAddressId() ? 'Edit Address' : 'Add New Address' }}
-            </h3>
-            <button type="button" (click)="closeAddressModal()"
-                class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+<!-- User Profile -->
+<ng-template #userProfileTemplate>
+    <div class="bg-white border border-slate-300/50 rounded-lg shadow-sm overflow-hidden">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-300/50 flex items-center justify-between">
+            <div>
+                <h2 class="text-[16px] font-semibold text-slate-900">Profile</h2>
+                <p class="text-[11px] text-slate-400 mt-0.5">Manage your personal information and security</p>
+            </div>
+
+            <!-- View mode: Edit button -->
+            <button *ngIf="!isEditMode()" (click)="enterEditMode()"
+                class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all">
+                <lucide-icon [img]="EditIcon" [size]="13" class="text-gray-500"></lucide-icon>
+                Edit profile
+            </button>
+
+            <!-- Edit mode: Cancel -->
+            <button *ngIf="isEditMode()" (click)="cancelEdit()"
+                class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+                <lucide-icon [img]="XIcon" [size]="13"></lucide-icon>
+                Cancel
             </button>
         </div>
-        <form [formGroup]="addressForm" (ngSubmit)="onSaveAddress()" class="p-6 space-y-5">
-            <div class="grid grid-cols-2 gap-5">
-                <div class="col-span-2 space-y-1.5">
-                    <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Address Type</label>
-                    <select formControlName="type"
-                        class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow bg-white">
-                        <option value="HOME">Home</option>
-                        <option value="OFFICE">Office</option>
-                        <option value="BILLING">Billing</option>
-                        <option value="SHIPPING">Shipping</option>
-                        <option value="WAREHOUSE">Warehouse</option>
-                    </select>
+
+        <form [formGroup]="personalForm" (ngSubmit)="onSavePersonal()">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+
+                <!-- ───── Left: Personal Info ───── -->
+                <div class="lg:col-span-7 p-6 space-y-6">
+
+                    <!-- Avatar + name row -->
+                    <div class="flex items-center gap-5">
+
+                        <!-- Avatar with conditional pen overlay -->
+                        <div class="relative shrink-0 group">
+                            <div
+                                class="w-[100px] h-[100px] rounded-full overflow-hidden border-2 border-white ring-1 ring-gray-200 bg-blue-100 flex items-center justify-center text-blue-700 text-2xl font-semibold select-none">
+                                <img *ngIf="profilePicUrl()" [src]="profilePicUrl()" alt="Profile"
+                                    class="w-full h-full object-cover">
+                                <span *ngIf="!profilePicUrl()">{{ userInitials }}</span>
+
+                                <!-- Spinner overlay while uploading -->
+                                <div *ngIf="isUploading()"
+                                    class="absolute inset-0 bg-white/70 flex items-center justify-center rounded-full">
+                                    <div
+                                        class="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Camera pen badge — only in edit mode -->
+                            <button *ngIf="isEditMode()" type="button" (click)="fileInput.click()"
+                                class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center shadow-sm hover:bg-blue-700 transition-colors">
+                                <lucide-icon [img]="CameraIcon" [size]="11" class="text-white"></lucide-icon>
+                            </button>
+                            <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*"
+                                class="hidden">
+                        </div>
+
+                        <!-- Name / role summary -->
+                        <div class="min-w-0">
+                            <div class="text-[22px] font-semibold text-gray-900 truncate">
+                                {{ user()?.fullName || '—' }}
+                            </div>
+                            <!-- <div class="text-[12px] text-gray-400 mt-0.5">
+                                    {{ userDetails()?.userType || 'Employee' }} · Inventory Management
+                                </div> -->
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                                <span *ngFor="let role of userDetails()?.roles"
+                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                    {{ role }}
+                                </span>
+                                <span *ngIf="!userDetails()?.roles?.length"
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-500">
+                                    No roles
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fields grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <!-- Full name -->
+                        <div class="space-y-1">
+                            <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                                Full name <span class="text-red-400 normal-case">*</span>
+                            </label>
+                            <input type="text" formControlName="fullName" placeholder="Enter full name"
+                                [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
+                                [class.cursor-default]="!isEditMode()" [class.focus\:ring-0]="!isEditMode()"
+                                [readOnly]="!isEditMode()" class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 transition-all outline-none
+                         focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
+                         border-gray-200 bg-white">
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="space-y-1">
+                            <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                                Phone <span class="text-red-400 normal-case">*</span>
+                            </label>
+                            <input type="text" formControlName="phone" placeholder="+91 98765 43210"
+                                [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
+                                [class.cursor-default]="!isEditMode()" [readOnly]="!isEditMode()" class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 transition-all outline-none
+                         focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
+                         border-gray-200 bg-white">
+                        </div>
+
+                        <!-- Email (always read-only) -->
+                        <div class="space-y-1 sm:col-span-2">
+                            <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Email
+                                address</label>
+                            <div class="relative">
+                                <input type="email" formControlName="email"
+                                    class="w-full border border-gray-100 rounded-lg px-3 py-2 pr-24 text-[13px] text-gray-400 bg-gray-50 cursor-not-allowed outline-none">
+                                <span
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-50 text-green-700 border border-green-100">
+                                    <lucide-icon [img]="CheckCircleIcon" [size]="10"
+                                        class="text-green-500"></lucide-icon>
+                                    Verified
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ── Change Password (edit mode only) ── -->
+                    <div *ngIf="isEditMode()" class="border border-dashed border-gray-200 rounded-xl overflow-hidden">
+                        <button type="button" (click)="togglePasswordFields()"
+                            class="w-full flex items-center justify-between px-4 py-3 text-[13px] font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <lucide-icon [img]="LockIcon" [size]="13" class="text-gray-400"></lucide-icon>
+                                Change password
+                            </span>
+                            <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                [class.rotate-180]="showPasswordFields()" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </button>
+
+                        <div *ngIf="showPasswordFields()"
+                            class="px-4 pb-4 pt-1 space-y-3 border-t border-dashed border-gray-100">
+                            <!-- Current password -->
+                            <div class="space-y-1">
+                                <label
+                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Current
+                                    password</label>
+                                <div class="relative" [formGroup]="securityForm">
+                                    <input [type]="showCurrentPw() ? 'text' : 'password'"
+                                        formControlName="currentPassword" placeholder="Enter current password"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 pr-10 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400">
+                                    <button type="button" (click)="toggleCurrentPw()"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                        <lucide-icon [img]="showCurrentPw() ? EyeOffIcon : EyeIcon"
+                                            [size]="14"></lucide-icon>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3" [formGroup]="securityForm">
+                                <!-- New password -->
+                                <div class="space-y-1">
+                                    <label
+                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">New
+                                        password</label>
+                                    <div class="relative">
+                                        <input [type]="showNewPw() ? 'text' : 'password'" formControlName="newPassword"
+                                            placeholder="Min. 8 chars"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2 pr-10 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400">
+                                        <button type="button" (click)="toggleNewPw()"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                            <lucide-icon [img]="showNewPw() ? EyeOffIcon : EyeIcon"
+                                                [size]="14"></lucide-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Confirm password -->
+                                <div class="space-y-1">
+                                    <label
+                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Confirm
+                                        password</label>
+                                    <div class="relative">
+                                        <input [type]="showConfirmPw() ? 'text' : 'password'"
+                                            formControlName="confirmPassword" placeholder="Repeat password"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2 pr-10 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400">
+                                        <button type="button" (click)="toggleConfirmPw()"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                            <lucide-icon [img]="showConfirmPw() ? EyeOffIcon : EyeIcon"
+                                                [size]="14"></lucide-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="col-span-2 space-y-1.5">
-                    <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Address Line 1 <span
-                            class="text-red-400 normal-case">*</span></label>
-                    <input type="text" formControlName="addressLine1" placeholder="Flat, House no., Building, Company"
-                        class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
+
+                <!-- ───── Right: Addresses ───── -->
+                <div class="lg:col-span-5 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-[13px] font-semibold text-gray-800">Saved addresses</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">Home, office &amp; billing locations</p>
+                        </div>
+                        <!-- Add button only in edit mode -->
+                        <button *ngIf="isEditMode()" type="button" (click)="openAddressModal()"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors">
+                            <lucide-icon [img]="PlusIcon" [size]="12"></lucide-icon>
+                            Add
+                        </button>
+                    </div>
+
+                    <div class="space-y-2.5 max-h-[340px] overflow-y-auto pr-0.5">
+                        <!-- Empty state -->
+                        <div *ngIf="!userDetails()?.addresses?.length"
+                            class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-200 rounded-xl text-center">
+                            <lucide-icon [img]="MapPinIcon" [size]="24" class="text-gray-300 mb-2"></lucide-icon>
+                            <p class="text-[12px] text-gray-400">No addresses saved yet.</p>
+                            <p *ngIf="isEditMode()" class="text-[11px] text-gray-300 mt-0.5">Click 'Add' to create
+                                one.</p>
+                        </div>
+
+                        <!-- Address cards -->
+                        <div *ngFor="let addr of userDetails()?.addresses"
+                            class="group relative flex items-start justify-between gap-3 p-3.5 border border-gray-100 rounded-xl bg-gray-50/50 hover:border-blue-200 hover:bg-blue-50/20 transition-all">
+
+                            <div class="min-w-0">
+                                <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1.5 border"
+                                    [ngClass]="{
+                      'bg-blue-50 text-blue-700 border-blue-100':    addr.type === 'HOME',
+                      'bg-gray-100 text-gray-600 border-gray-200':   addr.type === 'OFFICE',
+                      'bg-amber-50 text-amber-700 border-amber-100': addr.type === 'BILLING',
+                      'bg-green-50 text-green-700 border-green-100': addr.type === 'SHIPPING',
+                      'bg-purple-50 text-purple-700 border-purple-100': addr.type === 'WAREHOUSE'
+                    }">
+                                    {{ addr.type }}
+                                </span>
+                                <p class="text-[12px] font-semibold text-gray-800 leading-snug">
+                                    {{ addr.addressLine1 }}<span *ngIf="addr.addressLine2">, {{ addr.addressLine2
+                                        }}</span>
+                                </p>
+                                <p class="text-[11px] text-gray-400 mt-0.5">
+                                    {{ addr.city }}, {{ addr.state }}, {{ addr.country }} — <span
+                                        class="font-medium text-gray-600">{{ addr.pinCode }}</span>
+                                </p>
+                            </div>
+
+                            <!-- Edit address — only in edit mode -->
+                            <button *ngIf="isEditMode()" type="button" (click)="openAddressModal(addr)"
+                                class="shrink-0 p-1.5 rounded-lg text-gray-300 hover:text-blue-500 hover:bg-blue-50 transition-all opacity-0 group-hover:opacity-100">
+                                <lucide-icon [img]="EditIcon" [size]="13"></lucide-icon>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-span-2 space-y-1.5">
-                    <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Address Line
-                        2</label>
-                    <input type="text" formControlName="addressLine2" placeholder="Area, Street, Sector, Village"
-                        class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">City <span
-                            class="text-red-400 normal-case">*</span></label>
-                    <input type="text" formControlName="city" placeholder="Town/City"
-                        class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">State <span
-                            class="text-red-400 normal-case">*</span></label>
-                    <input type="text" formControlName="state" placeholder="State"
-                        class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Country <span
-                            class="text-red-400 normal-case">*</span></label>
-                    <input type="text" formControlName="country" placeholder="Country"
-                        class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Pin Code <span
-                            class="text-red-400 normal-case">*</span></label>
-                    <input type="text" formControlName="pinCode" placeholder="6 digits"
-                        class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-                </div>
+
             </div>
-            <div class="pt-5 border-t border-slate-100 flex justify-end gap-3 mt-2">
-                <button type="button" (click)="closeAddressModal()"
-                    class="px-5 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
-                <button type="submit" [disabled]="isSavingAddress() || addressForm.invalid"
-                    class="px-5 py-2.5 bg-indigo-600 text-white text-[13px] font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
-                    <span *ngIf="isSavingAddress()"
-                        class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    Save Address
+
+            <!-- ── Save bar (edit mode only) ── -->
+            <div *ngIf="isEditMode()"
+                class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/40">
+                <button type="button" (click)="cancelEdit()"
+                    class="px-4 py-2 text-[13px] font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" [disabled]="personalForm.invalid || isSavingPersonal()"
+                    class="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+                    <span *ngIf="isSavingPersonal()"
+                        class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin">
+                    </span>
+                    <ng-container *ngIf="!isSavingPersonal()">
+                        <lucide-icon [img]="SaveIcon" [size]="13" class="text-white/80"></lucide-icon>
+                    </ng-container>
+                    {{ isSavingPersonal() ? 'Saving…' : 'Save changes' }}
                 </button>
             </div>
+
         </form>
     </div>
 </ng-template>
 
-<ng-template #securityModal let-modal>
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200">
-        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-            <h3 class="text-lg font-bold text-slate-800">Change Password</h3>
-            <button type="button" (click)="closeSecurityModal()"
-                class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+<!-- Address Modal -->
+<ng-template #addressModal>
+    <div *ngIf="showAddressModal()"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4"
+        (click)="closeAddressModal()">
+
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
+            (click)="$event.stopPropagation()">
+
+            <!-- Modal header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/40">
+                <h3 class="text-[15px] font-semibold text-gray-900">
+                    {{ editingAddressId() ? 'Edit address' : 'Add new address' }}
+                </h3>
+                <button type="button" (click)="closeAddressModal()"
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+                    <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
+                </button>
+            </div>
+
+            <!-- Modal body -->
+            <form [formGroup]="addressForm" (ngSubmit)="onSaveAddress()" class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+
+                    <!-- Type -->
+                    <div class="col-span-2 space-y-1.5">
+                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Address
+                            type</label>
+                        <select formControlName="type"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] text-gray-800 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white cursor-pointer transition-shadow">
+                            <option value="HOME">Home</option>
+                            <option value="OFFICE">Office</option>
+                            <option value="BILLING">Billing</option>
+                            <option value="SHIPPING">Shipping</option>
+                            <option value="WAREHOUSE">Warehouse</option>
+                        </select>
+                    </div>
+
+                    <!-- Line 1 -->
+                    <div class="col-span-2 space-y-1.5">
+                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                            Address line 1 <span class="text-red-400 normal-case">*</span>
+                        </label>
+                        <input type="text" formControlName="addressLine1"
+                            placeholder="Flat, House no., Building, Company"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+                    </div>
+
+                    <!-- Line 2 -->
+                    <div class="col-span-2 space-y-1.5">
+                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Address line
+                            2</label>
+                        <input type="text" formControlName="addressLine2" placeholder="Area, Street, Sector, Village"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+                    </div>
+
+                    <!-- City -->
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                            City <span class="text-red-400 normal-case">*</span>
+                        </label>
+                        <input type="text" formControlName="city" placeholder="City"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+                    </div>
+
+                    <!-- State -->
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                            State <span class="text-red-400 normal-case">*</span>
+                        </label>
+                        <input type="text" formControlName="state" placeholder="State"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+                    </div>
+
+                    <!-- Country -->
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                            Country <span class="text-red-400 normal-case">*</span>
+                        </label>
+                        <input type="text" formControlName="country" placeholder="Country"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+                    </div>
+
+                    <!-- Pin -->
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                            Pin code <span class="text-red-400 normal-case">*</span>
+                        </label>
+                        <input type="text" formControlName="pinCode" placeholder="6 digits" maxlength="6"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+                    </div>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
+                    <button type="button" (click)="closeAddressModal()"
+                        class="px-5 py-2.5 text-[13px] font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" [disabled]="isSavingAddress() || addressForm.invalid"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                        <span *ngIf="isSavingAddress()"
+                            class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <ng-container *ngIf="!isSavingAddress()">
+                            <lucide-icon [img]="SaveIcon" [size]="13" class="text-white/80"></lucide-icon>
+                        </ng-container>
+                        {{ editingAddressId() ? 'Update address' : 'Save address' }}
+                    </button>
+                </div>
+            </form>
+
         </div>
-        <form [formGroup]="securityForm" (ngSubmit)="onSaveSecurity()" class="p-6 space-y-5">
-            <div class="space-y-1.5">
-                <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Current
-                    Password</label>
-                <input type="password" formControlName="currentPassword" placeholder="Enter current password"
-                    class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-            </div>
-            <div class="space-y-1.5">
-                <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">New Password</label>
-                <input type="password" formControlName="newPassword" placeholder="Enter new password"
-                    class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-            </div>
-            <div class="space-y-1.5">
-                <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Confirm New
-                    Password</label>
-                <input type="password" formControlName="confirmPassword" placeholder="Confirm new password"
-                    class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-shadow">
-            </div>
-            <div class="pt-5 border-t border-slate-100 flex justify-end gap-3 mt-2">
-                <button type="button" (click)="closeSecurityModal()"
-                    class="px-5 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-                    Cancel
-                </button>
-                <button type="button"
-                    class="px-5 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-                    Edit Profile
-                </button>
-                <button type="submit" [disabled]="isSavingSecurity() || securityForm.invalid"
-                    class="px-5 py-2.5 bg-indigo-600 text-white text-[13px] font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
-                    <span *ngIf="isSavingSecurity()"
-                        class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    Save Changes
-                </button>
-            </div>
-        </form>
     </div>
+</ng-template>
+
+<ng-template #notificationTemplate>
+    <div class="bg-white border border-slate-300/50 rounded-lg shadow-sm overflow-hidden transition-all duration-300">
+
+        <div (click)="isNotifExpanded = !isNotifExpanded"
+            class="px-6 py-4 border-b border-slate-300/50 cursor-pointer hover:bg-gray-50 flex justify-between items-center transition-colors">
+            <div>
+                <h2 class="text-[15px] font-semibold text-gray-900">Notification preferences</h2>
+                <p class="text-[11px] text-gray-400 mt-0.5">Choose how and when you want to be notified</p>
+            </div>
+            <lucide-icon [img]="ChevronDownIcon" [size]="18" class="text-gray-400 transition-transform duration-300"
+                [class.rotate-180]="isNotifExpanded">
+            </lucide-icon>
+        </div>
+
+        <div class="transition-all duration-300 ease-in-out overflow-hidden"
+            [style.max-height]="isNotifExpanded ? '2000px' : '0px'" [class.opacity-0]="!isNotifExpanded"
+            [class.opacity-100]="isNotifExpanded">
+
+            <div class="divide-y divide-gray-50">
+                <div class="px-6 py-3 grid grid-cols-12 gap-4">
+                    <div class="col-span-6"></div>
+                    <div class="col-span-2 text-center text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                        Email</div>
+                    <div class="col-span-2 text-center text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                        Push</div>
+                    <div class="col-span-2 text-center text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                        SMS</div>
+                </div>
+
+                <div *ngFor="let row of notificationRows"
+                    class="px-6 py-3.5 grid grid-cols-12 gap-4 items-center hover:bg-gray-50/60 transition-colors">
+                    <div class="col-span-6">
+                        <p class="text-[13px] font-medium text-gray-800">{{ row.label }}</p>
+                        <p class="text-[11px] text-gray-400 mt-0.5">{{ row.desc }}</p>
+                    </div>
+                    <div class="col-span-2 flex justify-center">
+                        <button type="button" (click)="toggleNotif(row, 'email')"
+                            class="relative w-9 h-5 rounded-full transition-colors duration-200 focus:outline-none"
+                            [class.bg-blue-600]="row.email" [class.bg-gray-200]="!row.email">
+                            <span
+                                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+                                [class.translate-x-4]="row.email"></span>
+                        </button>
+                    </div>
+                    <div class="col-span-2 flex justify-center">
+                        <button type="button" (click)="toggleNotif(row, 'push')"
+                            class="relative w-9 h-5 rounded-full transition-colors duration-200 focus:outline-none"
+                            [class.bg-blue-600]="row.push" [class.bg-gray-200]="!row.push">
+                            <span
+                                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+                                [class.translate-x-4]="row.push"></span>
+                        </button>
+                    </div>
+                    <div class="col-span-2 flex justify-center">
+                        <button type="button" (click)="toggleNotif(row, 'sms')"
+                            class="relative w-9 h-5 rounded-full transition-colors duration-200 focus:outline-none"
+                            [class.bg-blue-600]="row.sms" [class.bg-gray-200]="!row.sms">
+                            <span
+                                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+                                [class.translate-x-4]="row.sms"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end px-6 py-4 border-t border-gray-100 bg-gray-50/40">
+                <button type="button" (click)="saveNotifications()"
+                    class="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                    <lucide-icon [img]="SaveIcon" [size]="13" class="text-white/80"></lucide-icon>
+                    Save preferences
+                </button>
+            </div>
+        </div>
+    </div>
+
+</ng-template>
+
+<!-- Document Verification -->
+<ng-template #documentVerificationTemplate>
+    <div class="bg-white border border-slate-300/50 rounded-lg shadow-sm overflow-hidden transition-all duration-300">
+
+        <div (click)="isExpanded = !isExpanded"
+            class="px-6 py-4 border-b border-slate-300/50 cursor-pointer hover:bg-gray-50 flex justify-between items-center transition-colors">
+            <div>
+                <h2 class="text-[15px] font-semibold text-gray-900">Document verification</h2>
+                <p class="text-[11px] text-gray-400 mt-0.5">Upload and verify your identity and business documents</p>
+            </div>
+            <lucide-icon [img]="ChevronDownIcon" [size]="18" class="text-gray-400 transition-transform duration-300"
+                [class.rotate-180]="isExpanded">
+            </lucide-icon>
+        </div>
+
+        <div class="transition-all duration-300 ease-in-out overflow-hidden"
+            [style.max-height]="isExpanded ? '1000px' : '0px'" [class.opacity-0]="!isExpanded"
+            [class.opacity-100]="isExpanded">
+
+            <div class="p-6 space-y-3">
+                @for (doc of documents; track $index) {
+                <div
+                    class="group flex items-center justify-between gap-4 p-4 border border-gray-100 rounded-xl bg-gray-50/40 hover:border-blue-200 hover:bg-blue-50/20 transition-all">
+
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                            [class.bg-green-50]="doc.status === 'verified'"
+                            [class.bg-amber-50]="doc.status === 'pending'" [class.bg-red-50]="doc.status === 'rejected'"
+                            [class.bg-gray-100]="doc.status === 'not_uploaded'">
+                            <lucide-icon [img]="FileTextIcon" [size]="16"
+                                [class.text-green-600]="doc.status === 'verified'"
+                                [class.text-amber-500]="doc.status === 'pending'"
+                                [class.text-red-500]="doc.status === 'rejected'"
+                                [class.text-gray-400]="doc.status === 'not_uploaded'">
+                            </lucide-icon>
+                        </div>
+
+                        <div class="min-w-0">
+                            <p class="text-[13px] font-semibold text-gray-800">{{ doc.label }}</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ doc.hint }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span
+                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border"
+                            [class.bg-green-50]="doc.status === 'verified'"
+                            [class.text-green-700]="doc.status === 'verified'"
+                            [class.border-green-100]="doc.status === 'verified'"
+                            [class.bg-amber-50]="doc.status === 'pending'"
+                            [class.text-amber-700]="doc.status === 'pending'"
+                            [class.border-amber-100]="doc.status === 'pending'"
+                            [class.bg-red-50]="doc.status === 'rejected'"
+                            [class.text-red-700]="doc.status === 'rejected'"
+                            [class.border-red-100]="doc.status === 'rejected'"
+                            [class.bg-gray-100]="doc.status === 'not_uploaded'"
+                            [class.text-gray-500]="doc.status === 'not_uploaded'"
+                            [class.border-gray-200]="doc.status === 'not_uploaded'">
+
+                            @if(doc.status === 'verified'){ <lucide-icon [img]="CheckCircleIcon" [size]="10"
+                                class="text-green-500"></lucide-icon> Verified }
+                            @if(doc.status === 'pending'){ <lucide-icon [img]="ClockIcon" [size]="10"
+                                class="text-amber-500"></lucide-icon> Under review }
+                            @if(doc.status === 'rejected'){ <lucide-icon [img]="AlertCircleIcon" [size]="10"
+                                class="text-red-500"></lucide-icon> Rejected }
+                            @if(doc.status === 'not_uploaded'){ <lucide-icon [img]="UploadIcon" [size]="10"
+                                class="text-gray-400"></lucide-icon> Not uploaded }
+                        </span>
+
+                        <button type="button" (click)="uploadDocument(doc); $event.stopPropagation()"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium border rounded-lg transition-all"
+                            [class.text-blue-600]="doc.status !== 'verified'"
+                            [class.bg-blue-50]="doc.status !== 'verified'"
+                            [class.border-blue-100]="doc.status !== 'verified'"
+                            [class.text-gray-400]="doc.status === 'verified'"
+                            [class.bg-gray-50]="doc.status === 'verified'"
+                            [class.border-gray-100]="doc.status === 'verified'">
+                            <lucide-icon [img]="UploadIcon" [size]="12"></lucide-icon>
+                            {{ doc.status === 'verified' ? 'Replace' : doc.status === 'not_uploaded' ? 'Upload' :
+                            'Re-upload' }}
+                        </button>
+                    </div>
+                </div>
+                }
+
+                <div class="flex items-start gap-2.5 mt-2 p-3.5 bg-blue-50/60 border border-blue-100 rounded-xl">
+                    <lucide-icon [img]="InfoIcon" [size]="14" class="text-blue-500 mt-0.5 shrink-0"></lucide-icon>
+                    <p class="text-[11px] text-blue-700 leading-relaxed">
+                        Documents are reviewed within <strong>2–3 business days</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Privacy&data -->
+<ng-template #privacyDataTemplate>
+    <div class="bg-white border border-slate-300/50 rounded-lg shadow-sm overflow-hidden">
+
+        <div class="px-6 py-4 border-b border-slate-300/50">
+            <h2 class="text-[15px] font-semibold text-gray-900">Privacy &amp; data</h2>
+            <p class="text-[11px] text-gray-400 mt-0.5">Control how your data is used and shared</p>
+        </div>
+
+        <div class="divide-y divide-gray-50">
+
+            <!-- Toggle row template -->
+            @for (pref of privacyPrefs; track $index) {
+            <div class="px-6 py-4 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                        [class.bg-blue-50]="pref.color === 'blue'" [class.bg-green-50]="pref.color === 'green'"
+                        [class.bg-purple-50]="pref.color === 'purple'" [class.bg-amber-50]="pref.color === 'amber'">
+                        <lucide-icon [img]="pref.icon" [size]="14" [class.text-blue-500]="pref.color === 'blue'"
+                            [class.text-green-500]="pref.color === 'green'"
+                            [class.text-purple-500]="pref.color === 'purple'"
+                            [class.text-amber-500]="pref.color === 'amber'">
+                        </lucide-icon>
+                    </div>
+                    <div>
+                        <p class="text-[13px] font-medium text-gray-800">{{ pref.label }}</p>
+                        <p class="text-[11px] text-gray-400 mt-0.5">{{ pref.desc }}</p>
+                    </div>
+                </div>
+                <button type="button" (click)="togglePrivacy(pref)"
+                    class="relative w-9 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+                    [class.bg-blue-600]="pref.enabled" [class.bg-gray-200]="!pref.enabled">
+                    <span
+                        class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+                        [class.translate-x-4]="pref.enabled"></span>
+                </button>
+            </div>
+            }
+        </div>
+
+        <!-- Danger zone -->
+        <div class="px-6 py-5 border-t border-gray-100 bg-red-50/30">
+            <p class="text-[12px] font-semibold text-red-600 uppercase tracking-wide mb-3">Danger zone</p>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button type="button" (click)="exportData()"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <lucide-icon [img]="DownloadIcon" [size]="13" class="text-gray-500"></lucide-icon>
+                    Export my data
+                </button>
+                <button type="button" (click)="deactivateAccount()"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
+                    <lucide-icon [img]="AlertCircleIcon" [size]="13" class="text-amber-500"></lucide-icon>
+                    Deactivate account
+                </button>
+                <button type="button" (click)="deleteAccount()"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                    <lucide-icon [img]="TrashIcon" [size]="13" class="text-red-500"></lucide-icon>
+                    Delete account
+                </button>
+            </div>
+        </div>
+    </div>
+
 </ng-template>
