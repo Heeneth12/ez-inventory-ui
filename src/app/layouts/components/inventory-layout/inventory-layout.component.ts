@@ -50,6 +50,7 @@ import {
   PanelRightOpen,
   HandbagIcon,
   Undo2,
+  Sparkles,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { TutorialService } from '../../service/common/tutorial.service';
@@ -106,6 +107,7 @@ export class InventoryLayoutComponent implements OnInit {
   readonly CheckIcon = CheckIcon;
   readonly PanelLeftClose = PanelLeftClose;
   readonly PanelRightOpen = PanelRightOpen;
+  readonly Sparkles = Sparkles;
 
   proFeatures = ['Unlimited storage', 'Priority support', 'Advanced analytics'];
 

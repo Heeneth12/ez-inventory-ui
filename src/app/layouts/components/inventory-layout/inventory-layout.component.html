@@ -243,11 +243,17 @@
 
             <div class="flex items-center gap-2 sm:gap-4">
 
-                <button (click)="openUserCalendar()"
-                    class="flex items-center gap-2 p-2 md:px-4 md:py-2 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-50 hover:border-slate-300 ">
-                    <lucide-icon [img]="Calendar" class="w-4 h-4 md:w-3.5 md:h-3.5 text-slate-400"></lucide-icon>
-                    <span class="hidden md:inline">{{ currentDate | date:'dd-MMM-yyyy' }}</span>
-                    <lucide-icon [img]="ChevronDown" class="hidden md:block w-3.5 h-3.5 text-slate-400"></lucide-icon>
+                <button
+                    class="relative group overflow-hidden rounded-lg p-[1.5px] transition-all active:scale-95 shadow-sm">
+                    <span
+                        class="absolute inset-[-1000%] animate-border-spin bg-[conic-gradient(from_90deg_at_50%_50%,#f1f5f9_0%,#fb923c_25%,#f1f5f9_50%,#fb923c_75%,#f1f5f9_100%)]">
+                    </span>
+                    <div
+                        class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] bg-white text-orange-500 font-medium text-sm transition-all group-hover:bg-orange-50">
+                        <lucide-icon [img]="Sparkles" class="w-4 h-4"></lucide-icon>
+
+                        <span class="leading-none">Ask AI</span>
+                    </div>
                 </button>
 
 
@@ -263,6 +269,12 @@
                     [items]="helpCenterItems" anchor="bottom end">
                 </app-custom-dropdown>
 
+                <button (click)="openUserCalendar()" title="Calendar"
+                    class="flex items-center gap-2 p-2 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 hover:border-gray-300">
+                    <lucide-icon [img]="Calendar"
+                        class="h-4 w-4 shrink-0 text-gray-600 group-hover:text-gray-500 transition-colors"></lucide-icon>
+                </button>
+
                 <app-notifications></app-notifications>
 
                 <el-dropdown class="inline-block">
@@ -276,7 +288,6 @@
 
                     <el-menu [attr.anchor]="'bottom end'" popover
                         class="m-0 w-72 origin-top-right rounded-xl bg-white p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-200 transition [--anchor-gap:12px] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:opacity-0">
-
 
                         <div class="p-3 mb-2 bg-slate-50/50 rounded-lg border border-slate-200 flex items-center gap-3">
                             <div
