@@ -50,6 +50,7 @@ import {
   PanelRightOpen,
   HandbagIcon,
   Undo2,
+  Sparkles,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { TutorialService } from '../../service/common/tutorial.service';
@@ -106,6 +107,7 @@ export class InventoryLayoutComponent implements OnInit {
   readonly CheckIcon = CheckIcon;
   readonly PanelLeftClose = PanelLeftClose;
   readonly PanelRightOpen = PanelRightOpen;
+  readonly Sparkles = Sparkles;
 
   proFeatures = ['Unlimited storage', 'Priority support', 'Advanced analytics'];
 
@@ -269,9 +271,14 @@ export class InventoryLayoutComponent implements OnInit {
         { icon: ShoppingCart, label: 'Sales Order', link: '/sales/order' },
         { icon: Receipt, label: 'Invoices', link: '/sales/invoice' },
         { icon: Truck, label: 'Delivery', link: '/sales/delivery' },
-        { icon: CreditCard, label: 'Payments', link: '/sales/payments' },
         { icon: Undo2, label: 'Sales Return', link: '/sales/return' },
       ]
+    },
+    {
+      label: 'Payments',
+      link: '/payment',
+      icon: CreditCard,
+      moduleKey: 'EZH_INV_SALES',
     },
     {
       label: 'Approval',

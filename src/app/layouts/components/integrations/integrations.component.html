@@ -1,0 +1,416 @@
+<div class="bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden transition-all duration-300 mt-2">
+
+  <div (click)="isExpanded.set(!isExpanded())"
+    class="px-6 py-4 border-b border-gray-300/50 cursor-pointer hover:bg-gray-50 flex justify-between items-center transition-colors select-none">
+    <div>
+      <h2 class="text-[15px] font-semibold text-gray-900">Integrations</h2>
+      <p class="text-[11px] text-gray-400 mt-0.5">Connected apps and third-party services</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <!-- Refresh -->
+      <button type="button" (click)="loadIntegrations(); $event.stopPropagation()" [disabled]="isLoading()"
+        class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-40"
+        title="Refresh">
+        <lucide-icon [img]="RefreshCwIcon" [size]="14" [class.animate-spin]="isLoading()"></lucide-icon>
+      </button>
+      <lucide-icon [img]="ChevronDownIcon" [size]="18" class="text-gray-400 transition-transform duration-300"
+        [class.rotate-180]="isExpanded()">
+      </lucide-icon>
+    </div>
+  </div>
+
+  <div class="transition-all duration-300 ease-in-out overflow-hidden"
+    [style.max-height]="isExpanded() ? '2400px' : '0px'" [class.opacity-0]="!isExpanded()"
+    [class.opacity-100]="isExpanded()">
+
+    <!-- Catalog grid — always shown, all integration types -->
+    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+      <div *ngFor="let card of catalogCards"
+        class="relative flex flex-col gap-3 p-4 border rounded-xl transition-all duration-150" [ngClass]="card.configured
+             ? 'border-gray-200 bg-gray-50/40 hover:border-blue-200 hover:bg-blue-50/10'
+             : 'border-dashed border-gray-200 bg-white hover:border-gray-300'">
+
+        <div *ngIf="card.configured && deletingId() === card.configured.id"
+          class="absolute inset-0 bg-white/96 border border-red-200 rounded-xl flex flex-col items-center justify-center gap-3 z-10 px-4">
+          <div class="flex items-center gap-2">
+            <lucide-icon [img]="AlertCircleIcon" [size]="14" class="text-red-500 shrink-0"></lucide-icon>
+            <p class="text-[12px] font-semibold text-red-700">Remove this integration?</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" (click)="cancelDelete()"
+              class="px-3 py-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+              Cancel
+            </button>
+            <button type="button" (click)="executeDelete(card.configured!.id)"
+              class="inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">
+              <lucide-icon [img]="TrashIcon" [size]="11"></lucide-icon>
+              Remove
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-bold shrink-0"
+            [ngClass]="getBadgeClasses(card.color)">
+            {{ card.initials }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <p class="text-[13px] font-semibold text-gray-800">{{ card.label }}</p>
+              <!-- Connected badge inline with title -->
+              <span *ngIf="card.configured?.isConnected"
+                class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-green-100 text-green-700 uppercase tracking-wide">
+                <lucide-icon [img]="CheckCircleIcon" [size]="9"></lucide-icon>
+                Connected
+              </span>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-0.5 leading-snug">{{ card.desc }}</p>
+          </div>
+        </div>
+
+        <!-- ── Status chips (only when configured) ────────────── -->
+        <div *ngIf="card.configured" class="flex items-center gap-1.5 flex-wrap">
+
+          <!-- Active / Inactive -->
+          <span *ngIf="card.configured.isActive"
+            class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+            <lucide-icon [img]="ZapIcon" [size]="9"></lucide-icon>
+            Active
+          </span>
+          <span *ngIf="!card.configured.isActive"
+            class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full bg-gray-100 text-gray-400 border border-gray-200">
+            Inactive
+          </span>
+
+          <!-- Test mode -->
+          <span *ngIf="card.configured.isTestMode"
+            class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+            <lucide-icon [img]="ShieldAlertIcon" [size]="9"></lucide-icon>
+            Test Mode
+          </span>
+
+          <!-- Display name if set -->
+          <span *ngIf="card.configured.displayName" class="text-[10px] text-gray-400 truncate max-w-[120px]"
+            [title]="card.configured.displayName">
+            "{{ card.configured.displayName }}"
+          </span>
+        </div>
+
+        <!-- ── Actions: CONFIGURED card ───────────────────────── -->
+        <div *ngIf="card.configured" class="flex items-center gap-1.5 pt-1 border-t border-gray-100">
+
+          <!-- Test Connection -->
+          <button type="button" (click)="testCardConnection(card.configured!.id)" [disabled]="testingId() !== null"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="isCardTesting(card.configured!.id)"
+              class="w-2.5 h-2.5 border border-gray-500 border-t-transparent rounded-full animate-spin"></span>
+            <lucide-icon *ngIf="!isCardTesting(card.configured!.id)" [img]="ActivityIcon" [size]="11"></lucide-icon>
+            {{ isCardTesting(card.configured!.id) ? 'Testing…' : 'Test' }}
+          </button>
+
+          <!-- Edit -->
+          <button type="button" (click)="openEditModal(card.configured!)"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <lucide-icon [img]="EditIcon" [size]="11"></lucide-icon>
+            Edit
+          </button>
+
+          <!-- Enable / Disable -->
+          <button type="button" (click)="toggleIntegration(card.configured!)"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium rounded-lg border transition-colors"
+            [ngClass]="card.configured!.isActive
+                    ? ['text-amber-700', 'bg-amber-50', 'border-amber-100', 'hover:bg-amber-100']
+                    : ['text-green-700', 'bg-green-50', 'border-green-100', 'hover:bg-green-100']">
+            <lucide-icon [img]="card.configured!.isActive ? BanIcon : ZapIcon" [size]="11"></lucide-icon>
+            {{ card.configured!.isActive ? 'Disable' : 'Enable' }}
+          </button>
+
+          <!-- Delete -->
+          <button type="button" (click)="confirmDelete(card.configured!.id)"
+            class="ml-auto inline-flex items-center justify-center w-7 h-7 text-red-400 bg-red-50 border border-red-100 rounded-lg hover:bg-red-100 hover:text-red-600 transition-colors">
+            <lucide-icon [img]="TrashIcon" [size]="12"></lucide-icon>
+          </button>
+        </div>
+
+        <!-- ── Actions: NOT configured card ──────────────────── -->
+        <div *ngIf="!card.configured" class="flex justify-end pt-1 border-t border-dashed border-gray-150">
+          <button type="button" (click)="openConnectModal(card)"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-semibold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 hover:border-blue-200 transition-colors">
+            <lucide-icon [img]="ZapIcon" [size]="12"></lucide-icon>
+            Connect
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<ng-template #integrationFormModal>
+
+  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+    <div>
+      <h3 class="text-[15px] font-semibold text-gray-900">
+        {{ editingId() ? 'Edit Integration' : 'Connect Integration' }}
+      </h3>
+      <p class="text-[11px] text-gray-500 mt-0.5">
+        {{ isRazorpayType() ? 'Razorpay' : isEmailSmtpType() ? 'Email SMTP' : 'API' }} credentials
+      </p>
+    </div>
+    <button type="button" (click)="closeModal()"
+      class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+      <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Modal body -->
+  <div class="p-6 space-y-4 max-h-[62vh] overflow-y-auto">
+
+    <!-- Security notice -->
+    <div class="flex items-start gap-2.5 p-3 bg-amber-50/80 border border-amber-100 rounded-xl">
+      <lucide-icon [img]="AlertCircleIcon" [size]="13" class="text-amber-600 mt-0.5 shrink-0"></lucide-icon>
+      <p class="text-[11px] text-amber-800 leading-relaxed">
+        Keys are encrypted at rest and cannot be retrieved once saved. Never share them with anyone.
+      </p>
+    </div>
+
+    <!-- Display Name (all types) -->
+    <div class="space-y-1.5">
+      <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Display Name</label>
+      <input type="text" [(ngModel)]="integrationRequest.displayName" placeholder="e.g. My Razorpay Live"
+        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+    </div>
+
+    <!-- RAZORPAY FORM -->
+    <ng-container *ngIf="isRazorpayType()">
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          Key ID <span class="text-red-400 normal-case font-normal">*</span>
+        </label>
+        <div class="relative">
+          <input type="text" [(ngModel)]="razorpayConfig.keyId" placeholder="rzp_live_xxxxxxxxxxxx"
+            class="w-full border border-gray-200 rounded-lg pl-2 pr-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Key Secret</label>
+        <div class="relative">
+          <input type="text" [(ngModel)]="razorpayConfig.keySecret" placeholder="Enter secret key"
+            class="w-full border border-gray-200 rounded-lg pl-2 pr-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Webhook Secret</label>
+        <div class="relative">
+          <input type="text" [(ngModel)]="razorpayConfig.webhookSecret" placeholder="Webhook signing secret"
+            class="w-full border border-gray-200 rounded-lg pl-2 pr-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Currency</label>
+        <input type="text" [(ngModel)]="razorpayConfig.currency" placeholder="INR"
+          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+      </div>
+
+      <!-- Razorpay Test Mode toggle -->
+      <div class="flex items-center justify-between p-3.5 border border-gray-200 bg-gray-50/40 rounded-xl">
+        <div>
+          <span class="text-[13px] font-medium text-gray-800">Test Mode</span>
+          <p class="text-[11px] text-gray-500 mt-0.5">
+            Use <span class="font-mono text-[10px]">rzp_test_</span> credentials (sandbox)
+          </p>
+        </div>
+        <button type="button" (click)="toggleRazorpayMode()"
+          class="relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+          [class.bg-blue-600]="integrationRequest.integrationType === IntegrationType.RAZORPAY_TEST"
+          [class.bg-gray-300]="integrationRequest.integrationType !== IntegrationType.RAZORPAY_TEST">
+          <span
+            class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+            [class.translate-x-5]="integrationRequest.integrationType === IntegrationType.RAZORPAY_TEST">
+          </span>
+        </button>
+      </div>
+
+    </ng-container>
+
+
+    <!-- EMAIL SMTP FORM -->
+    <ng-container *ngIf="isEmailSmtpType()">
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-2 space-y-1.5">
+          <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            SMTP Host <span class="text-red-400 normal-case font-normal">*</span>
+          </label>
+          <input type="text" [(ngModel)]="emailConfig.smtpHost" placeholder="smtp.gmail.com"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Port</label>
+          <input type="number" [(ngModel)]="emailConfig.smtpPort" placeholder="587"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">From Name</label>
+          <input type="text" [(ngModel)]="emailConfig.fromName" placeholder="EZ Inventory"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">From Email</label>
+        <input type="email" [(ngModel)]="emailConfig.fromEmail" placeholder="noreply@yourcompany.com"
+          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Username</label>
+        <div class="relative">
+          <input type="text" [(ngModel)]="emailConfig.smtpUsername" placeholder="your@email.com"
+            class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Password / App
+          Password</label>
+        <div class="relative">
+          <input type="password" [(ngModel)]="emailConfig.smtpPassword" placeholder="Enter password"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+        </div>
+      </div>
+
+      <!-- TLS / SSL toggles -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex items-center justify-between p-3 border border-gray-200 bg-gray-50/40 rounded-xl">
+          <span class="text-[12px] font-medium text-gray-700">Use TLS</span>
+          <button type="button" (click)="emailConfig.smtpUseTls = !emailConfig.smtpUseTls"
+            class="relative w-9 h-[18px] rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+            [class.bg-blue-600]="emailConfig.smtpUseTls" [class.bg-gray-300]="!emailConfig.smtpUseTls">
+            <span
+              class="absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform duration-200"
+              [class.translate-x-[18px]]="emailConfig.smtpUseTls"></span>
+          </button>
+        </div>
+        <div class="flex items-center justify-between p-3 border border-gray-200 bg-gray-50/40 rounded-xl">
+          <span class="text-[12px] font-medium text-gray-700">Use SSL</span>
+          <button type="button" (click)="emailConfig.smtpUseSsl = !emailConfig.smtpUseSsl"
+            class="relative w-9 h-[18px] rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+            [class.bg-blue-600]="emailConfig.smtpUseSsl" [class.bg-gray-300]="!emailConfig.smtpUseSsl">
+            <span
+              class="absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform duration-200"
+              [class.translate-x-[18px]]="emailConfig.smtpUseSsl"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Email test mode -->
+      <div class="flex items-center justify-between p-3.5 border border-gray-200 bg-gray-50/40 rounded-xl">
+        <div>
+          <span class="text-[13px] font-medium text-gray-800">Test Mode</span>
+          <p class="text-[11px] text-gray-500 mt-0.5">Use test SMTP server (no real emails sent)</p>
+        </div>
+        <button type="button" (click)="toggleEmailSmtpMode()"
+          class="relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+          [class.bg-blue-600]="integrationRequest.integrationType === IntegrationType.EMAIL_SMTP_TEST"
+          [class.bg-gray-300]="integrationRequest.integrationType !== IntegrationType.EMAIL_SMTP_TEST">
+          <span
+            class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+            [class.translate-x-5]="integrationRequest.integrationType === IntegrationType.EMAIL_SMTP_TEST">
+          </span>
+        </button>
+      </div>
+
+    </ng-container>
+
+
+    <!-- GENERIC FORM -->
+    <ng-container *ngIf="!isRazorpayType() && !isEmailSmtpType()">
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          Primary Key / API Key <span class="text-red-400 normal-case font-normal">*</span>
+        </label>
+        <div class="relative">
+          <input type="text" [(ngModel)]="integrationRequest.primaryKey" placeholder="Enter API key"
+            class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+          <lucide-icon [img]="KeyIcon" [size]="13"
+            class="text-gray-400 absolute left-3 top-3 pointer-events-none"></lucide-icon>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Secondary Key /
+          Secret</label>
+        <div class="relative">
+          <input type="password" [(ngModel)]="integrationRequest.secondaryKey" placeholder="Enter secret"
+            class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+          <lucide-icon [img]="ShieldIcon" [size]="13"
+            class="text-gray-400 absolute left-3 top-3 pointer-events-none"></lucide-icon>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Webhook URL
+          (Optional)</label>
+        <input type="url" [(ngModel)]="integrationRequest.webhookConfig" placeholder="https://your-site.com/webhook"
+          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+      </div>
+
+      <!-- Generic test mode toggle -->
+      <div class="flex items-center justify-between p-3.5 border border-gray-200 bg-gray-50/40 rounded-xl">
+        <div>
+          <span class="text-[13px] font-medium text-gray-800">Test Mode</span>
+          <p class="text-[11px] text-gray-500 mt-0.5">Use sandbox / test environment credentials</p>
+        </div>
+        <button type="button" (click)="integrationRequest.isTestMode = !integrationRequest.isTestMode"
+          class="relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+          [class.bg-blue-600]="integrationRequest.isTestMode" [class.bg-gray-300]="!integrationRequest.isTestMode">
+          <span
+            class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+            [class.translate-x-5]="integrationRequest.isTestMode">
+          </span>
+        </button>
+      </div>
+
+    </ng-container>
+
+  </div>
+
+  <div class="flex justify-between items-center gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/40">
+
+    <!-- Test connection (edit mode only) -->
+    <button type="button" (click)="testModalConnection()" [disabled]="isModalTesting() || !editingId()"
+      [title]="!editingId() ? 'Save the integration first' : 'Test connection'"
+      class="inline-flex items-center gap-1.5 px-4 py-2.5 text-[12px] font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+      <span *ngIf="isModalTesting()"
+        class="w-3.5 h-3.5 border-2 border-gray-400 border-t-gray-700 rounded-full animate-spin"></span>
+      <lucide-icon *ngIf="!isModalTesting()" [img]="ActivityIcon" [size]="13"></lucide-icon>
+      {{ isModalTesting() ? 'Testing…' : 'Test Connection' }}
+    </button>
+
+    <div class="flex items-center gap-2">
+      <button type="button" (click)="closeModal()"
+        class="px-4 py-2.5 text-[13px] font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+        Cancel
+      </button>
+      <button type="button" (click)="saveIntegration()" [disabled]="isSaving()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+        <span *ngIf="isSaving()"
+          class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        <lucide-icon *ngIf="!isSaving()" [img]="SaveIcon" [size]="13" class="text-white/80"></lucide-icon>
+        {{ editingId() ? 'Update' : 'Connect' }}
+      </button>
+    </div>
+  </div>
+
+</ng-template>

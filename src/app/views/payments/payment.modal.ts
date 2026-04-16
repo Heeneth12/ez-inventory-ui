@@ -1,5 +1,6 @@
-import { CommonFilterModel } from "../../../layouts/models/common-filter.model";
-import { ContactMiniModel } from "../../contacts/contacts.model";
+import { CommonFilterModel } from "../../layouts/models/common-filter.model";
+import { ContactMiniModel } from "../contacts/contacts.model";
+
 
 export interface InvoicePaymentSummaryModal {
     id: number;
@@ -58,9 +59,124 @@ export interface PaymentModal {
 }
 export interface CustomerFinancialSummaryModal {
     customerId: number;
-    customerName: string;
+    customerName?: string;
     totalOutstandingAmount: number;
     walletBalance: number;
+    advanceBalance: number;
+    creditNoteBalance: number;
+}
+
+// ─── Advance ────────────────────────────────────────────────────────────────
+
+export interface AdvanceCreateModal {
+    customerId: number;
+    amount: number;
+    paymentMethod: string;
+    referenceNumber?: string;
+    bankName?: string;
+    remarks?: string;
+}
+
+export interface AdvanceModal {
+    id: number;
+    advanceNumber: string;
+    customerId: number;
+    customerName: string;
+    receivedDate: Date;
+    amount: number;
+    availableBalance: number;
+    paymentMethod: string;
+    status: string; // ACTIVE, EXHAUSTED, REFUNDED, PARTIALLY_REFUNDED
+    referenceNumber?: string;
+    bankName?: string;
+    remarks?: string;
+    utilizations?: AdvanceUtilizationItem[];
+    refunds?: AdvanceRefundItem[];
+}
+
+export interface AdvanceUtilizationItem {
+    id: number;
+    invoiceId: number;
+    invoiceNumber: string;
+    utilizedAmount: number;
+    utilizationDate: Date;
+    status: string;
+}
+
+export interface AdvanceRefundItem {
+    id: number;
+    refundNumber: string;
+    refundAmount: number;
+    refundDate: Date;
+    refundMethod: string;
+    refundReferenceNumber?: string;
+    status: string; // PENDING, CLEARED
+}
+
+export interface AdvanceUtilizeModal {
+    advanceId: number;
+    invoiceId: number;
+    amount: number;
+    remarks?: string;
+}
+
+export interface AdvanceRefundRequestModal {
+    advanceId: number;
+    refundAmount: number;
+    refundMethod: string;
+    refundReferenceNumber?: string;
+    remarks?: string;
+}
+
+// ─── Credit Note ────────────────────────────────────────────────────────────
+
+export interface CreditNoteModal {
+    id: number;
+    creditNoteNumber: string;
+    customerId: number;
+    customerName: string;
+    sourceReturnId?: number;
+    issueDate: Date;
+    amount: number;
+    availableBalance: number;
+    status: string; // ACTIVE, EXHAUSTED, REFUNDED, PARTIALLY_REFUNDED
+    remarks?: string;
+    utilizations?: CreditNoteUtilizationItem[];
+    refunds?: CreditNoteRefundItem[];
+}
+
+export interface CreditNoteUtilizationItem {
+    id: number;
+    invoiceId: number;
+    invoiceNumber: string;
+    utilizedAmount: number;
+    utilizationDate: Date;
+    status: string;
+}
+
+export interface CreditNoteRefundItem {
+    id: number;
+    refundNumber: string;
+    refundAmount: number;
+    refundDate: Date;
+    refundMethod: string;
+    refundReferenceNumber?: string;
+    status: string; // PENDING, CLEARED
+}
+
+export interface CreditNoteUtilizeModal {
+    creditNoteId: number;
+    invoiceId: number;
+    amount: number;
+    remarks?: string;
+}
+
+export interface CreditNoteRefundRequestModal {
+    creditNoteId: number;
+    refundAmount: number;
+    refundMethod: string;
+    refundReferenceNumber?: string;
+    remarks?: string;
 }
 
 export interface WalletApplyModal {

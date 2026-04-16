@@ -56,5 +56,6 @@ export class UserMiniModel {
   name!: string;
   email!: string;
   phone!: string
-  userType!: UserType;  
+  userType!: UserType;
+  userAddresses!: UserAddressModel[];
 }

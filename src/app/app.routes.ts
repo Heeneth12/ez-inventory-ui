@@ -73,6 +73,15 @@ export const routes: Routes = [
         data: { moduleKey: 'EZH_INV_SALES' }
     },
 
+    // 5.1. PAYMENTS
+    {
+        path: 'payment',
+        loadChildren: () => import('./views/payments/payment.routes')
+            .then(m => m.PaymentRoutes),
+        canActivate: [AuthGuard],
+        data: { moduleKey: 'EZH_INV_SALES' }
+    },
+
     // 6. REPORTS
     {
         path: 'reports',
@@ -103,8 +112,8 @@ export const routes: Routes = [
     // 9. DOCUMENTS
     {
         path: 'documents',
-        loadChildren: () => import('./views/documents/documents.routes')
-            .then(m => m.DocumentsRoutes),
+        loadComponent: () => import('./views/file-manager/file-manager.component')
+            .then(c => c.FileManagerComponent),
         canActivate: [AuthGuard],
         data: { moduleKey: 'EZH_INV_DOCUMENTS' }
     },
@@ -159,4 +168,10 @@ export const routes: Routes = [
         loadComponent: () => import('./views/forbidden/forbidden.component')
             .then(c => c.ForbiddenComponent)
     },
-];
+
+    {
+        path: 'example',
+        loadComponent: () => import('./views/example/example.component')
+            .then(c => c.ExampleComponent)
+    },
+];  

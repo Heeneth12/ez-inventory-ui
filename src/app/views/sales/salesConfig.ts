@@ -1,4 +1,4 @@
-import { ListRestart, ListCollapse, PenLineIcon, Undo2, XCircle, ArrowRight, CircleX, FileDown, ReceiptIndianRupee, ScrollText, Truck, PackageCheck } from "lucide-angular";
+import { ListRestart, ListCollapse, PenLineIcon, Undo2, XCircle, ArrowRight, CircleX, FileDown, ReceiptIndianRupee, ScrollText, Truck, PackageCheck, Eye, CheckCircle, RotateCcw } from "lucide-angular";
 import { TableColumn, TableActionConfig } from "../../layouts/components/standard-table/standard-table.model";
 import { DatePickerConfig } from "../../layouts/UI/date-picker/date-picker.component";
 import { FilterOption } from "../../layouts/UI/filter-dropdown/filter-dropdown.component";
@@ -220,56 +220,6 @@ export const DELIVERY_FILTER_OPTIONS: FilterOption[] = [
 ];
 
 export const DELIVERY_DATE_CONFIG: DatePickerConfig = {
-    type: 'both',
-    placeholder: 'Start - End'
-};
-
-// PAYMENTS
-export const PAYMENTS_COLUMNS: TableColumn[] = [
-    { key: 'contactMini', label: 'Customer', width: '140px', type: 'fullProfile', align: 'left' },
-    { key: 'paymentNumber', label: 'Payment Number', width: '200px', type: 'link' },
-    { key: 'paymentDate', label: 'Payment Date', width: '100px', type: 'date' },
-    { key: 'amount', label: 'Amount', width: '90px', type: 'text' },
-    { key: 'status', label: 'Status', align: 'right', width: '110px', type: 'badge' },
-    { key: 'paymentMethod', label: 'Payment Method', align: 'right', width: '130px', type: 'text' },
-    { key: 'allocatedAmount', label: 'Allocated Amount', align: 'right', width: '110px', type: 'currency' },
-    { key: 'unallocatedAmount', label: 'Unallocated Amount', align: "center", width: '110px', type: 'currency' },
-    { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
-];
-
-export const PAYMENTS_ACTIONS: TableActionConfig[] = [
-    {
-        key: 'payment_details',
-        label: 'Payment details',
-        icon: ScrollText,
-        color: 'primary',
-        condition: (row) => row['status'] === 'COMPLETED' || row['status'] === 'RECEIVED'
-    },
-    {
-        key: 'download_receipt',
-        label: '',
-        icon: FileDown,
-        color: 'neutral',
-        condition: (row) => true
-    },
-]
-
-export const PAYMENTS_FILTER_OPTIONS: FilterOption[] = [
-    {
-        id: 'status',
-        label: 'Status',
-        type: 'checkbox',
-        searchable: true,
-        options: [
-            { label: 'PENDING', value: 'PENDING' },
-            { label: 'COMPLETED', value: 'COMPLETED' },
-            { label: 'RECEIVED', value: 'RECEIVED' },
-            { label: 'FAILED', value: 'FAILED' }
-        ]
-    }
-];
-
-export const PAYMENTS_DATE_CONFIG: DatePickerConfig = {
     type: 'both',
     placeholder: 'Start - End'
 };

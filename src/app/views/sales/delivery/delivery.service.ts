@@ -35,6 +35,14 @@ export class DeliveryService {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/delivered`, { deliveryId }, successfn, errorfn);
     }
 
+    rescheduleDelivery(deliveryId: string | number, newDate: string, reason: string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/reschedule`, { newDate, reason }, successfn, errorfn);
+    }
+
+    cancelDelivery(deliveryId: string | number, reason: string, successfn: any, errorfn: any) {
+        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/cancel?reason=${encodeURIComponent(reason)}`, {}, successfn, errorfn);
+    }
+
     getAllRoutes(page: number, size: number, successfn: any, errorfn: any) {
         return this.httpService.getHttp(`${DeliveryService.DELIVERIES_BASE_URL}/route/all?page=${page}&size=${size}`, successfn, errorfn);
     }

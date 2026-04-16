@@ -4,7 +4,18 @@ module.exports = {
     "./src/**/*.{html,ts}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        'border-spin': 'border-spin 7s linear infinite',
+      },
+      keyframes: {
+        'border-spin': {
+          '100%': {
+            transform: 'rotate(360deg)',
+          },
+        },
+      },
+    },
   },
   plugins: [],
 }

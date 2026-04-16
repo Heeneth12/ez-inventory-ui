@@ -89,7 +89,8 @@
                     <div class="md:col-span-6 p-2 border-r border-gray-200" [class.pointer-events-none]="isReadonly"
                         [class.opacity-75]="isReadonly">
                         <app-invoice-header [selectedUser]="selectedUser" [searchType]="'CUSTOMER'" [autoFocus]="true"
-                            (userSelected)="onUserSelected($event)" (userCleared)="onUserCleared()">
+                            [isReadonly]="customerId ? true : false" (userSelected)="onUserSelected($event)"
+                            (userCleared)="onUserCleared()">
                         </app-invoice-header>
                     </div>
 
@@ -136,7 +137,7 @@
                             <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
                         </div>
                         <div class="relative w-full max-w-lg">
-                            <button (click)="openItemSearch()"
+                            <button type="button" (click)="openItemSearch()"
                                 class="w-full flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-md text-sm text-gray-400 hover:border-gray-300 hover:bg-gray-50 transition-all focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                 <lucide-icon [img]="SearchIcon" class="w-4 h-4 text-gray-400"></lucide-icon>
 
@@ -153,7 +154,6 @@
 
                 <div
                     class="grid grid-cols-12 gap-2 px-5 py-2.5 bg-gray-50 border-t border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider items-center">
-                    <div class="col-span-1 text-left">NO</div>
                     <div class="col-span-2">ITEM DETAILS</div>
                     <div class="col-span-1 text-center">MRP</div>
                     <div class="col-span-1 text-center">UNIT PRICE (₹)</div>
@@ -161,6 +161,7 @@
                     <div class="col-span-2 text-center">DISCOUNT</div>
                     <div class="col-span-2 text-center">TAX</div>
                     <div class="col-span-1 text-right">TOTAL (₹)</div>
+                    <div class="col-span-1 text-center">ACTION</div>
                 </div>
 
                 <div formArrayName="items" class="divide-y divide-gray-100">
@@ -168,23 +169,32 @@
                     <div [formGroupName]="$index"
                         class="grid grid-cols-12 gap-2 px-5 py-3 hover:bg-gray-50/40 transition-colors items-center group">
 
-                        <div class="col-span-1 text-left">
-                            <span class="text-xs font-medium text-gray-400">{{ $index + 1 }}</span>
-                        </div>
+                        <div class="col-span-2 min-w-0 flex items-center gap-3">
+                            <div class="shrink-0 h-9 w-9">
+                                <img class="h-9 w-9 rounded-full object-cover border border-gray-200"
+                                    [src]="'https://ui-avatars.com/api/?name=' + item.get('name')?.value + '&background=eff6ff&color=3b82f6&bold=true'"
+                                    alt="">
+                            </div>
 
-                        <div class="col-span-2 min-w-0 flex flex-col justify-center">
-                            <p class="text-sm font-semibold text-gray-900 truncate"
-                                title="{{ item.get('name')?.value }}">{{ item.get('name')?.value }}</p>
-                            @if(item.get('hsn')?.value) {
-                            <span
-                                class="text-[10px] text-gray-500 font-medium mt-0.5 inline-flex items-center px-1.5 py-0.5 rounded-sm bg-gray-100 border border-gray-200 w-fit">
-                                HSN: {{ item.get('hsn')?.value }}
-                            </span>
-                            } @else {
-                            <span
-                                class="text-[10px] text-gray-400 font-medium mt-0.5 inline-flex items-center w-fit">HSN:
-                                N/A</span>
-                            }
+                            <div class="flex flex-col min-w-0">
+                                <p class="text-sm font-semibold text-gray-900 truncate leading-none"
+                                    title="{{ item.get('name')?.value }}">
+                                    {{ item.get('name')?.value }}
+                                </p>
+
+                                <div class="mt-1">
+                                    @if(item.get('hsn')?.value) {
+                                    <span
+                                        class="text-[10px] text-gray-500 font-medium inline-flex items-center px-1.5 py-0.5 rounded-sm bg-gray-100 border border-gray-200 w-fit">
+                                        HSN: {{ item.get('hsn')?.value }}
+                                    </span>
+                                    } @else {
+                                    <span class="text-[10px] text-gray-400 font-medium inline-flex items-center">
+                                        HSN: N/A
+                                    </span>
+                                    }
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-span-1 flex justify-center">
@@ -193,7 +203,7 @@
                         </div>
 
                         <div class="col-span-1 flex justify-center">
-                            <input type="number" formControlName="unitPrice"
+                            <input type="number" formControlName="unitPrice" [id]="'unitPriceInput' + $index"
                                 class="w-full max-w-[100px] text-right border border-gray-200 group-hover:border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none rounded-md text-sm font-medium text-gray-800 py-1.5 px-2 transition-all shadow-sm group-hover:shadow bg-transparent group-hover:bg-white">
                         </div>
 
@@ -259,9 +269,12 @@
                                 <span class="text-sm font-bold text-gray-900">{{ getLineDetails($index).lineTotal |
                                     currency:'INR':'symbol':'1.0-2' }}</span>
                             </div>
+                        </div>
+
+                        <div class="col-span-1 text-center">
                             @if(!isReadonly) {
                             <button type="button" (click)="removeItem($index)"
-                                class="text-red-300 hover:text-red-500 transition-colors p-1.5 rounded-md hover:bg-red-50 shrink-0 opacity-0 group-hover:opacity-100 ring-1 ring-transparent hover:ring-red-200">
+                                class="text-red-500 hover:text-red-600 bg-red-50 transition-colors p-2 rounded-md hover:bg-red-100 shrink-0">
                                 <lucide-icon [img]="TrashIcon" class="w-4 h-4"></lucide-icon>
                             </button>
                             }

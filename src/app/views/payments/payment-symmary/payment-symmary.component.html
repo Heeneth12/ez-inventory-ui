@@ -118,9 +118,9 @@
               </svg>
             </div>
             <div>
-              <p class="text-[10px] font-bold text-[#5c6d9e] uppercase tracking-widest">Wallet / Advance Credit</p>
+              <p class="text-[10px] font-bold text-[#5c6d9e] uppercase tracking-widest">Advance Credit</p>
               <p class="text-lg font-bold text-[#1a2b5c]">
-                {{ (customerSummary?.walletBalance || 0) | currency:'INR':'symbol':'1.0-0' }}
+                {{ (customerSummary?.advanceBalance || 0) | currency:'INR':'symbol':'1.0-0' }}
               </p>
             </div>
             @if(customerSummary?.totalOutstandingAmount > 0){
@@ -134,8 +134,8 @@
           </div>
 
           <div class="flex gap-2 shrink-0">
-            <!-- Apply wallet to invoice — only meaningful when invoice is open -->
-            @if(invoiceId && customerSummary?.walletBalance > 0 && paymentSummary && paymentSummary.balanceDue > 0){
+            <!-- Apply advance to invoice — only meaningful when invoice is open -->
+            @if(invoiceId && customerSummary?.advanceBalance > 0 && paymentSummary && paymentSummary.balanceDue > 0){
             <button type="button" (click)="payWithWallet()"
               class="px-3 py-1.5 bg-[#0060df] text-white text-[10px] font-bold rounded-sm uppercase tracking-tight hover:bg-[#0050ba] transition-colors">
               Apply to Invoice
