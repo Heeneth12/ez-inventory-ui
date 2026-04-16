@@ -12,9 +12,9 @@ import { PaginationConfig, TableColumn, TableAction } from '../../layouts/compon
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { DatePickerConfig, DateRangeEmit } from '../../layouts/UI/date-picker/date-picker.component';
 import { StatGroupComponent, StatCardConfig } from '../../layouts/UI/stat-group/stat-group.component';
-import { PAYMENTS_COLUMNS, PAYMENTS_FILTER_OPTIONS, PAYMENTS_DATE_CONFIG, PAYMENTS_ACTIONS } from '../sales/salesConfig';
 import { PaymentFilterModal, PaymentModal, } from './payment.modal';
 import { PaymentService } from './payment.service';
+import { PAYMENTS_COLUMNS, PAYMENTS_FILTER_OPTIONS, PAYMENTS_DATE_CONFIG, PAYMENTS_ACTIONS } from './paymentConfig';
 
 @Component({
   selector: 'app-payments',

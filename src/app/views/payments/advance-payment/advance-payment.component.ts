@@ -12,7 +12,7 @@ import {
     ADVANCE_COLUMNS,
     ADVANCE_DATE_CONFIG,
     ADVANCE_FILTER_OPTIONS
-} from '../../sales/salesConfig';
+} from '../paymentConfig';
 import { AdvanceModal, AdvanceRefundItem } from '../payment.modal';
 import { PaymentService } from '../payment.service';
 

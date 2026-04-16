@@ -4,11 +4,8 @@
         <!-- Tenant Profile -->
         <ng-component [ngTemplateOutlet]="tenantProfileTemplate"></ng-component>
 
-        <!-- Tenant Address -->
-        <ng-component [ngTemplateOutlet]="tenantAddressTemplate"></ng-component>
-
         <!-- Integrations -->
-        <ng-component [ngTemplateOutlet]="integrationsTemplate"></ng-component>
+        <app-integrations []></app-integrations>
 
         <!-- Document Verification -->
         <ng-component [ngTemplateOutlet]="documentVerificationTemplate"></ng-component>
@@ -22,10 +19,9 @@
 
 <!-- Tenant Profile -->
 <ng-template #tenantProfileTemplate>
-    <div class="bg-white border border-gray-300/50 rounded-lg shadow-sm overflow-hidden">
+    <div class="bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden">
 
-        <!-- Card header -->
-        <div class="px-6 py-4 border-b border-gray-300/50 flex items-center justify-between">
+        <div class="px-6 py-4 border-b border-gray-300 flex items-center justify-between">
             <div>
                 <h2 class="text-[15px] font-semibold text-gray-900">Business configuration</h2>
                 <p class="text-[11px] text-gray-400 mt-0.5">Manage your company settings, legal information and
@@ -33,12 +29,12 @@
             </div>
             <div class="flex items-center gap-2">
                 <button *ngIf="!isEditMode()" (click)="enterEditMode()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all">
+                    class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
                     <lucide-icon [img]="EditIcon" [size]="13" class="text-gray-500"></lucide-icon>
                     Edit
                 </button>
                 <button *ngIf="isEditMode()" (click)="cancelEdit()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+                    class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
                     <lucide-icon [img]="XIcon" [size]="13"></lucide-icon>
                     Cancel
                 </button>
@@ -46,17 +42,16 @@
         </div>
 
         <form [formGroup]="tenantForm" (ngSubmit)="onSaveTenant()">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-200">
 
-                <!-- ───── Left col ───── -->
                 <div class="lg:col-span-7 p-6 space-y-6">
-
+                    <!-- make it center -->
                     <div class="flex items-start gap-5">
 
                         <div class="relative shrink-0 group">
                             <div (click)="isEditMode() && logoInput.click()"
-                                class="w-[72px] h-[72px] rounded-xl overflow-hidden border border-gray-200 bg-blue-50 flex items-center justify-center"
-                                [class.cursor-pointer]="isEditMode()" [class.hover:border-blue-300]="isEditMode()">
+                                class="w-[100px] h-[100px] rounded-xl overflow-hidden border border-gray-300 bg-blue-50 flex items-center justify-center transition-colors"
+                                [class.cursor-pointer]="isEditMode()" [class.hover:border-blue-400]="isEditMode()">
                                 <img *ngIf="logoUrl()" [src]="logoUrl()" alt="Logo" class="w-full h-full object-cover">
                                 <span *ngIf="!logoUrl()" class="text-[22px] font-bold text-blue-600">
                                     {{ tenantForm.get('tenantName')?.value?.charAt(0)?.toUpperCase() || 'B' }}
@@ -68,7 +63,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Camera badge — edit mode only -->
                             <button *ngIf="isEditMode()" type="button" (click)="logoInput.click()"
                                 class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center shadow-sm hover:bg-blue-700 transition-colors">
                                 <lucide-icon [img]="CameraIcon" [size]="11" class="text-white"></lucide-icon>
@@ -77,51 +71,53 @@
                                 class="hidden">
                         </div>
 
-                        <!-- Name + contact -->
                         <div class="flex-1 space-y-3 min-w-0">
                             <div>
-                                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">
+                                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">
                                     Business name <span class="text-red-400 normal-case">*</span>
                                 </label>
                                 <input type="text" formControlName="tenantName" placeholder="Enter business name"
                                     [readOnly]="!isEditMode()"
-                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                    [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                    [class.border-gray-300]="isEditMode()" [class.hover:border-gray-400]="isEditMode()"
+                                    [class.cursor-default]="!isEditMode()">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Phone</label>
+                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Phone</label>
                                     <input type="text" formControlName="phone" placeholder="+91 98765 43210"
                                         [readOnly]="!isEditMode()"
-                                        class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                        [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                        [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                        class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                        [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                        [class.border-gray-300]="isEditMode()"
+                                        [class.hover:border-gray-400]="isEditMode()"
+                                        [class.cursor-default]="!isEditMode()">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Email</label>
+                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Email</label>
                                     <input type="email" formControlName="email" placeholder="company@email.com"
                                         [readOnly]="!isEditMode()"
-                                        class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                        [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                        [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                        class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                        [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                        [class.border-gray-300]="isEditMode()"
+                                        [class.hover:border-gray-400]="isEditMode()"
+                                        [class.cursor-default]="!isEditMode()">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ── Business Addresses ── -->
-                    <div class="border border-gray-100 rounded-xl overflow-hidden">
-                        <div class="flex items-center justify-between px-4 py-3 bg-gray-50/60 border-b border-gray-100">
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="flex items-center justify-between px-4 py-3 bg-gray-50/60 border-b border-gray-200">
                             <div>
                                 <p class="text-[13px] font-semibold text-gray-800">Business addresses</p>
-                                <p class="text-[11px] text-gray-400 mt-0.5">Office, billing and shipping locations
-                                </p>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Office, billing and shipping locations</p>
                             </div>
                             <button *ngIf="isEditMode()" type="button" (click)="openAddAddress()"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors">
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors">
                                 <lucide-icon [img]="PlusIcon" [size]="12"></lucide-icon>
                                 Add
                             </button>
@@ -129,56 +125,57 @@
 
                         <div class="p-3 space-y-2">
                             <div *ngIf="addresses().length === 0"
-                                class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-200 rounded-xl text-center">
-                                <lucide-icon [img]="MapPinIcon" [size]="22" class="text-gray-300 mb-2"></lucide-icon>
-                                <p class="text-[12px] text-gray-400">No addresses added yet.</p>
-                                <p *ngIf="isEditMode()" class="text-[11px] text-gray-300 mt-0.5">Click 'Add' to
-                                    create one.</p>
+                                class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-xl text-center">
+                                <lucide-icon [img]="MapPinIcon" [size]="22" class="text-gray-400 mb-2"></lucide-icon>
+                                <p class="text-[12px] text-gray-500">No addresses added yet.</p>
+                                <p *ngIf="isEditMode()" class="text-[11px] text-gray-400 mt-0.5">Click 'Add' to create
+                                    one.</p>
                             </div>
 
-                            <div *ngFor="let addr of addresses()"
-                                class="group flex items-start justify-between gap-3 p-3.5 border border-gray-100 rounded-xl bg-white hover:border-blue-200 hover:bg-blue-50/20 transition-all">
-                                <div class="min-w-0">
-                                    <span
-                                        class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1.5 border"
-                                        [ngClass]="{
-                        'bg-blue-50 text-blue-700 border-blue-100':    addr.type === 'HOME',
-                        'bg-gray-100 text-gray-600 border-gray-200':   addr.type === 'OFFICE',
-                        'bg-amber-50 text-amber-700 border-amber-100': addr.type === 'BILLING',
-                        'bg-green-50 text-green-700 border-green-100': addr.type === 'SHIPPING',
-                        'bg-purple-50 text-purple-700 border-purple-100': addr.type === 'WAREHOUSE'
-                      }">{{ addr.type }}</span>
-                                    <p class="text-[12px] font-semibold text-gray-800 leading-snug">
-                                        {{ addr.addressLine1 }}<span *ngIf="addr.addressLine2">, {{
-                                            addr.addressLine2 }}</span>
-                                    </p>
-                                    <p class="text-[11px] text-gray-400 mt-0.5">
-                                        {{ addr.city }}, {{ addr.state }}, {{ addr.country }} —
-                                        <span class="font-medium text-gray-600">{{ addr.pinCode }}</span>
-                                    </p>
+                            <div *ngIf="addresses().length > 0" class="space-y-2">
+                                <div *ngFor="let addr of addresses()"
+                                    class="group flex items-start justify-between gap-3 p-3.5 border border-gray-200 rounded-lg bg-white hover:border-blue-300 hover:bg-blue-50/20 transition-all">
+                                    <div class="min-w-0">
+                                        <span
+                                            class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1.5 border"
+                                            [ngClass]="{
+                                                'bg-blue-50 text-blue-700 border-blue-200':    addr.type === 'HOME',
+                                                'bg-gray-100 text-gray-700 border-gray-300':   addr.type === 'OFFICE',
+                                                'bg-amber-50 text-amber-700 border-amber-200': addr.type === 'BILLING',
+                                                'bg-green-50 text-green-700 border-green-200': addr.type === 'SHIPPING',
+                                                'bg-purple-50 text-purple-700 border-purple-200': addr.type === 'WAREHOUSE'
+                                            }">{{ addr.type }}</span>
+                                        <p class="text-[12px] font-semibold text-gray-800 leading-snug">
+                                            {{ addr.addressLine1 }}<span *ngIf="addr.addressLine2">, {{
+                                                addr.addressLine2 }}</span>
+                                        </p>
+                                        <p class="text-[11px] text-gray-500 mt-0.5">
+                                            {{ addr.city }}, {{ addr.state }}, {{ addr.country }} —
+                                            <span class="font-medium text-gray-700">{{ addr.pinCode }}</span>
+                                        </p>
+                                    </div>
+                                    <button *ngIf="isEditMode()" type="button" (click)="openEditAddress(addr)"
+                                        class="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all opacity-0 group-hover:opacity-100">
+                                        <lucide-icon [img]="EditIcon" [size]="13"></lucide-icon>
+                                    </button>
                                 </div>
-                                <button *ngIf="isEditMode()" type="button" (click)="openEditAddress(addr)"
-                                    class="shrink-0 p-1.5 rounded-lg text-gray-300 hover:text-blue-500 hover:bg-blue-50 transition-all opacity-0 group-hover:opacity-100">
-                                    <lucide-icon [img]="EditIcon" [size]="13"></lucide-icon>
-                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ── Toggles ── -->
                     <div class="space-y-2">
                         <div
-                            class="flex items-center justify-between p-3.5 border border-blue-100 bg-blue-50/40 rounded-xl">
+                            class="flex items-center justify-between p-3.5 border border-blue-200 bg-blue-50/40 rounded-xl">
                             <div>
-                                <span class="text-[13px] font-medium text-blue-800">Enable e-Invoicing</span>
+                                <span class="text-[13px] font-medium text-blue-900">Enable e-Invoicing</span>
                                 <span
                                     class="ml-2 bg-blue-500 text-white text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">New</span>
-                                <p class="text-[11px] text-blue-500 mt-0.5">Generate IRN and QR code for each
-                                    invoice</p>
+                                <p class="text-[11px] text-blue-600 mt-0.5">Generate IRN and QR code for each invoice
+                                </p>
                             </div>
                             <button type="button" (click)="toggleEInvoice()"
                                 class="relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
-                                [class.bg-blue-600]="eInvoiceEnabled" [class.bg-gray-200]="!eInvoiceEnabled">
+                                [class.bg-blue-600]="eInvoiceEnabled" [class.bg-gray-300]="!eInvoiceEnabled">
                                 <span
                                     class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
                                     [class.translate-x-5]="eInvoiceEnabled"></span>
@@ -186,15 +183,15 @@
                         </div>
 
                         <div
-                            class="flex items-center justify-between p-3.5 border border-gray-100 bg-gray-50/40 rounded-xl">
+                            class="flex items-center justify-between p-3.5 border border-gray-200 bg-gray-50/40 rounded-xl">
                             <div>
-                                <span class="text-[13px] font-medium text-gray-700">Enable TDS</span>
-                                <p class="text-[11px] text-gray-400 mt-0.5">Deduct tax at source on applicable
+                                <span class="text-[13px] font-medium text-gray-800">Enable TDS</span>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Deduct tax at source on applicable
                                     transactions</p>
                             </div>
                             <button type="button" (click)="toggleTds()"
                                 class="relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
-                                [class.bg-blue-600]="tdsEnabled" [class.bg-gray-200]="!tdsEnabled">
+                                [class.bg-blue-600]="tdsEnabled" [class.bg-gray-300]="!tdsEnabled">
                                 <span
                                     class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
                                     [class.translate-x-5]="tdsEnabled"></span>
@@ -204,63 +201,65 @@
 
                 </div>
 
-                <!-- ───── Right col ───── -->
                 <div class="lg:col-span-5 p-6 space-y-5">
 
-                    <!-- Legal & Registration -->
                     <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">Legal &amp;
+                        <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-3">Legal &amp;
                             registration</p>
                         <div class="space-y-3">
                             <div>
                                 <label
-                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Legal
+                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Legal
                                     name</label>
                                 <input type="text" formControlName="legalName" placeholder="Registered legal name"
                                     [readOnly]="!isEditMode()"
-                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                    [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                    [class.border-gray-300]="isEditMode()" [class.hover:border-gray-400]="isEditMode()"
+                                    [class.cursor-default]="!isEditMode()">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">GST
+                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">GST
                                         number</label>
                                     <input type="text" formControlName="gstNumber" placeholder="06APTPS…"
                                         [readOnly]="!isEditMode()"
-                                        class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                        [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                        [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                        class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                        [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                        [class.border-gray-300]="isEditMode()"
+                                        [class.hover:border-gray-400]="isEditMode()"
+                                        [class.cursor-default]="!isEditMode()">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">PAN
+                                        class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">PAN
                                         number</label>
                                     <input type="text" formControlName="panNumber" placeholder="AABCT1332L"
                                         [readOnly]="!isEditMode()"
-                                        class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                        [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                        [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                        class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                        [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                        [class.border-gray-300]="isEditMode()"
+                                        [class.hover:border-gray-400]="isEditMode()"
+                                        [class.cursor-default]="!isEditMode()">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Business config -->
                     <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">Business
-                            config</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-3">Business config
+                        </p>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label
-                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Business
+                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Business
                                     type</label>
                                 <select formControlName="businessType" [attr.disabled]="!isEditMode() ? '' : null"
-                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none bg-white transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                    [class.border-gray-200]="isEditMode()" [class.cursor-not-allowed]="!isEditMode()"
-                                    [class.cursor-pointer]="isEditMode()">
+                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none bg-white transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                    [class.border-gray-300]="isEditMode()" [class.hover:border-gray-400]="isEditMode()"
+                                    [class.cursor-not-allowed]="!isEditMode()" [class.cursor-pointer]="isEditMode()">
                                     <option value="RETAIL">Retail</option>
                                     <option value="WHOLESALE">Wholesale</option>
                                     <option value="MANUFACTURING">Manufacturing</option>
@@ -271,13 +270,13 @@
                             </div>
                             <div>
                                 <label
-                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Base
+                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Base
                                     currency</label>
                                 <select formControlName="baseCurrency" [attr.disabled]="!isEditMode() ? '' : null"
-                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none bg-white transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                    [class.border-gray-200]="isEditMode()" [class.cursor-not-allowed]="!isEditMode()"
-                                    [class.cursor-pointer]="isEditMode()">
+                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none bg-white transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                    [class.border-gray-300]="isEditMode()" [class.hover:border-gray-400]="isEditMode()"
+                                    [class.cursor-not-allowed]="!isEditMode()" [class.cursor-pointer]="isEditMode()">
                                     <option value="INR">INR (₹)</option>
                                     <option value="USD">USD ($)</option>
                                     <option value="EUR">EUR (€)</option>
@@ -285,12 +284,12 @@
                             </div>
                             <div>
                                 <label
-                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Timezone</label>
+                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Timezone</label>
                                 <select formControlName="timeZone" [attr.disabled]="!isEditMode() ? '' : null"
-                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none bg-white transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                    [class.border-gray-200]="isEditMode()" [class.cursor-not-allowed]="!isEditMode()"
-                                    [class.cursor-pointer]="isEditMode()">
+                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none bg-white transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                    [class.border-gray-300]="isEditMode()" [class.hover:border-gray-400]="isEditMode()"
+                                    [class.cursor-not-allowed]="!isEditMode()" [class.cursor-pointer]="isEditMode()">
                                     <option value="IST">IST (UTC +5:30)</option>
                                     <option value="UTC">UTC</option>
                                     <option value="EST">EST (UTC -5:00)</option>
@@ -298,65 +297,65 @@
                             </div>
                             <div>
                                 <label
-                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Website</label>
+                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Website</label>
                                 <input type="text" formControlName="website" placeholder="www.domain.com"
                                     [readOnly]="!isEditMode()"
-                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                    [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                    [class.border-gray-300]="isEditMode()" [class.hover:border-gray-400]="isEditMode()"
+                                    [class.cursor-default]="!isEditMode()">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Support contacts -->
                     <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">Support
-                            contacts</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-3">Support contacts
+                        </p>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label
-                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Support
+                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Support
                                     email</label>
                                 <input type="email" formControlName="supportEmail" placeholder="support@domain.com"
                                     [readOnly]="!isEditMode()"
-                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                    [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                    [class.border-gray-300]="isEditMode()" [class.hover:border-gray-400]="isEditMode()"
+                                    [class.cursor-default]="!isEditMode()">
                             </div>
                             <div>
                                 <label
-                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">Contact
+                                    class="block text-[11px] font-medium uppercase tracking-wide text-gray-500 mb-1">Contact
                                     phone</label>
                                 <input type="text" formControlName="contactPhone" placeholder="+91 00000 00000"
                                     [readOnly]="!isEditMode()"
-                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-100]="!isEditMode()"
-                                    [class.border-gray-200]="isEditMode()" [class.cursor-default]="!isEditMode()">
+                                    class="w-full border rounded-lg px-3 py-2 text-[13px] text-gray-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    [class.bg-gray-50]="!isEditMode()" [class.border-gray-200]="!isEditMode()"
+                                    [class.border-gray-300]="isEditMode()" [class.hover:border-gray-400]="isEditMode()"
+                                    [class.cursor-default]="!isEditMode()">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Signature upload -->
                     <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">Invoice
+                        <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-3">Invoice
                             signature</p>
-                        <div class="flex items-start gap-3 p-3 border border-blue-100 bg-blue-50/30 rounded-xl">
+                        <div class="flex items-start gap-3 p-3 border border-blue-200 bg-blue-50/30 rounded-xl">
                             <lucide-icon [img]="InfoIcon" [size]="13"
-                                class="text-blue-400 mt-0.5 shrink-0"></lucide-icon>
-                            <p class="text-[11px] text-blue-700 leading-relaxed">
-                                Signature and Terms &amp; Conditions added here will appear on all generated
-                                invoices.
+                                class="text-blue-500 mt-0.5 shrink-0"></lucide-icon>
+                            <p class="text-[11px] text-blue-800 leading-relaxed">
+                                Signature and Terms &amp; Conditions added here will appear on all generated invoices.
                             </p>
                         </div>
                         <div (click)="isEditMode() && signatureInput.click()"
                             class="mt-3 w-full h-20 border-2 border-dashed rounded-xl flex items-center justify-center transition-all"
-                            [class.border-blue-300]="isEditMode()" [class.hover:bg-blue-50]="isEditMode()"
-                            [class.cursor-pointer]="isEditMode()" [class.border-gray-200]="!isEditMode()"
+                            [class.border-blue-400]="isEditMode()" [class.hover:bg-blue-50]="isEditMode()"
+                            [class.cursor-pointer]="isEditMode()" [class.border-gray-300]="!isEditMode()"
                             [class.bg-gray-50]="!isEditMode()">
                             <div *ngIf="!signatureUrl()" class="flex flex-col items-center gap-1">
-                                <lucide-icon [img]="UploadIcon" [size]="16" class="text-gray-300"></lucide-icon>
-                                <span class="text-[11px] font-medium" [class.text-blue-500]="isEditMode()"
-                                    [class.text-gray-400]="!isEditMode()">
+                                <lucide-icon [img]="UploadIcon" [size]="16" class="text-gray-400"></lucide-icon>
+                                <span class="text-[11px] font-medium" [class.text-blue-600]="isEditMode()"
+                                    [class.text-gray-500]="!isEditMode()">
                                     {{ isEditMode() ? 'Upload signature' : 'No signature uploaded' }}
                                 </span>
                             </div>
@@ -367,17 +366,16 @@
                         </div>
                     </div>
 
-                    <!-- Close Financial Year -->
                     <div *ngIf="isEditMode()"
-                        class="p-3.5 border border-amber-100 bg-amber-50/40 rounded-xl flex items-center justify-between gap-3">
+                        class="p-3.5 border border-amber-200 bg-amber-50/40 rounded-xl flex items-center justify-between gap-3 mt-4">
                         <div>
-                            <p class="text-[13px] font-semibold text-amber-800">Close financial year</p>
-                            <p class="text-[11px] text-amber-600 mt-0.5">Lock current FY records and start a new
-                                fiscal period</p>
+                            <p class="text-[13px] font-semibold text-amber-900">Close financial year</p>
+                            <p class="text-[11px] text-amber-700 mt-0.5">Lock current FY records and start a new fiscal
+                                period</p>
                         </div>
                         <button type="button" (click)="closeFinancialYear()"
-                            class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-[12px] font-semibold text-amber-700 bg-white border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors">
-                            <lucide-icon [img]="CalendarIcon" [size]="12" class="text-amber-500"></lucide-icon>
+                            class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-[12px] font-semibold text-amber-800 bg-white border border-amber-300 rounded-lg hover:bg-amber-50 transition-colors shadow-sm">
+                            <lucide-icon [img]="CalendarIcon" [size]="12" class="text-amber-600"></lucide-icon>
                             Close FY
                         </button>
                     </div>
@@ -385,11 +383,10 @@
                 </div>
             </div>
 
-            <!-- Save bar -->
             <div *ngIf="isEditMode()"
-                class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/40">
+                class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50/80">
                 <button type="button" (click)="cancelEdit()"
-                    class="px-4 py-2 text-[13px] font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+                    class="px-4 py-2 text-[13px] font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors">
                     Cancel
                 </button>
                 <button type="submit" [disabled]="tenantForm.invalid || isSaving()"
@@ -407,164 +404,100 @@
 </ng-template>
 
 <!-- Address Modal -->
-<ng-template #tenantAddressTemplate>
-    <div *ngIf="isAddressModalOpen()"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4"
-        (click)="closeAddressModal()">
-
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
-            (click)="$event.stopPropagation()">
-
-            <!-- Modal header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/40">
-                <h3 class="text-[15px] font-semibold text-gray-900">
-                    {{ editingAddressId() ? 'Edit address' : 'Add new address' }}
-                </h3>
-                <button type="button" (click)="closeAddressModal()"
-                    class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-                    <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
-                </button>
-            </div>
-
-            <!-- Modal body -->
-            <form [formGroup]="addressForm" (ngSubmit)="onSaveAddress()" class="p-6">
-                <div class="grid grid-cols-2 gap-4">
-
-                    <div class="col-span-2 space-y-1.5">
-                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Address
-                            type</label>
-                        <select formControlName="type"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] text-gray-800 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white cursor-pointer transition-shadow">
-                            <option value="OFFICE">Office</option>
-                            <option value="HOME">Home</option>
-                            <option value="BILLING">Billing</option>
-                            <option value="SHIPPING">Shipping</option>
-                            <option value="WAREHOUSE">Warehouse</option>
-                        </select>
-                    </div>
-
-                    <div class="col-span-2 space-y-1.5">
-                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
-                            Address line 1 <span class="text-red-400 normal-case">*</span>
-                        </label>
-                        <input type="text" formControlName="addressLine1"
-                            placeholder="Flat, House no., Building, Company"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-                    </div>
-
-                    <div class="col-span-2 space-y-1.5">
-                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Address line
-                            2</label>
-                        <input type="text" formControlName="addressLine2" placeholder="Area, Street, Sector, Village"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
-                            City <span class="text-red-400 normal-case">*</span>
-                        </label>
-                        <input type="text" formControlName="city" placeholder="City"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
-                            State <span class="text-red-400 normal-case">*</span>
-                        </label>
-                        <input type="text" formControlName="state" placeholder="State"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
-                            Country <span class="text-red-400 normal-case">*</span>
-                        </label>
-                        <input type="text" formControlName="country" placeholder="Country"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
-                            Pin code <span class="text-red-400 normal-case">*</span>
-                        </label>
-                        <input type="text" formControlName="pinCode" placeholder="6 digits" maxlength="6"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-                    </div>
-
-                </div>
-
-                <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
-                    <button type="button" (click)="closeAddressModal()"
-                        class="px-5 py-2.5 text-[13px] font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit" [disabled]="isSavingAddress() || addressForm.invalid"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
-                        <span *ngIf="isSavingAddress()"
-                            class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                        <ng-container *ngIf="!isSavingAddress()">
-                            <lucide-icon [img]="SaveIcon" [size]="13" class="text-white/80"></lucide-icon>
-                        </ng-container>
-                        {{ editingAddressId() ? 'Update address' : 'Save address' }}
-                    </button>
-                </div>
-            </form>
-
-        </div>
+<ng-template #tenantAddressModalTemplate>
+    <!-- Modal header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/40">
+        <h3 class="text-[15px] font-semibold text-gray-900">
+            {{ editingAddressId() ? 'Edit address' : 'Add new address' }}
+        </h3>
+        <button type="button" (click)="closeAddressModal()"
+            class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+            <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
+        </button>
     </div>
-</ng-template>
 
-<!-- Integrations Template -->
-<ng-template #integrationsTemplate>
-    <div class="bg-white border border-gray-300/50 rounded-lg shadow-sm overflow-hidden transition-all duration-300">
+    <!-- Modal body -->
+    <form [formGroup]="addressForm" (ngSubmit)="onSaveAddress()" class="p-6">
+        <div class="grid grid-cols-2 gap-4">
 
-        <div (click)="isIntegrationsExpanded = !isIntegrationsExpanded"
-            class="px-6 py-4 border-b border-gray-300/50 cursor-pointer hover:bg-gray-50 flex justify-between items-center transition-colors">
-            <div>
-                <h2 class="text-[15px] font-semibold text-gray-900">Integrations</h2>
-                <p class="text-[11px] text-gray-400 mt-0.5">Connected apps and third-party services</p>
+            <div class="col-span-2 space-y-1.5">
+                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Address
+                    type</label>
+                <select formControlName="type"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] text-gray-800 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white cursor-pointer transition-shadow">
+                    <option value="OFFICE">Office</option>
+                    <option value="HOME">Home</option>
+                    <option value="BILLING">Billing</option>
+                    <option value="SHIPPING">Shipping</option>
+                    <option value="WAREHOUSE">Warehouse</option>
+                </select>
             </div>
-            <lucide-icon [img]="ChevronDownIcon" [size]="18" class="text-gray-400 transition-transform duration-300"
-                [class.rotate-180]="isIntegrationsExpanded">
-            </lucide-icon>
+
+            <div class="col-span-2 space-y-1.5">
+                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                    Address line 1 <span class="text-red-400 normal-case">*</span>
+                </label>
+                <input type="text" formControlName="addressLine1" placeholder="Flat, House no., Building, Company"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+
+            <div class="col-span-2 space-y-1.5">
+                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">Address line
+                    2</label>
+                <input type="text" formControlName="addressLine2" placeholder="Area, Street, Sector, Village"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                    City <span class="text-red-400 normal-case">*</span>
+                </label>
+                <input type="text" formControlName="city" placeholder="City"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                    State <span class="text-red-400 normal-case">*</span>
+                </label>
+                <input type="text" formControlName="state" placeholder="State"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                    Country <span class="text-red-400 normal-case">*</span>
+                </label>
+                <input type="text" formControlName="country" placeholder="Country"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                    Pin code <span class="text-red-400 normal-case">*</span>
+                </label>
+                <input type="text" formControlName="pinCode" placeholder="6 digits" maxlength="6"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+
         </div>
 
-        <div class="transition-all duration-300 ease-in-out overflow-hidden"
-            [style.max-height]="isIntegrationsExpanded ? '1500px' : '0px'" [class.opacity-0]="!isIntegrationsExpanded"
-            [class.opacity-100]="isIntegrationsExpanded">
-
-            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div *ngFor="let app of integrations"
-                    class="flex items-center justify-between gap-3 p-4 border border-gray-100 rounded-xl bg-gray-50/40 hover:border-blue-200 hover:bg-blue-50/20 transition-all">
-
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-9 h-9 rounded-lg flex items-center justify-center text-[12px] font-bold shrink-0"
-                            [ngClass]="{
-                                'bg-blue-100 text-blue-700':   app.color === 'blue',
-                                'bg-green-100 text-green-700': app.color === 'green',
-                                'bg-purple-100 text-purple-700': app.color === 'purple',
-                                'bg-amber-100 text-amber-700': app.color === 'amber',
-                                'bg-gray-100 text-gray-600':   app.color === 'gray'
-                            }">{{ app.initials }}</div>
-
-                        <div class="min-w-0">
-                            <p class="text-[13px] font-semibold text-gray-800">{{ app.name }}</p>
-                            <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ app.desc }}</p>
-                        </div>
-                    </div>
-
-                    <button type="button" (click)="toggleIntegration(app); $event.stopPropagation()"
-                        class="shrink-0 px-3 py-1.5 text-[12px] font-semibold rounded-lg border transition-colors"
-                        [ngClass]="{
-                            'bg-red-50 text-red-600 border-red-100 hover:bg-red-100':     app.connected,
-                            'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100': !app.connected
-                        }">
-                        {{ app.connected ? 'Disconnect' : 'Connect' }}
-                    </button>
-                </div>
-            </div>
+        <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
+            <button type="button" (click)="closeAddressModal()"
+                class="px-5 py-2.5 text-[13px] font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                Cancel
+            </button>
+            <button type="submit" [disabled]="isSavingAddress() || addressForm.invalid"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-[13px] font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                <span *ngIf="isSavingAddress()"
+                    class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <ng-container *ngIf="!isSavingAddress()">
+                    <lucide-icon [img]="SaveIcon" [size]="13" class="text-white/80"></lucide-icon>
+                </ng-container>
+                {{ editingAddressId() ? 'Update address' : 'Save address' }}
+            </button>
         </div>
-    </div>
+    </form>
 </ng-template>
 
 <!-- Document Verification -->

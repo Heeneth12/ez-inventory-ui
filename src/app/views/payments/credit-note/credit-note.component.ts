@@ -12,7 +12,7 @@ import {
     CREDIT_NOTE_COLUMNS,
     CREDIT_NOTE_DATE_CONFIG,
     CREDIT_NOTE_FILTER_OPTIONS
-} from '../../sales/salesConfig';
+} from '../paymentConfig';
 import { CreditNoteModal, CreditNoteRefundItem } from '../payment.modal';
 import { PaymentService } from '../payment.service';
 

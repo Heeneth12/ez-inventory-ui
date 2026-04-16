@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -16,7 +16,6 @@ import {
   Download,
   Eye,
   EyeOff,
-  FileText,
   Key,
   Loader,
   LogOut,
@@ -25,7 +24,9 @@ import {
   Shield,
   Smartphone,
   Trash,
-  User
+  User,
+  ShieldCheck,
+  TestTubeIcon
 } from 'lucide-angular';
 import { Observable, take } from 'rxjs';
 import { TenantModel } from '../../../views/user-management/models/tenant.model';
@@ -33,14 +34,9 @@ import { UserManagementService } from '../../../views/user-management/userManage
 import { AuthService } from '../../guards/auth.service';
 import { UserInitResponse } from '../../models/Init-response.model';
 import { ToastService } from '../toast/toastService';
+import { ModalService } from '../modal/modalService';
+import { IntegrationsComponent } from "../integrations/integrations.component";
 
-export interface Integration {
-  name: string;
-  initials: string;
-  desc: string;
-  connected: boolean;
-  color: 'blue' | 'green' | 'purple' | 'amber' | 'gray';
-}
 
 export interface DocumentRecord {
   label: string;
@@ -60,13 +56,17 @@ export interface PrivacyPref {
 @Component({
   selector: 'app-tenant',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, IntegrationsComponent],
   templateUrl: './tenant.component.html'
 })
 export class TenantComponent implements OnInit {
 
   isExpanded = false;
   isIntegrationsExpanded: boolean = false;
+
+  @ViewChild('integrationConfigModalTemplate') integrationConfigModalTemplate!: any;
+  @ViewChild('tenantAddressModalTemplate') tenantAddressModalTemplate!: any;
+
 
   // icons
   readonly EditIcon = Edit;
@@ -88,7 +88,6 @@ export class TenantComponent implements OnInit {
   readonly ShieldIcon = Shield;
   readonly KeyIcon = Key;
   readonly BellIcon = Bell;
-  readonly LockIcon = Lock;
   readonly EyeIcon = Eye;
   readonly EyeOffIcon = EyeOff;
   readonly LoaderIcon = Loader;
@@ -136,7 +135,8 @@ export class TenantComponent implements OnInit {
     private authSvs: AuthService,
     private userService: UserManagementService,
     private fb: FormBuilder,
-    private toast: ToastService
+    private toast: ToastService,
+    private modalSvs: ModalService,
   ) { }
 
   ngOnInit() {
@@ -266,16 +266,17 @@ export class TenantComponent implements OnInit {
   openAddAddress() {
     this.editingAddressId.set(null);
     this.addressForm.reset({ type: 'OFFICE', country: 'India' });
-    this.isAddressModalOpen.set(true);
+    this.modalSvs.openTemplate(this.tenantAddressModalTemplate);
   }
 
   openEditAddress(address: any) {
     this.editingAddressId.set(address.id ?? null);
     this.addressForm.patchValue(address);
-    this.isAddressModalOpen.set(true);
+    this.modalSvs.openTemplate(this.tenantAddressModalTemplate);
   }
 
   closeAddressModal() {
+    this.modalSvs.close();
     this.isAddressModalOpen.set(false);
     this.editingAddressId.set(null);
     this.addressForm.reset({ type: 'OFFICE', country: 'India' });
@@ -335,18 +336,6 @@ export class TenantComponent implements OnInit {
     this.toast.show('Financial year close initiated', 'info');
   }
 
-  // Integrations
-  integrations: Integration[] = [
-    { name: 'WhatsApp Business', initials: 'WA', desc: 'Send order & delivery alerts', connected: true, color: 'green' },
-    { name: 'Razorpay', initials: 'RP', desc: 'Payment gateway for invoices', connected: false, color: 'blue' },
-    { name: 'Zoho Books', initials: 'ZB', desc: 'Accounting and expense sync', connected: false, color: 'amber' },
-    { name: 'Google Sheets', initials: 'GS', desc: 'Export reports to Sheets', connected: false, color: 'green' },
-  ];
-
-  toggleIntegration(app: Integration) {
-    app.connected = !app.connected;
-    // TODO: connect/disconnect API
-  }
 
   // Documents
   documents: DocumentRecord[] = [
