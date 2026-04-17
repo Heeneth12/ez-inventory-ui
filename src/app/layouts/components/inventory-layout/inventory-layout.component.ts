@@ -51,6 +51,11 @@ import {
   HandbagIcon,
   Undo2,
   Sparkles,
+  SendIcon,
+  MoreHorizontal,
+  Mic,
+  Image,
+  History,
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { TutorialService } from '../../service/common/tutorial.service';
@@ -61,11 +66,12 @@ import { DropdownMenuItem, CustomDropdownComponent } from '../../UI/custom-dropd
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DrawerService } from '../drawer/drawerService';
 import { SearchModalComponent } from '../search-modal/search-modal.component';
+import { AiChatComponent } from '../../../views/ai-chat/ai-chat.component';
 
 @Component({
   selector: 'app-inventory-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, NotificationsComponent, CustomDropdownComponent],
+  imports: [CommonModule, RouterModule, LucideAngularModule, NotificationsComponent, CustomDropdownComponent, AiChatComponent],
   templateUrl: './inventory-layout.component.html',
   styleUrl: './inventory-layout.component.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -79,6 +85,7 @@ export class InventoryLayoutComponent implements OnInit {
   currentDate = new Date();
   private readonly STORAGE_KEY = 'catalyst_tour_completed';
   showPlanAds: boolean = true;
+  isAiOpen = false;
 
   //icons
   readonly Calendar = Calendar
@@ -108,6 +115,12 @@ export class InventoryLayoutComponent implements OnInit {
   readonly PanelLeftClose = PanelLeftClose;
   readonly PanelRightOpen = PanelRightOpen;
   readonly Sparkles = Sparkles;
+  readonly SendIcon = SendIcon;
+  readonly Image = Image;
+  readonly Mic = Mic;
+  readonly History = History;
+  readonly MoreHorizontal = MoreHorizontal;
+  readonly Send = SendIcon;
 
   proFeatures = ['Unlimited storage', 'Priority support', 'Advanced analytics'];
 
@@ -439,6 +452,18 @@ export class InventoryLayoutComponent implements OnInit {
       this.openDropdownLabel = null;
     } else {
       this.openDropdownLabel = label;
+    }
+  }
+
+  toggleAiSidebar() {
+    this.isAiOpen = !this.isAiOpen;
+    if (this.isAiOpen) {
+      this.isSidebarCollapsed = true;
+    }
+    if (this.isSidebarCollapsed) {
+      this.openDropdownLabel = null;
+    } else {
+      this.checkActiveDropdown();
     }
   }
 

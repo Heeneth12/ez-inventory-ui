@@ -10,7 +10,7 @@
         [ngClass]="{
             'translate-x-0': isMobileMenuOpen, 
             '-translate-x-full lg:translate-x-0': !isMobileMenuOpen,
-            'min-w-60': !isSidebarCollapsed,
+            'w-60': !isSidebarCollapsed,
             'w-20': isSidebarCollapsed
         }">
         <div class="h-16 flex items-center shrink-0 transition-all duration-300 border-b border-white/5"
@@ -218,7 +218,7 @@
         }
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <main class="flex-1 min-w-0 flex flex-col bg-white overflow-hidden transition-all duration-300 ease-in-out">
         <header
             class="h-16 bg-white border-b border-slate-300 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-5">
             <div class="flex items-center text-sm text-gray-500">
@@ -243,7 +243,7 @@
 
             <div class="flex items-center gap-2 sm:gap-4">
 
-                <button
+                <button (click)="toggleAiSidebar()"
                     class="relative group overflow-hidden rounded-lg p-[1.5px] transition-all active:scale-95 shadow-sm">
                     <span
                         class="absolute inset-[-1000%] animate-border-spin bg-[conic-gradient(from_90deg_at_50%_50%,#f1f5f9_0%,#fb923c_25%,#f1f5f9_50%,#fb923c_75%,#f1f5f9_100%)]">
@@ -337,4 +337,21 @@
             <ng-component></ng-component>
         </div>
     </main>
+
+    <!--  AI Sidebar -->
+    <aside id="ai-sidebar"
+        class="hidden lg:flex flex-col border-l border-slate-200 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] relative"
+        [ngClass]="isAiOpen ? 'w-[450px] opacity-100' : 'w-0 opacity-0 border-none'">
+
+        <div class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-4 h-12 overflow-visible">
+            <button (click)="isAiOpen = !isAiOpen"
+                class="absolute -left-0 top-0 h-12 w-4 z-50 bg-white border border-slate-200 rounded-l-md flex items-center justify-center text-slate-400 hover:text-indigo-600 shadow-sm transition-all active:scale-90">
+                <lucide-icon [img]="isAiOpen ? ChevronRight : ChevronLeft" class="w-3 h-3"></lucide-icon>
+            </button>
+        </div>
+
+        @if (isAiOpen) {
+        <app-ai-chat [isSidebarMode]="true" class="w-full h-full flex flex-col"></app-ai-chat>
+        }
+    </aside>
 </div>
