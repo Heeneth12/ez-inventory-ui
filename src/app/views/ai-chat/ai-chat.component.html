@@ -12,7 +12,7 @@
       [ngClass]="showSidebar ? 'opacity-100' : 'opacity-0 pointer-events-none'">
 
       <!-- Brand -->
-      <div class="flex items-center gap-2.5 px-4 h-14 border-b border-slate-800/60 flex-shrink-0 bg-[#0b1520]">
+      <div class="flex items-center gap-2.5 px-4 h-16 border-b border-slate-800/60 flex-shrink-0 bg-[#0b1520]">
         <div
           class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg flex-shrink-0">
           <lucide-icon [img]="Sparkles" class="w-4 h-4 text-white"></lucide-icon>
@@ -84,7 +84,7 @@
     [ngClass]="showMobilePanel ? 'translate-x-0' : '-translate-x-full'">
 
     <!-- Mobile panel header -->
-    <div class="flex items-center gap-2.5 px-4 h-14 border-b border-slate-800/60 flex-shrink-0">
+    <div class="flex items-center gap-2.5 px-4 h-16 border-b border-slate-800/60 flex-shrink-0">
       <div
         class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0">
         <lucide-icon [img]="Sparkles" class="w-3.5 h-3.5 text-white"></lucide-icon>
@@ -156,7 +156,7 @@
     <div class="flex flex-col h-full overflow-hidden w-full relative">
 
       <!-- ── Header ── -->
-      <div class="h-14 flex items-center justify-between px-3 sm:px-4 shrink-0 border-b border-slate-100 bg-white">
+      <div class="h-16 flex items-center justify-between px-3 sm:px-4 shrink-0 border-b border-slate-200 bg-white">
 
         <!-- Left: hamburger / back + title -->
         <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -366,7 +366,7 @@
       [ngClass]="showHistory ? 'translate-x-0' : '-translate-x-full'">
 
       <!-- History header -->
-      <div class="h-14 flex items-center gap-2 px-3 border-b border-slate-100 bg-white flex-shrink-0">
+      <div class="h-16 flex items-center gap-2 px-3 border-b border-slate-100 bg-white flex-shrink-0">
         <button (click)="showHistory = false"
           class="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 rounded-lg transition-colors flex-shrink-0">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -387,7 +387,7 @@
       <!-- History list -->
       <div class="flex-1 overflow-y-auto px-3 py-2 custom-scrollbar">
         <ng-container *ngIf="conversations.length > 0; else noHistorySidebar">
-          <div *ngFor="let group of getGroupKeys()" class="mb-4">
+          <div *ngFor="let group of getGroupKeys()" class="mb-4 bor">
             <p
               class="px-1 pb-1.5 pt-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider sticky top-0 bg-white z-10">
               {{ group }}
@@ -395,7 +395,7 @@
             <div class="space-y-0.5">
               <div *ngFor="let conv of conversationGroups[group]"
                 (click)="selectConversation(conv); showHistory = false"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition-all group/item border"
+                class="flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition-all group/item border border-slate-200"
                 [ngClass]="activeConversation?.id === conv.id
                     ? 'bg-indigo-50 border-indigo-200/60'
                     : 'border-transparent hover:bg-slate-50 hover:border-slate-200'">

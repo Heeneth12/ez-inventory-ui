@@ -3,7 +3,10 @@
   <div (click)="isExpanded.set(!isExpanded())"
     class="px-6 py-4 border-b border-gray-300/50 cursor-pointer hover:bg-gray-50 flex justify-between items-center transition-colors select-none">
     <div>
-      <h2 class="text-[15px] font-semibold text-gray-900">Integrations</h2>
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="UsbIcon" [size]="18" class="text-gray-900"></lucide-icon>
+        <h2 class="text-[15px] font-semibold text-gray-900">Integrations</h2>
+      </div>
       <p class="text-[11px] text-gray-400 mt-0.5">Connected apps and third-party services</p>
     </div>
     <div class="flex items-center gap-2">
@@ -157,7 +160,8 @@
         {{ editingId() ? 'Edit Integration' : 'Connect Integration' }}
       </h3>
       <p class="text-[11px] text-gray-500 mt-0.5">
-        {{ isRazorpayType() ? 'Razorpay' : isEmailSmtpType() ? 'Email SMTP' : 'API' }} credentials
+        {{ isRazorpayType() ? 'Razorpay' : isEmailSmtpType() ? 'Email SMTP' : isGmailType() ? 'Gmail' : 'API' }}
+        credentials
       </p>
     </div>
     <button type="button" (click)="closeModal()"
@@ -243,98 +247,87 @@
 
     <!-- EMAIL SMTP FORM -->
     <ng-container *ngIf="isEmailSmtpType()">
-
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2 space-y-1.5">
-          <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            SMTP Host <span class="text-red-400 normal-case font-normal">*</span>
-          </label>
-          <input type="text" [(ngModel)]="emailConfig.smtpHost" placeholder="smtp.gmail.com"
-            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-        </div>
+          <div class="space-y-1.5">
+            <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Username</label>
+            <div class="relative">
+              <input type="text" [(ngModel)]="emailConfig.smtpUsername" placeholder="your@email.com"
+                class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+          </div>
 
-        <div class="space-y-1.5">
-          <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Port</label>
-          <input type="number" [(ngModel)]="emailConfig.smtpPort" placeholder="587"
-            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">From Name</label>
-          <input type="text" [(ngModel)]="emailConfig.fromName" placeholder="EZ Inventory"
-            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-        </div>
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">From Email</label>
-        <input type="email" [(ngModel)]="emailConfig.fromEmail" placeholder="noreply@yourcompany.com"
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Username</label>
-        <div class="relative">
-          <input type="text" [(ngModel)]="emailConfig.smtpUsername" placeholder="your@email.com"
-            class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
-        </div>
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Password / App
-          Password</label>
-        <div class="relative">
-          <input type="password" [(ngModel)]="emailConfig.smtpPassword" placeholder="Enter password"
-            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+          <div class="space-y-1.5">
+            <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Password / App
+              Password</label>
+            <div class="relative">
+              <input type="password" [(ngModel)]="emailConfig.smtpPassword" placeholder="Enter password"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+          </div>
+          <!-- Email test mode -->
+          <div class="flex items-center justify-between p-3.5 border border-gray-200 bg-gray-50/40 rounded-xl">
+            <div>
+              <span class="text-[13px] font-medium text-gray-800">Test Mode</span>
+              <p class="text-[11px] text-gray-500 mt-0.5">Use test SMTP server (no real emails sent)</p>
+            </div>
+            <button type="button" (click)="toggleEmailSmtpMode()"
+              class="relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+              [class.bg-blue-600]="integrationRequest.integrationType === IntegrationType.EMAIL_SMTP_TEST"
+              [class.bg-gray-300]="integrationRequest.integrationType !== IntegrationType.EMAIL_SMTP_TEST">
+              <span
+                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+                [class.translate-x-5]="integrationRequest.integrationType === IntegrationType.EMAIL_SMTP_TEST">
+              </span>
+            </button>
+          </div>
         </div>
       </div>
+    </ng-container>
 
-      <!-- TLS / SSL toggles -->
+    <!-- GMAIL FORM -->
+    <ng-container *ngIf="isGmailType()">
       <div class="grid grid-cols-2 gap-3">
-        <div class="flex items-center justify-between p-3 border border-gray-200 bg-gray-50/40 rounded-xl">
-          <span class="text-[12px] font-medium text-gray-700">Use TLS</span>
-          <button type="button" (click)="emailConfig.smtpUseTls = !emailConfig.smtpUseTls"
-            class="relative w-9 h-[18px] rounded-full transition-colors duration-200 focus:outline-none shrink-0"
-            [class.bg-blue-600]="emailConfig.smtpUseTls" [class.bg-gray-300]="!emailConfig.smtpUseTls">
-            <span
-              class="absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform duration-200"
-              [class.translate-x-[18px]]="emailConfig.smtpUseTls"></span>
-          </button>
-        </div>
-        <div class="flex items-center justify-between p-3 border border-gray-200 bg-gray-50/40 rounded-xl">
-          <span class="text-[12px] font-medium text-gray-700">Use SSL</span>
-          <button type="button" (click)="emailConfig.smtpUseSsl = !emailConfig.smtpUseSsl"
-            class="relative w-9 h-[18px] rounded-full transition-colors duration-200 focus:outline-none shrink-0"
-            [class.bg-blue-600]="emailConfig.smtpUseSsl" [class.bg-gray-300]="!emailConfig.smtpUseSsl">
-            <span
-              class="absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform duration-200"
-              [class.translate-x-[18px]]="emailConfig.smtpUseSsl"></span>
-          </button>
+        <div class="col-span-2 space-y-1.5">
+          <div class="space-y-1.5">
+            <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Gmail Address</label>
+            <div class="relative">
+              <input type="text" [(ngModel)]="gmailConfig.smtpUsername" placeholder="your@gmail.com"
+                class="w-full border border-gray-200 rounded-lg pl-3 pr-3 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">App Password</label>
+            <div class="relative">
+              <input type="password" [(ngModel)]="gmailConfig.smtpPassword" placeholder="Enter 16-digit app password"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[13px] font-mono outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-shadow">
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Email test mode -->
-      <div class="flex items-center justify-between p-3.5 border border-gray-200 bg-gray-50/40 rounded-xl">
+      <!-- Gmail test mode -->
+      <div class="flex items-center justify-between p-3.5 border border-gray-200 bg-gray-50/40 rounded-xl mt-3">
         <div>
           <span class="text-[13px] font-medium text-gray-800">Test Mode</span>
-          <p class="text-[11px] text-gray-500 mt-0.5">Use test SMTP server (no real emails sent)</p>
+          <p class="text-[11px] text-gray-500 mt-0.5">Use test connection settings</p>
         </div>
-        <button type="button" (click)="toggleEmailSmtpMode()"
+        <button type="button" (click)="toggleGmailMode()"
           class="relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none shrink-0"
-          [class.bg-blue-600]="integrationRequest.integrationType === IntegrationType.EMAIL_SMTP_TEST"
-          [class.bg-gray-300]="integrationRequest.integrationType !== IntegrationType.EMAIL_SMTP_TEST">
+          [class.bg-blue-600]="integrationRequest.integrationType === IntegrationType.GMAIL_TEST"
+          [class.bg-gray-300]="integrationRequest.integrationType !== IntegrationType.GMAIL_TEST">
           <span
             class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
-            [class.translate-x-5]="integrationRequest.integrationType === IntegrationType.EMAIL_SMTP_TEST">
+            [class.translate-x-5]="integrationRequest.integrationType === IntegrationType.GMAIL_TEST">
           </span>
         </button>
       </div>
-
     </ng-container>
 
 
     <!-- GENERIC FORM -->
-    <ng-container *ngIf="!isRazorpayType() && !isEmailSmtpType()">
+    <ng-container *ngIf="!isRazorpayType() && !isEmailSmtpType() && !isGmailType()">
 
       <div class="space-y-1.5">
         <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">

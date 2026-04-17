@@ -21,7 +21,9 @@ export enum IntegrationType {
     SENDGRID = 'SENDGRID',
     EMAIL_SMTP = 'EMAIL_SMTP',
     EMAIL_SMTP_TEST = 'EMAIL_SMTP_TEST',
-    WEBHOOK_GENERIC = 'WEBHOOK_GENERIC'
+    WEBHOOK_GENERIC = 'WEBHOOK_GENERIC',
+    GMAIL = 'GMAIL',
+    GMAIL_TEST = 'GMAIL_TEST'
 }
 
 export interface IntegrationDto {
@@ -55,13 +57,14 @@ export interface RazorpayRequest {
 
 //email object
 export interface EmailRequest {
-    smtpHost: string;
-    smtpPort: number;
     smtpUsername: string;
     smtpPassword: string;
-    smtpUseTls: boolean;
-    smtpUseSsl: boolean;
-    fromEmail: string;
-    fromName: string;
     type: 'EMAIL_SMTP' | 'EMAIL_SMTP_TEST';
+}
+
+//gmail object
+export interface GmailRequest {
+    smtpUsername: string;
+    smtpPassword: string;
+    type: 'GMAIL' | 'GMAIL_TEST';
 }

@@ -4,14 +4,15 @@ import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
   Edit, Trash, X, Save, AlertCircle, Activity, Key, Shield,
-  ChevronDown, Package, CheckCircle, Zap, Ban, ShieldAlert, RefreshCw
+  ChevronDown, Package, CheckCircle, Zap, Ban, ShieldAlert, RefreshCw,
+  Usb
 } from 'lucide-angular';
 import { ModalService } from '../modal/modalService';
 import { ToastService } from '../toast/toastService';
 import { IntegrationsService } from './integrations.service';
 import {
   IntegrationDto, IntegrationRequest, IntegrationType,
-  RazorpayRequest, EmailRequest
+  RazorpayRequest, EmailRequest, GmailRequest
 } from './integrations.model';
 
 // Catalog definition
@@ -45,9 +46,9 @@ const CATALOG: CatalogItem[] = [
     desc: 'Order & delivery alerts via WhatsApp'
   },
   {
-    type: IntegrationType.EMAIL_SMTP, testType: IntegrationType.EMAIL_SMTP_TEST,
-    initials: 'EM', label: 'Email SMTP', color: 'gray',
-    desc: 'Custom email server for outbound mail'
+    type: IntegrationType.GMAIL, testType: IntegrationType.GMAIL_TEST,
+    initials: 'GM', label: 'Gmail', color: 'gray',
+    desc: 'Gmail SMTP for outbound mail'
   }
 ];
 
@@ -79,6 +80,7 @@ export class IntegrationsComponent implements OnInit {
   readonly BanIcon = Ban;
   readonly ShieldAlertIcon = ShieldAlert;
   readonly RefreshCwIcon = RefreshCw;
+  readonly UsbIcon = Usb;
 
   // UI state
   isExpanded = signal(false);
@@ -95,6 +97,7 @@ export class IntegrationsComponent implements OnInit {
   // Type-specific config objects (populated when modal opens)
   razorpayConfig: RazorpayRequest = this.freshRazorpay();
   emailConfig: EmailRequest = this.freshEmail();
+  gmailConfig: GmailRequest = this.freshGmail();
 
   // Expose enum to template
   readonly IntegrationType = IntegrationType;
@@ -142,6 +145,7 @@ export class IntegrationsComponent implements OnInit {
     this.integrationRequest.integrationType = card.type;
     this.razorpayConfig = this.freshRazorpay(card.type as any);
     this.emailConfig = this.freshEmail(card.type as any);
+    this.gmailConfig = this.freshGmail();
     this.modalSvs.openTemplate(this.integrationFormModal, null, 'md');
   }
 
@@ -171,6 +175,12 @@ export class IntegrationsComponent implements OnInit {
       } catch {
         this.emailConfig = this.freshEmail(item.integrationType as any);
       }
+    } else if (this.isGmailType()) {
+      try {
+        this.gmailConfig = { ...this.freshGmail(), ...JSON.parse(item.extraConfig || '{}') };
+      } catch {
+        this.gmailConfig = this.freshGmail();
+      }
     }
     this.modalSvs.openTemplate(this.integrationFormModal, null, 'md');
   }
@@ -196,8 +206,8 @@ export class IntegrationsComponent implements OnInit {
       this.integrationRequest.extraConfig = JSON.stringify(this.razorpayConfig);
 
     } else if (this.isEmailSmtpType()) {
-      if (!this.emailConfig.smtpHost?.trim()) {
-        this.toast.show('SMTP host is required', 'error');
+      if (!this.emailConfig.smtpUsername?.trim()) {
+        this.toast.show('SMTP username is required', 'error');
         return;
       }
       // Map Email fields → generic request + extraConfig
@@ -205,6 +215,16 @@ export class IntegrationsComponent implements OnInit {
       this.integrationRequest.secondaryKey = this.emailConfig.smtpPassword;
       this.integrationRequest.isTestMode = this.integrationRequest.integrationType === IntegrationType.EMAIL_SMTP_TEST;
       this.integrationRequest.extraConfig = JSON.stringify(this.emailConfig);
+
+    } else if (this.isGmailType()) {
+      if (!this.gmailConfig.smtpUsername?.trim()) {
+        this.toast.show('Gmail username is required', 'error');
+        return;
+      }
+      this.integrationRequest.primaryKey = this.gmailConfig.smtpUsername;
+      this.integrationRequest.secondaryKey = this.gmailConfig.smtpPassword;
+      this.integrationRequest.isTestMode = this.integrationRequest.integrationType === IntegrationType.GMAIL_TEST;
+      this.integrationRequest.extraConfig = JSON.stringify(this.gmailConfig);
 
     } else {
       if (!this.integrationRequest.primaryKey?.trim()) {
@@ -315,6 +335,15 @@ export class IntegrationsComponent implements OnInit {
     this.emailConfig.type = next as any;
   }
 
+  toggleGmailMode(): void {
+    const current = this.integrationRequest.integrationType;
+    const next = current === IntegrationType.GMAIL
+      ? IntegrationType.GMAIL_TEST
+      : IntegrationType.GMAIL;
+    this.integrationRequest.integrationType = next;
+    this.gmailConfig.type = next as any;
+  }
+
   // Type detection
   isRazorpayType(): boolean {
     const t = this.integrationRequest.integrationType;
@@ -324,6 +353,11 @@ export class IntegrationsComponent implements OnInit {
   isEmailSmtpType(): boolean {
     const t = this.integrationRequest.integrationType;
     return t === IntegrationType.EMAIL_SMTP || t === IntegrationType.EMAIL_SMTP_TEST;
+  }
+
+  isGmailType(): boolean {
+    const t = this.integrationRequest.integrationType;
+    return t === IntegrationType.GMAIL || t === IntegrationType.GMAIL_TEST;
   }
 
   isCardTesting(id: number): boolean {
@@ -355,8 +389,13 @@ export class IntegrationsComponent implements OnInit {
 
   private freshEmail(type: 'EMAIL_SMTP' | 'EMAIL_SMTP_TEST' = 'EMAIL_SMTP'): EmailRequest {
     return {
-      smtpHost: '', smtpPort: 587, smtpUsername: '', smtpPassword: '',
-      smtpUseTls: true, smtpUseSsl: false, fromEmail: '', fromName: '', type
+      smtpUsername: '', smtpPassword: '', type
+    };
+  }
+
+  private freshGmail(): GmailRequest {
+    return {
+      smtpUsername: '', smtpPassword: '', type: 'GMAIL'
     };
   }
 }
