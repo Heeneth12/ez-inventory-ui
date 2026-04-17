@@ -44,7 +44,7 @@
       </span>
       }
     </button>
-    <button (click)="switchTab('razorpay')" [ngClass]="activeTab === 'razorpay'
+    <!-- <button (click)="switchTab('razorpay')" [ngClass]="activeTab === 'razorpay'
         ? 'border-b-2 border-[#7c3aed] text-[#7c3aed] font-bold'
         : 'text-gray-500 hover:text-gray-700'"
       class="px-4 py-2.5 text-xs uppercase tracking-widest transition-colors -mb-px flex items-center gap-1.5">
@@ -55,7 +55,7 @@
         {{ razorpayTransactions.length }}
       </span>
       }
-    </button>
+    </button> -->
     }
   </div>
 
@@ -162,20 +162,14 @@
 
         <div class="p-4">
 
-          <!-- ── ADVANCE / WALLET FORM — only in advance-collection mode ──────── -->
+          <!-- ADVANCE / WALLET FORM — only in advance-collection mode -->
           @if(!invoiceId && showWalletForm){
           <form [formGroup]="walletForm" (ngSubmit)="submitWalletAdd()">
 
             <div class="mb-4">
               <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Payment Method</p>
               <div class="flex flex-wrap gap-2">
-                @for(m of [
-                {k:'CASH', icon:'💵', label:'Cash'},
-                {k:'BANK_TRANSFER', icon:'🏦', label:'Bank Transfer'},
-                {k:'UPI', icon:'📱', label:'UPI / GPay'},
-                {k:'CHEQUE', icon:'📄', label:'Cheque'},
-                {k:'RAZORPAY', icon:'⚡', label:'Razorpay'}
-                ]; track m.k){
+                @for(m of walletPaymentMethods; track m.k){
                 <button type="button" (click)="setWalletPaymentMethod(m.k)" [ngClass]="walletForm.get('paymentMethod')?.value === m.k
                     ? 'bg-[#0060df] text-white border-[#0060df]'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-[#0060df] hover:text-[#0060df]'"
@@ -184,6 +178,12 @@
                 </button>
                 }
               </div>
+              @if(!isRazorpayConfigured()){
+              <p class="text-[10px] text-gray-400 mt-2 flex items-center gap-1.5 italic">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Please integrate Razorpay or Stripe for digital transactions.
+              </p>
+              }
             </div>
 
             @if(isWalletRazorpaySelected){
@@ -232,7 +232,7 @@
 
           </form>
 
-          <!-- ── INVOICE PAYMENT FORM — always shown when invoiceId is present ── -->
+          <!-- INVOICE PAYMENT FORM — always shown when invoiceId is present -->
           } @else if(invoiceId) {
 
           <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()">
@@ -240,15 +240,7 @@
             <div class="mb-4">
               <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Payment Method</p>
               <div class="flex flex-wrap gap-2">
-                @for(m of [
-                {k:'CASH', icon:'💵', label:'Cash'},
-                {k:'BANK_TRANSFER', icon:'🏦', label:'Bank Transfer'},
-                {k:'UPI', icon:'📱', label:'UPI / GPay'},
-                {k:'CHEQUE', icon:'📄', label:'Cheque'},
-                {k:'RAZORPAY', icon:'⚡', label:'Razorpay'},
-                {k:'PAYMENT_LINK', icon:'🔗', label:'Payment Link'},
-                {k:'QR', icon:'📲', label:'QR Code'}
-                ]; track m.k){
+                @for(m of invoicePaymentMethods; track m.k){
                 <button type="button" (click)="setPaymentMethod(m.k)" [ngClass]="paymentForm.get('paymentMethod')?.value === m.k
                     ? (m.k === 'RAZORPAY' ? 'bg-[#4f46e5] text-white border-[#4f46e5]'
                       : m.k === 'PAYMENT_LINK' ? 'bg-[#0891b2] text-white border-[#0891b2]'
@@ -260,6 +252,12 @@
                 </button>
                 }
               </div>
+              @if(!isRazorpayConfigured()){
+              <p class="text-[10px] text-gray-400 mt-2 flex items-center gap-1.5 italic">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Please integrate Razorpay or Stripe for digital transactions.
+              </p>
+              }
             </div>
 
             <!-- Razorpay hint -->

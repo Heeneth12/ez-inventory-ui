@@ -1,4 +1,4 @@
-import { CommonModule, NgTemplateOutlet } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, signal } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
@@ -6,6 +6,8 @@ import { ModalService } from '../../../layouts/components/modal/modalService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { AdvanceModal, InvoicePaymentSummaryModal, RazorpayTransactionModal, RazorpayOrderResponse, RazorpaySuccessResponse } from '../payment.modal';
 import { PaymentService } from '../payment.service';
+import { IntegrationsService } from '../../../layouts/components/integrations/integrations.service';
+import { IntegrationType } from '../../../layouts/components/integrations/integrations.model';
 
 
 export type PaymentMethodKey = 'CASH' | 'BANK_TRANSFER' | 'UPI' | 'CHEQUE' | 'RAZORPAY' | 'PAYMENT_LINK' | 'QR';
@@ -17,7 +19,7 @@ declare global {
 @Component({
   selector: 'app-payment-symmary',
   standalone: true,
-  imports: [CommonModule, NgTemplateOutlet, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './payment-symmary.component.html',
   styleUrl: './payment-symmary.component.css'
 })
@@ -38,6 +40,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
   razorpayTransactions: RazorpayTransactionModal[] = [];
   isLoadingTransactions = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
+  isRazorpayConfigured = signal<boolean>(false); // help weather tenent have razorpay account
   isRazorpayLoading = signal<boolean>(false);
 
   // Payment Link state (signals — updated inside NgZone for CD)
@@ -73,6 +76,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     public toastSvc: ToastService,
     private loaderSvc: LoaderService,
     private modalService: ModalService,
+    private integrationsService: IntegrationsService,
     private ngZone: NgZone
   ) { }
 
@@ -91,11 +95,11 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
       remarks: ['Advance Payment']
     });
 
-    // FIX: Only show wallet/advance form when opened without an invoice (pure advance collection mode)
     if (!this.invoiceId && this.customerId) {
       this.showWalletForm = true;
     }
 
+    this.loadRazorpayConfigStatus();
     this.refreshAllData();
   }
 
@@ -146,6 +150,21 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadRazorpayConfigStatus(): void {
+    this.integrationsService.checkIntegration(IntegrationType.RAZORPAY,
+      (res: any) => {
+        if (res.data.status === 'SUCCESS') {
+          this.isRazorpayConfigured.set(true);
+        } else {
+          this.isRazorpayConfigured.set(false);
+        }
+      },
+      (err: any) => {
+        this.isRazorpayConfigured.set(false);
+      }
+    )
+  }
+
   loadRazorpayTransactions(): void {
     if (!this.invoiceId) return;
     this.isLoadingTransactions.set(true);
@@ -189,8 +208,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Computed helpers ───────────────────────────────────────────────────────
-
+  // Computed helpers 
   get paidPercent(): number {
     if (!this.paymentSummary?.grandTotal || this.paymentSummary.grandTotal === 0) return 0;
     return Math.min(100, Math.round((this.paymentSummary.totalPaid / this.paymentSummary.grandTotal) * 100));
@@ -223,6 +241,33 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
 
   get isWalletRazorpaySelected(): boolean {
     return this.walletForm.get('paymentMethod')?.value === 'RAZORPAY';
+  }
+
+  get basePaymentMethods() {
+    return [
+      { k: 'CASH', icon: '💵', label: 'Cash' },
+      { k: 'BANK_TRANSFER', icon: '🏦', label: 'Bank Transfer' },
+      { k: 'UPI', icon: '📱', label: 'UPI / GPay' },
+      { k: 'CHEQUE', icon: '📄', label: 'Cheque' }
+    ];
+  }
+
+  get walletPaymentMethods() {
+    const methods = [...this.basePaymentMethods];
+    if (this.isRazorpayConfigured()) {
+      methods.push({ k: 'RAZORPAY', icon: '⚡', label: 'Razorpay' });
+    }
+    return methods;
+  }
+
+  get invoicePaymentMethods() {
+    const methods = [...this.basePaymentMethods];
+    if (this.isRazorpayConfigured()) {
+      methods.push({ k: 'RAZORPAY', icon: '⚡', label: 'Razorpay' });
+      methods.push({ k: 'PAYMENT_LINK', icon: '🔗', label: 'Payment Link' });
+      methods.push({ k: 'QR', icon: '📲', label: 'QR Code' });
+    }
+    return methods;
   }
 
   // Payment method selectors 
@@ -312,8 +357,11 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     );
   }
 
-  // ── Invoice Payment ────────────────────────────────────────────────────────
-
+  /**
+   * Invoice Payment
+   * 
+   * @returns 
+   */
   submitPayment(): void {
     if (this.paymentForm.invalid) return;
     const method = this.selectedPaymentMethod;
@@ -360,8 +408,13 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     );
   }
 
-  // ── Razorpay checkout ──────────────────────────────────────────────────────
-
+  /**
+   * Open Razorpay checkout
+   * 
+   * @param amount 
+   * @param invoiceId 
+   * @returns 
+   */
   private async _openRazorpayCheckout(amount: number, invoiceId: number | null): Promise<void> {
     if (!amount || amount <= 0) {
       this.toastSvc.show('Enter a valid amount before proceeding', 'warning');
@@ -473,8 +526,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     );
   }
 
-  // ── PDF receipt ────────────────────────────────────────────────────────────
-
+  // PDF receipt
   downloadInvoicePdf(paymentId: number | string): void {
     this.loaderSvc.show();
     this.paymentService.downloadPaymentPdf(
@@ -493,8 +545,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     );
   }
 
-  // ── Payment Link ───────────────────────────────────────────────────────────
-
+  // Payment Link
   generatePaymentLink(): void {
     const amount = this.paymentForm.get('amount')?.value;
     if (!amount || amount <= 0) {
@@ -600,7 +651,7 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
     this.isPollingLink.set(false);
   }
 
-  // ── QR Code ────────────────────────────────────────────────────────────────
+  // QR Code 
 
   generateQRCode(): void {
     const amount = this.paymentForm.get('amount')?.value;

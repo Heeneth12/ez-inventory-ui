@@ -3,7 +3,8 @@
         class="px-6 py-3 border-b border-gray-200 bg-white flex flex-col sm:flex-row gap-4 justify-between items-center">
 
         <div class="flex items-center gap-3 w-full sm:w-auto">
-            <div *ngIf="selectedIds().size === 0" class="relative flex-1 sm:flex-none group">
+            @if(selectedIds().size === 0){
+            <div class="relative flex-1 sm:flex-none group">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -14,20 +15,8 @@
                     class="block w-full sm:w-80 pl-10 pr-3 py-2.5 border-none rounded-full bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all"
                     placeholder="Search..." />
             </div>
-
-            <ng-container *ngIf="filterConfig.length > 0">
-                <app-filter-dropdown id="table-filter" [config]="filterConfig"
-                    (filterChanged)="handleFilterChange($event)" [triggerReset]="triggerReset">
-                </app-filter-dropdown>
-            </ng-container>
-
-            <ng-container *ngIf="datePickerConfig">
-                <app-date-picker [config]="datePickerConfig" (dateSelect)="handleDateSelect($event)"
-                    [triggerReset]="triggerReset">
-                </app-date-picker>
-            </ng-container>
-
-            <div *ngIf="selectedIds().size > 0"
+            }@else{
+            <div
                 class="flex items-center gap-4 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 animate-in fade-in duration-200">
                 <span class="text-sm font-semibold text-indigo-700">{{ selectedIds().size }} selected</span>
                 <div class="h-4 w-px bg-indigo-200"></div>
@@ -36,6 +25,17 @@
                     Clear
                 </button>
             </div>
+            }
+            @if(filterConfig.length > 0){
+            <app-filter-dropdown id="table-filter" [config]="filterConfig" (filterChanged)="handleFilterChange($event)"
+                [triggerReset]="triggerReset">
+            </app-filter-dropdown>
+            }
+            @if(datePickerConfig){
+            <app-date-picker [config]="datePickerConfig" (dateSelect)="handleDateSelect($event)"
+                [triggerReset]="triggerReset">
+            </app-date-picker>
+            }
             <div class="flex items-center gap-2">
                 <button id="table-reload" (click)="resetFilters()" title="Reset Filters"
                     class="text-xs p-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 hover:text-indigo-800 font-medium">
@@ -45,13 +45,13 @@
         </div>
 
         <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-            <ng-container *ngFor="let btn of headerActions">
-                <button *ngIf="!btn.hidden" [id]="'table-action-' + btn.key" [class]="getBtnClasses(btn.variant)"
-                    (click)="handleHeaderAction(btn)">
-                    <lucide-icon *ngIf="btn.icon" [img]="btn.icon" class="w-4 h-4 font-bold"></lucide-icon>
-                    <span>{{ btn.label }}</span>
-                </button>
-            </ng-container>
+            @for(btn of headerActions; track btn.key){
+            <button *ngIf="!btn.hidden" [id]="'table-action-' + btn.key" [class]="getBtnClasses(btn.variant)"
+                (click)="handleHeaderAction(btn)">
+                <lucide-icon *ngIf="btn.icon" [img]="btn.icon" class="w-4 h-4 font-bold"></lucide-icon>
+                <span>{{ btn.label }}</span>
+            </button>
+            }
             <button title="Settings"
                 class="flex items-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none"
                 (click)="showSettings.set(!showSettings())">
@@ -242,6 +242,21 @@
 
                             <span *ngSwitchCase="'date'" class="text-gray-600 whitespace-nowrap">
                                 {{ row[col.key] | date : (col.dateFormat || 'dd-MMM-yyy') }}
+                            </span>
+
+                            <span *ngSwitchCase="'notes'"
+                                class="relative group/note inline-flex items-center justify-center text-gray-600 whitespace-nowrap">
+                                <!-- here on hover or click show the notes in a tooltip -->
+                                <lucide-icon *ngIf="row[col.key]" [img]="Note"
+                                    class="w-4 h-4 cursor-pointer text-gray-400 hover:text-indigo-600 transition-colors"></lucide-icon>
+                                <span *ngIf="!row[col.key]">-</span>
+                                <div *ngIf="row[col.key]"
+                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-gray-900 text-white text-xs border border-gray-700 rounded-lg shadow-xl p-3 z-50 opacity-0 invisible group-hover/note:opacity-100 group-hover/note:visible transition-all whitespace-normal text-left pointer-events-none">
+                                    <div
+                                        class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-gray-900 transform rotate-45 border-r border-b border-gray-700">
+                                    </div>
+                                    {{ row[col.key] }}
+                                </div>
                             </span>
 
                             <div *ngSwitchCase="'action'"
