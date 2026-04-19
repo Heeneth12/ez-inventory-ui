@@ -252,7 +252,7 @@
                         class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] bg-white text-orange-500 font-medium text-sm transition-all group-hover:bg-orange-50">
                         <lucide-icon [img]="Sparkles" class="w-4 h-4"></lucide-icon>
 
-                        <span class="leading-none">Ask AI</span>
+                        <span class="leading-none sm:block hidden">Ask AI</span>
                     </div>
                 </button>
 
@@ -265,7 +265,7 @@
 
                 <app-custom-dropdown id="help-center-btn" [triggerIcon]="helpIcon"
                     [iconClass]="'h-4 w-4 shrink-0 text-gray-600 group-hover:text-gray-500 transition-colors'"
-                    buttonClass="flex items-center gap-2 p-2 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 hover:border-gray-300"
+                    buttonClass="flex items-center p-2 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 hover:border-gray-300"
                     [items]="helpCenterItems" anchor="bottom end">
                 </app-custom-dropdown>
 
@@ -333,7 +333,7 @@
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto scroll-smooth">
+        <div class="flex-1 overflow-y-auto scroll-smooth bg-[#F5F5F5]">
             <ng-component></ng-component>
         </div>
     </main>
