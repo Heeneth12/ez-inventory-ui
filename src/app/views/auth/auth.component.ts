@@ -295,9 +295,13 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private executeLogin(credentials: any) {
     this.authSvc.login(credentials,
-      () => console.log("Login success"),
+      (response: any) => {
+        this.isLoading = false;
+        this.toastService.show('Login Successful!', "success");
+      },
       (error: any) => {
-        this.toastService.show(error.error.message, 'error');
+        console.log(error);
+        //this.toastService.show(error.message, 'error');
         this.isLoading = false;
       }
     );
