@@ -18,7 +18,7 @@ export class RedirectGuard implements CanActivate {
       switchMap((isValid) => {
         if (!isValid) {
           // Not logged in -> redirect to login
-          return of(this.router.createUrlTree(['/login']));
+          return of(this.router.createUrlTree(['/auth/login']));
         }
 
         // Get current user data
@@ -36,7 +36,7 @@ export class RedirectGuard implements CanActivate {
             catchError(() => {
               // If fetch fails, logout and redirect to login
               this.authService.logout();
-              return of(this.router.createUrlTree(['/login']));
+              return of(this.router.createUrlTree(['/auth/login']));
             })
           );
         }

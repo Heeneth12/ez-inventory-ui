@@ -34,6 +34,7 @@ export enum AddressType {
 }
 
 export enum UserType {
+  ADMIN = 'ADMIN',
   EMPLOYEE = 'EMPLOYEE',
   CUSTOMER = 'CUSTOMER',
   VENDOR = 'VENDOR'

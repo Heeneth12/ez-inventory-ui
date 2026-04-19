@@ -26,15 +26,15 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
         // Note: We exclude the login/refresh URL specifically to avoid infinite loops
-        if ((error.status === 401 || error.status === 403) && 
-            !authReq.url.includes('auth/refresh') && 
-            !authReq.url.includes('auth/login')) {
+        if ((error.status === 401 || error.status === 403) &&
+          !authReq.url.includes('auth/refresh') &&
+          !authReq.url.includes('auth/login')) {
           return this.handleAuthError(authReq, next);
         }
 
         // If the refresh token itself fails (401/403), logout immediately
         if ((error.status === 401 || error.status === 403) && authReq.url.includes('auth/refresh')) {
-             authService.logout();
+          authService.logout();
         }
 
         return throwError(() => error);
@@ -62,22 +62,22 @@ export class AuthInterceptor implements HttpInterceptor {
       const authService = this.injector.get(AuthService);
 
       return new Observable<string>((observer) => {
-          this.commonService.refreshToken({ refreshToken: authService.getRefreshToken() },
-            (res: any) => {
-               // Success: Save new tokens
-               const newToken = res.data.accessToken;
-               localStorage.setItem('access_token', newToken);
-               if (res.data.refreshToken) {
-                   localStorage.setItem('refresh_token', res.data.refreshToken);
-               }
-               observer.next(newToken);
-               observer.complete();
-            },
-            (err: any) => {
-               // Error: Refresh failed
-               observer.error(err);
+        this.commonService.refreshToken({ refreshToken: authService.getRefreshToken() },
+          (res: any) => {
+            // Success: Save new tokens
+            const newToken = res.data.accessToken;
+            localStorage.setItem('access_token', newToken);
+            if (res.data.refreshToken) {
+              localStorage.setItem('refresh_token', res.data.refreshToken);
             }
-          );
+            observer.next(newToken);
+            observer.complete();
+          },
+          (err: any) => {
+            // Error: Refresh failed
+            observer.error(err);
+          }
+        );
       }).pipe(
         switchMap((newToken: string) => {
           this.isRefreshing = false;

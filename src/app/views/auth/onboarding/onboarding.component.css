@@ -1,0 +1,63 @@
+/* Only what Tailwind can't do */
+
+:host {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Thin scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 2px;
+}
+
+/* focus:ring-3 — Tailwind v3 only ships ring-2 by default */
+.focus\:ring-3:focus {
+    box-shadow: 0 0 0 3px var(--tw-ring-color, rgba(99, 102, 241, 0.15));
+}
+
+/* Remove number spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+/* Step fade-in animation (replaces Angular @fadeSlide — no BrowserAnimationsModule needed) */
+@keyframes stepFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* CSS-only step transition — no BrowserAnimationsModule needed */
+@keyframes stepFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.step-fade {
+    animation: stepFadeIn 220ms ease-out both;
+}

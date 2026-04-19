@@ -36,4 +36,8 @@ export class CommonService {
   createTenant(filter: any, successfn: any, errorfn: any) {
     return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/register`, filter, successfn, errorfn);
   }
+
+  verifyTenant(tenantId: any, otp: any, successfn: any, errorfn: any) {
+    return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/verifyTenant?tenantId=${tenantId}&otp=${otp}`, null, successfn, errorfn);
+  }
 }

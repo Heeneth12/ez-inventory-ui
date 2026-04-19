@@ -159,9 +159,9 @@ export const routes: Routes = [
 
     // 12. PUBLIC ROUTES
     {
-        path: 'login',
-        loadComponent: () => import('./views/auth/auth.component')
-            .then(c => c.AuthComponent)
+        path: 'auth',
+        loadChildren: () => import('./views/auth/auth.routes')
+            .then(m => m.AuthRoutes)
     },
     {
         path: 'forbidden',
