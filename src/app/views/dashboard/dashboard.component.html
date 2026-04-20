@@ -1,8 +1,8 @@
 <div class="font-sans antialiased text-[#1A1C1E] bg-[#F5F5F5]">
-  <div class="max-w-[1750px] p-2 mx-auto space-y-4">
+  <div class="max-w-[1750px] p-2 mx-auto space-y-2">
 
     @if (userData$ | async; as user) {
-    <div class="relative bg-slate-900 rounded-lg px-6 py-5 overflow-hidden shadow-sm">
+    <div class="relative bg-[#131c2e] border border-slate-800/60 px-6 py-5 mt-2 overflow-hidden rounded-md">
 
       <div class="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
 
@@ -72,8 +72,8 @@
     </div>
     }
 
-    <!-- ── Stat Cards Row ──────────────────────────────────────────── -->
-    <div class="grid grid-cols-12 gap-4">
+    <!--Stat Cards Row -->
+    <div class="grid grid-cols-12 gap-2">
 
       <!-- Total Sale -->
       <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-6 border border-slate-300/50">
@@ -162,99 +162,17 @@
       </div>
     </div>
 
-    <!-- ── Bottom Row ─────────────────────────────────────────────── -->
-    <div class="grid grid-cols-12 gap-4">
+    <div class="grid grid-cols-12 gap-2">
 
-      <!-- Quick Actions -->
-      <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-4 border border-slate-300/50">
-        <div class="flex justify-between items-center mb-5">
-          <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Quick Actions</h2>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-
-          <!-- New Sales Order -->
-          <button (click)="navigateToCreateOrder()"
-            class="flex flex-col gap-3 p-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 hover:border-indigo-200 transition-all text-left group">
-            <div
-              class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
-              <lucide-icon [img]="icons.shoppingCart" class="w-5 h-5 text-indigo-600"></lucide-icon>
-            </div>
-            <div>
-              <p class="text-sm font-bold text-slate-800">New Sales Order</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">Create & confirm order</p>
-            </div>
-          </button>
-
-          <!-- Create Invoice -->
-          <button (click)="navigateToCreateInvoice()"
-            class="flex flex-col gap-3 p-4 rounded-xl bg-violet-50 hover:bg-violet-100 border border-violet-100 hover:border-violet-200 transition-all text-left group">
-            <div
-              class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
-              <lucide-icon [img]="icons.fileText" class="w-5 h-5 text-violet-600"></lucide-icon>
-            </div>
-            <div>
-              <p class="text-sm font-bold text-slate-800">Create Invoice</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">Bill & track payments</p>
-            </div>
-          </button>
-
-          <!-- Add Product -->
-          <button (click)="navigateToItems()"
-            class="flex flex-col gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 hover:border-emerald-200 transition-all text-left group">
-            <div
-              class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
-              <lucide-icon [img]="icons.packageCheck" class="w-5 h-5 text-emerald-600"></lucide-icon>
-            </div>
-            <div>
-              <p class="text-sm font-bold text-slate-800">Add Product</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">Manage inventory items</p>
-            </div>
-          </button>
-
-          <!-- Pending Approvals shortcut -->
-          <button (click)="navigateToApprovals()"
-            class="flex flex-col gap-3 p-4 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-100 hover:border-amber-200 transition-all text-left group">
-            <div class="flex items-center justify-between w-full">
-              <div
-                class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
-                <lucide-icon [img]="icons.bell" class="w-5 h-5 text-amber-600"></lucide-icon>
-              </div>
-              @if(pendingApprovalsCount > 0) {
-              <span
-                class="text-[10px] font-black text-amber-700 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full">
-                {{ pendingApprovalsCount }} NEW
-              </span>
-              }
-            </div>
-            <div>
-              <p class="text-sm font-bold text-slate-800">Approvals</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">Review pending requests</p>
-            </div>
-          </button>
-
-          <!-- Add Quick Actions -->
-          <button
-            class="flex flex-col gap-3 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-100 hover:border-gray-200 transition-all text-left group">
-            <div class="flex items-center justify-between w-full">
-              <div
-                class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow">
-                <lucide-icon [img]="icons.plus" class="w-5 h-5 text-gray-600"></lucide-icon>
-              </div>
-            </div>
-            <div>
-              <p class="text-sm font-bold text-slate-800">Add Quick Actions</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">Add quick actions to dashboard</p>
-            </div>
-          </button>
-
-        </div>
-      </div>
-
-      <!-- Pending Approvals -->
-      <div class="col-span-12 lg:col-span-6 bg-white rounded-lg p-2 border border-slate-300/50 flex flex-col">
+      <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-4 border border-slate-300/50 flex flex-col">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Pending Approvals</h2>
+          <div class="">
+            <div class="flex items-center gap-2">
+              <lucide-icon [img]="icons.ListChecks" [size]="18" class="text-gray-900"></lucide-icon>
+              <h2 class="text-[15px] font-semibold text-gray-900">Pending Approvals</h2>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">You have {{ pendingApprovalsCount }} pending approvals</p>
+          </div>
           @if (pendingApprovalsCount > 0) {
           <span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-600 text-[10px] font-black">
             {{ pendingApprovalsCount }} NEW
@@ -262,10 +180,10 @@
           }
         </div>
 
-        <div class="space-y-3 p-1">
+        <div class="space-y-2">
           @if (pendingApprovals.length === 0) {
           <div
-            class="flex flex-col items-center justify-center py-12 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+            class="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-md border border-dashed border-slate-200">
             <div class="p-3 bg-white rounded-full shadow-sm mb-3">
               <lucide-icon [img]="icons.packageCheck" class="w-6 h-6 text-emerald-500"></lucide-icon>
             </div>
@@ -366,6 +284,61 @@
           Go to Approval Console
           <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 -rotate-90"></lucide-icon>
         </button>
+      </div>
+
+      <div class="col-span-12 lg:col-span-4 bg-white rounded-lg p-4 border border-slate-300/50 flex flex-col">
+
+        <div class="mb-5">
+          <div class="flex items-center gap-2">
+            <lucide-icon [img]="icons.UsbIcon" [size]="18" class="text-gray-900"></lucide-icon>
+            <h2 class="text-[15px] font-semibold text-gray-900">Integrations</h2>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">Connected apps and third-party services</p>
+        </div>
+
+        <div class="flex flex-col gap-3 overflow-y-auto pr-1">
+          @for (app of integrations; track app.name) {
+          <div
+            class="flex items-center justify-between gap-3 p-3 border border-slate-100 rounded-xl bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all group">
+
+            <div class="flex items-center gap-3 min-w-0">
+              <div
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-[12px] font-bold shrink-0 shadow-sm transition-colors"
+                [ngClass]="{
+                  'bg-blue-100 text-blue-700':   app.color === 'blue',
+                  'bg-emerald-100 text-emerald-700': app.color === 'green',
+                  'bg-purple-100 text-purple-700': app.color === 'purple',
+                  'bg-amber-100 text-amber-700': app.color === 'amber',
+                  'bg-slate-100 text-slate-600': app.color === 'gray'
+                }">
+                {{ app.initials }}
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-[13px] font-bold text-slate-800">{{ app.name }}</p>
+                <p class="text-[11px] text-slate-400 mt-0.5 truncate">{{ app.desc }}</p>
+              </div>
+            </div>
+
+            <button type="button"
+              class="shrink-0 px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-colors shadow-sm"
+              [ngClass]="{
+                'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100': app.connected,
+                'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100': !app.connected
+              }">
+              {{ app.connected ? 'Disconnect' : 'Connect' }}
+            </button>
+          </div>
+          }
+        </div>
+
+        <div class="mt-2">
+          <button
+            class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-100 transition-colors">
+            <lucide-icon [img]="icons.plus" class="w-4 h-4"></lucide-icon>
+            Add Integration
+          </button>
+        </div>
       </div>
     </div>
   </div>
