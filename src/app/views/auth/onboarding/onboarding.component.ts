@@ -21,6 +21,8 @@ import { UserManagementService } from '../../user-management/userManagement.serv
 import { AuthService } from '../../../layouts/guards/auth.service';
 import { CommonService } from '../../../layouts/service/common/common.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
+import { SubscriptionsService } from '../../../layouts/components/subscriptions/subscriptions.service';
+import { SubscriptionPlanModel } from '../../../layouts/components/subscriptions/subscriptions.model';
 
 export interface OnboardingResult {
   tenantId?: number;
@@ -78,11 +80,13 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   private expirySeconds = 299;
 
   steps = [
-    { label: 'Account setup', icon: 'building', desc: 'Company & admin basics' },
-    { label: 'Verify email', icon: 'mail', desc: 'Enter OTP' },
-    { label: 'Business profile', icon: 'briefcase', desc: 'Optional details' },
-    { label: 'Team & goals', icon: 'users', desc: 'How you\'ll use it' },
-    { label: 'Documents', icon: 'file', desc: 'KYB verification' },
+    { label: 'Account setup',   icon: 'building',      desc: 'Company & admin basics' },
+    { label: 'Verify email',    icon: 'mail',          desc: 'Enter OTP' },
+    { label: 'Business profile',icon: 'briefcase',     desc: 'Optional details' },
+    { label: 'Team & goals',    icon: 'users',         desc: 'How you\'ll use it' },
+    { label: 'Documents',       icon: 'file',          desc: 'KYB verification' },
+    { label: 'Choose plan',     icon: 'tag',           desc: 'Pick your subscription' },
+    { label: 'Payment',         icon: 'credit-card',   desc: 'Complete purchase' },
   ];
 
   countries = [
@@ -128,6 +132,13 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
   selectedGoals: Set<string> = new Set();
 
+  // Plan & Payment
+  activePlans: SubscriptionPlanModel[] = [];
+  plansLoading = false;
+  selectedPlan: SubscriptionPlanModel | null = null;
+  billingCycle: 'monthly' | 'annual' = 'monthly';
+  paymentForm!: FormGroup;
+
   indianStates = [
     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
     'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
@@ -157,6 +168,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
     private router: Router,
+    private subscriptionsService: SubscriptionsService,
   ) { }
 
   ngOnInit() {
@@ -207,6 +219,14 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     this.teamForm = this.fb.group({
       teamSize: ['1–10'],
     });
+
+    // Step 6 – mocked payment
+    this.paymentForm = this.fb.group({
+      cardholderName: ['', Validators.required],
+      cardNumber:     ['', [Validators.required, Validators.pattern('^[0-9 ]{16,19}$')]],
+      expiry:         ['', [Validators.required, Validators.pattern('^(0[1-9]|1[0-2])\\/[0-9]{2}$')]],
+      cvv:            ['', [Validators.required, Validators.pattern('^[0-9]{3,4}$')]],
+    });
   }
 
   private passwordMatchValidator(g: FormGroup) {
@@ -229,6 +249,12 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     return (this.uploadedCount / this.documents.length) * 100;
   }
 
+  get filteredPlans(): SubscriptionPlanModel[] {
+    return this.activePlans.filter(p =>
+      this.billingCycle === 'monthly' ? p.durationDays <= 31 : p.durationDays >= 365
+    );
+  }
+
   get passwordsMatch(): boolean {
     return this.accountForm.get('password')?.value === this.accountForm.get('confirmPassword')?.value;
   }
@@ -242,6 +268,8 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       case 2: this.handleStep2(); break;
       case 3: this.advance(); break;
       case 4: this.submitDocuments(); break;
+      case 5: this.handleStep5(); break;
+      case 6: this.handleStep6(); break;
     }
   }
 
@@ -482,8 +510,90 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.isLoading = false;
       this.currentStep = 5;
+      this.loadActivePlans();
       this.cdr.markForCheck();
     }, 1200);
+  }
+
+  // Step 5: Choose Plan
+  loadActivePlans() {
+    this.plansLoading = true;
+    this.cdr.markForCheck();
+    this.subscriptionsService.getActivePlans(
+      (res: any) => {
+        this.activePlans = res?.data || [];
+        this.plansLoading = false;
+        this.cdr.markForCheck();
+      },
+      (_err: any) => {
+        this.toastService.show('Failed to load plans. Please try again.', 'error');
+        this.plansLoading = false;
+        this.cdr.markForCheck();
+      }
+    );
+  }
+
+  getPlanAccent(type: string): { border: string; badge: string; iconBg: string; iconColor: string } {
+    const map: Record<string, any> = {
+      'BASIC':      { border: 'border-slate-200',  badge: 'bg-slate-100 text-slate-600',  iconBg: 'bg-slate-100',  iconColor: 'text-slate-500' },
+      'STANDARD':   { border: 'border-blue-100',   badge: 'bg-blue-50 text-blue-600',     iconBg: 'bg-blue-50',    iconColor: 'text-blue-500'  },
+      'PREMIUM':    { border: 'border-purple-100', badge: 'bg-purple-50 text-purple-600', iconBg: 'bg-purple-50',  iconColor: 'text-purple-500'},
+      'ENTERPRISE': { border: 'border-amber-100',  badge: 'bg-amber-50 text-amber-700',   iconBg: 'bg-amber-50',   iconColor: 'text-amber-500' },
+    };
+    return map[type] || map['BASIC'];
+  }
+
+  private handleStep5() {
+    if (!this.selectedPlan) {
+      this.toastService.show('Please select a plan to continue.', 'error');
+      return;
+    }
+    if (this.selectedPlan.price === 0) {
+      this.isLoading = true;
+      this.loadingText = 'Activating free plan...';
+      this.subscriptionsService.subscribeTenant(
+        this.registeredTenantId!,
+        this.selectedPlan.id,
+        (_res: any) => {
+          this.isLoading = false;
+          this.currentStep = this.steps.length; // jump to success
+          this.cdr.markForCheck();
+        },
+        (err: any) => {
+          this.isLoading = false;
+          this.toastService.show(err?.error?.message || 'Failed to activate plan.', 'error');
+          this.cdr.markForCheck();
+        }
+      );
+    } else {
+      this.advance();
+    }
+  }
+
+  // Step 6: Payment (mocked)
+  private handleStep6() {
+    this.paymentForm.markAllAsTouched();
+    if (this.paymentForm.invalid) return;
+
+    this.isLoading = true;
+    this.loadingText = 'Processing payment...';
+
+    setTimeout(() => {
+      this.subscriptionsService.subscribeTenant(
+        this.registeredTenantId!,
+        this.selectedPlan!.id,
+        (_res: any) => {
+          this.isLoading = false;
+          this.currentStep = this.steps.length; // jump to success
+          this.cdr.markForCheck();
+        },
+        (err: any) => {
+          this.isLoading = false;
+          this.toastService.show(err?.error?.message || 'Payment failed. Please try again.', 'error');
+          this.cdr.markForCheck();
+        }
+      );
+    }, 1500);
   }
 
   triggerUpload(index: number) {

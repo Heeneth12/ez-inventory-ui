@@ -26,17 +26,21 @@
     box-shadow: 0 0 0 3px var(--tw-ring-color, rgba(99, 102, 241, 0.15));
 }
 
+.focus-within\:ring-3:focus-within {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
 /* Remove number spinners */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
 }
 
-/* Step fade-in animation (replaces Angular @fadeSlide — no BrowserAnimationsModule needed) */
+/* Step fade-in animation */
 @keyframes stepFadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px);
     }
 
     to {
@@ -45,14 +49,16 @@ input[type=number]::-webkit-outer-spin-button {
     }
 }
 
-/* CSS-only step transition — no BrowserAnimationsModule needed */
-@keyframes stepFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
+.step-fade {
+    animation: stepFadeIn 200ms ease-out both;
+}
 
-    to {
+/* Success ring pulse */
+@keyframes ring-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
         opacity: 1;
         transform: translateY(0);
     }
