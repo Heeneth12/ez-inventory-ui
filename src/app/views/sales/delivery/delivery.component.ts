@@ -1,17 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { DeliveryFilterModel, DeliveryModel, RouteCreateRequest, ShipmentStatus } from './delivery.model';
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DeliveryFilterModel, DeliveryModel, DeliveryStatusUpdateRequest, RouteCreateRequest, ShipmentStatus } from './delivery.model';
 import { HeaderAction, PaginationConfig, TableAction, TableColumn } from '../../../layouts/components/standard-table/standard-table.model';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { DeliveryService } from './delivery.service';
 import { StandardTableComponent } from '../../../layouts/components/standard-table/standard-table.component';
-import { CalendarClock, Check, CheckCircle, Clock, Download, LucideAngularModule, MapPin, Route, Truck, User, XCircle } from 'lucide-angular';
+import { CheckCircle, Clock, Download, LucideAngularModule, Truck, XCircle } from 'lucide-angular';
 import { DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
 import { DELIVERY_ACTIONS, DELIVERY_COLUMNS, DELIVERY_DATE_CONFIG, DELIVERY_FILTER_OPTIONS } from '../salesConfig';
 import { StatCardConfig, StatGroupComponent } from '../../../layouts/UI/stat-group/stat-group.component';
-import { DrawerService } from '../../../layouts/components/drawer/drawerService';
 import { ConfirmationModalService } from '../../../layouts/UI/confirmation-modal/confirmation-modal.service';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -27,21 +26,15 @@ export class DeliveryComponent implements OnInit {
 
   @Input() customerId?: number;
   @Input() statGroup?: boolean = true;
-  @ViewChild('deliveryDetailTemplate') deliveryDetailTemplate!: TemplateRef<any>;
 
-  readonly MapPinIcon = MapPin;
-  readonly RouteIcon = Route;
-  readonly CalendarClockIcon = CalendarClock;
-  readonly UserIcon = User;
   readonly TruckIcon = Truck;
   readonly CheckCircleIcon = CheckCircle;
   readonly ClockIcon = Clock;
   readonly XCircleIcon = XCircle;
-  readonly CheckIcon = Check;
 
   deliveryDetails: DeliveryModel[] = [];
-  selectedDelivery: DeliveryModel | null = null;
   deliveryFilter: DeliveryFilterModel = new DeliveryFilterModel();
+  deliveryStatusUpdate: DeliveryStatusUpdateRequest = new DeliveryStatusUpdateRequest();
   private tableState$ = new Subject<void>();
 
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
@@ -52,7 +45,6 @@ export class DeliveryComponent implements OnInit {
   deliveryActions = DELIVERY_ACTIONS;
   dateConfig = DELIVERY_DATE_CONFIG;
   FilterOptions = DELIVERY_FILTER_OPTIONS;
-
 
   headerActions: HeaderAction[] = [
     {
@@ -98,17 +90,16 @@ export class DeliveryComponent implements OnInit {
       icon: XCircle,
       color: 'gray',
     }
-  ];;
+  ];
 
   constructor(
     private deliveryService: DeliveryService,
     private toastService: ToastService,
     private loaderSvc: LoaderService,
-    private drawerService: DrawerService,
-    private sanitizer: DomSanitizer,
+    private router: Router,
+    private route: ActivatedRoute,
     private confirmationModalService: ConfirmationModalService
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
     if (this.customerId) {
@@ -153,89 +144,24 @@ export class DeliveryComponent implements OnInit {
 
   onSelectionChange(selectedIds: (string | number)[]) {
     this.selectedItemIds = selectedIds;
-    console.log('Current Selection:', this.selectedItemIds);
   }
 
-  updateDelivaryStatus(id: any, status: ShipmentStatus) {
+  updateDelivaryStatus(id: number | string, status: ShipmentStatus, reason: string | null = null, scheduledDate: Date | null = null) {
+    this.deliveryStatusUpdate.status = status;
+    this.deliveryStatusUpdate.reason = reason;
+    this.deliveryStatusUpdate.scheduledDate = scheduledDate;
     this.deliveryService.updateDeliveryStatus(
       id,
-      status,
-      (response: any) => {
+      this.deliveryStatusUpdate,
+      null, // No file for now
+      () => {
         this.toastService.show('Delivery updated successfully', 'success');
         this.tableState$.next();
-        if (this.selectedDelivery && this.selectedDelivery.id === id) {
-          this.deliveryService.getDeliveryById(String(id),
-            (res: any) => { this.selectedDelivery = res.data; },
-            () => { }
-          );
-        }
       },
-      (error: any) => {
+      () => {
         this.toastService.show('Failed to update delivery', 'error');
       }
     );
-  }
-
-  rescheduleDelivery(id: any) {
-    // Default new date = tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const isoDate = tomorrow.toISOString().split('T')[0];
-
-    this.confirmationModalService.open({
-      title: 'Reschedule Delivery',
-      message: `Customer was not available. This delivery will be rescheduled to ${isoDate}. Confirm?`,
-      intent: 'info',
-      confirmLabel: 'Yes, Reschedule',
-      cancelLabel: 'Cancel'
-    }).then(confirmed => {
-      if (confirmed) {
-        this.deliveryService.rescheduleDelivery(
-          id,
-          isoDate,
-          'Customer not available at delivery address',
-          (res: any) => {
-            this.toastService.show('Delivery rescheduled successfully', 'success');
-            this.tableState$.next();
-            if (this.selectedDelivery && this.selectedDelivery.id === id) {
-              this.deliveryService.getDeliveryById(String(id),
-                (r: any) => { this.selectedDelivery = r.data; },
-                () => { }
-              );
-            }
-          },
-          () => this.toastService.show('Failed to reschedule delivery', 'error')
-        );
-      }
-    });
-  }
-
-  cancelDelivery(id: any) {
-    this.confirmationModalService.open({
-      title: 'Cancel Delivery',
-      message: `Are you sure you want to cancel this delivery?`,
-      intent: 'danger',
-      confirmLabel: 'Yes, Cancel',
-      cancelLabel: 'No'
-    }).then(confirmed => {
-      if (confirmed) {
-        this.deliveryService.cancelDelivery(
-          id,
-          'Customer not available at delivery address',
-          (res: any) => {
-            this.toastService.show('Delivery cancelled successfully', 'success');
-            this.tableState$.next();
-            if (this.selectedDelivery && this.selectedDelivery.id === id) {
-              this.deliveryService.getDeliveryById(String(id),
-                (r: any) => { this.selectedDelivery = r.data; },
-                () => { }
-              );
-            }
-          },
-          () => this.toastService.show('Failed to cancel delivery', 'error')
-        );
-      }
-    });
   }
 
   markDeliveryAsShipped(id: any) {
@@ -246,6 +172,13 @@ export class DeliveryComponent implements OnInit {
     this.updateDelivaryStatus(id, ShipmentStatus.DELIVERED);
   }
 
+  markDeliveryAsCancelled(id: any, reason: string) {
+    this.updateDelivaryStatus(id, ShipmentStatus.CANCELLED, reason);
+  }
+
+  markDeliveryAsRescheduled(id: any, scheduledDate: string, reason: string) {
+    this.updateDelivaryStatus(id, ShipmentStatus.SCHEDULED, reason, new Date(scheduledDate));
+  }
 
   processBatchAssignment() {
     if (this.selectedItemIds.length === 0) {
@@ -260,35 +193,21 @@ export class DeliveryComponent implements OnInit {
     };
 
     this.deliveryService.createRoute(request,
-      (res: any) => {
+      () => {
         this.toastService.show('Route Batch created successfully', 'success');
         this.selectedItemIds = [];
         this.tableState$.next();
       },
-      (err: any) => this.toastService.show('Failed to create batch', 'error')
+      () => this.toastService.show('Failed to create batch', 'error')
     );
   }
-
-  deliveriedInvoice(deliveryIds: string | number) {
-    this.deliveryService.markAsDelivered(deliveryIds,
-      (response: any) => {
-        this.toastService.show('Delivery marked as delivered', 'success');
-        this.tableState$.next();
-      },
-      (error: any) => {
-        this.toastService.show('Failed to mark as delivered', 'error');
-        console.error('Error marking as delivered:', error);
-      }
-    );
-  }
-
 
   downloadBulkDeliveryItemsExcel() {
     this.deliveryService.downloadBulkDeliveryItemsExcel(this.deliveryFilter,
-      (res: any) => {
+      () => {
         this.toastService.show('Bulk delivery items downloaded successfully', 'success');
       },
-      (err: any) => this.toastService.show('Failed to download bulk delivery items', 'error')
+      () => this.toastService.show('Failed to download bulk delivery items', 'error')
     );
   }
 
@@ -325,9 +244,8 @@ export class DeliveryComponent implements OnInit {
           color: 'rose',
         }
       ];
-
     },
-      (err: any) => this.toastService.show('Failed to load summary', 'error'));
+      () => this.toastService.show('Failed to load summary', 'error'));
   }
 
   handleTableAction(event: TableAction) {
@@ -338,50 +256,14 @@ export class DeliveryComponent implements OnInit {
       this.updateDelivaryStatus(event.row.id, ShipmentStatus.SHIPPED);
     }
     if (event.type === 'custom' && event.key === 'view_delivery') {
-      this.openDeliveryDetails(event.row.id);
+      this.router.navigate(['detail', event.row.id], { relativeTo: this.route });
     }
-    if (event.type === 'edit') {
-      // Standard edit logic
-    }
-  }
-
-  openDeliveryDetails(deliveryId: string | number) {
-    this.loaderSvc.show();
-    this.deliveryService.getDeliveryById(String(deliveryId),
-      (response: any) => {
-        this.selectedDelivery = response.data;
-        this.loaderSvc.hide();
-        this.drawerService.openTemplate(
-          this.deliveryDetailTemplate,
-          `Delivery: ${this.selectedDelivery?.deliveryNumber || deliveryId}`,
-          'lg'
-        );
-      },
-      () => {
-        this.loaderSvc.hide();
-        this.toastService.show('Failed to fetch delivery details', 'error');
-      }
-    );
-  }
-
-  getMapUrl(address?: string): SafeResourceUrl {
-    const destination = encodeURIComponent(address || 'Chennai');
-    const url = `https://maps.google.com/maps?q=${destination}&z=14&output=embed`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  }
-
-  getExpectedArrival(delivery: DeliveryModel | null): string | null {
-    if (!delivery) return null;
-    const date = delivery.deliveredDate || delivery.scheduledDate || delivery.shippedDate;
-    return date ? this.formatDate(date) : null;
   }
 
   onFilterDate(range: DateRangeEmit) {
-    console.log('Filter table by:', range.from, range.to);
     this.deliveryFilter.fromDate = range.from
       ? this.formatDate(range.from)
       : null;
-
     this.deliveryFilter.toDate = range.to
       ? this.formatDate(range.to)
       : null;
@@ -393,7 +275,6 @@ export class DeliveryComponent implements OnInit {
   }
 
   onFilterUpdate($event: Record<string, any>) {
-    console.log('Received filter update:', $event);
     this.deliveryFilter.shipmentTypes = $event['type'] || null;
     this.deliveryFilter.shipmentStatuses = $event['shipmentStatus'] || null;
     this.tableState$.next();
@@ -442,6 +323,5 @@ export class DeliveryComponent implements OnInit {
     this.tableState$.next();
   }
 
-  onLoadMore() {
-  }
+  onLoadMore() { }
 }

@@ -446,6 +446,9 @@ export class PaymentSymmaryComponent implements OnInit, OnDestroy {
           return;
         }
 
+        // close the modal
+        this.modalService.close();
+
         const options = {
           key: order.razorpayKeyId,
           amount: order.amountInPaise,
