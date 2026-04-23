@@ -128,7 +128,7 @@ export class AuthService {
     localStorage.clear();
     this.drawerSvc.close();
     this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 
   getAccessToken() {

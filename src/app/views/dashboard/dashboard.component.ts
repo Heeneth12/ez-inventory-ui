@@ -19,12 +19,15 @@ import {
   ArrowRight,
   Check,
   X,
-  List
+  List,
+  UsbIcon,
+  ListChecks
 } from 'lucide-angular';
 import { Chart, registerables } from 'chart.js';
 import { ApprovalConsoleService } from '../approval-console/approval-console.service';
 import { ApprovalRequestModel } from '../approval-console/approval-console.model';
 import { Router } from '@angular/router';
+import { Integration } from '../example/example.component';
 
 Chart.register(...registerables);
 
@@ -71,7 +74,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     arrowRight: ArrowRight,
     check: Check,
     x: X,
-    list: List
+    list: List,
+    UsbIcon: UsbIcon,
+    ListChecks: ListChecks
+
   };
 
   hoveredDayIndex: number | null = null;
@@ -355,5 +361,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     if (this.activityChart) {
       this.activityChart.destroy();
     }
+  }
+
+  integrations: Integration[] = [
+    { name: 'WhatsApp', initials: 'WA', desc: 'Send order & delivery alerts', connected: true, color: 'green' },
+    { name: 'Razorpay', initials: 'RP', desc: 'Payment gateway for invoices', connected: false, color: 'blue' },
+    { name: 'Zoho Books', initials: 'ZB', desc: 'Accounting and expense sync', connected: false, color: 'amber' },
+    { name: 'Google Sheets', initials: 'GS', desc: 'Export reports to Sheets', connected: false, color: 'green' },
+  ];
+
+  toggleIntegration(app: Integration) {
+    app.connected = !app.connected;
+    // TODO: call connect/disconnect API
   }
 }

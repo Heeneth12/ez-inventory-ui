@@ -195,7 +195,7 @@ export class PaymentsComponent {
       key: 'revenue',
       label: 'Revenue this month',
       value: '$10,398',
-      color: 'emerald',
+      color: 'gray',
       icon: Banknote,
     },
     {

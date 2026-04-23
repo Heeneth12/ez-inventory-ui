@@ -14,13 +14,13 @@ export class AuthGuard implements CanActivate {
   ) { }
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
-    
+
     // 1. First, check if token exists and is valid on server
     return this.authService.isLoggedIn().pipe(
       switchMap((isValid) => {
         if (!isValid) {
           // Token invalid or missing -> Redirect to Login
-          return of(this.router.createUrlTree(['/login'], { queryParams: { returnUrl: route.url.join('/') } }));
+          return of(this.router.createUrlTree(['/auth/login'], { queryParams: { returnUrl: route.url.join('/') } }));
         }
 
         // 2. Token is valid. Do we have the User Data in memory?
@@ -38,7 +38,7 @@ export class AuthGuard implements CanActivate {
             catchError(() => {
               // If Init fails (401/500), logout and redirect
               this.authService.logout();
-              return of(this.router.createUrlTree(['/login']));
+              return of(this.router.createUrlTree(['/auth/login']));
             })
           );
         }

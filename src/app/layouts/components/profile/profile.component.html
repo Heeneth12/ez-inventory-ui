@@ -1,4 +1,4 @@
-<div class="bg-gray-50/60 px-2">
+<div class="px-2 mt-2">
     <div class="space-y-2">
 
         <!-- User Profile -->
@@ -23,7 +23,10 @@
         <!-- Header -->
         <div class="px-6 py-4 border-b border-slate-300/50 flex items-center justify-between">
             <div>
-                <h2 class="text-[16px] font-semibold text-slate-900">Profile</h2>
+                <div class="flex items-center gap-2">
+                    <lucide-icon [img]="UserRoundIcon" [size]="18" class="text-gray-900"></lucide-icon>
+                    <h2 class="text-[16px] font-semibold text-slate-900">Profile</h2>
+                </div>
                 <p class="text-[11px] text-slate-400 mt-0.5">Manage your personal information and security</p>
             </div>
 
@@ -423,7 +426,10 @@
         <div (click)="isNotifExpanded = !isNotifExpanded"
             class="px-6 py-4 border-b border-slate-300/50 cursor-pointer hover:bg-gray-50 flex justify-between items-center transition-colors">
             <div>
-                <h2 class="text-[15px] font-semibold text-gray-900">Notification preferences</h2>
+                <div class="flex items-center gap-2">
+                    <lucide-icon [img]="BellPlusIcon" [size]="18" class="text-gray-900"></lucide-icon>
+                    <h2 class="text-[15px] font-semibold text-gray-900">Notification preferences</h2>
+                </div>
                 <p class="text-[11px] text-gray-400 mt-0.5">Choose how and when you want to be notified</p>
             </div>
             <lucide-icon [img]="ChevronDownIcon" [size]="18" class="text-gray-400 transition-transform duration-300"
@@ -501,7 +507,10 @@
         <div (click)="isExpanded = !isExpanded"
             class="px-6 py-4 border-b border-slate-300/50 cursor-pointer hover:bg-gray-50 flex justify-between items-center transition-colors">
             <div>
-                <h2 class="text-[15px] font-semibold text-gray-900">Document verification</h2>
+                <div class="flex items-center gap-2">
+                    <lucide-icon [img]="FolderIcon" [size]="18" class="text-gray-900"></lucide-icon>
+                    <h2 class="text-[15px] font-semibold text-gray-900">Document verification</h2>
+                </div>
                 <p class="text-[11px] text-gray-400 mt-0.5">Upload and verify your identity and business documents</p>
             </div>
             <lucide-icon [img]="ChevronDownIcon" [size]="18" class="text-gray-400 transition-transform duration-300"
@@ -595,7 +604,10 @@
     <div class="bg-white border border-slate-300/50 rounded-lg shadow-sm overflow-hidden">
 
         <div class="px-6 py-4 border-b border-slate-300/50">
-            <h2 class="text-[15px] font-semibold text-gray-900">Privacy &amp; data</h2>
+            <div class="flex items-center gap-2">
+                <lucide-icon [img]="ShieldCogCornerIcon" [size]="18" class="text-gray-900"></lucide-icon>
+                <h2 class="text-[15px] font-semibold text-gray-900">Privacy &amp; data</h2>
+            </div>
             <p class="text-[11px] text-gray-400 mt-0.5">Control how your data is used and shared</p>
         </div>
 

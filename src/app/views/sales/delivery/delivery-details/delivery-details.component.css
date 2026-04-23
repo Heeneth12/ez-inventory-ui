@@ -1,0 +1,15 @@
+@keyframes slideUp {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.fixed>div {
+  animation: slideUp 0.22s ease-out both;
+}

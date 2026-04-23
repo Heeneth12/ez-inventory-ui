@@ -1,0 +1,812 @@
+@if(isLoading) {
+<ng-container *ngTemplateOutlet="loading"></ng-container>
+}
+
+@if(!isLoading && delivery) {
+<div class="min-h-screen bg-[#F5F5F5] font-sans">
+
+  <!-- Top Bar -->
+  <div class="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center gap-3 sticky top-0 z-20 shadow-sm">
+    <button (click)="goBack()"
+      class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center hover:bg-slate-200 transition-colors shrink-0">
+      <lucide-icon [img]="ArrowLeftIcon" class="w-4 h-4 text-slate-600"></lucide-icon>
+    </button>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-baseline gap-2">
+        <h1 class="text-[15px] font-bold text-slate-900 leading-tight">{{ delivery.deliveryNumber }}</h1>
+        <span class="text-[11px] text-slate-400 font-medium">{{ getTypeLabel(delivery.type) }}</span>
+      </div>
+      <p class="text-[12px] text-slate-400 mt-0.5">{{ delivery.customerName }}</p>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      @if(delivery.invoice.grandTotal) {
+      <span class="text-[11px] text-slate-500 bg-slate-100 rounded-md px-2.5 py-1 font-medium">
+        {{ delivery.invoice.grandTotal | currency:'INR':'symbol':'1.0-0' }}
+        <span class="text-slate-400 mx-1">·</span>{{ delivery.invoice.items.length || 0 }} items
+      </span>
+      }
+      <span [ngClass]="{
+        'bg-amber-50 text-amber-700 border-amber-200': delivery.status === 'PENDING',
+        'bg-violet-50 text-violet-700 border-violet-200': delivery.status === 'SCHEDULED',
+        'bg-blue-50 text-blue-700 border-blue-200': delivery.status === 'SHIPPED',
+        'bg-green-50 text-green-700 border-green-200': delivery.status === 'DELIVERED',
+        'bg-rose-50 text-rose-700 border-rose-200': delivery.status === 'CANCELLED'
+      }" class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border tracking-wide">
+        {{ delivery.status }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="mx-auto px-2 py-2 grid grid-cols-1 lg:grid-cols-[1fr_540px] gap-2 items-start">
+
+    <!-- LEFT COLUMN  -->
+    <div class="flex flex-col gap-2">
+
+      <!-- Stepper Card -->
+      <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div class="px-6 pt-5 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <lucide-icon [img]="ClockFadingIcon" [size]="18" class="text-gray-900"></lucide-icon>
+              <h2 class="text-[16px] font-semibold text-slate-900">Delivery Progress</h2>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Track your delivery status</p>
+          </div>
+
+          <!-- 4-step stepper -->
+          <div class="flex items-center">
+
+            <!-- Step: Pending -->
+            <div class="flex flex-col items-center" style="min-width:72px">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all"
+                [ngClass]="isStepCompleted('PENDING') ? 'bg-green-500 border-green-500' : isStepActive('PENDING') ? 'bg-amber-500 border-amber-500' : 'bg-white border-slate-200'">
+                @if(isStepCompleted('PENDING')) {
+                <lucide-icon [img]="CheckIcon" class="w-4 h-4 text-white"></lucide-icon>
+                } @else {
+                <lucide-icon [img]="ClockIcon" class="w-4 h-4"
+                  [ngClass]="isStepActive('PENDING') ? 'text-white' : 'text-slate-300'"></lucide-icon>
+                }
+              </div>
+              <p class="text-[10px] font-semibold mt-2"
+                [ngClass]="isStepCompleted('PENDING') ? 'text-green-600' : isStepActive('PENDING') ? 'text-amber-500' : 'text-slate-300'">
+                Pending
+              </p>
+            </div>
+
+            <!-- Connector P→S -->
+            <div class="flex-1 h-[2px] rounded-full transition-colors min-w-[12px]"
+              [ngClass]="connectorDone('P_S') ? 'bg-green-400' : 'bg-slate-200'"></div>
+
+            <!-- Step: Scheduled -->
+            <div class="flex flex-col items-center" style="min-width:72px">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all"
+                [ngClass]="isStepCompleted('SCHEDULED') ? 'bg-green-500 border-green-500' : isStepActive('SCHEDULED') ? 'bg-violet-600 border-violet-600' : 'bg-white border-slate-200'">
+                @if(isStepCompleted('SCHEDULED')) {
+                <lucide-icon [img]="CheckIcon" class="w-4 h-4 text-white"></lucide-icon>
+                } @else {
+                <lucide-icon [img]="CalendarClockIcon" class="w-4 h-4"
+                  [ngClass]="isStepActive('SCHEDULED') ? 'text-white' : 'text-slate-300'"></lucide-icon>
+                }
+              </div>
+              <p class="text-[10px] font-semibold mt-2"
+                [ngClass]="isStepCompleted('SCHEDULED') ? 'text-green-600' : isStepActive('SCHEDULED') ? 'text-violet-600' : 'text-slate-300'">
+                Scheduled
+              </p>
+              @if(delivery.scheduledDate) {
+              <p class="text-[10px] text-slate-400 mt-0.5">{{ delivery.scheduledDate | date:'MMM d' }}</p>
+              }
+            </div>
+
+            <!-- Connector S→SH -->
+            <div class="flex-1 h-[2px] rounded-full transition-colors min-w-[12px]"
+              [ngClass]="connectorDone('S_SH') ? 'bg-green-400' : isStepActive('SHIPPED') ? 'bg-blue-400' : 'bg-slate-200'">
+            </div>
+
+            <!-- Step: Shipped -->
+            <div class="flex flex-col items-center" style="min-width:72px">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all"
+                [ngClass]="isStepCompleted('SHIPPED') ? 'bg-green-500 border-green-500' : isStepActive('SHIPPED') ? 'bg-blue-600 border-blue-600' : 'bg-white border-slate-200'">
+                @if(isStepCompleted('SHIPPED')) {
+                <lucide-icon [img]="CheckIcon" class="w-4 h-4 text-white"></lucide-icon>
+                } @else {
+                <lucide-icon [img]="TruckIcon" class="w-4 h-4"
+                  [ngClass]="isStepActive('SHIPPED') ? 'text-white' : 'text-slate-300'"></lucide-icon>
+                }
+              </div>
+              <p class="text-[10px] font-semibold mt-2"
+                [ngClass]="isStepCompleted('SHIPPED') ? 'text-green-600' : isStepActive('SHIPPED') ? 'text-blue-600' : 'text-slate-300'">
+                Shipped
+              </p>
+              @if(delivery.shippedDate) {
+              <p class="text-[10px] text-slate-400 mt-0.5">{{ delivery.shippedDate | date:'MMM d' }}</p>
+              }
+            </div>
+
+            <!-- Connector SH→D -->
+            <div class="flex-1 h-[2px] rounded-full transition-colors min-w-[12px]"
+              [ngClass]="connectorDone('SH_D') ? 'bg-green-400' : 'bg-slate-200'"></div>
+
+            <!-- Step: Delivered -->
+            <div class="flex flex-col items-center" style="min-width:72px">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all"
+                [ngClass]="isStepActive('DELIVERED') ? 'bg-green-500 border-green-500' : 'bg-white border-slate-200'">
+                <lucide-icon [img]="CheckCircleIcon" class="w-4 h-4"
+                  [ngClass]="isStepActive('DELIVERED') ? 'text-white' : 'text-slate-300'"></lucide-icon>
+              </div>
+              <p class="text-[10px] font-semibold mt-2"
+                [ngClass]="isStepActive('DELIVERED') ? 'text-green-600' : 'text-slate-300'">
+                Delivered
+              </p>
+              @if(delivery.deliveredDate) {
+              <p class="text-[10px] text-slate-400 mt-0.5">{{ delivery.deliveredDate | date:'MMM d' }}</p>
+              }
+            </div>
+
+          </div>
+
+          <!-- CANCELLED banner row -->
+          @if(delivery.status === 'CANCELLED') {
+          <div class="mt-4 flex items-center gap-3 bg-rose-50 border border-rose-100 rounded-lg px-4 py-3">
+            <div class="w-7 h-7 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="XCircleIcon" class="w-4 h-4 text-rose-600"></lucide-icon>
+            </div>
+            <div>
+              <p class="text-[12px] font-bold text-rose-800">Delivery Cancelled</p>
+              @if(delivery.remarks) {
+              <p class="text-[11px] text-rose-500 mt-0.5">{{ delivery.remarks }}</p>
+              }
+            </div>
+          </div>
+          }
+
+        </div>
+
+        <!-- Status Banners -->
+        @if(delivery.status === 'SCHEDULED') {
+        <div class="mx-5 mb-5 bg-violet-50 border border-violet-100 rounded-lg p-3.5 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0">
+            <lucide-icon [img]="CalendarClockIcon" class="w-4 h-4 text-violet-600"></lucide-icon>
+          </div>
+          <div class="flex-1">
+            <p class="text-[13px] font-bold text-violet-800">Delivery Scheduled</p>
+            <p class="text-[11px] text-violet-500 mt-0.5">{{ delivery.scheduledDate | date:'fullDate' }}</p>
+          </div>
+        </div>
+        }
+        @if(delivery.status === 'SHIPPED') {
+        <div class="mx-5 mb-5 bg-blue-50 border border-blue-100 rounded-lg p-3.5 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+            <lucide-icon [img]="TruckIcon" class="w-4 h-4 text-blue-600"></lucide-icon>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-[13px] font-bold text-blue-800">Out for Delivery</p>
+            <p class="text-[11px] text-blue-500 mt-0.5 truncate flex items-center gap-1">
+              <lucide-icon [img]="MapPinIcon" class="w-3 h-3 shrink-0"></lucide-icon>
+              {{ delivery.deliveryAddress || '—' }}
+            </p>
+          </div>
+        </div>
+        }
+        @if(delivery.status === 'DELIVERED') {
+        <div class="mx-5 mb-5 bg-green-50 border border-green-100 rounded-lg p-3.5 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+            <lucide-icon [img]="CheckCircleIcon" class="w-4 h-4 text-green-600"></lucide-icon>
+          </div>
+          <div>
+            <p class="text-[13px] font-bold text-green-800">Delivered Successfully</p>
+            <p class="text-[11px] text-green-600 mt-0.5">{{ delivery.deliveredDate | date:'medium' }}</p>
+          </div>
+        </div>
+        }
+        @if(delivery.status !== 'SCHEDULED' && delivery.status !== 'SHIPPED' && delivery.status !== 'DELIVERED') {
+        <div class="pb-1"></div>
+        }
+      </div>
+
+      <!-- Invoice & Payment Card -->
+      @if(delivery.invoice) {
+      <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <div>
+            <p
+              class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mb-1 flex items-center gap-1.5">
+              <lucide-icon [img]="RouteIcon" class="w-3.5 h-3.5"></lucide-icon>
+              Invoice &amp; Payment
+            </p>
+            <p class="text-[15px] font-bold text-slate-900">{{ delivery.invoice.invoiceNumber }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">{{ delivery.invoice.invoiceDate | date:'mediumDate' }}</p>
+          </div>
+          <span [ngClass]="{
+              'bg-amber-50 text-amber-700 border-amber-200': delivery.invoice.status === 'ISSUED' || delivery.invoice.status === 'PENDING',
+              'bg-green-50 text-green-700 border-green-200': delivery.invoice.status === 'PAID',
+              'bg-rose-50 text-rose-700 border-rose-200': delivery.invoice.status === 'OVERDUE'
+            }" class="text-[10px] font-semibold px-2.5 py-1 rounded-full border">
+            {{ delivery.invoice.status }}
+          </span>
+        </div>
+        <div class="grid grid-cols-3 divide-x divide-slate-100">
+          <div class="text-center py-4 px-3">
+            <p class="text-[9px] uppercase tracking-wide text-slate-400 font-semibold mb-1">Total</p>
+            <p class="text-[18px] font-bold text-slate-900">{{ delivery.invoice.grandTotal |
+              currency:'INR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="text-center py-4 px-3">
+            <p class="text-[9px] uppercase tracking-wide text-green-500 font-semibold mb-1">Paid</p>
+            <p class="text-[18px] font-bold text-slate-900">{{ delivery.invoice.amountPaid |
+              currency:'INR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="text-center py-4 px-3">
+            <p class="text-[9px] uppercase tracking-wide text-amber-500 font-semibold mb-1">Balance</p>
+            <p class="text-[18px] font-bold text-amber-600">{{ delivery.invoice.balance |
+              currency:'INR':'symbol':'1.0-0' }}</p>
+          </div>
+        </div>
+
+        <!-- Items Table — Accordion -->
+        @if(delivery.invoice.items.length) {
+        <div class="border-t border-slate-100">
+          <button (click)="toggleItemsAccordion()"
+            class="w-full flex items-center justify-between px-5 py-3.5 hover:bg-slate-50 transition-colors">
+            <span class="text-[11px] font-semibold text-slate-600 flex items-center gap-2">
+              <lucide-icon [img]="PackageIcon" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+              Delivery Items
+              <span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                {{ delivery.invoice.items.length }}
+              </span>
+            </span>
+            <lucide-icon [img]="showItems ? ChevronUpIcon : ChevronDownIcon"
+              class="w-4 h-4 text-slate-400"></lucide-icon>
+          </button>
+          @if(showItems) {
+          <div class="border-t border-slate-100">
+            <table class="w-full text-[12px]">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                  <th class="text-left px-5 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-slate-400">
+                    Item</th>
+                  <th class="text-center px-4 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-slate-400">
+                    Qty</th>
+                  <th class="text-right px-5 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-slate-400">
+                    Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(item of delivery.invoice.items; track item.id) {
+                <tr class="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
+                  <td class="px-5 py-3">
+                    <p class="font-semibold text-slate-900">{{ item.itemName }}</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">{{ item.sku }}</p>
+                  </td>
+                  <td class="px-4 py-3 text-center text-slate-400 text-[11px]">× {{ item.quantity }}</td>
+                  <td class="px-5 py-3 text-right font-bold text-slate-900">{{ item.lineTotal |
+                    currency:'INR':'symbol':'1.0-0' }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+            <div class="flex items-center justify-between px-5 py-3 border-t border-slate-100 bg-slate-50">
+              <span class="text-[11px] text-slate-400 font-medium">Grand Total</span>
+              <span class="text-[15px] font-bold text-slate-900">{{ delivery.invoice.grandTotal |
+                currency:'INR':'symbol':'1.0-0' }}</span>
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Map Card — Accordion -->
+      @if(delivery.deliveryAddress) {
+      <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <button (click)="toggleMapAccordion()"
+          class="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors">
+          <span class="text-[11px] font-semibold text-slate-600 flex items-center gap-2">
+            <lucide-icon [img]="MapPinIcon" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+            Delivery Location
+            <span class="text-[11px] text-slate-400 font-normal truncate max-w-[240px]">{{ delivery.deliveryAddress
+              }}</span>
+          </span>
+          <lucide-icon [img]="showMap ? ChevronUpIcon : ChevronDownIcon"
+            class="w-4 h-4 text-slate-400 shrink-0"></lucide-icon>
+        </button>
+        @if(showMap) {
+        <div class="border-t border-slate-100">
+          <div class="h-[240px] relative">
+            <iframe [src]="getMapUrl(delivery.deliveryAddress)" class="w-full h-full"
+              referrerpolicy="no-referrer-when-downgrade" loading="lazy">
+            </iframe>
+            <a [href]="'https://maps.google.com/?q=' + delivery.deliveryAddress" target="_blank"
+              class="absolute bottom-3 right-3 bg-white text-slate-600 text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors flex items-center gap-1.5 no-underline">
+              <lucide-icon [img]="MapPinIcon" class="w-3 h-3"></lucide-icon>
+              Open in Maps ↗
+            </a>
+          </div>
+          <div class="px-5 py-3 border-t border-slate-100">
+            <p class="text-[12px] text-slate-600">{{ delivery.deliveryAddress }}</p>
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Remarks -->
+      @if(delivery.remarks) {
+      <div class="bg-amber-50 border border-dashed border-amber-200 rounded-lg p-4">
+        <p class="text-[10px] uppercase tracking-widest text-amber-600 font-semibold mb-1.5">Remarks</p>
+        <p class="text-[13px] text-amber-900 leading-relaxed">{{ delivery.remarks }}</p>
+      </div>
+      }
+
+    </div>
+
+    <!-- ══════════ RIGHT COLUMN ══════════ -->
+    <div class="flex flex-col gap-4" style="position:sticky; top:72px">
+
+      <!-- ── Delivery Actions Card ── -->
+      <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div class="px-5 pt-4 pb-3 border-b border-slate-100">
+          <p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Delivery Actions</p>
+        </div>
+        <div class="p-4">
+
+          <!-- PENDING -->
+          @if(delivery.status === 'PENDING') {
+          <div class="flex flex-col gap-2">
+            <button (click)="openScheduleModal()"
+              class="w-full flex items-center justify-center gap-2 py-2.5 bg-violet-50 text-violet-700 border border-violet-200 rounded-lg text-[13px] font-semibold hover:bg-violet-100 active:scale-[0.98] transition-all">
+              <lucide-icon [img]="CalendarClockIcon" class="w-4 h-4"></lucide-icon>
+              Schedule Delivery
+            </button>
+            <button (click)="markAsShipped()"
+              class="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm">
+              <lucide-icon [img]="TruckIcon" class="w-4 h-4"></lucide-icon>
+              Move to Shipping
+            </button>
+            <div class="h-px bg-slate-100 my-1"></div>
+            <button (click)="openCancelModal()"
+              class="w-full flex items-center justify-center gap-2 py-2.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-[13px] font-semibold hover:bg-rose-100 active:scale-[0.98] transition-all">
+              <lucide-icon [img]="XCircleIcon" class="w-4 h-4"></lucide-icon>
+              Cancel Delivery
+            </button>
+          </div>
+          }
+
+          <!-- SCHEDULED -->
+          @if(delivery.status === 'SCHEDULED') {
+          <div class="flex flex-col gap-2">
+            <button (click)="markAsShipped()"
+              class="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm">
+              <lucide-icon [img]="TruckIcon" class="w-4 h-4"></lucide-icon>
+              Move to Shipping
+            </button>
+            <div class="h-px bg-slate-100 my-1"></div>
+            <button (click)="openCancelModal()"
+              class="w-full flex items-center justify-center gap-2 py-2.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-[13px] font-semibold hover:bg-rose-100 active:scale-[0.98] transition-all">
+              <lucide-icon [img]="XCircleIcon" class="w-4 h-4"></lucide-icon>
+              Cancel Delivery
+            </button>
+          </div>
+          }
+
+          <!-- SHIPPED -->
+          @if(delivery.status === 'SHIPPED') {
+          <p class="text-[10px] text-slate-400 uppercase tracking-widest text-center mb-3 font-semibold">Select Outcome
+          </p>
+          <div class="grid grid-cols-3 gap-2">
+            <button (click)="openRescheduleModal()"
+              class="flex flex-col items-center gap-2 px-2 py-3.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 hover:bg-amber-100 active:scale-[0.97] transition-all">
+              <lucide-icon [img]="CalendarClockIcon" class="w-5 h-5"></lucide-icon>
+              <div class="text-center">
+                <p class="text-[11px] font-bold leading-tight">Not Home</p>
+                <p class="text-[10px] text-amber-500 font-semibold mt-0.5">Reschedule</p>
+              </div>
+            </button>
+            <button (click)="openDeliverModal()"
+              class="flex flex-col items-center gap-2 px-2 py-3.5 bg-green-50 border border-green-200 rounded-lg text-green-700 hover:bg-green-100 active:scale-[0.97] transition-all">
+              <lucide-icon [img]="CameraIcon" class="w-5 h-5"></lucide-icon>
+              <div class="text-center">
+                <p class="text-[11px] font-bold leading-tight">Received</p>
+                <p class="text-[10px] text-green-500 font-semibold mt-0.5">+ Photo</p>
+              </div>
+            </button>
+            <button (click)="openCancelModal()"
+              class="flex flex-col items-center gap-2 px-2 py-3.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 hover:bg-rose-100 active:scale-[0.97] transition-all">
+              <lucide-icon [img]="XCircleIcon" class="w-5 h-5"></lucide-icon>
+              <div class="text-center">
+                <p class="text-[11px] font-bold leading-tight">Cancel</p>
+                <p class="text-[10px] text-rose-400 font-semibold mt-0.5">Cancelled</p>
+              </div>
+            </button>
+          </div>
+          }
+
+          <!-- DELIVERED — locked -->
+          @if(delivery.status === 'DELIVERED') {
+          <div class="bg-green-50 border border-green-100 rounded-lg p-4 flex items-center gap-3">
+            <div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+              <lucide-icon [img]="CheckCircleIcon" class="w-5 h-5 text-green-600"></lucide-icon>
+            </div>
+            <div>
+              <p class="text-[13px] font-bold text-green-800">Delivered</p>
+              <p class="text-[11px] text-green-600 mt-0.5">{{ delivery.deliveredDate | date:'medium' }}</p>
+              <p class="text-[10px] text-green-400 mt-1 font-semibold">No further actions available</p>
+            </div>
+          </div>
+          }
+
+          <!-- CANCELLED — locked -->
+          @if(delivery.status === 'CANCELLED') {
+          <div class="bg-rose-50 border border-rose-100 rounded-lg p-4 flex items-center gap-3">
+            <div class="w-9 h-9 bg-rose-100 rounded-full flex items-center justify-center shrink-0">
+              <lucide-icon [img]="XCircleIcon" class="w-5 h-5 text-rose-600"></lucide-icon>
+            </div>
+            <div>
+              <p class="text-[13px] font-bold text-rose-800">Delivery Cancelled</p>
+              <p class="text-[11px] text-rose-500 mt-0.5">This delivery has been cancelled</p>
+            </div>
+          </div>
+          }
+
+        </div>
+      </div>
+
+      <!-- Customer Card -->
+      <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div class="px-5 pt-4 pb-3 border-b border-slate-100">
+          <p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold flex items-center gap-1.5">
+            <lucide-icon [img]="UserIcon" class="w-3.5 h-3.5"></lucide-icon>
+            Customer
+          </p>
+        </div>
+        <div class="px-5 py-4">
+          <div class="flex items-center gap-3 mb-4">
+            <div
+              class="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center shrink-0 text-[12px] font-bold text-indigo-600">
+              {{ getInitials(delivery.customerName) }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-bold text-slate-900">{{ delivery.customerName || '—' }}</p>
+              <p class="text-[11px] text-slate-400 mt-0.5 truncate">{{ delivery.contactMini.email || '—' }}</p>
+            </div>
+          </div>
+          <div class="space-y-0">
+            <div class="flex justify-between items-center py-2.5 border-b border-slate-50">
+              <span class="text-[11px] text-slate-400">Phone</span>
+              <span class="text-[12px] font-medium text-slate-700">{{ delivery.contactMini.phone || '—' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-slate-50">
+              <span class="text-[11px] text-slate-400">Contact Person</span>
+              <span class="text-[12px] font-medium text-slate-700 text-right max-w-[55%]">{{ delivery.contactPerson ||
+                '—' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-slate-50">
+              <span class="text-[11px] text-slate-400">Contact Phone</span>
+              <span class="text-[12px] font-medium text-slate-700">{{ delivery.contactPhone || '—' }}</span>
+            </div>
+            @if(delivery.contactMini.userAddresses.length) {
+            <div class="flex justify-between items-center py-2.5">
+              <span class="text-[11px] text-slate-400">City</span>
+              <span class="text-[12px] font-medium text-slate-700 text-right">
+                {{ delivery.contactMini.userAddresses[0].city }},
+                {{ delivery.contactMini.userAddresses[0].state }}
+                – {{ delivery.contactMini.userAddresses[0].pinCode }}
+              </span>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Details Card -->
+      <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div class="px-5 pt-4 pb-3 border-b border-slate-100">
+          <p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold flex items-center gap-1.5">
+            <lucide-icon [img]="TruckIcon" class="w-3.5 h-3.5"></lucide-icon>
+            Delivery Details
+          </p>
+        </div>
+        <div class="px-5 py-1">
+          <div class="flex justify-between items-center py-2.5 border-b border-slate-50">
+            <span class="text-[11px] text-slate-400">Type</span>
+            <span class="text-[12px] font-medium text-slate-700">{{ getTypeLabel(delivery.type) }}</span>
+          </div>
+          <div class="flex justify-between items-center py-2.5 border-b border-slate-50">
+            <span class="text-[11px] text-slate-400">Scheduled</span>
+            <span class="text-[12px] font-medium text-slate-700">{{ (delivery.scheduledDate | date:'mediumDate') || '—'
+              }}</span>
+          </div>
+          <div class="flex justify-between items-center py-2.5 border-b border-slate-50">
+            <span class="text-[11px] text-slate-400">Shipped</span>
+            <span class="text-[12px] font-medium text-slate-700">{{ (delivery.shippedDate | date:'medium') || '—'
+              }}</span>
+          </div>
+          <div class="flex justify-between items-center py-2.5">
+            <span class="text-[11px] text-slate-400">Delivered</span>
+            <span class="text-[12px] font-medium text-slate-700">{{ (delivery.deliveredDate | date:'medium') || '—'
+              }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Image Card -->
+      <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div class="px-5 pt-4 pb-3 border-b border-slate-100">
+          <p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Delivery Confirmation</p>
+        </div>
+        <div class="px-5 py-4">
+          @if(delivery.status === 'DELIVERED') {
+          <div class="bg-green-50 border border-green-100 rounded-lg p-4 text-center">
+            <lucide-icon [img]="CheckCircleIcon" class="w-8 h-8 text-green-500 mx-auto mb-2"></lucide-icon>
+            <p class="text-[12px] font-semibold text-green-800">Photo Captured on Delivery</p>
+            <p class="text-[11px] text-green-500 mt-1">{{ delivery.deliveredDate | date:'medium' }}</p>
+
+            <button class="text-[11px] font-medium text-indigo-600" (click)="viewPhoto()">view photo</button>
+          </div>
+          } @else {
+          <div
+            class="h-28 bg-slate-50 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center gap-1.5 text-slate-400">
+            <lucide-icon [img]="CameraIcon" class="w-6 h-6 text-slate-300"></lucide-icon>
+            <span class="text-[11px] font-medium">Photo captured on delivery</span>
+            <button class="text-[11px] font-medium text-indigo-600" (click)="viewPhoto()">view photo</button>
+          </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+}
+
+<ng-template #scheduleModal>
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+    <div>
+      <h2 class="text-[15px] font-bold text-slate-900">{{ rescheduleModalTitle }}</h2>
+      <p class="text-[11px] text-slate-400 mt-0.5">Set a new delivery date and reason</p>
+    </div>
+    <button (click)="closeModal()"
+      class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+      <lucide-icon [img]="XIcon" class="w-4 h-4 text-slate-600"></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="px-5 py-5">
+    <div class="mb-4">
+      <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">New Date</label>
+      <input type="date" [(ngModel)]="rescheduleDate" [min]="getTomorrowDate()"
+        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[13px] text-slate-700 focus:outline-none focus:border-violet-400 focus:bg-white transition-colors">
+    </div>
+    <div class="mb-5">
+      <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Reason</label>
+      <textarea [(ngModel)]="rescheduleReason" placeholder="e.g. Customer not available" rows="3"
+        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[13px] text-slate-700 placeholder-slate-300 resize-none focus:outline-none focus:border-violet-400 focus:bg-white transition-colors"></textarea>
+    </div>
+    <button (click)="confirmReschedule()" [disabled]="!rescheduleDate || !rescheduleReason.trim()"
+      [ngClass]="rescheduleDate && rescheduleReason.trim() ? 'bg-violet-600 hover:bg-violet-700 cursor-pointer' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
+      class="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-all active:scale-[0.98]">
+      Confirm {{ rescheduleModalTitle }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #cancelModal>
+  <!-- Header -->
+  <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+    <div>
+      <h2 class="text-[15px] font-bold text-slate-900">Cancel Delivery</h2>
+      <p class="text-[11px] text-slate-400 mt-0.5">This action cannot be undone</p>
+    </div>
+    <button (click)="closeModal()"
+      class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+      <lucide-icon [img]="XIcon" class="w-4 h-4 text-slate-600"></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="px-5 py-5">
+    <div class="bg-rose-50 border border-rose-100 rounded-xl p-3 mb-4 flex items-start gap-2">
+      <lucide-icon [img]="XCircleIcon" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></lucide-icon>
+      <p class="text-[12px] text-rose-700">Cancellation is permanent. The delivery cannot be reactivated after this
+        action.</p>
+    </div>
+    <div class="mb-5">
+      <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Reason for
+        Cancellation</label>
+      <textarea [(ngModel)]="cancelReason" placeholder="e.g. Customer requested cancellation" rows="3"
+        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[13px] text-slate-700 placeholder-slate-300 resize-none focus:outline-none focus:border-rose-400 focus:bg-white transition-colors"></textarea>
+    </div>
+    <div class="flex gap-2">
+      <button (click)="closeModal()"
+        class="flex-1 py-3 rounded-xl text-[13px] font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+        Keep Delivery
+      </button>
+      <button (click)="confirmCancel()" [disabled]="!cancelReason.trim()"
+        [ngClass]="cancelReason.trim() ? 'bg-rose-600 hover:bg-rose-700 cursor-pointer' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
+        class="flex-1 py-3 rounded-xl text-[13px] font-bold text-white transition-all active:scale-[0.98]">
+        Confirm Cancel
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #deliverModal>
+  <!-- Modal header -->
+  <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+    <div>
+      <h2 class="text-[15px] font-bold text-slate-900">Mark as Delivered</h2>
+      <p class="text-[11px] text-slate-400 mt-0.5">Attach delivery confirmation photo</p>
+    </div>
+    <button (click)="closeDeliverModal()"
+      class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+      <lucide-icon [img]="XIcon" class="w-4 h-4 text-slate-600"></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Modal body -->
+  <div class="px-5 py-5">
+
+    <!-- Photo area — empty state -->
+    @if(!photoPreviewUrl) {
+    <div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-6 text-center mb-4">
+      <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+        <lucide-icon [img]="CameraIcon" class="w-6 h-6 text-slate-400"></lucide-icon>
+      </div>
+      <p class="text-[13px] font-semibold text-slate-700 mb-1">Add Delivery Photo</p>
+      <p class="text-[11px] text-slate-400 mb-4">Required — proof of successful delivery</p>
+      <div class="flex gap-2 justify-center">
+        <label
+          class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-[12px] font-semibold cursor-pointer hover:bg-blue-700 transition-colors">
+          <lucide-icon [img]="CameraIcon" class="w-3.5 h-3.5"></lucide-icon>
+          Camera
+          <input type="file" accept="image/*" capture="environment" class="hidden" (change)="onPhotoSelected($event)">
+        </label>
+        <label
+          class="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-[12px] font-semibold cursor-pointer hover:bg-slate-200 transition-colors">
+          <lucide-icon [img]="ImageIcon" class="w-3.5 h-3.5"></lucide-icon>
+          Gallery
+          <input type="file" accept="image/*" class="hidden" (change)="onPhotoSelected($event)">
+        </label>
+      </div>
+    </div>
+    }
+
+    <!-- Photo area — preview -->
+    @if(photoPreviewUrl) {
+    <div class="relative rounded-xl overflow-hidden mb-4">
+      <img [src]="photoPreviewUrl" alt="Delivery photo" class="w-full h-44 object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+      <div
+        class="absolute bottom-3 left-3 bg-green-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+        <lucide-icon [img]="CheckIcon" class="w-3 h-3"></lucide-icon>
+        Photo Ready
+      </div>
+      <button (click)="selectedPhotoFile = null; photoPreviewUrl = null"
+        class="absolute top-2 right-2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow">
+        <lucide-icon [img]="XIcon" class="w-3.5 h-3.5 text-slate-700"></lucide-icon>
+      </button>
+    </div>
+    }
+
+    <!-- Note field -->
+    <div class="mb-4">
+      <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Note
+        (optional)</label>
+      <textarea [(ngModel)]="deliverNote" placeholder="e.g. Customer received at door" rows="2"
+        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[13px] text-slate-700 placeholder-slate-300 resize-none focus:outline-none focus:border-blue-400 focus:bg-white transition-colors"></textarea>
+    </div>
+
+    <!-- Confirm button -->
+    <button (click)="confirmDelivery()" [disabled]="!selectedPhotoFile || isSubmitting"
+      [ngClass]="selectedPhotoFile && !isSubmitting ? 'bg-green-600 hover:bg-green-700 cursor-pointer' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
+      class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] font-bold text-white transition-all active:scale-[0.98]">
+      @if(isSubmitting) {
+      <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+      Confirming...
+      } @else {
+      <lucide-icon [img]="CheckCircleIcon" class="w-5 h-5"></lucide-icon>
+      Confirm Delivery
+      }
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="min-h-screen bg-[#F5F5F5]">
+
+    <div class="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center gap-3 sticky top-0 z-20">
+      <div class="w-8 h-8 animate-pulse rounded-lg bg-slate-100 shrink-0"></div>
+      <div class="flex-1 space-y-2">
+        <div class="h-4 w-32 animate-pulse rounded-full bg-slate-200"></div>
+        <div class="h-3 w-24 animate-pulse rounded-full bg-slate-100"></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="h-6 w-24 animate-pulse rounded-md bg-slate-100"></div>
+        <div class="h-6 w-20 animate-pulse rounded-full bg-slate-200"></div>
+      </div>
+    </div>
+
+    <div class="mx-auto px-2 py-2 grid grid-cols-1 lg:grid-cols-[1fr_540px] gap-2 items-start">
+
+      <div class="flex flex-col gap-2">
+
+        <div class="bg-white border border-slate-200 rounded-lg p-6">
+          <div class="h-3 w-32 animate-pulse rounded-full bg-slate-100 mb-8"></div>
+          <div class="flex items-center justify-between px-4">
+            <div *ngFor="let i of [1,2,3,4]" class="flex flex-col items-center gap-3">
+              <div class="w-9 h-9 animate-pulse rounded-full bg-slate-100"></div>
+              <div class="h-2 w-12 animate-pulse rounded-full bg-slate-100"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <div class="p-5 border-b border-slate-50 flex justify-between">
+            <div class="space-y-2">
+              <div class="h-2 w-24 animate-pulse rounded-full bg-slate-100"></div>
+              <div class="h-4 w-40 animate-pulse rounded-full bg-slate-200"></div>
+            </div>
+            <div class="h-6 w-16 animate-pulse rounded-full bg-slate-100"></div>
+          </div>
+          <div class="grid grid-cols-3 divide-x divide-slate-50">
+            <div *ngFor="let i of [1,2,3]" class="py-6 px-4 flex flex-col items-center gap-2">
+              <div class="h-2 w-10 animate-pulse rounded-full bg-slate-100"></div>
+              <div class="h-5 w-16 animate-pulse rounded-full bg-slate-200"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg p-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 animate-pulse rounded bg-slate-100"></div>
+            <div class="h-3 w-64 animate-pulse rounded-full bg-slate-100"></div>
+          </div>
+          <div class="w-4 h-4 animate-pulse rounded bg-slate-100"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4">
+
+        <div class="bg-white border border-slate-200 rounded-lg p-5 space-y-4">
+          <div class="h-3 w-28 animate-pulse rounded-full bg-slate-100"></div>
+          <div class="space-y-2">
+            <div class="h-10 w-full animate-pulse rounded-lg bg-slate-100"></div>
+            <div class="h-10 w-full animate-pulse rounded-lg bg-slate-200"></div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg p-5">
+          <div class="h-3 w-20 animate-pulse rounded-full bg-slate-100 mb-4"></div>
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 animate-pulse rounded-full bg-slate-100"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 w-32 animate-pulse rounded-full bg-slate-200"></div>
+              <div class="h-3 w-48 animate-pulse rounded-full bg-slate-100"></div>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div *ngFor="let i of [1,2,3]" class="flex justify-between">
+              <div class="h-2 w-16 animate-pulse rounded-full bg-slate-50"></div>
+              <div class="h-2 w-24 animate-pulse rounded-full bg-slate-100"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg p-5 space-y-4">
+          <div class="h-3 w-32 animate-pulse rounded-full bg-slate-100"></div>
+          <div class="space-y-4">
+            <div *ngFor="let i of [1,2,3,4]" class="flex justify-between">
+              <div class="h-2 w-20 animate-pulse rounded-full bg-slate-50"></div>
+              <div class="h-2 w-28 animate-pulse rounded-full bg-slate-100"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</ng-template>

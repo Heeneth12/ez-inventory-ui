@@ -34,7 +34,7 @@ export interface DropdownMenuItem {
     <el-dropdown class="inline-block">
       <button [title]="menuTitle"
         [class]="buttonClass">
-        {{ menuTitle }}
+        <span class="sm:block hidden m-0 p-0">{{ menuTitle }}</span>
         <lucide-icon [img]="triggerIcon" [class]="iconClass">
         </lucide-icon>
       </button>

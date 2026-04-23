@@ -11,8 +11,8 @@ export const PAYMENTS_COLUMNS: TableColumn[] = [
     { key: 'amount', label: 'Amount', width: '90px', type: 'text' },
     { key: 'status', label: 'Status', align: 'right', width: '110px', type: 'badge' },
     { key: 'paymentMethod', label: 'Payment Method', align: 'right', width: '130px', type: 'text' },
-    { key: 'allocatedAmount', label: 'Allocated Amount', align: 'right', width: '110px', type: 'currency' },
-    { key: 'unallocatedAmount', label: 'Unallocated Amount', align: "center", width: '110px', type: 'currency' },
+    { key: 'referenceNumber', label: 'Reference Number', align: 'right', width: '110px', type: 'text' },
+    { key: 'remarks', label: 'Remarks', align: "center", width: '110px', type: 'notes' },
     { key: 'actions', label: 'Actions', align: 'center', width: '120px', type: 'action', sortable: false }
 ];
 

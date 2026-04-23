@@ -3,11 +3,12 @@
 <app-vendor-layout>
   <router-outlet></router-outlet>
 </app-vendor-layout>
-} @else if (currentUser.userType === 'EMPLOYEE') {
+} @else if (currentUser.userType === 'EMPLOYEE' || currentUser.userType === 'ADMIN' || currentUser.userType ===
+'SUPER_ADMIN') {
 <app-inventory-layout>
   <router-outlet></router-outlet>
 </app-inventory-layout>
-} @else if (currentUser.userType === 'ADMIN') {
+} @else if (currentUser.userType === 'DEVELOPER') {
 <app-dev-layout>
   <router-outlet></router-outlet>
 </app-dev-layout>

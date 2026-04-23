@@ -12,7 +12,7 @@ export interface DeliveryModel {
     customerId: number;
     customerName: string;
     type: 'CUSTOMER_PICKUP' | 'THIRD_PARTY_COURIER' | 'IN_HOUSE_DELIVERY';   // ShipmentType
-    status: 'PENDING' | 'SCHEDULED' | 'SHIPPED' | 'DELIVERED'; // ShipmentStatus
+    status: 'PENDING' | 'SCHEDULED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'; // ShipmentStatus
     deliveryPersonId: number;
     scheduledDate: Date;
     shippedDate: Date;
@@ -21,6 +21,7 @@ export interface DeliveryModel {
     contactPerson: string;
     contactPhone: string;
     remarks: string;
+    attachmentUuid: string;
 }
 
 export class DeliveryFilterModel extends CommonFilterModel {
@@ -32,6 +33,13 @@ export class DeliveryFilterModel extends CommonFilterModel {
     invoiceIds!: number[] | null;
 
 }
+
+export class DeliveryStatusUpdateRequest {
+    status!: ShipmentStatus;
+    reason!: string | null;
+    scheduledDate!: Date | null;
+}
+
 
 export enum ShipmentStatus {
     PENDING = 'PENDING',

@@ -25,8 +25,9 @@ import {
   Smartphone,
   Trash,
   User,
-  ShieldCheck,
-  TestTubeIcon
+  Building2,
+  Folder,
+  ShieldCheckIcon
 } from 'lucide-angular';
 import { Observable, take } from 'rxjs';
 import { TenantModel } from '../../../views/user-management/models/tenant.model';
@@ -99,6 +100,9 @@ export class TenantComponent implements OnInit {
   readonly ActivityIcon = Activity;
   readonly DatabaseIcon = Database;
   readonly BarChart2Icon = BarChart2;
+  readonly Building2Icon = Building2;
+  readonly FolderIcon = Folder;
+  readonly ShieldCogCornerIcon = ShieldCheckIcon;
 
   // UI state
   isLoading = signal(true);

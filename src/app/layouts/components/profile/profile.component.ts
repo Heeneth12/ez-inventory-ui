@@ -18,7 +18,11 @@ import {
   Smartphone,
   Trash,
   Upload,
-  ChevronDown
+  ChevronDown,
+  UserRound,
+  BellPlus,
+  Folder,
+  ShieldCheckIcon
 } from 'lucide-angular';
 import { AuthService } from '../../guards/auth.service';
 import { UserInitResponse } from '../../models/Init-response.model';
@@ -27,7 +31,6 @@ import { UserManagementService } from '../../../views/user-management/userManage
 import { UserAddressModel, UserModel } from '../../../views/user-management/models/user.model';
 import { ModalService } from '../modal/modalService';
 import { FileManagerService } from '../../../views/file-manager/file-manager.service';
-import { ɵEmptyOutletComponent } from "@angular/router";
 
 export interface NotificationRow {
   label: string;
@@ -55,7 +58,7 @@ export interface PrivacyPref {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, ɵEmptyOutletComponent],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {
@@ -65,7 +68,8 @@ export class ProfileComponent implements OnInit {
   isNotifExpanded: boolean = false;
 
   // icons
-  readonly UserIcon = User;
+  readonly UserRoundIcon = UserRound;
+  readonly BellPlusIcon = BellPlus;
   readonly MailIcon = Mail;
   readonly ShieldIcon = Shield;
   readonly KeyIcon = Key;
@@ -96,6 +100,8 @@ export class ProfileComponent implements OnInit {
   readonly DatabaseIcon = Database;
   readonly BarChart2Icon = BarChart2;
   readonly ChevronDownIcon = ChevronDown;
+  readonly FolderIcon = Folder;
+  readonly ShieldCogCornerIcon = ShieldCheckIcon;
 
   // UI state
   isEditMode = signal(false);

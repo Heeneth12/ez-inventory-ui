@@ -41,5 +41,12 @@ export class IntegrationsService {
     testConnection(integrationId: number, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${IntegrationsService.INTEGRATIONS_BASE_URL}/${integrationId}/test-connection`, {}, successfn, errorfn);
     }
-}
 
+    getIntegrationByType(type: string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${IntegrationsService.INTEGRATIONS_BASE_URL}/by-type?type=${type}`, successfn, errorfn);
+    }
+
+    checkIntegration(type: string, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${IntegrationsService.INTEGRATIONS_BASE_URL}/check?type=${type}`, successfn, errorfn);
+    }
+}

@@ -2,34 +2,11 @@
 
   <!-- Main Table -->
   <div class="flex-1 min-w-0 space-y-4">
-    <!-- New Advance button — only available when a specific customer context is given -->
-    @if(customerId) {
-    <div class="flex justify-end">
-      <button (click)="openCreate()"
-        class="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold uppercase bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        New Advance
-      </button>
-    </div>
-    }
-
-    <div class="h-[calc(100vh-198px)] overflow-y-auto">
-      <app-standard-table
-        [title]="'Advance Payments'"
-        [columns]="columns"
-        [data]="advanceList"
-        [pagination]="pagination"
-        [isServerSide]="true"
-        [customActions]="advanceActions"
-        [isLoading]="isLoading"
-        [datePickerConfig]="dateConfig"
-        [filterConfig]="filterOptions"
-        (action)="onTableAction($event)"
-        (pageChange)="onPageChange($event)"
-        (loadMore)="onLoadMore()"
-        (dateChange)="onFilterDate($event)"
+    <div class="h-[calc(100vh-118px)] overflow-y-auto">
+      <app-standard-table [title]="'Advance Payments'" [columns]="columns" [data]="advanceList"
+        [pagination]="pagination" [isServerSide]="true" [customActions]="advanceActions" [isLoading]="isLoading"
+        [datePickerConfig]="dateConfig" [filterConfig]="filterOptions" (action)="onTableAction($event)"
+        (pageChange)="onPageChange($event)" (loadMore)="onLoadMore()" (dateChange)="onFilterDate($event)"
         (filterChanged)="onFilterUpdate($event)">
       </app-standard-table>
     </div>
@@ -37,7 +14,8 @@
 
   <!-- Side Panel -->
   @if(panelMode !== 'none') {
-  <div class="w-[360px] shrink-0 bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden self-start sticky top-0">
+  <div
+    class="w-[600px] shrink-0 bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden self-start sticky top-0">
 
     <!-- Panel Header -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
@@ -66,7 +44,8 @@
             class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Payment Method *</label>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Payment Method
+            *</label>
           <select formControlName="paymentMethod"
             class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400">
             @for(m of PAYMENT_METHODS; track m) {
@@ -75,7 +54,8 @@
           </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Reference Number</label>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Reference
+            Number</label>
           <input formControlName="referenceNumber" type="text" placeholder="Cheque / UTR / UPI Ref"
             class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
         </div>
@@ -112,7 +92,8 @@
             class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Amount to Apply *</label>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Amount to Apply
+            *</label>
           <input formControlName="amount" type="number" min="1" [max]="selectedAdvance.availableBalance"
             placeholder="0.00"
             class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
@@ -140,13 +121,15 @@
       </div>
       <form [formGroup]="refundForm" (ngSubmit)="submitRefund()" class="space-y-3">
         <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Refund Amount *</label>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Refund Amount
+            *</label>
           <input formControlName="refundAmount" type="number" min="1" [max]="selectedAdvance.availableBalance"
             placeholder="0.00"
             class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Refund Method *</label>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Refund Method
+            *</label>
           <select formControlName="refundMethod"
             class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400">
             @for(m of PAYMENT_METHODS; track m) {
@@ -155,7 +138,8 @@
           </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Reference Number</label>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Reference
+            Number</label>
           <input formControlName="refundReferenceNumber" type="text" placeholder="UTR / Cheque no."
             class="w-full text-sm border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
         </div>
@@ -177,11 +161,13 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="p-3 bg-gray-50 rounded-sm">
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Amount</p>
-            <p class="text-base font-bold text-gray-800 mt-0.5">{{ selectedAdvance.amount | currency:'INR':'symbol':'1.0-0' }}</p>
+            <p class="text-base font-bold text-gray-800 mt-0.5">{{ selectedAdvance.amount |
+              currency:'INR':'symbol':'1.0-0' }}</p>
           </div>
           <div class="p-3 bg-green-50 rounded-sm">
             <p class="text-[10px] font-bold text-green-400 uppercase tracking-widest">Available</p>
-            <p class="text-base font-bold text-green-700 mt-0.5">{{ selectedAdvance.availableBalance | currency:'INR':'symbol':'1.0-0' }}</p>
+            <p class="text-base font-bold text-green-700 mt-0.5">{{ selectedAdvance.availableBalance |
+              currency:'INR':'symbol':'1.0-0' }}</p>
           </div>
         </div>
         <div class="text-xs text-gray-500 space-y-1.5">
@@ -227,7 +213,8 @@
                 <p class="text-xs font-semibold text-gray-700">{{ u.invoiceNumber }}</p>
                 <p class="text-[10px] text-gray-400">{{ u.utilizationDate | date:'dd MMM yyyy' }}</p>
               </div>
-              <span class="text-sm font-bold text-gray-800">{{ u.utilizedAmount | currency:'INR':'symbol':'1.0-0' }}</span>
+              <span class="text-sm font-bold text-gray-800">{{ u.utilizedAmount | currency:'INR':'symbol':'1.0-0'
+                }}</span>
             </div>
             }
           </div>
@@ -246,8 +233,10 @@
                   [ngClass]="refundStatusBadge(r.status)">{{ r.status }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-[10px] text-gray-400">{{ r.refundMethod }} • {{ r.refundDate | date:'dd MMM yyyy' }}</span>
-                <span class="text-sm font-bold text-amber-700">{{ r.refundAmount | currency:'INR':'symbol':'1.0-0' }}</span>
+                <span class="text-[10px] text-gray-400">{{ r.refundMethod }} • {{ r.refundDate | date:'dd MMM yyyy'
+                  }}</span>
+                <span class="text-sm font-bold text-amber-700">{{ r.refundAmount | currency:'INR':'symbol':'1.0-0'
+                  }}</span>
               </div>
               @if(r.status === 'PENDING') {
               <button (click)="confirmRefund(r)"

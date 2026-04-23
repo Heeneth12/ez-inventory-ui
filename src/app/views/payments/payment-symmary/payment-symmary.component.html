@@ -1,58 +1,42 @@
 @if(customerId){
-<div class="flex flex-col bg-white rounded-sm shadow-2xl w-full mx-auto overflow-hidden">
+<div class="flex flex-col bg-white rounded-lg shadow-2xl w-full mx-auto overflow-hidden">
 
   <!-- HEADER -->
-  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-[#fafbfc] shrink-0">
+  <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
     <div>
-      <h3 class="text-sm font-bold text-gray-900 uppercase tracking-tight">
+      <h3 class="text-sm font-medium text-gray-900">
         {{ invoiceId ? 'Payment Hub' : 'Advance Collection' }}
       </h3>
-      <p class="text-xs text-gray-500 mt-0.5">
+      <p class="text-xs text-gray-400 mt-0.5">
         @if(paymentSummary){
         <span class="font-medium text-gray-700">INV-{{ paymentSummary.invoiceNumber }}</span>
-        <span class="mx-1">•</span>
+        <span class="mx-1.5 text-gray-300">·</span>
         }
         {{ paymentSummary?.customerName || customerSummary?.customerName || 'Loading...' }}
       </p>
     </div>
     <button (click)="closeModal()"
-      class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors text-sm">
+      ✕
     </button>
   </div>
 
   <!-- TABS -->
-  <div class="flex border-b border-gray-200 bg-[#fafbfc] shrink-0 px-4">
-    <button (click)="switchTab('payment')" [ngClass]="activeTab === 'payment'
-        ? 'border-b-2 border-[#0060df] text-[#0060df] font-bold'
-        : 'text-gray-500 hover:text-gray-700'"
-      class="px-4 py-2.5 text-xs uppercase tracking-widest transition-colors -mb-px">
+  <div class="flex border-b border-gray-100 bg-gray-50/60 px-4">
+    <button (click)="switchTab('payment')"
+      [ngClass]="activeTab === 'payment' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-400 hover:text-gray-600'"
+      class="px-3 py-2.5 text-[11px] uppercase tracking-widest transition-colors -mb-px">
       Payment
     </button>
     @if(invoiceId && paymentSummary){
-    <button (click)="switchTab('history')" [ngClass]="activeTab === 'history'
-        ? 'border-b-2 border-[#0060df] text-[#0060df] font-bold'
-        : 'text-gray-500 hover:text-gray-700'"
-      class="px-4 py-2.5 text-xs uppercase tracking-widest transition-colors -mb-px flex items-center gap-1.5">
+    <button (click)="switchTab('history')"
+      [ngClass]="activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-400 hover:text-gray-600'"
+      class="px-3 py-2.5 text-[11px] uppercase tracking-widest transition-colors -mb-px flex items-center gap-1.5">
       History
       @if(paymentSummary.paymentHistory.length > 0){
       <span
-        class="inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold bg-[#0060df] text-white rounded-full">
+        class="inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold bg-blue-600 text-white rounded-full">
         {{ paymentSummary.paymentHistory.length }}
-      </span>
-      }
-    </button>
-    <button (click)="switchTab('razorpay')" [ngClass]="activeTab === 'razorpay'
-        ? 'border-b-2 border-[#7c3aed] text-[#7c3aed] font-bold'
-        : 'text-gray-500 hover:text-gray-700'"
-      class="px-4 py-2.5 text-xs uppercase tracking-widest transition-colors -mb-px flex items-center gap-1.5">
-      Razorpay
-      @if(razorpayTransactions.length > 0){
-      <span
-        class="inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold bg-[#7c3aed] text-white rounded-full">
-        {{ razorpayTransactions.length }}
       </span>
       }
     </button>
@@ -60,276 +44,293 @@
   </div>
 
   <!-- TAB CONTENT -->
-  <div class="overflow-y-auto max-h-[78vh] min-h-[46vh]">
+  <div class="overflow-y-auto max-h-[78vh] min-h-[42vh]">
 
-    <!-- PAYMENT TAB -->
+    <!-- ══════════════════ PAYMENT TAB ══════════════════ -->
     @if(activeTab === 'payment'){
-    <div class="p-2 space-y-2">
+    <div class="p-4 flex flex-col gap-3">
 
-      <!-- Invoice Summary — only when an invoice is open -->
+      <!-- Invoice Summary -->
       @if(invoiceId && paymentSummary){
-      <div class="border border-gray-200 rounded-sm p-4 bg-white">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Invoice Summary</span>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" [ngClass]="statusConfig.classes">{{
-            statusConfig.label }}</span>
-        </div>
-        <div class="grid grid-cols-3 gap-3 mb-3">
-          <div class="text-center p-3 bg-gray-50 rounded-sm">
-            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Invoice Total</p>
-            <p class="text-base font-bold text-gray-800">
-              {{ paymentSummary.grandTotal | currency:'INR':'symbol':'1.0-0' }}
-            </p>
+      <div>
+        <div class="grid grid-cols-3 gap-2 mb-2.5">
+          <div class="bg-gray-50 rounded-lg p-3 text-center">
+            <p class="text-[10px] font-medium text-gray-400 uppercase tracking-wide mb-1">Invoice Total</p>
+            <p class="text-sm font-medium text-gray-800">{{ paymentSummary.grandTotal | currency:'INR':'symbol':'1.0-0'
+              }}</p>
           </div>
-          <div class="text-center p-3 bg-green-50 rounded-sm">
-            <p class="text-[10px] font-bold text-green-500 uppercase mb-1">Amount Paid</p>
-            <p class="text-base font-bold text-green-700">
-              {{ paymentSummary.totalPaid | currency:'INR':'symbol':'1.0-0' }}
-            </p>
+          <div class="bg-emerald-50 rounded-lg p-3 text-center">
+            <p class="text-[10px] font-medium text-emerald-500 uppercase tracking-wide mb-1">Paid</p>
+            <p class="text-sm font-medium text-emerald-700">{{ paymentSummary.totalPaid |
+              currency:'INR':'symbol':'1.0-0' }}</p>
           </div>
-          <div class="text-center p-3 rounded-sm"
-            [ngClass]="paymentSummary.balanceDue > 0 ? 'bg-red-50' : 'bg-green-50'">
-            <p class="text-[10px] font-bold uppercase mb-1"
-              [ngClass]="paymentSummary.balanceDue > 0 ? 'text-red-400' : 'text-green-500'">Balance Due</p>
-            <p class="text-base font-bold"
-              [ngClass]="paymentSummary.balanceDue > 0 ? 'text-red-600' : 'text-green-700'">
+          <div class="rounded-lg p-3 text-center"
+            [ngClass]="paymentSummary.balanceDue > 0 ? 'bg-red-50' : 'bg-emerald-50'">
+            <p class="text-[10px] font-medium uppercase tracking-wide mb-1"
+              [ngClass]="paymentSummary.balanceDue > 0 ? 'text-red-400' : 'text-emerald-500'">Balance Due</p>
+            <p class="text-sm font-medium"
+              [ngClass]="paymentSummary.balanceDue > 0 ? 'text-red-600' : 'text-emerald-700'">
               {{ paymentSummary.balanceDue | currency:'INR':'symbol':'1.0-0' }}
             </p>
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div class="h-full rounded-full transition-all duration-500"
-              [ngClass]="paidPercent === 100 ? 'bg-green-500' : paidPercent > 0 ? 'bg-amber-400' : 'bg-gray-200'"
+              [ngClass]="paidPercent === 100 ? 'bg-emerald-500' : paidPercent > 0 ? 'bg-amber-400' : 'bg-gray-200'"
               [style.width.%]="paidPercent"></div>
           </div>
-          <span class="text-[10px] font-bold text-gray-500 whitespace-nowrap">{{ paidPercent }}% paid</span>
+          <span class="text-[10px] text-gray-400 whitespace-nowrap">{{ paidPercent }}% paid</span>
         </div>
       </div>
       }
 
-      <div class="border border-[#dce4ff] bg-[#f0f4ff] rounded-sm p-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-[#0060df] rounded-sm flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-[10px] font-bold text-[#5c6d9e] uppercase tracking-widest">Advance Credit</p>
-              <p class="text-lg font-bold text-[#1a2b5c]">
-                {{ (customerSummary?.advanceBalance || 0) | currency:'INR':'symbol':'1.0-0' }}
-              </p>
-            </div>
-            @if(customerSummary?.totalOutstandingAmount > 0){
-            <div class="ml-4 pl-4 border-l border-[#c7d2f7]">
-              <p class="text-[10px] font-bold text-[#9aa5c4] uppercase tracking-widest">Outstanding</p>
-              <p class="text-sm font-bold text-red-500">
-                {{ customerSummary.totalOutstandingAmount | currency:'INR':'symbol':'1.0-0' }}
-              </p>
-            </div>
-            }
+      <!-- Advance Credit Strip -->
+      <div class="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-lg px-4 py-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0 text-sm">💳</div>
+          <div>
+            <p class="text-[10px] font-medium text-blue-500 uppercase tracking-wide">Advance Credit</p>
+            <p class="text-sm font-medium text-blue-900">
+              {{ (customerSummary?.advanceBalance || 0) | currency:'INR':'symbol':'1.0-0' }}
+            </p>
           </div>
-
-          <div class="flex gap-2 shrink-0">
-            <!-- Apply advance to invoice — only meaningful when invoice is open -->
-            @if(invoiceId && customerSummary?.advanceBalance > 0 && paymentSummary && paymentSummary.balanceDue > 0){
-            <button type="button" (click)="payWithWallet()"
-              class="px-3 py-1.5 bg-[#0060df] text-white text-[10px] font-bold rounded-sm uppercase tracking-tight hover:bg-[#0050ba] transition-colors">
-              Apply to Invoice
-            </button>
-            }
-            <!-- Add Advance — only shown in pure advance-collection mode (no invoiceId) -->
-            @if(!invoiceId){
-            <button type="button" (click)="showWalletForm = !showWalletForm"
-              class="px-3 py-1.5 border border-[#c7d2f7] bg-white text-[#444] text-[10px] font-bold rounded-sm uppercase tracking-tight hover:bg-[#f8f9ff] transition-colors">
-              {{ showWalletForm ? 'Cancel' : '+ Add Advance' }}
-            </button>
-            }
+          @if(customerSummary?.totalOutstandingAmount > 0){
+          <div class="ml-3 pl-3 border-l border-blue-200">
+            <p class="text-[10px] font-medium text-blue-300 uppercase tracking-wide">Outstanding</p>
+            <p class="text-xs font-medium text-red-500">{{ customerSummary.totalOutstandingAmount |
+              currency:'INR':'symbol':'1.0-0' }}</p>
           </div>
+          }
         </div>
+        @if(invoiceId && customerSummary?.advanceBalance > 0 && paymentSummary && paymentSummary.balanceDue > 0){
+        <button type="button" (click)="payWithWallet()"
+          class="text-[11px] font-medium bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors shrink-0">
+          Apply to invoice
+        </button>
+        }
+        @if(!invoiceId){
+        <button type="button" (click)="showWalletForm = !showWalletForm"
+          class="text-[11px] font-medium border border-blue-200 bg-white text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors shrink-0">
+          {{ showWalletForm ? 'Cancel' : '+ Add Advance' }}
+        </button>
+        }
       </div>
 
-      <!-- Payment / Advance Form card -->
-      <div class="border border-gray-200 rounded-sm bg-white">
-        <div class="px-4 py-3 border-b border-gray-100">
-          <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            {{ !invoiceId && showWalletForm ? 'Collect Advance Payment' : 'Record Invoice Payment' }}
-          </h4>
+      <!-- ══ ADVANCE FORM (no invoiceId) ══ -->
+      @if(!invoiceId && showWalletForm){
+      <form [formGroup]="walletForm" (ngSubmit)="submitWalletAdd()"
+        class="border border-gray-100 rounded-xl overflow-hidden">
+
+        <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <p class="text-[11px] font-medium text-gray-500 uppercase tracking-widest">Collect Advance Payment</p>
         </div>
 
-        <div class="p-4">
+        <div class="p-4 flex flex-col gap-4">
 
-          <!-- ── ADVANCE / WALLET FORM — only in advance-collection mode ──────── -->
-          @if(!invoiceId && showWalletForm){
-          <form [formGroup]="walletForm" (ngSubmit)="submitWalletAdd()">
-
-            <div class="mb-4">
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Payment Method</p>
-              <div class="flex flex-wrap gap-2">
-                @for(m of [
-                {k:'CASH', icon:'💵', label:'Cash'},
-                {k:'BANK_TRANSFER', icon:'🏦', label:'Bank Transfer'},
-                {k:'UPI', icon:'📱', label:'UPI / GPay'},
-                {k:'CHEQUE', icon:'📄', label:'Cheque'},
-                {k:'RAZORPAY', icon:'⚡', label:'Razorpay'}
-                ]; track m.k){
-                <button type="button" (click)="setWalletPaymentMethod(m.k)" [ngClass]="walletForm.get('paymentMethod')?.value === m.k
-                    ? 'bg-[#0060df] text-white border-[#0060df]'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#0060df] hover:text-[#0060df]'"
-                  class="flex items-center gap-1.5 px-3 py-1.5 border rounded-sm text-[11px] font-bold transition-all">
-                  <span>{{ m.icon }}</span><span>{{ m.label }}</span>
-                </button>
-                }
-              </div>
-            </div>
-
-            @if(isWalletRazorpaySelected){
-            <div class="mb-4 flex items-center gap-2 p-2.5 bg-indigo-50 border border-indigo-100 rounded-sm">
-              <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p class="text-[10px] text-indigo-700">
-                Razorpay checkout will open — pay with UPI, Card, Net Banking, or Wallet.
-              </p>
-            </div>
-            }
-
-            <div class="grid grid-cols-12 gap-3 items-end">
-              <div class="col-span-4">
-                <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Amount (₹)</label>
-                <div class="relative">
-                  <span class="absolute left-2.5 top-2 text-gray-400 font-bold text-xs">₹</span>
-                  <input type="number" formControlName="amount"
-                    class="w-full border border-gray-200 pl-6 pr-3 py-2 text-sm font-bold text-gray-800 outline-none focus:border-indigo-400 rounded-sm">
-                </div>
-              </div>
-              @if(!isWalletRazorpaySelected){
-              <div class="col-span-4">
-                <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Reference #</label>
-                <input type="text" formControlName="referenceNumber" placeholder="TXN / Cheque / Ref ID"
-                  class="w-full border border-gray-200 p-2 text-sm outline-none focus:border-indigo-400 rounded-sm">
-              </div>
-              } @else {
-              <div class="col-span-4"></div>
+          <!-- Method Picker -->
+          <div>
+            <p class="text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-2">Payment Method</p>
+            <div class="grid grid-cols-4 gap-1.5">
+              @for(m of walletPaymentMethods; track m.k){
+              <button type="button" (click)="setWalletPaymentMethod(m.k)" [ngClass]="walletForm.get('paymentMethod')?.value === m.k
+                  ? (m.k === 'RAZORPAY' ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-blue-500 bg-blue-50 text-blue-600')
+                  : 'border-gray-100 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'"
+                class="flex flex-col items-center gap-1 py-2.5 px-1 rounded-lg border transition-all">
+                <span class="text-base leading-none">{{ m.icon }}</span>
+                <span class="text-[10px] font-medium leading-tight text-center">{{ m.label }}</span>
+              </button>
               }
-              <div class="col-span-4">
-                <button type="submit" [disabled]="walletForm.invalid || isSubmitting() || isRazorpayLoading()"
-                  class="w-full py-2.5 text-white text-[11px] font-bold uppercase rounded-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
-                  [ngClass]="isWalletRazorpaySelected ? 'bg-[#4f46e5] hover:bg-[#4338ca]' : 'bg-[#0060df] hover:bg-[#0050ba]'">
-                  @if(isSubmitting() || isRazorpayLoading()){
-                  <span class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  <span>{{ isRazorpayLoading() ? 'Opening...' : 'Processing...' }}</span>
-                  } @else {
-                  <span>{{ isWalletRazorpaySelected ? 'Pay via Razorpay' : 'Collect Advance' }}</span>
-                  }
-                </button>
+            </div>
+          </div>
+
+          @if(isWalletRazorpaySelected){
+          <div class="flex items-start gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+            <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-[11px] text-indigo-700 leading-relaxed">Razorpay checkout will open — pay with UPI, Card, Net
+              Banking, or Wallet.</p>
+          </div>
+          }
+
+          <!-- Fields + CTA -->
+          <div class="grid grid-cols-12 gap-2.5 items-end">
+            <div class="col-span-5">
+              <label class="block text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-1.5">Amount
+                (₹)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-medium">₹</span>
+                <input type="number" formControlName="amount"
+                  class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm font-medium text-gray-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50">
               </div>
             </div>
-
-          </form>
-
-          <!-- ── INVOICE PAYMENT FORM — always shown when invoiceId is present ── -->
-          } @else if(invoiceId) {
-
-          <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()">
-
-            <div class="mb-4">
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Payment Method</p>
-              <div class="flex flex-wrap gap-2">
-                @for(m of [
-                {k:'CASH', icon:'💵', label:'Cash'},
-                {k:'BANK_TRANSFER', icon:'🏦', label:'Bank Transfer'},
-                {k:'UPI', icon:'📱', label:'UPI / GPay'},
-                {k:'CHEQUE', icon:'📄', label:'Cheque'},
-                {k:'RAZORPAY', icon:'⚡', label:'Razorpay'},
-                {k:'PAYMENT_LINK', icon:'🔗', label:'Payment Link'},
-                {k:'QR', icon:'📲', label:'QR Code'}
-                ]; track m.k){
-                <button type="button" (click)="setPaymentMethod(m.k)" [ngClass]="paymentForm.get('paymentMethod')?.value === m.k
-                    ? (m.k === 'RAZORPAY' ? 'bg-[#4f46e5] text-white border-[#4f46e5]'
-                      : m.k === 'PAYMENT_LINK' ? 'bg-[#0891b2] text-white border-[#0891b2]'
-                      : m.k === 'QR' ? 'bg-[#7c3aed] text-white border-[#7c3aed]'
-                      : 'bg-[#E86426] text-white border-[#E86426]')
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 hover:text-gray-800'"
-                  class="flex items-center gap-1.5 px-3 py-1.5 border rounded-sm text-[11px] font-bold transition-all">
-                  <span>{{ m.icon }}</span><span>{{ m.label }}</span>
-                </button>
+            @if(!isWalletRazorpaySelected){
+            <div class="col-span-4">
+              <label class="block text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-1.5">Reference
+                #</label>
+              <input type="text" formControlName="referenceNumber" placeholder="TXN / Ref ID"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50">
+            </div>
+            } @else {
+            <div class="col-span-4"></div>
+            }
+            <div class="col-span-3">
+              <button type="submit" [disabled]="walletForm.invalid || isSubmitting() || isRazorpayLoading()"
+                class="w-full py-2 text-white text-[11px] font-medium rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+                [ngClass]="isWalletRazorpaySelected ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-blue-600 hover:bg-blue-700'">
+                @if(isSubmitting() || isRazorpayLoading()){
+                <span class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span>{{ isRazorpayLoading() ? 'Opening...' : 'Processing...' }}</span>
+                } @else {
+                <span>{{ isWalletRazorpaySelected ? 'Pay' : 'Collect' }}</span>
                 }
-              </div>
+              </button>
             </div>
+          </div>
 
-            <!-- Razorpay hint -->
+        </div>
+      </form>
+      }
+
+      <!-- ══ INVOICE PAYMENT FORM ══ -->
+      @if(invoiceId){
+      <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()"
+        class="border border-gray-100 rounded-xl overflow-hidden">
+
+        <!-- Method Picker Header -->
+        <div class="px-4 pt-4 pb-3">
+          <p class="text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-2.5">Select payment method</p>
+          <div class="grid grid-cols-4 gap-1.5">
+            @for(m of invoicePaymentMethods; track m.k){
+            <button type="button" (click)="setPaymentMethod(m.k)" [ngClass]="paymentForm.get('paymentMethod')?.value === m.k
+                ? (m.k === 'RAZORPAY'      ? 'border-indigo-500 bg-indigo-50'
+                  : m.k === 'PAYMENT_LINK' ? 'border-cyan-500 bg-cyan-50'
+                  : m.k === 'QR'           ? 'border-violet-500 bg-violet-50'
+                  : 'border-blue-500 bg-blue-50')
+                : 'border-gray-100 bg-white hover:border-gray-300 hover:bg-gray-50'"
+              class="flex flex-col items-center gap-1 py-2.5 px-1 rounded-lg border transition-all">
+              <span class="text-base leading-none">{{ m.icon }}</span>
+              <span class="text-[10px] font-medium leading-tight text-center" [ngClass]="paymentForm.get('paymentMethod')?.value === m.k
+                  ? (m.k === 'RAZORPAY'      ? 'text-indigo-600'
+                    : m.k === 'PAYMENT_LINK' ? 'text-cyan-700'
+                    : m.k === 'QR'           ? 'text-violet-600'
+                    : 'text-blue-600')
+                  : 'text-gray-500'">
+                {{ m.label }}
+              </span>
+            </button>
+            }
+          </div>
+        </div>
+
+        <!-- Action Panel -->
+        <div class="border-t border-gray-100">
+
+          <!-- Panel Header -->
+          <div class="flex items-center gap-3 px-4 py-3 bg-gray-50/60 border-b border-gray-100">
+            <span class="text-base leading-none">
+              @if(isRazorpaySelected){ ⚡ }
+              @else if(isPaymentLinkSelected){ 🔗 }
+              @else if(isQrCodeSelected){ 📲 }
+              @else { 💵 }
+            </span>
+            <div>
+              <p class="text-[11px] font-medium text-gray-700">
+                @if(isRazorpaySelected){ Pay via Razorpay }
+                @else if(isPaymentLinkSelected){ Send payment link }
+                @else if(isQrCodeSelected){ UPI QR code }
+                @else {
+                @switch(selectedPaymentMethod){
+                @case('BANK_TRANSFER'){ Record bank transfer }
+                @case('UPI'){ Record UPI payment }
+                @case('CHEQUE'){ Record cheque payment }
+                @default { Record cash payment }
+                }
+                }
+              </p>
+              <p class="text-[10px] text-gray-400 mt-0.5">
+                @if(isRazorpaySelected){ Checkout opens for UPI, Card, Net Banking, Wallet }
+                @else if(isPaymentLinkSelected){ Generate a link — share via email or copy }
+                @else if(isQrCodeSelected){ Customer scans and pays — auto-detected on receipt }
+                @else { Enter amount received and optional reference }
+              </p>
+            </div>
+          </div>
+
+          <div class="p-4 flex flex-col gap-3">
+
+            <!-- Hints -->
             @if(isRazorpaySelected){
-            <div class="mb-4 flex items-center gap-2 p-2.5 bg-indigo-50 border border-indigo-100 rounded-sm">
-              <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-start gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+              <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p class="text-[10px] text-indigo-700">
-                Razorpay checkout will open — pay with UPI, Card, Net Banking, or Wallet.
-              </p>
+              <p class="text-[11px] text-indigo-700 leading-relaxed">Razorpay checkout will open in a popup. Customer
+                can pay via any supported method.</p>
             </div>
             }
-
-            <!-- Payment Link hint -->
             @if(isPaymentLinkSelected){
-            <div class="mb-4 flex items-center gap-2 p-2.5 bg-cyan-50 border border-cyan-100 rounded-sm">
-              <svg class="w-3.5 h-3.5 text-cyan-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-start gap-2 p-3 bg-cyan-50 border border-cyan-100 rounded-lg">
+              <svg class="w-3.5 h-3.5 text-cyan-600 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
-              <p class="text-[10px] text-cyan-700">
-                A Razorpay payment link will be generated. Share it via email or copy and send to the customer.
-              </p>
+              <p class="text-[11px] text-cyan-700 leading-relaxed">A shareable payment link will be generated. Customer
+                pays on their own device.</p>
             </div>
             }
-
-            <!-- QR Code hint -->
             @if(isQrCodeSelected){
-            <div class="mb-4 flex items-center gap-2 p-2.5 bg-violet-50 border border-violet-100 rounded-sm">
-              <svg class="w-3.5 h-3.5 text-violet-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-start gap-2 p-3 bg-violet-50 border border-violet-100 rounded-lg">
+              <svg class="w-3.5 h-3.5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
               </svg>
-              <p class="text-[10px] text-violet-700">
-                A UPI QR code will be generated. Customer scans and pays — payment is auto-detected.
-              </p>
+              <p class="text-[11px] text-violet-700 leading-relaxed">QR code payment is automatically detected when the
+                customer completes the scan.</p>
             </div>
             }
 
-            <div class="grid grid-cols-12 gap-3 items-end">
-              <div class="col-span-4">
-                <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Amount (₹)</label>
+            <!-- Amount + Reference Row -->
+            <div class="grid grid-cols-12 gap-2.5 items-end">
+              <div class="col-span-5">
+                <label class="block text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-1.5">Amount
+                  (₹)</label>
                 <div class="relative">
-                  <span class="absolute left-2.5 top-2 text-gray-400 font-bold text-xs">₹</span>
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-medium">₹</span>
                   <input type="number" formControlName="amount"
-                    class="w-full border border-gray-200 pl-6 pr-3 py-2 text-sm font-bold text-gray-800 outline-none focus:border-indigo-400 rounded-sm">
+                    class="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2 text-sm font-medium text-gray-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50">
                 </div>
                 @if(paymentForm.get('amount')?.errors?.['max']){
-                <p class="text-[9px] text-red-500 mt-0.5">Max: balance due only</p>
+                <p class="text-[10px] text-red-500 mt-1">Max: balance due only</p>
                 }
               </div>
+
               @if(!isRazorpaySelected && !isPaymentLinkSelected && !isQrCodeSelected){
               <div class="col-span-4">
-                <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Reference #</label>
-                <input type="text" formControlName="referenceNumber" placeholder="TXN / Cheque / Ref ID"
-                  class="w-full border border-gray-200 p-2 text-sm outline-none focus:border-indigo-400 rounded-sm">
+                <label class="block text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-1.5">Reference
+                  #</label>
+                <input type="text" formControlName="referenceNumber" placeholder="TXN / Cheque / Ref"
+                  class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50">
               </div>
               } @else {
               <div class="col-span-4"></div>
               }
-              <div class="col-span-4">
+
+              <div class="col-span-3">
                 <button type="submit"
                   [disabled]="paymentForm.invalid || isSubmitting() || isRazorpayLoading() || isGeneratingLink() || isGeneratingQr()"
-                  [ngClass]="isRazorpaySelected ? 'bg-[#4f46e5] hover:bg-[#4338ca]'
-                    : isPaymentLinkSelected ? 'bg-[#0891b2] hover:bg-[#0e7490]'
-                    : isQrCodeSelected ? 'bg-[#7c3aed] hover:bg-[#6d28d9]'
-                    : 'bg-[#E86426] hover:bg-[#d4581e]'"
-                  class="w-full py-2.5 text-white text-[11px] font-bold uppercase rounded-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5">
+                  [ngClass]="isRazorpaySelected      ? 'bg-indigo-600 hover:bg-indigo-700'
+                    : isPaymentLinkSelected          ? 'bg-cyan-600 hover:bg-cyan-700'
+                    : isQrCodeSelected               ? 'bg-violet-600 hover:bg-violet-700'
+                    : 'bg-orange-500 hover:bg-orange-600'"
+                  class="w-full py-2 text-white text-[11px] font-medium rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1.5">
                   @if(isRazorpayLoading() || isGeneratingLink() || isGeneratingQr()){
                   <span class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                   <span>{{ isRazorpayLoading() ? 'Opening...' : 'Generating...' }}</span>
@@ -337,36 +338,36 @@
                   <span class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                   <span>Processing...</span>
                   } @else if(isRazorpaySelected) {
-                  <span>Pay via Razorpay</span>
+                  <span>Open checkout</span>
                   } @else if(isPaymentLinkSelected) {
-                  <span>{{ linkGenerated() ? 'Regenerate Link' : 'Generate Link' }}</span>
+                  <span>{{ linkGenerated() ? 'Regenerate' : 'Generate link' }}</span>
                   } @else if(isQrCodeSelected) {
-                  <span>{{ qrGenerated() ? 'Regenerate QR' : 'Generate QR' }}</span>
+                  <span>{{ qrGenerated() ? 'Regenerate' : 'Generate QR' }}</span>
                   } @else {
-                  <span>Record Payment</span>
+                  <span>Record payment</span>
                   }
                 </button>
               </div>
             </div>
 
-            <!-- ── Payment Link Result Panel ──────────────────────────────────── -->
+            <!-- ── Payment Link Result ── -->
             @if(isPaymentLinkSelected && linkGenerated()){
-            <div class="mt-4 rounded-sm overflow-hidden"
-              [ngClass]="linkPaymentStatus() === 'PAID' ? 'border border-green-200 bg-green-50' : 'border border-cyan-200 bg-cyan-50'">
+            <div class="rounded-xl overflow-hidden border"
+              [ngClass]="linkPaymentStatus() === 'PAID' ? 'border-emerald-200 bg-emerald-50' : 'border-cyan-200 bg-cyan-50'">
 
               <div class="flex items-center justify-between px-4 py-2.5 border-b"
-                [ngClass]="linkPaymentStatus() === 'PAID' ? 'border-green-200' : 'border-cyan-200'">
-                <p class="text-[10px] font-bold uppercase tracking-widest"
-                  [ngClass]="linkPaymentStatus() === 'PAID' ? 'text-green-700' : 'text-cyan-700'">
-                  Payment Link Ready
+                [ngClass]="linkPaymentStatus() === 'PAID' ? 'border-emerald-200' : 'border-cyan-200'">
+                <p class="text-[11px] font-medium"
+                  [ngClass]="linkPaymentStatus() === 'PAID' ? 'text-emerald-700' : 'text-cyan-700'">
+                  Payment link ready
                 </p>
                 @if(linkPaymentStatus() === 'PENDING'){
-                <div class="flex items-center gap-1.5 text-[10px] text-cyan-600 font-medium">
+                <div class="flex items-center gap-1.5 text-[10px] text-cyan-600">
                   <span class="w-2.5 h-2.5 border-2 border-cyan-300 border-t-cyan-600 rounded-full animate-spin"></span>
-                  Waiting for payment...
+                  Waiting for payment…
                 </div>
                 } @else {
-                <div class="flex items-center gap-1.5 text-[10px] text-green-600 font-bold">
+                <div class="flex items-center gap-1.5 text-[10px] text-emerald-600 font-medium">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
@@ -375,36 +376,31 @@
                 }
               </div>
 
-              <div class="p-4 space-y-3">
+              <div class="p-3.5 flex flex-col gap-2.5">
                 <div class="flex items-center gap-2">
                   <input type="text" [value]="generatedPaymentLink()" readonly
-                    class="flex-1 border border-gray-200 px-3 py-2 text-[11px] font-mono bg-white rounded-sm text-gray-700 truncate outline-none">
+                    class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-[11px] font-mono bg-white text-gray-600 truncate outline-none">
                   <button type="button" (click)="copyPaymentLink()"
-                    class="shrink-0 px-3 py-2 bg-[#0891b2] text-white text-[10px] font-bold rounded-sm hover:bg-[#0e7490] transition-colors">
+                    class="shrink-0 px-3 py-2 bg-cyan-600 text-white text-[11px] font-medium rounded-lg hover:bg-cyan-700 transition-colors">
                     Copy
                   </button>
                 </div>
-
                 @if(linkPaymentStatus() === 'PENDING'){
                 <div class="flex items-center gap-2">
                   <input type="email" [(ngModel)]="emailToShare" [ngModelOptions]="{standalone: true}"
                     placeholder="customer@email.com"
-                    class="flex-1 border border-gray-200 px-3 py-2 text-xs bg-white rounded-sm outline-none focus:border-cyan-400">
+                    class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white outline-none focus:border-cyan-400">
                   <button type="button" (click)="sendPaymentLinkByEmail()"
                     [disabled]="isSendingEmail() || emailSent() || !emailToShare"
-                    class="shrink-0 px-3 py-2 text-[10px] font-bold rounded-sm transition-all disabled:opacity-50"
-                    [ngClass]="emailSent() ? 'bg-green-500 text-white' : 'bg-[#0891b2] text-white hover:bg-[#0e7490]'">
+                    class="shrink-0 px-3 py-2 text-[11px] font-medium rounded-lg transition-all disabled:opacity-50"
+                    [ngClass]="emailSent() ? 'bg-emerald-500 text-white' : 'bg-cyan-600 text-white hover:bg-cyan-700'">
                     @if(isSendingEmail()){
                     <span class="flex items-center gap-1">
                       <span
                         class="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      Sending...
+                      Sending…
                     </span>
-                    } @else if(emailSent()) {
-                    Sent!
-                    } @else {
-                    Send Email
-                    }
+                    } @else if(emailSent()) { Sent! } @else { Send email }
                   </button>
                 </div>
                 }
@@ -412,29 +408,27 @@
             </div>
             }
 
-            <!-- ── QR Code Result Panel ────────────────────────────────────────── -->
+            <!-- ── QR Code Result ── -->
             @if(isQrCodeSelected && qrGenerated()){
-            <div class="mt-4 border border-violet-200 bg-violet-50 rounded-sm p-4 flex flex-col items-center">
-              <p class="text-[10px] font-bold text-violet-700 uppercase tracking-widest mb-3">Scan QR to Pay</p>
-
+            <div class="flex flex-col items-center gap-3 border border-violet-200 bg-violet-50 rounded-xl p-5">
+              <p class="text-[10px] font-medium text-violet-600 uppercase tracking-widest">Scan to pay</p>
               @if(qrImageUrl()){
-              <img [src]="qrImageUrl()" alt="Payment QR Code" width="176" height="176"
-                class="border border-gray-200 rounded-sm bg-white p-2 object-contain"
+              <img [src]="qrImageUrl()" alt="Payment QR Code" width="148" height="148"
+                class="border border-gray-200 rounded-xl bg-white p-2 object-contain"
                 (error)="toastSvc.show('Failed to load QR image', 'error')">
               } @else {
               <div
-                class="w-44 h-44 flex items-center justify-center border border-dashed border-violet-300 rounded-sm bg-white">
-                <p class="text-[10px] text-violet-400 text-center px-4">QR image unavailable.<br>Try regenerating.</p>
+                class="w-36 h-36 flex items-center justify-center border border-dashed border-violet-300 rounded-xl bg-white">
+                <p class="text-[10px] text-violet-400 text-center px-4">QR unavailable.<br>Try regenerating.</p>
               </div>
               }
-
               @if(qrPaymentStatus() === 'PENDING'){
-              <div class="mt-3 flex items-center gap-2 text-[11px] text-violet-600 font-medium">
+              <div class="flex items-center gap-2 text-[11px] text-violet-600">
                 <span class="w-3 h-3 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin"></span>
-                Waiting for payment...
+                Waiting for payment…
               </div>
               } @else {
-              <div class="mt-3 flex items-center gap-2 text-[11px] text-green-600 font-bold">
+              <div class="flex items-center gap-2 text-[11px] text-emerald-600 font-medium">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
@@ -444,56 +438,51 @@
             </div>
             }
 
-          </form>
-          }
-
+          </div>
         </div>
-      </div>
+      </form>
+      }
 
     </div>
     }
 
-    <!-- HISTORY TAB -->
+    <!-- ══════════════════ HISTORY TAB ══════════════════ -->
     @if(activeTab === 'history' && invoiceId && paymentSummary){
-    <div class="border border-gray-200 overflow-hidden">
-      <div class="px-4 py-3 bg-[#fafbfc] border-b border-gray-200">
-        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Payment History</h4>
-      </div>
+    <div>
       <table class="w-full text-left text-xs">
-        <thead class="bg-[#fafbfc] border-b border-gray-100">
+        <thead class="bg-gray-50 border-b border-gray-100">
           <tr>
-            <th class="px-4 py-2.5 font-bold text-gray-500">Date</th>
-            <th class="px-4 py-2.5 font-bold text-gray-500">Receipt #</th>
-            <th class="px-4 py-2.5 font-bold text-gray-500">Method</th>
-            <th class="px-4 py-2.5 font-bold text-gray-500">Reference</th>
-            <th class="px-4 py-2.5 font-bold text-gray-500 text-right">Amount</th>
-            <th class="px-4 py-2.5 font-bold text-gray-500 text-center">Receipt</th>
+            <th class="px-4 py-3 font-medium text-gray-400 text-[10px] uppercase tracking-wide">Date</th>
+            <th class="px-4 py-3 font-medium text-gray-400 text-[10px] uppercase tracking-wide">Receipt</th>
+            <th class="px-4 py-3 font-medium text-gray-400 text-[10px] uppercase tracking-wide">Method</th>
+            <th class="px-4 py-3 font-medium text-gray-400 text-[10px] uppercase tracking-wide">Reference</th>
+            <th class="px-4 py-3 font-medium text-gray-400 text-[10px] uppercase tracking-wide text-right">Amount</th>
+            <th class="px-4 py-3 font-medium text-gray-400 text-[10px] uppercase tracking-wide text-center">PDF</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-gray-50">
           @for(pay of paymentSummary.paymentHistory; track pay.id){
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-4 py-3 text-gray-600">{{ pay.paymentDate | date:'dd MMM yyyy' }}</td>
+          <tr class="hover:bg-gray-50/60 transition-colors">
+            <td class="px-4 py-3 text-gray-500">{{ pay.paymentDate | date:'dd MMM yyyy' }}</td>
             <td class="px-4 py-3 font-medium text-gray-800">{{ pay.paymentNumber }}</td>
             <td class="px-4 py-3">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase"
-                [ngClass]="{
-                    'bg-gray-100 text-gray-600':    pay.method === 'CASH',
-                    'bg-blue-50 text-blue-600':     pay.method === 'BANK_TRANSFER',
-                    'bg-purple-50 text-purple-600': pay.method === 'UPI',
-                    'bg-amber-50 text-amber-600':   pay.method === 'CHEQUE',
-                    'bg-indigo-50 text-indigo-600': pay.method === 'RAZORPAY'
-                  }">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium" [ngClass]="{
+                  'bg-gray-100 text-gray-600':      pay.method === 'CASH',
+                  'bg-blue-50 text-blue-600':       pay.method === 'BANK_TRANSFER',
+                  'bg-emerald-50 text-emerald-600': pay.method === 'UPI',
+                  'bg-amber-50 text-amber-600':     pay.method === 'CHEQUE',
+                  'bg-indigo-50 text-indigo-600':   pay.method === 'RAZORPAY'
+                }">
                 {{ pay.method === 'BANK_TRANSFER' ? 'Bank' : pay.method }}
               </span>
             </td>
             <td class="px-4 py-3 text-gray-400 font-mono text-[10px]">{{ pay.referenceNumber || '—' }}</td>
-            <td class="px-4 py-3 font-bold text-green-600 text-right">
+            <td class="px-4 py-3 font-medium text-emerald-600 text-right">
               {{ pay.amount | currency:'INR':'symbol':'1.0-0' }}
             </td>
             <td class="px-4 py-3 text-center">
               <button type="button" (click)="downloadInvoicePdf(pay.paymentId)" title="Download Receipt"
-                class="w-6 h-6 inline-flex items-center justify-center rounded text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                class="w-6 h-6 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -504,17 +493,18 @@
           }
           @empty{
           <tr>
-            <td colspan="6" class="px-4 py-8 text-center text-gray-400 text-xs italic">
+            <td colspan="6" class="px-4 py-10 text-center text-gray-400 text-xs italic">
               No payments recorded for this invoice yet.
             </td>
           </tr>
           }
         </tbody>
         @if(paymentSummary.paymentHistory.length > 0){
-        <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+        <tfoot class="border-t-2 border-gray-100 bg-gray-50">
           <tr>
-            <td colspan="4" class="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase">Total Received</td>
-            <td class="px-4 py-2.5 font-bold text-green-700 text-right">
+            <td colspan="4" class="px-4 py-3 text-[10px] font-medium text-gray-400 uppercase tracking-wide">Total
+              received</td>
+            <td class="px-4 py-3 font-medium text-emerald-600 text-right">
               {{ paymentSummary.totalPaid | currency:'INR':'symbol':'1.0-0' }}
             </td>
             <td></td>
@@ -525,112 +515,10 @@
     </div>
     }
 
-    <!-- RAZORPAY TRANSACTIONS TAB -->
-    @if(activeTab === 'razorpay' && invoiceId){
-    @if(isLoadingTransactions()){
-    <div class="flex items-center justify-center py-10 gap-2 text-gray-400 text-xs">
-      <span class="w-4 h-4 border-2 border-gray-200 border-t-[#7c3aed] rounded-full animate-spin"></span>
-      Loading transactions...
-    </div>
-    } @else {
-    <div class="border border-gray-200 overflow-hidden">
-      <div class="px-4 py-3 bg-[#fafbfc] border-b border-gray-200 flex items-center justify-between">
-        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Razorpay Transaction Audit</h4>
-        <button type="button" (click)="loadRazorpayTransactions()"
-          class="text-[9px] font-bold text-[#7c3aed] uppercase tracking-wide hover:underline">
-          Refresh
-        </button>
-      </div>
-
-      <table class="w-full text-left text-xs">
-        <thead class="bg-[#fafbfc] border-b border-gray-100">
-          <tr>
-            <th class="px-3 py-2.5 font-bold text-gray-500">Created</th>
-            <th class="px-3 py-2.5 font-bold text-gray-500">Resource ID</th>
-            <th class="px-3 py-2.5 font-bold text-gray-500">Method</th>
-            <th class="px-3 py-2.5 font-bold text-gray-500">Amount</th>
-            <th class="px-3 py-2.5 font-bold text-gray-500">Status</th>
-            <th class="px-3 py-2.5 font-bold text-gray-500">Payment ID</th>
-            <th class="px-3 py-2.5 font-bold text-gray-500">Details</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          @for(txn of razorpayTransactions; track txn.id){
-          <tr class="hover:bg-gray-50 transition-colors"
-            [ngClass]="txn.status === 'FAILED' ? 'bg-red-50/40' : txn.status === 'PAID' ? 'bg-green-50/40' : ''">
-
-            <!-- Created At -->
-            <td class="px-3 py-3 text-gray-500 whitespace-nowrap">
-              {{ txn.createdAt | date:'dd MMM, HH:mm' }}
-            </td>
-
-            <!-- Resource ID (plink_xxx / qr_xxx) -->
-            <td class="px-3 py-3 font-mono text-[10px] text-gray-700">
-              <span class="truncate block max-w-[110px]" [title]="txn.razorpayResourceId">
-                {{ txn.razorpayResourceId }}
-              </span>
-            </td>
-
-            <!-- Method -->
-            <td class="px-3 py-3 text-gray-600 whitespace-nowrap">
-              {{ txnMethodLabel(txn.paymentMethod) }}
-            </td>
-
-            <!-- Amount -->
-            <td class="px-3 py-3 font-bold text-gray-800 whitespace-nowrap">
-              {{ amountFromPaise(txn.amountInPaise) | currency:'INR':'symbol':'1.0-0' }}
-            </td>
-
-            <!-- Status badge -->
-            <td class="px-3 py-3">
-              <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase"
-                [ngClass]="txnStatusConfig(txn.status).classes">
-                {{ txnStatusConfig(txn.status).label }}
-              </span>
-            </td>
-
-            <!-- Razorpay Payment ID (pay_xxx) -->
-            <td class="px-3 py-3 font-mono text-[10px] text-gray-500">
-              @if(txn.razorpayPaymentId){
-              <span class="truncate block max-w-[100px]" [title]="txn.razorpayPaymentId">
-                {{ txn.razorpayPaymentId }}
-              </span>
-              } @else {
-              <span class="text-gray-300">—</span>
-              }
-            </td>
-
-            <!-- Error or Payment Record link -->
-            <td class="px-3 py-3 text-[10px]">
-              @if(txn.status === 'FAILED' && txn.errorDescription){
-              <span class="text-red-500" [title]="txn.errorDescription">
-                {{ txn.errorDescription | slice:0:30 }}{{ txn.errorDescription.length > 30 ? '…' : '' }}
-              </span>
-              } @else if(txn.status === 'PAID' && txn.paymentRecordId){
-              <span class="text-green-600 font-bold">PAY #{{ txn.paymentRecordId }}</span>
-              } @else {
-              <span class="text-gray-300">—</span>
-              }
-            </td>
-          </tr>
-          }
-          @empty{
-          <tr>
-            <td colspan="7" class="px-4 py-8 text-center text-gray-400 text-xs italic">
-              No Razorpay transactions found for this invoice.
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    }
-    }
-
   </div>
 </div>
 }@else{
-<div class="flex items-center justify-center h-40 bg-white rounded-sm shadow-2xl max-w-3xl w-full mx-auto">
-  <span class="text-gray-400 text-sm">Loading payment details...</span>
+<div class="flex items-center justify-center h-40 bg-white rounded-xl shadow-2xl max-w-lg w-full mx-auto">
+  <span class="text-gray-400 text-sm">Loading payment details…</span>
 </div>
 }

@@ -82,6 +82,7 @@ export interface AdvanceModal {
     advanceNumber: string;
     customerId: number;
     customerName: string;
+    contactMini: ContactMiniModel;
     receivedDate: Date;
     amount: number;
     availableBalance: number;
@@ -135,6 +136,7 @@ export interface CreditNoteModal {
     creditNoteNumber: string;
     customerId: number;
     customerName: string;
+    contactMini: ContactMiniModel;
     sourceReturnId?: number;
     issueDate: Date;
     amount: number;

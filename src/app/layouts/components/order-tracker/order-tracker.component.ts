@@ -477,18 +477,18 @@ export class OrderTrackerComponent implements OnInit, OnDestroy {
     });
     if (!confirmed) return;
     this.loaderService.show();
-    this.deliveryService.markAsDelivered(
-      this.deliveryDetails.id,
-      (res: any) => {
-        this.loaderService.hide();
-        this.toastService.show(isPickup ? 'Order marked as picked up' : 'Delivery completed', 'success');
-        this.refreshCurrentOrder();
-      },
-      (err: any) => {
-        this.loaderService.hide();
-        this.toastService.show('Failed to update delivery status', 'error');
-      }
-    );
+    // this.deliveryService.markAsDelivered(
+    //   this.deliveryDetails.id,
+    //   (res: any) => {
+    //     this.loaderService.hide();
+    //     this.toastService.show(isPickup ? 'Order marked as picked up' : 'Delivery completed', 'success');
+    //     this.refreshCurrentOrder();
+    //   },
+    //   (err: any) => {
+    //     this.loaderService.hide();
+    //     this.toastService.show('Failed to update delivery status', 'error');
+    //   }
+    // );
   }
 
   getStepTitle(step: number): string {
