@@ -171,17 +171,17 @@ export class RoutesComponent implements OnInit {
 
   markStopDelivered(stop: DeliveryModel) {
     this.loader.show();
-    this.deliveryService.updateDeliveryStatus(stop.id, ShipmentStatus.DELIVERED,
-      (res: any) => {
-        this.toast.show(`Order ${stop.deliveryNumber} Delivered`, 'success');
-        stop.status = 'DELIVERED'; // Local update for UI
-        //stop.deliveredDate = new Date().toISOString();
-        this.loader.hide();
-      },
-      (err: any) => {
-        this.loader.hide();
-        this.toast.show('Failed to update stop', 'error');
-      });
+    // this.deliveryService.updateDeliveryStatus(stop.id, ShipmentStatus.DELIVERED,
+    //   (res: any) => {
+    //     this.toast.show(`Order ${stop.deliveryNumber} Delivered`, 'success');
+    //     stop.status = 'DELIVERED'; // Local update for UI
+    //     //stop.deliveredDate = new Date().toISOString();
+    //     this.loader.hide();
+    //   },
+    //   (err: any) => {
+    //     this.loader.hide();
+    //     this.toast.show('Failed to update stop', 'error');
+    //   });
   }
 
   getBadgeClass(status: any): string {

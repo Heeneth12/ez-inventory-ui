@@ -80,6 +80,24 @@ export class HttpService {
         }).subscribe({ next: successFunc, error: errorFunc });
     }
 
+    postMultipartHttp(apiUrl: string, data: any, file: File | null, successFunc: any, errorFunc: any) {
+        const formData = new FormData();
+
+        if (data) {
+            Object.keys(data).forEach(key => {
+                if (data[key] !== null && data[key] !== undefined) {
+                    formData.append(key, data[key]);
+                }
+            });
+        }
+
+        if (file) {
+            formData.append('file', file);
+        }
+
+        this.http.post(apiUrl, formData, { headers: this.headers }).subscribe({ next: successFunc, error: errorFunc });
+    }
+
     // GET request to download files (PDF, images etc.)
     getFile(apiUrl: string, successFunc: any, errorFunc: any) {
         this.http.get(apiUrl, {

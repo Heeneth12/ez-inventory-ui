@@ -27,20 +27,8 @@ export class DeliveryService {
         return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/search`, searchFilter, successfn, errorfn);
     }
 
-    updateDeliveryStatus(id: string | number, status: ShipmentStatus, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${id}/status?status=${status}`, {}, successfn, errorfn);
-    }
-
-    markAsDelivered(deliveryId: string | number, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/delivered`, { deliveryId }, successfn, errorfn);
-    }
-
-    rescheduleDelivery(deliveryId: string | number, newDate: string, reason: string, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/reschedule`, { newDate, reason }, successfn, errorfn);
-    }
-
-    cancelDelivery(deliveryId: string | number, reason: string, successfn: any, errorfn: any) {
-        return this.httpService.postHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${deliveryId}/cancel?reason=${encodeURIComponent(reason)}`, {}, successfn, errorfn);
+    updateDeliveryStatus(id: string | number, data: any, file: File | null, successfn: any, errorfn: any) {
+        return this.httpService.postMultipartHttp(`${DeliveryService.DELIVERIES_BASE_URL}/${id}/status`, data, file, successfn, errorfn);
     }
 
     getAllRoutes(page: number, size: number, successfn: any, errorfn: any) {
