@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { SearchResult, SearchService, SearchCategory } from './search-modal.service';
 import { ModalService } from '../modal/modalService';
-import { LucideAngularModule, Search, Loader2, Package, ShoppingCart, Users, Folder, ChevronRight, FileText } from 'lucide-angular';
+import { LucideAngularModule, Search, Loader2, Package, ShoppingCart, Users, Folder, ChevronRight, FileText, Clock, X } from 'lucide-angular';
+import { NavItem, APP_NAVIGATION_MAP } from './searchConfig';
 
 @Component({
   selector: 'app-search-modal',
@@ -25,6 +26,8 @@ export class SearchModalComponent implements OnInit, AfterViewInit {
   readonly FolderIcon = Folder;
   readonly ChevronRightIcon = ChevronRight;
   readonly InvoiceIcon = FileText;
+  readonly ClockIcon = Clock;
+  readonly XIcon = X;
 
   searchQuery = '';
   isLoading = false;
@@ -186,7 +189,43 @@ export class SearchModalComponent implements OnInit, AfterViewInit {
   highlightText(text: string, query: string, isActive: boolean): string {
     if (!query) return text;
     const regex = new RegExp(`(${query})`, 'gi');
-    const highlightClass = 'text-indigo-600 font-semibold bg-indigo-50/50 px-0.5 rounded-sm';
+    const highlightClass = 'text-indigo-600 font-semibold bg-indigo-50 px-0.5 rounded-sm';
     return text.replace(regex, `<span class="${highlightClass}">$1</span>`);
+  }
+
+  getCategoryBg(type: string): string {
+    switch (type) {
+      case 'products': return 'bg-indigo-50';
+      case 'orders': return 'bg-amber-50';
+      case 'customers': return 'bg-emerald-50';
+      case 'invoices': return 'bg-violet-50';
+      default: return 'bg-gray-100';
+    }
+  }
+
+  getCategoryColor(type: string): string {
+    switch (type) {
+      case 'products': return 'text-indigo-500';
+      case 'orders': return 'text-amber-500';
+      case 'customers': return 'text-emerald-500';
+      case 'invoices': return 'text-violet-500';
+      default: return 'text-gray-400';
+    }
+  }
+
+  filteredResults: NavItem[] = [];
+
+  onSearch() {
+    const query = this.searchQuery.toLowerCase();
+    this.filteredResults = APP_NAVIGATION_MAP.filter(item =>
+      item.title.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query) ||
+      item.keywords.some(k => k.includes(query))
+    );
+  }
+
+  navigateTo(item: NavItem) {
+    this.router.navigate([item.route]);
+    this.searchQuery = ''; // Clear search
   }
 }

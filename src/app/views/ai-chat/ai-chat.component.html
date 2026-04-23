@@ -85,8 +85,7 @@
 
     <!-- Mobile panel header -->
     <div class="flex items-center gap-2.5 px-4 h-16 border-b border-slate-800/60 flex-shrink-0">
-      <div
-        class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+      <div class="w-7 h-7 rounded-lg text-orange-500 flex items-center justify-center flex-shrink-0">
         <lucide-icon [img]="Sparkles" class="w-3.5 h-3.5 text-white"></lucide-icon>
       </div>
       <div class="flex-1">
@@ -274,20 +273,15 @@
             }
 
             <!-- Bubble -->
-            <div class="flex flex-col relative max-w-[84%] sm:max-w-[76%]" [class.items-end]="msg.sender === 'user'">
-              <div class="px-3.5 py-2.5 text-sm leading-relaxed shadow-sm transition-all" [ngClass]="msg.sender === 'user'
-                      ? 'bg-indigo-600 text-white rounded-2xl rounded-br-sm shadow-indigo-500/20'
-                      : 'bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'">
-                <div class="markdown-body font-sans text-[13px] sm:text-[13.5px]"
-                  [ngClass]="{'text-white': msg.sender === 'user'}" [innerHTML]="msg.htmlContent">
-                </div>
+            <div class="px-3.5 py-2.5 text-sm leading-relaxed shadow-sm transition-all"
+              (click)="handleChatClick($event)" [ngClass]="msg.sender === 'user'
+             ? 'bg-indigo-600 text-white rounded-2xl rounded-br-sm shadow-indigo-500/20'
+             : 'bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl rounded-bl-sm'">
+              <div class="markdown-body font-sans text-[13px] sm:text-[13.5px]"
+                [ngClass]="{'text-white': msg.sender === 'user'}" [innerHTML]="msg.htmlContent">
               </div>
-              <span
-                class="text-[10px] text-slate-400 font-medium mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity absolute"
-                [ngClass]="msg.sender === 'user' ? 'right-0 -bottom-5' : 'left-0 -bottom-5'">
-                {{ msg.timestamp | date:'shortTime' }}
-              </span>
             </div>
+
           </div>
           }
 
@@ -314,7 +308,7 @@
 
       <!-- ── Input area ── -->
       <div
-        class="px-3 sm:px-4 pb-3 sm:pb-4 pt-2 bg-white relative z-10 before:absolute before:inset-x-0 before:-top-5 before:h-5 before:bg-gradient-to-t before:from-white before:to-transparent before:pointer-events-none">
+        class="px-3 sm:px-4 pb-3 sm:pb-4 pt-2 my-6 bg-white relative z-10 before:absolute before:inset-x-0 before:-top-5 before:h-5 before:bg-gradient-to-t before:from-white before:to-transparent before:pointer-events-none">
         <div class="relative group w-full max-w-2xl mx-auto">
 
           <!-- Glow ring -->

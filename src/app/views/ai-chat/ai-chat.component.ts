@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Input, HostListener } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AiChatService } from './ai-chat.service';
 import { marked } from 'marked';
@@ -119,7 +119,8 @@ export class AiChatComponent implements OnInit {
   constructor(
     private chatService: AiChatService,
     private sanitizer: DomSanitizer,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   @HostListener('window:resize')
@@ -348,5 +349,19 @@ export class AiChatComponent implements OnInit {
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
     return 'Previous 30 Days';
+  }
+
+
+  handleChatClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a');
+
+    if (anchor) {
+      event.preventDefault();  // stop full page reload
+      const href = anchor.getAttribute('href');
+      if (href && href.startsWith('/')) {
+        this.router.navigate([href]);  // use Angular router instead
+      }
+    }
   }
 }
