@@ -1,459 +1,397 @@
-<div
-  class="bg-white max-w-xl w-full rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[600px]">
-  <div class="flex-1 relative overflow-hidden">
-    @if(isSubmitted) {
-    <div
-      class="absolute inset-0 z-20 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center text-center px-8 py-12 animate-[fadeUp_0.25s_ease]">
-      <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-5">
-        <lucide-icon [img]="CheckCircle2" class="w-8 h-8 text-emerald-500"></lucide-icon>
-      </div>
-      <h3 class="text-xl font-semibold text-slate-800 mb-2">Thanks for your feedback!</h3>
-      <p class="text-sm text-slate-500 max-w-xs leading-relaxed">
-        We read every submission and use it to improve. You'll hear back within 24 hours if you left contact info.
+<div class="bg-ez-white w-full border border-ez-border flex flex-col relative">
+  @if(isSubmitted) {
+  <div
+    class="absolute inset-0 z-20 bg-ez-white flex flex-col items-center justify-center text-center px-8 py-12 step-fade">
+    <div class="w-16 h-16 rounded bg-ez-ash border border-ez-border flex items-center justify-center mb-5">
+      <lucide-icon [img]="CheckCircle2" class="w-8 h-8 text-ez-heading"></lucide-icon>
+    </div>
+    <h3 class="text-ez-hero font-medium text-ez-heading mb-2 leading-tight">Thanks for your feedback</h3>
+    <p class="text-ez-md text-ez-secondary max-w-xs leading-relaxed">
+      We read every submission and use it to improve. You'll hear back within 24 hours if you left contact info.
+    </p>
+    <button (click)="resetForms()" class="ez-btn ez-btn-secondary mt-6">
+      Send another
+    </button>
+  </div>
+  }
+
+  @if(activeTab === 'rating') {
+  <div class="p-8 step-fade flex-1">
+    <div class="mb-8">
+      <h2 class="text-ez-hero font-medium text-ez-heading leading-tight">How's your experience?</h2>
+      <p class="text-ez-md text-ez-secondary mt-1.5">Tap a star, pick a mood, and tell us more — takes under a minute.
       </p>
-      <button (click)="resetForms()"
-        class="mt-6 px-5 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-        Send another
+    </div>
+
+    <div class="mb-6">
+      <label class="ez-micro-label mb-3 block">Overall rating</label>
+      <div class="flex items-center gap-1 mb-2">
+        <button *ngFor="let s of [1,2,3,4,5]" (click)="setRating(s)" (mouseenter)="hoverStar = s"
+          (mouseleave)="hoverStar = 0" class="focus:outline-none transition-colors duration-ez">
+          <svg class="w-10 h-10 transition-colors duration-ez" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.5">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+              [attr.fill]="s <= (hoverStar || ratingForm.score) ? 'var(--ez-color-primary)' : 'none'"
+              [attr.stroke]="s <= (hoverStar || ratingForm.score) ? 'var(--ez-color-primary)' : 'var(--ez-color-border)'">
+            </polygon>
+          </svg>
+        </button>
+      </div>
+      <p class="text-ez-sm text-ez-secondary h-5 transition-colors duration-ez">{{ starLabel }}</p>
+    </div>
+
+    <div class="mb-6">
+      <label class="ez-micro-label mb-3 block">How do you feel right now?</label>
+      <div class="grid grid-cols-4 gap-2">
+        <button *ngFor="let mood of moodOptions" (click)="ratingForm.mood = mood.value"
+          class="flex flex-col items-center gap-1.5 py-3 border text-ez-base font-medium transition-[border-color,background-color,color] duration-ez"
+          [ngClass]="ratingForm.mood === mood.value
+            ? 'border-ez-primary bg-ez-ash text-ez-heading'
+            : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+          <span class="text-2xl leading-none mb-1">{{ mood.emoji }}</span>
+          {{ mood.label }}
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <label class="ez-micro-label mb-3 block">
+        What stood out? <span class="normal-case font-normal text-ez-muted">(optional)</span>
+      </label>
+      <div class="flex flex-wrap gap-2">
+        <button *ngFor="let aspect of aspectOptions" (click)="toggleAspect(aspect)"
+          class="px-4 py-2 border text-ez-sm font-medium transition-[border-color,background-color,color] duration-ez"
+          [ngClass]="isAspectSelected(aspect)
+            ? 'border-ez-primary bg-ez-ash text-ez-heading'
+            : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+          {{ aspect }}
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-8">
+      <label class="ez-label">Tell us more <span class="font-normal text-ez-muted">(optional)</span></label>
+      <textarea [(ngModel)]="ratingForm.comment" rows="3" maxlength="500"
+        placeholder="What did you love or think we could improve?"
+        class="ez-input ez-input--default w-full resize-none"></textarea>
+      <div class="text-right text-ez-xs text-ez-muted mt-1">{{ ratingForm.comment.length }} / 500</div>
+    </div>
+
+    <div class="flex items-center justify-between pt-4 border-t border-ez-border">
+      <span class="text-ez-xs text-ez-muted">All feedback is anonymous</span>
+      <button (click)="submitFeedback()" [disabled]="!canSubmitRating || isSubmitting" class="ez-btn ez-btn-primary">
+        <span>{{ isSubmitting ? 'Submitting...' : 'Submit rating →' }}</span>
       </button>
     </div>
-    }
-
-    <!-- RATING PANEL -->
-    @if(activeTab === 'rating') {
-    <div class="p-8 animate-[fadeUp_0.2s_ease]">
-      <div class="mb-7">
-        <h2 class="text-xl font-semibold text-slate-900">How's your experience?</h2>
-        <p class="text-sm text-slate-500 mt-1">Tap a star, pick a mood, and tell us more — takes under a minute.</p>
-      </div>
-
-      <!-- Stars -->
-      <div class="mb-6">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Overall rating</label>
-        <div class="flex items-center gap-1 mb-2">
-          <button *ngFor="let s of [1,2,3,4,5]" (click)="setRating(s)" (mouseenter)="hoverStar = s"
-            (mouseleave)="hoverStar = 0"
-            class="focus:outline-none transition-transform hover:scale-110 active:scale-95">
-            <svg class="w-10 h-10 transition-colors duration-150" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="1.5">
-              <polygon
-                points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
-                [attr.fill]="s <= (hoverStar || ratingForm.score) ? '#FBBF24' : 'none'"
-                [attr.stroke]="s <= (hoverStar || ratingForm.score) ? '#FBBF24' : '#CBD5E1'"></polygon>
-            </svg>
-          </button>
-        </div>
-        <p class="text-sm text-slate-500 h-5 transition-all">{{ starLabel }}</p>
-      </div>
-
-      <!-- Mood -->
-      <div class="mb-6">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">How do you feel right
-          now?</label>
-        <div class="grid grid-cols-4 gap-2">
-          <button *ngFor="let mood of moodOptions" (click)="ratingForm.mood = mood.value"
-            class="flex flex-col items-center gap-1.5 py-3 rounded-xl border text-xs font-medium transition-all duration-150"
-            [ngClass]="ratingForm.mood === mood.value
-              ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-              : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300 hover:text-slate-700'">
-            <span class="text-2xl leading-none">{{ mood.emoji }}</span>
-            {{ mood.label }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Aspects -->
-      <div class="mb-6">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
-          What stood out? <span class="normal-case font-normal text-slate-400">(optional, pick any)</span>
-        </label>
-        <div class="flex flex-wrap gap-2">
-          <button *ngFor="let aspect of aspectOptions" (click)="toggleAspect(aspect)"
-            class="px-3.5 py-1.5 rounded-full border text-xs font-medium transition-all duration-150" [ngClass]="isAspectSelected(aspect)
-              ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-              : 'border-slate-200 bg-white text-slate-500 hover:border-indigo-300 hover:text-indigo-600'">
-            {{ aspect }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Comment -->
-      <div class="mb-7">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-          Tell us more <span class="normal-case font-normal">(optional)</span>
-        </label>
-        <textarea [(ngModel)]="ratingForm.comment" rows="3" maxlength="500"
-          placeholder="What did you love or think we could improve?"
-          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 resize-none transition-all"></textarea>
-        <div class="text-right text-xs text-slate-400 mt-1">{{ ratingForm.comment.length }} / 500</div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <span class="text-xs text-slate-400">All feedback is anonymous</span>
-        <button (click)="submitFeedback()" [disabled]="!canSubmitRating || isSubmitting"
-          class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all shadow-sm shadow-indigo-200 active:scale-95">
-          <span>{{ isSubmitting ? 'Submitting…' : 'Submit rating' }}</span>
-          <lucide-icon [img]="Send" class="w-3.5 h-3.5"></lucide-icon>
-        </button>
-      </div>
-    </div>
-    }
-
-    <!-- FEATURE PANEL -->
-    @else if (activeTab === 'feature') {
-    <div class="p-8 animate-[fadeUp_0.2s_ease]">
-      <div class="mb-7">
-        <h2 class="text-xl font-semibold text-slate-900">Request a feature</h2>
-        <p class="text-sm text-slate-500 mt-1">Got an idea? Describe the problem it solves — that's the most useful
-          part.</p>
-      </div>
-
-      <!-- Title -->
-      <div class="mb-5">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Feature title</label>
-        <input [(ngModel)]="featureForm.title" type="text" placeholder="e.g. Dark mode for the dashboard"
-          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 transition-all">
-      </div>
-
-      <!-- Problem -->
-      <div class="mb-5">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">What problem does this
-          solve?</label>
-        <textarea [(ngModel)]="featureForm.problem" rows="3" maxlength="600"
-          placeholder="Describe the situation where this is missing…"
-          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 resize-none transition-all"></textarea>
-        <div class="text-right text-xs text-slate-400 mt-1">{{ featureForm.problem.length }} / 600</div>
-      </div>
-
-      <!-- Use case -->
-      <div class="mb-5">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-          How would you use it? <span class="normal-case font-normal">(optional)</span>
-        </label>
-        <textarea [(ngModel)]="featureForm.useCase" rows="3" maxlength="600"
-          placeholder="Walk us through your ideal workflow…"
-          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 resize-none transition-all"></textarea>
-        <div class="text-right text-xs text-slate-400 mt-1">{{ featureForm.useCase.length }} / 600</div>
-      </div>
-
-      <!-- Priority -->
-      <div class="mb-5">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Priority to you</label>
-        <div class="flex flex-wrap gap-2">
-          <button *ngFor="let p of priorityOptions"
-            class="px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-150" [ngClass]="featureForm.priority === p.value
-              ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-              : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-indigo-300'">
-            {{ p.label }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Team size -->
-      <div class="mb-7">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-          How many people need this? <span class="normal-case font-normal">(optional)</span>
-        </label>
-        <div class="flex flex-wrap gap-2">
-          <button *ngFor="let t of teamSizeOptions" (click)="featureForm.teamSize = t"
-            class="px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-150" [ngClass]="featureForm.teamSize === t
-              ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-              : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-indigo-300'">
-            {{ t }}
-          </button>
-        </div>
-      </div>
-
-      <div class="flex justify-end">
-        <button (click)="submitFeedback()" [disabled]="!canSubmitFeature || isSubmitting"
-          class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all shadow-sm shadow-indigo-200 active:scale-95">
-          <span>{{ isSubmitting ? 'Submitting…' : 'Submit request' }}</span>
-          <lucide-icon [img]="Send" class="w-3.5 h-3.5"></lucide-icon>
-        </button>
-      </div>
-    </div>
-    }
-
-    <!-- BUG PANEL — 2 steps -->
-    @else if (activeTab === 'bug') {
-    <div class="p-8 animate-[fadeUp_0.2s_ease]">
-
-      <!-- Progress bar -->
-      <div class="flex items-center gap-3 mb-6">
-        <div class="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden">
-          <div class="h-full bg-indigo-500 rounded-full transition-all duration-300"
-            [style.width]="bugStep === 1 ? '50%' : '100%'"></div>
-        </div>
-        <span class="text-xs text-slate-400 whitespace-nowrap">Step {{ bugStep }} of 2</span>
-      </div>
-
-      <!-- STEP 1 -->
-      <div *ngIf="bugStep === 1">
-        <div class="mb-7">
-          <h2 class="text-xl font-semibold text-slate-900">Report a bug</h2>
-          <p class="text-sm text-slate-500 mt-1">Tell us what broke — the more detail, the faster we can fix it.</p>
-        </div>
-
-        <!-- Title -->
-        <div class="mb-5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Issue title</label>
-          <input [(ngModel)]="bugForm.title" type="text" placeholder="e.g. Export button crashes on Safari"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 transition-all">
-        </div>
-
-        <!-- Severity -->
-        <div class="mb-5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Severity</label>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <button *ngFor="let sev of severityOptions"
-              class="py-2.5 px-2 rounded-xl border text-xs font-medium text-center transition-all duration-150"
-              [ngClass]="{
-                'border-emerald-400 bg-emerald-50 text-emerald-700': bugForm.severity === sev.value && sev.value === 'low',
-                'border-amber-400 bg-amber-50 text-amber-700': bugForm.severity === sev.value && sev.value === 'medium',
-                'border-orange-400 bg-orange-50 text-orange-700': bugForm.severity === sev.value && sev.value === 'high',
-                'border-rose-500 bg-rose-50 text-rose-700': bugForm.severity === sev.value && sev.value === 'critical',
-                'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300': bugForm.severity !== sev.value
-              }">
-              {{ sev.label }}
-            </button>
-          </div>
-          <p class="text-xs text-slate-500 mt-2 transition-all">{{ currentSeverityHint }}</p>
-        </div>
-
-        <!-- Description -->
-        <div class="mb-7">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">What happened?</label>
-          <textarea [(ngModel)]="bugForm.description" rows="4" maxlength="800"
-            placeholder="Describe what you did, what you expected, and what actually happened…"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 resize-none transition-all"></textarea>
-          <div class="text-right text-xs text-slate-400 mt-1">{{ bugForm.description.length }} / 800</div>
-        </div>
-
-        <div class="flex justify-end">
-          <button (click)="bugStep = 2" [disabled]="!canAdvanceBug"
-            class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all shadow-sm shadow-indigo-200 active:scale-95">
-            Next
-            <lucide-icon [img]="ChevronRight" class="w-4 h-4"></lucide-icon>
-          </button>
-        </div>
-      </div>
-
-      <!-- STEP 2 -->
-      <div *ngIf="bugStep === 2">
-        <div class="mb-7">
-          <h2 class="text-xl font-semibold text-slate-900">Help us reproduce it</h2>
-          <p class="text-sm text-slate-500 mt-1">Your environment and steps help us pinpoint the issue fast.</p>
-        </div>
-
-        <!-- Steps -->
-        <div class="mb-5">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            Steps to reproduce <span class="normal-case font-normal">(optional)</span>
-          </label>
-          <textarea [(ngModel)]="bugForm.steps" rows="4" maxlength="800"
-            placeholder="1. Go to Settings&#10;2. Click Export&#10;3. See error message"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 resize-none transition-all"></textarea>
-          <div class="text-right text-xs text-slate-400 mt-1">{{ bugForm.steps.length }} / 800</div>
-        </div>
-
-        <!-- Browser + Frequency -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Browser /
-              App</label>
-            <div class="relative">
-              <select [(ngModel)]="bugForm.browser"
-                class="w-full appearance-none px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 transition-all pr-8">
-                <option value="">Select browser</option>
-                <option *ngFor="let b of browserOptions" [value]="b">{{ b }}</option>
-              </select>
-              <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Frequency</label>
-            <div class="relative">
-              <select [(ngModel)]="bugForm.frequency"
-                class="w-full appearance-none px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 transition-all pr-8">
-                <option value="">How often?</option>
-                <option *ngFor="let f of frequencyOptions" [value]="f.value">{{ f.label }}</option>
-              </select>
-              <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Attachment -->
-        <div class="mb-7">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            Screenshot / recording <span class="normal-case font-normal">(optional)</span>
-          </label>
-          <div *ngIf="!bugForm.attachmentName" (click)="fakeAttachment($event)"
-            class="border border-dashed border-slate-300 rounded-xl p-5 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-all group">
-            <lucide-icon [img]="Paperclip"
-              class="w-5 h-5 text-slate-400 group-hover:text-indigo-500 mx-auto mb-1.5 transition-colors"></lucide-icon>
-            <p class="text-xs text-slate-500 group-hover:text-indigo-600 transition-colors">Click to attach a file —
-              PNG, GIF, MP4 up to 10 MB</p>
-          </div>
-          <div *ngIf="bugForm.attachmentName"
-            class="flex items-center gap-3 px-4 py-3 rounded-xl border border-indigo-200 bg-indigo-50">
-            <lucide-icon [img]="Paperclip" class="w-4 h-4 text-indigo-500 shrink-0"></lucide-icon>
-            <span class="text-sm text-indigo-700 font-medium flex-1">{{ bugForm.attachmentName }}</span>
-            <button (click)="bugForm.attachmentName = ''"
-              class="text-indigo-400 hover:text-indigo-600 transition-colors">
-              <lucide-icon [img]="X" class="w-4 h-4"></lucide-icon>
-            </button>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <button (click)="bugStep = 1"
-            class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-            <lucide-icon [img]="ChevronLeft" class="w-4 h-4"></lucide-icon>
-            Back
-          </button>
-          <button (click)="submitFeedback()" [disabled]="isSubmitting"
-            class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all shadow-sm shadow-indigo-200 active:scale-95">
-            <span>{{ isSubmitting ? 'Submitting…' : 'Submit bug report' }}</span>
-            <lucide-icon [img]="Send" class="w-3.5 h-3.5"></lucide-icon>
-          </button>
-        </div>
-      </div>
-    </div>
-    }
-
-    <!-- CONTACT PANEL -->
-    @else if (activeTab === 'contact') {
-    <div class="p-8 animate-[fadeUp_0.2s_ease]">
-      <div class="mb-7">
-        <h2 class="text-xl font-semibold text-slate-900">Get in touch</h2>
-        <p class="text-sm text-slate-500 mt-1">Anything not in the docs? Drop us a line and we'll get back to you.</p>
-      </div>
-
-      <!-- Topic -->
-      <div class="mb-5">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-          Topic <span class="normal-case font-normal">(optional)</span>
-        </label>
-        <div class="flex flex-wrap gap-2">
-          <button *ngFor="let t of topicOptions" (click)="contactForm.topic = t"
-            class="px-3.5 py-1.5 rounded-full border text-xs font-medium transition-all duration-150" [ngClass]="contactForm.topic === t
-              ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-              : 'border-slate-200 bg-white text-slate-500 hover:border-indigo-300 hover:text-indigo-600'">
-            {{ t }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Subject -->
-      <div class="mb-5">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Subject</label>
-        <input [(ngModel)]="contactForm.subject" type="text" placeholder="What's your question about?"
-          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 transition-all">
-      </div>
-
-      <!-- Message -->
-      <div class="mb-5">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Message</label>
-        <textarea [(ngModel)]="contactForm.message" rows="5" maxlength="1000"
-          placeholder="The more detail you share, the better we can help."
-          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 resize-none transition-all"></textarea>
-        <div class="text-right text-xs text-slate-400 mt-1">{{ contactForm.message.length }} / 1000</div>
-      </div>
-
-      <!-- Reply method -->
-      <div class="mb-7">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-          Preferred reply <span class="normal-case font-normal">(optional)</span>
-        </label>
-        <div class="grid grid-cols-3 gap-2">
-          <button *ngFor="let r of replyOptions" (click)="contactForm.replyMethod = r.value"
-            class="py-2.5 rounded-xl border text-xs font-medium text-center transition-all duration-150" [ngClass]="contactForm.replyMethod === r.value
-              ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-              : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-indigo-300'">
-            {{ r.label }}
-          </button>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <span class="text-xs text-slate-400">Usually replies within 24 hrs</span>
-        <button (click)="submitFeedback()" [disabled]="!canSubmitContact || isSubmitting"
-          class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all shadow-sm shadow-indigo-200 active:scale-95">
-          <span>{{ isSubmitting ? 'Sending…' : 'Send message' }}</span>
-          <lucide-icon [img]="Send" class="w-3.5 h-3.5"></lucide-icon>
-        </button>
-      </div>
-    </div>
-    }
-
-    <!-- NPS PANEL -->
-    @else if (activeTab === 'nps') {
-    <div class="p-8 animate-[fadeUp_0.2s_ease]">
-      <div class="mb-7">
-        <h2 class="text-xl font-semibold text-slate-900">Would you recommend us?</h2>
-        <p class="text-sm text-slate-500 mt-1">On a scale of 0–10, how likely are you to recommend us to a friend or
-          colleague?</p>
-      </div>
-
-      <!-- NPS scale -->
-      <div class="mb-2">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Likelihood to
-          recommend</label>
-        <div class="flex flex-wrap gap-1.5">
-          <button *ngFor="let score of npsScores" (click)="setNps(score)"
-            class="w-9 h-9 rounded-lg border text-sm font-medium transition-all duration-150 focus:outline-none"
-            [ngClass]="npsForm.score === score
-              ? (score >= 9 ? 'bg-emerald-500 border-emerald-500 text-white' : score >= 7 ? 'bg-amber-400 border-amber-400 text-white' : 'bg-rose-500 border-rose-500 text-white')
-              : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-indigo-400 hover:text-indigo-600'">
-            {{ score }}
-          </button>
-        </div>
-        <div class="flex justify-between mt-2">
-          <span class="text-xs text-slate-400">Not at all likely</span>
-          <span class="text-xs text-slate-400">Extremely likely</span>
-        </div>
-      </div>
-
-      <!-- Dynamic follow-up -->
-      <div *ngIf="npsForm.score !== null" class="mt-6 animate-[fadeUp_0.2s_ease]">
-        <div class="mb-4">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">{{ npsFollowupLabel
-            }}</label>
-          <div class="flex flex-wrap gap-2">
-            <button *ngFor="let r of npsChips" (click)="toggleNpsReason(r)"
-              class="px-3.5 py-1.5 rounded-full border text-xs font-medium transition-all duration-150" [ngClass]="isNpsReasonSelected(r)
-                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                : 'border-slate-200 bg-white text-slate-500 hover:border-indigo-300 hover:text-indigo-600'">
-              {{ r }}
-            </button>
-          </div>
-        </div>
-
-        <div class="mb-7">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            Anything else? <span class="normal-case font-normal">(optional)</span>
-          </label>
-          <textarea [(ngModel)]="npsForm.comment" rows="3" maxlength="500" placeholder="Tell us more…"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 resize-none transition-all"></textarea>
-          <div class="text-right text-xs text-slate-400 mt-1">{{ npsForm.comment.length }} / 500</div>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <span class="text-xs text-slate-400">Helps us understand our customers</span>
-        <button (click)="submitFeedback()" [disabled]="npsForm.score === null || isSubmitting"
-          class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all shadow-sm shadow-indigo-200 active:scale-95">
-          <span>{{ isSubmitting ? 'Submitting…' : 'Submit' }}</span>
-          <lucide-icon [img]="Send" class="w-3.5 h-3.5"></lucide-icon>
-        </button>
-      </div>
-    </div>
-    }
   </div>
+  }
+
+  @else if (activeTab === 'feature') {
+  <div class="p-8 step-fade flex-1">
+    <div class="mb-8">
+      <h2 class="text-ez-hero font-medium text-ez-heading leading-tight">Request a feature</h2>
+      <p class="text-ez-md text-ez-secondary mt-1.5">Got an idea? Describe the problem it solves — that's the most
+        useful part.</p>
+    </div>
+
+    <div class="mb-5">
+      <label class="ez-label">Feature title</label>
+      <input [(ngModel)]="featureForm.title" type="text" placeholder="e.g. Dark mode for the dashboard"
+        class="ez-input ez-input--default w-full">
+    </div>
+
+    <div class="mb-5">
+      <label class="ez-label">What problem does this solve?</label>
+      <textarea [(ngModel)]="featureForm.problem" rows="3" maxlength="600"
+        placeholder="Describe the situation where this is missing..."
+        class="ez-input ez-input--default w-full resize-none"></textarea>
+      <div class="text-right text-ez-xs text-ez-muted mt-1">{{ featureForm.problem.length }} / 600</div>
+    </div>
+
+    <div class="mb-5">
+      <label class="ez-label">How would you use it? <span class="font-normal text-ez-muted">(optional)</span></label>
+      <textarea [(ngModel)]="featureForm.useCase" rows="3" maxlength="600"
+        placeholder="Walk us through your ideal workflow..."
+        class="ez-input ez-input--default w-full resize-none"></textarea>
+      <div class="text-right text-ez-xs text-ez-muted mt-1">{{ featureForm.useCase.length }} / 600</div>
+    </div>
+
+    <div class="mb-5">
+      <label class="ez-micro-label mb-2 block">Priority to you</label>
+      <div class="flex flex-wrap gap-2">
+        <button *ngFor="let p of priorityOptions"
+          class="px-4 py-2 border text-ez-sm font-medium transition-[border-color,background-color,color] duration-ez"
+          [ngClass]="featureForm.priority === p.value
+            ? 'border-ez-primary bg-ez-ash text-ez-heading'
+            : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+          {{ p.label }}
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-8">
+      <label class="ez-micro-label mb-2 block">How many people need this? <span
+          class="font-normal normal-case text-ez-muted">(optional)</span></label>
+      <div class="flex flex-wrap gap-2">
+        <button *ngFor="let t of teamSizeOptions" (click)="featureForm.teamSize = t"
+          class="px-4 py-2 border text-ez-sm font-medium transition-[border-color,background-color,color] duration-ez"
+          [ngClass]="featureForm.teamSize === t
+            ? 'border-ez-primary bg-ez-ash text-ez-heading'
+            : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+          {{ t }}
+        </button>
+      </div>
+    </div>
+
+    <div class="flex justify-end pt-4 border-t border-ez-border">
+      <button (click)="submitFeedback()" [disabled]="!canSubmitFeature || isSubmitting" class="ez-btn ez-btn-primary">
+        <span>{{ isSubmitting ? 'Submitting...' : 'Submit request →' }}</span>
+      </button>
+    </div>
+  </div>
+  }
+
+  @else if (activeTab === 'bug') {
+  <div class="p-8 step-fade flex-1">
+
+    <div class="flex items-center gap-3 mb-8">
+      <div class="flex-1 h-[2px] bg-ez-border overflow-hidden">
+        <div class="h-full bg-ez-primary transition-all duration-500" [style.width]="bugStep === 1 ? '50%' : '100%'">
+        </div>
+      </div>
+      <span class="ez-micro-label whitespace-nowrap">Step {{ bugStep }} of 2</span>
+    </div>
+
+    <div *ngIf="bugStep === 1" class="step-fade">
+      <div class="mb-8">
+        <h2 class="text-ez-hero font-medium text-ez-heading leading-tight">Report a bug</h2>
+        <p class="text-ez-md text-ez-secondary mt-1.5">Tell us what broke — the more detail, the faster we can fix it.
+        </p>
+      </div>
+
+      <div class="mb-5">
+        <label class="ez-label">Issue title</label>
+        <input [(ngModel)]="bugForm.title" type="text" placeholder="e.g. Export button crashes on Safari"
+          class="ez-input ez-input--default w-full">
+      </div>
+
+      <div class="mb-5">
+        <label class="ez-micro-label mb-2 block">Severity</label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button *ngFor="let sev of severityOptions"
+            class="py-2.5 px-2 border text-ez-sm font-medium transition-[border-color,background-color,color] duration-ez"
+            [ngClass]="bugForm.severity === sev.value
+              ? 'border-ez-primary bg-ez-ash text-ez-heading'
+              : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+            {{ sev.label }}
+          </button>
+        </div>
+        <p class="text-ez-xs text-ez-muted mt-2">{{ currentSeverityHint }}</p>
+      </div>
+
+      <div class="mb-8">
+        <label class="ez-label">What happened?</label>
+        <textarea [(ngModel)]="bugForm.description" rows="4" maxlength="800"
+          placeholder="Describe what you did, what you expected, and what actually happened..."
+          class="ez-input ez-input--default w-full resize-none"></textarea>
+        <div class="text-right text-ez-xs text-ez-muted mt-1">{{ bugForm.description.length }} / 800</div>
+      </div>
+
+      <div class="flex justify-end pt-4 border-t border-ez-border">
+        <button (click)="bugStep = 2" [disabled]="!canAdvanceBug" class="ez-btn ez-btn-primary">
+          Next →
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="bugStep === 2" class="step-fade">
+      <div class="mb-8">
+        <h2 class="text-ez-hero font-medium text-ez-heading leading-tight">Help us reproduce it</h2>
+        <p class="text-ez-md text-ez-secondary mt-1.5">Your environment and steps help us pinpoint the issue fast.</p>
+      </div>
+
+      <div class="mb-5">
+        <label class="ez-label">Steps to reproduce <span class="font-normal text-ez-muted">(optional)</span></label>
+        <textarea [(ngModel)]="bugForm.steps" rows="4" maxlength="800"
+          placeholder="1. Go to Settings&#10;2. Click Export&#10;3. See error message"
+          class="ez-input ez-input--default w-full resize-none"></textarea>
+        <div class="text-right text-ez-xs text-ez-muted mt-1">{{ bugForm.steps.length }} / 800</div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+        <div>
+          <label class="ez-label">Browser / App</label>
+          <div class="relative">
+            <select [(ngModel)]="bugForm.browser" class="ez-select w-full pr-8">
+              <option value="">Select browser</option>
+              <option *ngFor="let b of browserOptions" [value]="b">{{ b }}</option>
+            </select>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ez-muted pointer-events-none" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+        <div>
+          <label class="ez-label">Frequency</label>
+          <div class="relative">
+            <select [(ngModel)]="bugForm.frequency" class="ez-select w-full pr-8">
+              <option value="">How often?</option>
+              <option *ngFor="let f of frequencyOptions" [value]="f.value">{{ f.label }}</option>
+            </select>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ez-muted pointer-events-none" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <label class="ez-label">Screenshot / recording <span class="font-normal text-ez-muted">(optional)</span></label>
+        <div *ngIf="!bugForm.attachmentName" (click)="fakeAttachment($event)"
+          class="border border-ez-border bg-white p-5 text-center cursor-pointer hover:border-ez-subtle transition-[border-color,background-color] duration-ez group">
+          <lucide-icon [img]="Paperclip"
+            class="w-5 h-5 text-ez-muted group-hover:text-ez-heading mx-auto mb-1.5 transition-colors duration-ez"></lucide-icon>
+          <p class="text-ez-xs text-ez-secondary group-hover:text-ez-heading transition-colors duration-ez">Click to
+            attach a file — PNG, GIF, MP4 up to 10 MB</p>
+        </div>
+        <div *ngIf="bugForm.attachmentName" class="flex items-center gap-3 px-4 py-3 border border-ez-border bg-ez-ash">
+          <lucide-icon [img]="Paperclip" class="w-4 h-4 text-ez-heading shrink-0"></lucide-icon>
+          <span class="text-ez-sm text-ez-heading font-medium flex-1">{{ bugForm.attachmentName }}</span>
+          <button (click)="bugForm.attachmentName = ''"
+            class="text-ez-secondary hover:text-ez-heading transition-colors duration-ez outline-none">
+            <lucide-icon [img]="X" class="w-4 h-4"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-4 border-t border-ez-border">
+        <button (click)="bugStep = 1"
+          class="px-4 py-2 text-ez-base font-medium text-ez-secondary border border-ez-border rounded hover:border-ez-subtle hover:text-ez-heading transition-[border-color,color] duration-ez">
+          ← Back
+        </button>
+        <button (click)="submitFeedback()" [disabled]="isSubmitting" class="ez-btn ez-btn-primary">
+          <span>{{ isSubmitting ? 'Submitting...' : 'Submit bug report →' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  @else if (activeTab === 'contact') {
+  <div class="p-8 step-fade flex-1">
+    <div class="mb-8">
+      <h2 class="text-ez-hero font-medium text-ez-heading leading-tight">Get in touch</h2>
+      <p class="text-ez-md text-ez-secondary mt-1.5">Anything not in the docs? Drop us a line and we'll get back to you.
+      </p>
+    </div>
+
+    <div class="mb-5">
+      <label class="ez-micro-label mb-2 block">Topic <span
+          class="font-normal normal-case text-ez-muted">(optional)</span></label>
+      <div class="flex flex-wrap gap-2">
+        <button *ngFor="let t of topicOptions" (click)="contactForm.topic = t"
+          class="px-4 py-2 border text-ez-sm font-medium transition-[border-color,background-color,color] duration-ez"
+          [ngClass]="contactForm.topic === t
+            ? 'border-ez-primary bg-ez-ash text-ez-heading'
+            : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+          {{ t }}
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-5">
+      <label class="ez-label">Subject</label>
+      <input [(ngModel)]="contactForm.subject" type="text" placeholder="What's your question about?"
+        class="ez-input ez-input--default w-full">
+    </div>
+
+    <div class="mb-5">
+      <label class="ez-label">Message</label>
+      <textarea [(ngModel)]="contactForm.message" rows="5" maxlength="1000"
+        placeholder="The more detail you share, the better we can help."
+        class="ez-input ez-input--default w-full resize-none"></textarea>
+      <div class="text-right text-ez-xs text-ez-muted mt-1">{{ contactForm.message.length }} / 1000</div>
+    </div>
+
+    <div class="mb-8">
+      <label class="ez-micro-label mb-2 block">Preferred reply <span
+          class="font-normal normal-case text-ez-muted">(optional)</span></label>
+      <div class="grid grid-cols-3 gap-2">
+        <button *ngFor="let r of replyOptions" (click)="contactForm.replyMethod = r.value"
+          class="py-2.5 border text-ez-sm font-medium text-center transition-[border-color,background-color,color] duration-ez"
+          [ngClass]="contactForm.replyMethod === r.value
+            ? 'border-ez-primary bg-ez-ash text-ez-heading'
+            : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+          {{ r.label }}
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-4 border-t border-ez-border">
+      <span class="text-ez-xs text-ez-muted">Usually replies within 24 hrs</span>
+      <button (click)="submitFeedback()" [disabled]="!canSubmitContact || isSubmitting" class="ez-btn ez-btn-primary">
+        <span>{{ isSubmitting ? 'Sending...' : 'Send message →' }}</span>
+      </button>
+    </div>
+  </div>
+  }
+
+  @else if (activeTab === 'nps') {
+  <div class="p-8 step-fade flex-1">
+    <div class="mb-8">
+      <h2 class="text-ez-hero font-medium text-ez-heading leading-tight">Would you recommend us?</h2>
+      <p class="text-ez-md text-ez-secondary mt-1.5">On a scale of 0–10, how likely are you to recommend us to a friend
+        or colleague?</p>
+    </div>
+
+    <div class="mb-4">
+      <label class="ez-micro-label mb-3 block">Likelihood to recommend</label>
+      <div class="flex flex-wrap gap-1.5">
+        <button *ngFor="let score of npsScores" (click)="setNps(score)"
+          class="w-10 h-10 border text-ez-sm font-medium transition-[border-color,background-color,color] duration-ez focus:outline-none"
+          [ngClass]="npsForm.score === score
+            ? 'bg-ez-primary border-ez-primary text-white'
+            : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+          {{ score }}
+        </button>
+      </div>
+      <div class="flex justify-between mt-2">
+        <span class="text-ez-xs text-ez-muted">Not at all likely</span>
+        <span class="text-ez-xs text-ez-muted">Extremely likely</span>
+      </div>
+    </div>
+
+    <div *ngIf="npsForm.score !== null" class="mt-8 step-fade">
+      <div class="mb-6">
+        <label class="ez-micro-label mb-3 block">{{ npsFollowupLabel }}</label>
+        <div class="flex flex-wrap gap-2">
+          <button *ngFor="let r of npsChips" (click)="toggleNpsReason(r)"
+            class="px-4 py-2 border text-ez-sm font-medium transition-[border-color,background-color,color] duration-ez"
+            [ngClass]="isNpsReasonSelected(r)
+              ? 'border-ez-primary bg-ez-ash text-ez-heading'
+              : 'border-ez-border bg-white text-ez-secondary hover:border-ez-subtle hover:text-ez-heading'">
+            {{ r }}
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <label class="ez-label">Anything else? <span class="font-normal text-ez-muted">(optional)</span></label>
+        <textarea [(ngModel)]="npsForm.comment" rows="3" maxlength="500" placeholder="Tell us more..."
+          class="ez-input ez-input--default w-full resize-none"></textarea>
+        <div class="text-right text-ez-xs text-ez-muted mt-1">{{ npsForm.comment.length }} / 500</div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-4 border-t border-ez-border">
+      <span class="text-ez-xs text-ez-muted">Helps us understand our customers</span>
+      <button (click)="submitFeedback()" [disabled]="npsForm.score === null || isSubmitting"
+        class="ez-btn ez-btn-primary">
+        <span>{{ isSubmitting ? 'Submitting...' : 'Submit →' }}</span>
+      </button>
+    </div>
+  </div>
+  }
 </div>

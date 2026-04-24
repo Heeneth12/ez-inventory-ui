@@ -86,13 +86,13 @@
         <div class="shrink-0 border-b border-ez-border bg-white sticky top-0 z-20">
             <div class="px-6 lg:px-10 h-16 flex items-center justify-end gap-3">
 
-                <button
+                <button (click)="openFeedbackModal('feature')"
                     class="flex items-center gap-2 px-4 py-2 rounded border border-ez-border hover:border-ez-primary hover:text-ez-primary transition-[border-color,color] duration-ez">
                     <i class="fa-regular fa-circle-question text-ez-secondary text-xs"></i>
                     <span class="text-ez-base font-medium text-ez-secondary">Need help?</span>
                 </button>
 
-                <button
+                <button (click)="openFeedbackModal('contact')"
                     class="flex items-center gap-2 px-4 py-2 rounded bg-ez-primary hover:bg-ez-primary-hover transition-[background-color] duration-ez">
                     <i class="fa-regular fa-comments text-white text-xs"></i>
                     <span class="text-ez-base font-medium text-white">Chat with us</span>

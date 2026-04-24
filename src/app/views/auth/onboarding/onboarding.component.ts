@@ -22,6 +22,8 @@ import { CommonService } from '../../../layouts/service/common/common.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SubscriptionsService } from '../../../layouts/components/subscriptions/subscriptions.service';
 import { SubscriptionPlanModel } from '../../../layouts/components/subscriptions/subscriptions.model';
+import { FeedbackComponent } from '../../../layouts/components/feedback/feedback.component';
+import { ModalService } from '../../../layouts/components/modal/modalService';
 
 export interface OnboardingResult {
   tenantId?: number;
@@ -112,6 +114,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
+    private modalService: ModalService,
     private router: Router,
     private subscriptionsService: SubscriptionsService,
   ) { }
@@ -431,5 +434,14 @@ export class OnboardingComponent implements OnInit, OnDestroy {
         this.exitOnboardingEvent.emit();
       },
     });
+  }
+
+  openFeedbackModal(type: 'bug' | 'feature' | 'contact') {
+    this.modalService.openComponent(FeedbackComponent,
+      {
+        feedbackType: type,
+      },
+      'lg'
+    );
   }
 }
