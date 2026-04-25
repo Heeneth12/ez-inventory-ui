@@ -5,12 +5,12 @@ import { AuthService } from '../../layouts/guards/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { CommonService } from '../../layouts/service/common/common.service';
 import { ToastService } from '../../layouts/components/toast/toastService';
+import { ForgotPasswordModel, ResendOtpModel, ResetPasswordModel } from './auth.model';
 
 
 declare const google: any;
-type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password';
+type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password' | 'otp-verification';
 
 @Component({
   selector: 'app-auth',
@@ -25,11 +25,14 @@ type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password';
 export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   currentMode: AuthMode = 'login';
   isLoading = false;
+  isResendingOtp = false;
   loadingText = 'Please wait...';
   authForm!: FormGroup;
   private routeSub: Subscription | undefined;
   private googleClientId = environment.googleClientId;
   private readonly APP_KEY = 'EZH_INV_APP';
+  private forgotTenantId: number = 0;
+  forgotEmail: string = '';
 
   countries = [
     { code: '+91', label: 'IN (+91)', countryName: 'India' },
@@ -50,7 +53,6 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private fb: FormBuilder,
-    private commonService: CommonService,
     private toastService: ToastService,
     private authSvc: AuthService,
     private route: ActivatedRoute,
@@ -80,11 +82,13 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   get isLoginMode() { return this.currentMode === 'login'; }
   get isBookingMode() { return this.currentMode === 'booking'; }
   get isForgotPassMode() { return this.currentMode === 'forgot-password'; }
+  get isOtpVerificationMode() { return this.currentMode === 'otp-verification'; }
 
   get headerTitle(): string {
     if (this.isLoginMode) return 'Welcome back';
     if (this.isBookingMode) return 'Book Consultation';
     if (this.isForgotPassMode) return 'Reset Password';
+    if (this.isOtpVerificationMode) return 'Verify & Reset';
     return 'Welcome back';
   }
 
@@ -92,6 +96,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.isLoginMode) return 'Please enter your details to sign in.';
     if (this.isBookingMode) return 'Tell us your requirements.';
     if (this.isForgotPassMode) return 'Enter your email to receive reset instructions.';
+    if (this.isOtpVerificationMode) return `Enter the OTP sent to ${this.forgotEmail}`;
     return 'Please enter your details to sign in.';
   }
 
@@ -100,6 +105,11 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   private initForm() {
     if (this.isForgotPassMode) {
       this.authForm = this.fb.group({ email: ['', [Validators.required, Validators.email]] });
+    } else if (this.isOtpVerificationMode) {
+      this.authForm = this.fb.group({
+        otp: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]],
+        newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      });
     } else if (this.isBookingMode) {
       this.authForm = this.fb.group({
         name: ['', Validators.required],
@@ -199,8 +209,11 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       this.loadingText = 'Sending request...';
       this.executeBooking();
     } else if (this.isForgotPassMode) {
-      this.loadingText = 'Sending reset link...';
+      this.loadingText = 'Sending OTP...';
       this.executeForgotPassword();
+    } else if (this.isOtpVerificationMode) {
+      this.loadingText = 'Resetting password...';
+      this.executeResetPassword();
     }
   }
 
@@ -214,13 +227,61 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private executeForgotPassword() {
-    const email = this.authForm.get('email')?.value;
-    console.log('Reset email:', email);
-    setTimeout(() => {
-      this.isLoading = false;
-      this.toastService.show('Reset link sent to your email!', 'success');
-      this.switchMode('login');
-    }, 1500);
+    const payload: ForgotPasswordModel = { email: this.authForm.get('email')!.value };
+    this.authSvc.forgotPassword(payload,
+      (res: any) => {
+        this.isLoading = false;
+        this.forgotEmail = payload.email;
+        this.forgotTenantId = res?.data?.tenantId ?? res?.tenantId ?? 0;
+        this.toastService.show('OTP sent to your email!', 'success');
+        this.switchMode('otp-verification');
+      },
+      (err: any) => {
+        this.isLoading = false;
+        this.toastService.show(err?.error?.message ?? 'Failed to send OTP. Please try again.', 'error');
+      }
+    );
+  }
+
+  executeResendOtp() {
+    if (!this.forgotTenantId) {
+      this.toastService.show('Session expired. Please restart the password reset.', 'error');
+      this.switchMode('forgot-password');
+      return;
+    }
+    this.isResendingOtp = true;
+    const payload: ResendOtpModel = { tenantId: this.forgotTenantId };
+    this.authSvc.resendOtp(payload,
+      (res: any) => {
+        this.isResendingOtp = false;
+        this.toastService.show('OTP resent successfully!', 'success');
+      },
+      (err: any) => {
+        this.isResendingOtp = false;
+        this.toastService.show(err?.error?.message ?? 'Failed to resend OTP.', 'error');
+      }
+    );
+  }
+
+  private executeResetPassword() {
+    const payload: ResetPasswordModel = {
+      email: this.forgotEmail,
+      otp: this.authForm.get('otp')!.value,
+      newPassword: this.authForm.get('newPassword')!.value,
+    };
+    this.authSvc.resetPassword(payload,
+      (res: any) => {
+        this.isLoading = false;
+        this.toastService.show('Password reset successfully! Please sign in.', 'success');
+        this.forgotTenantId = 0;
+        this.forgotEmail = '';
+        this.switchMode('login');
+      },
+      (err: any) => {
+        this.isLoading = false;
+        this.toastService.show(err?.error?.message ?? 'Invalid or expired OTP.', 'error');
+      }
+    );
   }
 
   private executeLogin(credentials: any) {

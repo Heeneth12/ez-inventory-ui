@@ -123,7 +123,7 @@
                 <ng-container *ngIf="currentMode === 'forgot-password'">
                     <div class="space-y-4">
                         <div class="bg-ez-ash px-4 py-3 text-ez-base text-ez-body">
-                            Enter the email address associated with your account and we'll send you a link to reset your
+                            Enter the email address associated with your account and we'll send you an OTP to reset your
                             password.
                         </div>
                         <div class="space-y-1.5">
@@ -132,6 +132,39 @@
                                 placeholder="name@company.com">
                             <p *ngIf="authForm.get('email')?.touched && authForm.get('email')?.invalid"
                                 class="text-ez-xs text-red-500">Please enter a valid email address</p>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- OTP Verification -->
+                <ng-container *ngIf="currentMode === 'otp-verification'">
+                    <div class="space-y-4">
+                        <div class="bg-ez-ash px-4 py-3 text-ez-base text-ez-body">
+                            An OTP has been sent to <strong>{{ forgotEmail }}</strong>. Enter it below along with your new password.
+                        </div>
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="ez-label">OTP</label>
+                                <button type="button" (click)="executeResendOtp()" [disabled]="isResendingOtp"
+                                    class="text-ez-sm font-medium text-ez-primary hover:text-ez-primary-hover transition-colors duration-ez outline-none disabled:opacity-50">
+                                    <span *ngIf="isResendingOtp" class="flex items-center gap-1">
+                                        <span class="w-3 h-3 border border-ez-primary/30 border-t-ez-primary rounded-full animate-spin inline-block"></span>
+                                        Sending…
+                                    </span>
+                                    <span *ngIf="!isResendingOtp">Resend OTP</span>
+                                </button>
+                            </div>
+                            <input type="text" formControlName="otp" class="ez-input ez-input--default w-full"
+                                placeholder="Enter OTP" autocomplete="one-time-code">
+                            <p *ngIf="authForm.get('otp')?.touched && authForm.get('otp')?.invalid"
+                                class="text-ez-xs text-red-500">Please enter a valid OTP</p>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ez-label">New password</label>
+                            <input type="password" formControlName="newPassword" autocomplete="new-password"
+                                class="ez-input ez-input--default w-full" placeholder="Min. 8 characters">
+                            <p *ngIf="authForm.get('newPassword')?.touched && authForm.get('newPassword')?.invalid"
+                                class="text-ez-xs text-red-500">Password must be at least 8 characters</p>
                         </div>
                     </div>
                 </ng-container>
@@ -185,12 +218,14 @@
                         <span *ngIf="!isLoading">
                             <ng-container *ngIf="currentMode === 'login'">Sign in</ng-container>
                             <ng-container *ngIf="currentMode === 'booking'">Send request</ng-container>
-                            <ng-container *ngIf="currentMode === 'forgot-password'">Send reset link</ng-container>
+                            <ng-container *ngIf="currentMode === 'forgot-password'">Send OTP</ng-container>
+                            <ng-container *ngIf="currentMode === 'otp-verification'">Reset password</ng-container>
                         </span>
                         <span *ngIf="isLoading">
                             <ng-container *ngIf="currentMode === 'login'">Signing in…</ng-container>
                             <ng-container *ngIf="currentMode === 'booking'">Sending…</ng-container>
                             <ng-container *ngIf="currentMode === 'forgot-password'">Sending…</ng-container>
+                            <ng-container *ngIf="currentMode === 'otp-verification'">Resetting…</ng-container>
                         </span>
                     </button>
                 </div>
@@ -212,7 +247,7 @@
                     ← Back to login
                 </button>
             </div>
-            <div class="text-center pt-1" *ngIf="currentMode === 'forgot-password'">
+            <div class="text-center pt-1" *ngIf="currentMode === 'forgot-password' || currentMode === 'otp-verification'">
                 <button type="button" (click)="switchMode('login')"
                     class="text-ez-base font-medium text-ez-primary hover:text-ez-primary-hover transition-colors duration-ez">
                     ← Back to login

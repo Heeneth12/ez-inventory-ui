@@ -1,85 +1,89 @@
-<div class="flex h-screen bg-[#F5F5F5] font-sans text-slate-800 overflow-hidden">
+<div class="flex w-full h-screen bg-ez-white text-ez-body overflow-hidden">
 
     @if (isMobileMenuOpen) {
-    <div (click)="closeMenu()" class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity">
+    <div (click)="closeMenu()" class="fixed inset-0 bg-ez-carbon/80 z-20 lg:hidden transition-opacity duration-ez">
     </div>
     }
 
     <aside id="app-sidebar"
-        class="fixed inset-y-0 left-0 z-30 bg-[#0b1520] border-r border-slate-800/60 flex flex-col transition-all duration-300 ease-in-out lg:static shadow-xl"
-        [ngClass]="{
+        class="fixed inset-y-0 left-0 z-30 bg-ez-carbon flex flex-col transition-all duration-ez lg:static" [ngClass]="{
             'translate-x-0': isMobileMenuOpen, 
             '-translate-x-full lg:translate-x-0': !isMobileMenuOpen,
-            'w-60': !isSidebarCollapsed,
+            'w-64': !isSidebarCollapsed,
             'w-20': isSidebarCollapsed
         }">
-        <div class="h-16 flex items-center shrink-0 transition-all duration-300 border-b border-white/5"
+
+        <div class="h-16 flex items-center shrink-0 transition-all duration-ez border-b border-white/10"
             [ngClass]="isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'">
-            <a href="/dashboard">
-                <div class="flex items-center gap-0 overflow-hidden whitespace-nowrap">
-                    <div class="p-1 rounded-sm shadow-sm shrink-0">
-                        <img src="assets/images/new.png" alt="logo" class="w-9 h-9 object-contain" />
+            <div class="relative z-10 flex justify-start">
+                <a class="cursor-pointer" href="/dashboard">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded bg-ez-primary flex items-center justify-center flex-shrink-0">
+                            <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                                <rect x="1" y="1" width="6" height="6" rx="1" fill="white" opacity="0.95" />
+                                <rect x="11" y="1" width="6" height="6" rx="1" fill="white" opacity="0.5" />
+                                <rect x="1" y="11" width="6" height="6" rx="1" fill="white" opacity="0.5" />
+                                <rect x="11" y="11" width="6" height="6" rx="1" fill="white" opacity="0.95" />
+                            </svg>
+                        </div>
+                        @if (!isSidebarCollapsed) {
+                        <div class="text-left">
+                            <span class="block text-ez-lg font-medium text-white leading-tight">Kubee</span>
+                            <span class="block text-ez-2xs text-white/70 tracking-widest uppercase">Inventory</span>
+                        </div>
+                        }
                     </div>
+                </a>
+            </div>
 
-                    @if (!isSidebarCollapsed) {
-                    <div class="flex flex-col animate-in fade-in slide-in-from-left-4 duration-300">
-                        <span class="text-lg font-bold text-slate-100 tracking-tight leading-none">
-                            Inventory
-                        </span>
-                        <span class="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Management</span>
-                    </div>
-                    }
-                </div>
-            </a>
-
-            <button (click)="closeMenu()" class="lg:hidden text-slate-400 hover:text-white transition-colors p-1">
+            <button (click)="closeMenu()"
+                class="lg:hidden text-white/50 hover:text-white transition-colors duration-ez p-1 outline-none">
                 <lucide-icon [img]="XIcon" class="w-6 h-6"></lucide-icon>
             </button>
+
             <button (click)="toggleSidebarCollapse()"
-                class="hidden lg:flex absolute -right-3 top-5 z-50 items-center justify-center w-6 h-6 bg-white border border-slate-200 rounded-full shadow-sm text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-all duration-300 group focus:outline-none"
+                class="hidden lg:flex absolute -right-3 top-5 z-50 items-center justify-center w-6 h-6 bg-ez-white border border-ez-border rounded text-ez-secondary hover:text-ez-primary hover:border-ez-primary transition-[border-color,color] duration-ez outline-none"
                 [ngClass]="{'rotate-180': isSidebarCollapsed}">
-                <lucide-icon [img]="ChevronLeft" class="w-3.5 h-3.5 transition-transform"></lucide-icon>
-                <span
-                    class="absolute inset-0 rounded-full group-hover:animate-ping bg-indigo-400/10 scale-150 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                <lucide-icon [img]="ChevronLeft" class="w-3.5 h-3.5 transition-transform duration-ez"></lucide-icon>
             </button>
         </div>
 
-        <nav class="flex-1 mt-4 px-3 space-y-1 custom-scrollbar transition-all duration-300"
+        <nav class="flex-1 mt-4 px-3 space-y-1 transition-all duration-ez"
             [ngClass]="isSidebarCollapsed ? 'overflow-visible' : 'overflow-y-auto overflow-x-hidden'">
             @for (item of visibleNavItems; track item.label + i; let i = $index) {
             @if (item.isHeader) {
             @if (!isSidebarCollapsed) {
-            <div class="px-3 py-2 text-[10px] font-bold text-slate-200 uppercase tracking-wider">
+            <div class="px-3 py-2 ez-micro-label text-white/30">
                 {{ item.label }}
             </div>
             } @else {
-            <div class="my-4 border-t border-slate-700/50 w-8 mx-auto"></div>
+            <div class="my-4 border-t border-white/10 w-8 mx-auto"></div>
             }
             } @else {
             @if (!item.subItems) {
             <a [routerLink]="item.isDisabled ? null : item.link" [id]="'menu-item-' + i"
-                class="group relative flex items-center rounded-mb p-3 text-sm font-medium border transition-all duration-300 cursor-pointer outline-none"
+                class="group relative flex items-center p-3 text-ez-sm font-medium transition-[background-color,color] duration-ez cursor-pointer outline-none"
                 [ngClass]="{
-                        'justify-center': isSidebarCollapsed,
-                        'opacity-100 cursor-not-allowed text-slate-600 border-none': item.isDisabled,
-                        'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item) && !item.isDisabled,
-                        'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isItemActive(item) && !item.isDisabled
-                    }">
-
-                <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-all duration-300" [ngClass]="{
-                            'text-white': isItemActive(item) && !item.isDisabled,
-                            'text-gray-100': isSidebarCollapsed && !(isItemActive(item) && !item.isDisabled)
+                            'justify-center': isSidebarCollapsed,
+                            'opacity-50 cursor-not-allowed text-white/30': item.isDisabled,
+                            'text-white bg-white/5': isItemActive(item) && !item.isDisabled,
+                            'text-white/60 hover:text-white hover:bg-white/5': !isItemActive(item) && !item.isDisabled
                         }">
+
+                <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-colors duration-ez" [ngClass]="{
+                                'text-white': isItemActive(item) && !item.isDisabled,
+                                'text-white/40 group-hover:text-white': !isItemActive(item) && !item.isDisabled
+                            }">
                 </lucide-icon>
 
                 @if (!isSidebarCollapsed) {
-                <span class="ml-3 truncate animate-in fade-in slide-in-from-left-2 duration-300">{{ item.label }}</span>
+                <span class="ml-3 truncate animate-in fade-in duration-ez">{{ item.label }}</span>
 
                 @if (item.badge) {
                 <span [ngClass]="{
-                            'bg-slate-500 text-white': item.label === 'Approval',
-                            'bg-gradient-to-r from-amber-400 to-orange-500 text-black font-bold text-[10px]': item.label === 'AI Chat'
-                        }" class="ml-auto px-2 py-0.5 rounded-full text-[11px] shadow-sm">
+                                'bg-white/10 text-white/80': item.label === 'Approval',
+                                'bg-ez-primary text-white': item.label === 'AI Chat'
+                            }" class="ml-auto px-2 py-0.5 rounded text-ez-2xs font-medium">
                     {{ item.badge }}
                 </span>
                 }
@@ -87,10 +91,7 @@
 
                 @if (isSidebarCollapsed) {
                 <div
-                    class="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-[100] whitespace-nowrap rounded-md bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 origin-left scale-95 group-hover:scale-100">
-                    <div
-                        class="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700">
-                    </div>
+                    class="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-[100] whitespace-nowrap bg-ez-carbon border border-white/10 px-3 py-1.5 text-ez-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-ez">
                     {{ item.label }}
                 </div>
                 }
@@ -100,61 +101,55 @@
             @if (item.subItems) {
             <div class="space-y-1">
                 <div (click)="toggleDropdown(item.label)" [id]="'menu-item-' + i"
-                    class="group relative flex items-center justify-between rounded-mb p-3 text-sm font-medium border cursor-pointer transition-all duration-300 select-none"
+                    class="group relative flex items-center justify-between p-3 text-ez-sm font-medium cursor-pointer transition-[background-color,color] duration-ez select-none outline-none"
                     [ngClass]="{
-                            'bg-slate-800/50 text-white border-slate-700/50': isDropdownOpen(item.label) && !isItemActive(item),
-                            'bg-indigo-500/10 text-white border-indigo-500/20': isItemActive(item),
-                            'text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200': !isDropdownOpen(item.label) && !isItemActive(item),
-                            'justify-center': isSidebarCollapsed
-                        }">
+                                'text-white bg-white/5': isItemActive(item) || isDropdownOpen(item.label),
+                                'text-white/60 hover:text-white hover:bg-white/5': !isDropdownOpen(item.label) && !isItemActive(item),
+                                'justify-center': isSidebarCollapsed
+                            }">
 
-                    <div class="flex items-center" [ngClass]="{'w-full justify-center text-white': isSidebarCollapsed}">
-                        <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-colors"
-                            [ngClass]="(isDropdownOpen(item.label) || isItemActive(item)) ? 'text-white' : 'group-hover:text-slate-200'">
+                    <div class="flex items-center" [ngClass]="{'w-full justify-center': isSidebarCollapsed}">
+                        <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0 transition-colors duration-ez"
+                            [ngClass]="(isDropdownOpen(item.label) || isItemActive(item)) ? 'text-white' : 'text-white/40 group-hover:text-white'">
                         </lucide-icon>
 
                         @if (!isSidebarCollapsed) {
-                        <span class="ml-3 truncate animate-in fade-in slide-in-from-left-2 duration-300">{{ item.label
-                            }}</span>
+                        <span class="ml-3 truncate animate-in fade-in duration-ez">{{ item.label }}</span>
                         }
                     </div>
 
                     @if (!isSidebarCollapsed) {
-                    <lucide-icon [img]="ChevronDown" class="w-4 h-4 transition-transform duration-300" [ngClass]="{
-                                'rotate-180': isDropdownOpen(item.label),
-                                'text-indigo-400': isDropdownOpen(item.label) || isItemActive(item),
-                                'text-slate-500': !isDropdownOpen(item.label) && !isItemActive(item)
-                            }">
+                    <lucide-icon [img]="ChevronDown" class="w-4 h-4 transition-transform duration-ez" [ngClass]="{
+                                    'rotate-180 text-white': isDropdownOpen(item.label),
+                                    'text-white/40 group-hover:text-white': !isDropdownOpen(item.label)
+                                }">
                     </lucide-icon>
                     }
 
                     @if (isSidebarCollapsed) {
                     <div
-                        class="absolute left-14 z-50 whitespace-nowrap rounded-md bg-slate-800 border border-slate-700 px-3 py-1.5 text-xs text-white shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity delay-100">
+                        class="absolute left-14 z-50 whitespace-nowrap bg-ez-carbon border border-white/10 px-3 py-1.5 text-ez-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-ez">
                         {{ item.label }}
                     </div>
                     }
                 </div>
 
                 @if (isDropdownOpen(item.label) && !isSidebarCollapsed) {
-                <div class="mt-1 ml-5 relative space-y-1 animate-in slide-in-from-top-1 duration-200">
-                    <div class="absolute left-[9px] top-0 bottom-4 w-px border-l border-dashed border-slate-700"></div>
+                <div class="mt-1 ml-5 relative space-y-1 animate-in slide-in-from-top-1 duration-ez">
+                    <div class="absolute left-[9px] top-0 bottom-4 w-px bg-white/10"></div>
 
                     @for (sub of item.subItems; track sub.link) {
                     <div class="relative flex items-center group/sub">
                         <div class="absolute left-0 w-[19px] flex justify-center">
-                            <div class="z-10 w-2 h-2 rounded-full border-2 border-slate-700 bg-[#0b1520] group-hover/sub:border-indigo-500 transition-colors"
-                                [ngClass]="{'bg-white border-white shadow-[0_0_8px_white]': isItemActive(sub)}">
+                            <div class="z-10 w-1.5 h-1.5 rounded-full bg-ez-carbon border border-white/30 group-hover/sub:border-ez-primary transition-colors duration-ez"
+                                [ngClass]="{'bg-ez-primary border-ez-primary': isItemActive(sub)}">
                             </div>
                         </div>
                         <a [routerLink]="sub.link" routerLinkActive="text-white font-medium" #rla="routerLinkActive"
-                            class="flex-1 flex items-center gap-1 ml-6 py-2 text-sm text-slate-500 hover:text-indigo-300 transition-all duration-200">
+                            class="flex-1 flex items-center gap-1 ml-6 py-2 text-ez-sm text-white/50 hover:text-white transition-colors duration-ez outline-none">
                             @if(sub.icon){
-                            <lucide-icon [img]="sub.icon" class="h-4 w-4 shrink-0 transition-all duration-300"
-                                [ngClass]="{
-                            'text-white': isItemActive(sub),
-                            'text-gray-100': isSidebarCollapsed && !(isItemActive(sub))
-                        }">
+                            <lucide-icon [img]="sub.icon" class="h-4 w-4 shrink-0 transition-colors duration-ez"
+                                [ngClass]="{'text-ez-primary': isItemActive(sub), 'text-white/40': !isItemActive(sub)}">
                             </lucide-icon>
                             }
                             {{ sub.label }}
@@ -170,21 +165,17 @@
         </nav>
 
         @if(showPlanAds){
-        <div class="p-4 border-t border-white/5 bg-[#0b1520]">
+        <div class="p-5 border-t border-white/10">
             @if (isSidebarCollapsed) {
             <div class="flex justify-center">
                 <button (click)="openUpgradeModal()"
-                    class="group relative flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all duration-300 border border-indigo-500/20">
+                    class="group relative flex items-center justify-center w-10 h-10 rounded bg-ez-primary/10 text-ez-primary hover:bg-ez-primary hover:text-white transition-[background-color,color] duration-ez outline-none">
                     <lucide-icon [img]="Zap" class="w-4 h-4"></lucide-icon>
 
-                    <span class="absolute top-2 right-2 flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                    </span>
+                    <span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-white"></span>
 
                     <div
-                        class="absolute left-full ml-3 px-2 py-1 bg-slate-900 text-[10px] text-white rounded border border-slate-700 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                        class="absolute left-full ml-3 px-2 py-1 bg-ez-carbon text-white/80 text-ez-xs border border-white/10 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-ez whitespace-nowrap z-50">
                         Plan expires soon
                     </div>
                 </button>
@@ -192,24 +183,20 @@
             }
 
             @if (!isSidebarCollapsed) {
-            <div class="flex flex-col gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div class="flex flex-col gap-3 animate-in fade-in duration-ez">
+                <div class="ez-micro-label text-white/40">Free trial includes</div>
 
-
-
-                <div class="flex items-center gap-1.5 px-1">
-                    <div class="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]"></div>
-                    <span class="text-[10px] font-medium text-amber-200/80">Plan expires in 3 days</span>
+                <div class="flex items-center gap-2 text-ez-xs text-white/80">
+                    <div class="w-1.5 h-1.5 rounded-full bg-ez-primary"></div>
+                    Plan expires in 3 days
                 </div>
 
-                <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                    <div class="h-full bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.3)]"
-                        style="width: 85%"></div>
+                <div class="h-[2px] w-full bg-white/10 overflow-hidden">
+                    <div class="h-full bg-ez-primary transition-all duration-500" style="width: 85%"></div>
                 </div>
 
-                <button (click)="openUpgradeModal()"
-                    class="group flex items-center justify-center gap-2 py-2 px-3 mt-1 rounded-lg bg-indigo-600/10 border border-indigo-500/30 text-indigo-100 text-[11px] font-semibold hover:bg-indigo-600 hover:text-white hover:border-indigo-500 transition-all duration-200 shadow-sm">
-                    <lucide-icon [img]="Zap"
-                        class="w-3 h-3 text-indigo-400 group-hover:text-white transition-colors"></lucide-icon>
+                <button (click)="openUpgradeModal()" class="ez-btn ez-btn-primary w-full mt-2">
+                    <lucide-icon [img]="Zap" class="w-3.5 h-3.5"></lucide-icon>
                     Upgrade to Pro
                 </button>
             </div>
@@ -218,111 +205,95 @@
         }
     </aside>
 
-    <main class="flex-1 min-w-0 flex flex-col bg-white overflow-hidden transition-all duration-300 ease-in-out">
+    <main class="flex-1 min-w-0 flex flex-col bg-ez-white overflow-hidden transition-all duration-ez">
+
         <header
-            class="h-16 bg-white border-b border-slate-300 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-5">
-            <div class="flex items-center text-sm text-gray-500">
+            class="h-16 bg-ez-white border-b border-ez-border flex items-center justify-between px-6 sticky top-0 z-10">
+
+            <div class="flex items-center gap-4 flex-1">
                 <button (click)="toggleMenu()"
-                    class="lg:hidden mr-4 text-slate-500 hover:bg-gray-100 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="lg:hidden text-ez-secondary hover:text-ez-heading outline-none transition-colors duration-ez">
                     <lucide-icon [img]="Menu" class="w-6 h-6"></lucide-icon>
                 </button>
+
                 <button
-                    class="md:hidden p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-full transition-colors">
+                    class="md:hidden text-ez-secondary hover:text-ez-heading transition-colors duration-ez outline-none">
                     <lucide-icon [img]="Search" class="w-5 h-5"></lucide-icon>
                 </button>
 
-                <div class="hidden md:block relative" id="smart-search">
+                <div class="hidden md:flex bg-ez-ash border border-ez-ash rounded relative w-full max-w-sm focus-within:border-ez-primary transition-[border-color] duration-ez"
+                    id="smart-search">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <lucide-icon [img]="Search" class="w-4 h-4 text-gray-400"></lucide-icon>
+                        <lucide-icon [img]="Search" class="w-4 h-4 text-ez-muted"></lucide-icon>
                     </div>
                     <input type="text"
-                        class="block w-full sm:w-80 pl-10 pr-3 py-2.5 border-none rounded-full bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all"
+                        class="w-full pl-9 pr-3 py-2 bg-transparent text-ez-base text-ez-heading placeholder:text-ez-muted outline-none transition-colors duration-ez"
                         placeholder="Search..." autocomplete="off" (click)="openSmartSearch()">
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-4">
+            <div class="flex items-center gap-3">
 
-                <button (click)="toggleAiSidebar()"
-                    class="relative group overflow-hidden rounded-lg p-[1.5px] transition-all active:scale-95 shadow-sm">
-                    <span
-                        class="absolute inset-[-1000%] animate-border-spin bg-[conic-gradient(from_90deg_at_50%_50%,#f1f5f9_0%,#fb923c_25%,#f1f5f9_50%,#fb923c_75%,#f1f5f9_100%)]">
-                    </span>
-                    <div
-                        class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] bg-white text-orange-500 font-medium text-sm transition-all group-hover:bg-orange-50">
-                        <lucide-icon [img]="Sparkles" class="w-4 h-4"></lucide-icon>
-
-                        <span class="leading-none sm:block hidden">Ask AI</span>
-                    </div>
+                <button (click)="toggleAiSidebar()" class="ez-btn ez-btn-primary h-8 min-h-0 px-3">
+                    <lucide-icon [img]="Sparkles" class="w-3.5 h-3.5"></lucide-icon>
+                    <span class="leading-none sm:block hidden">Ask AI</span>
                 </button>
 
-
                 <app-custom-dropdown id="quick-create-btn" [triggerIcon]="PlusIcon" [menuTitle]="'Quick Create'"
-                    [items]="quickCreateItems"
-                    [iconClass]="'h-4 w-4 shrink-0 text-green-700 group-hover:text-green-500 transition-colors'"
-                    buttonClass="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 text-xs font-medium rounded-lg hover:bg-green-50 hover:border-green-300 ">
+                    [items]="quickCreateItems" [iconClass]="'h-4 w-4 shrink-0 transition-colors duration-ez'"
+                    buttonClass="ez-btn ez-btn-secondary border border-ez-ash rounded h-8 min-h-0 px-3">
                 </app-custom-dropdown>
 
                 <app-custom-dropdown id="help-center-btn" [triggerIcon]="helpIcon"
-                    [iconClass]="'h-4 w-4 shrink-0 text-gray-600 group-hover:text-gray-500 transition-colors'"
-                    buttonClass="flex items-center p-2 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 hover:border-gray-300"
+                    [iconClass]="'h-4 w-4 shrink-0 transition-colors duration-ez'"
+                    buttonClass="flex items-center justify-center w-8 h-8 bg-ez-white border border-ez-border rounded hover:border-ez-subtle text-ez-secondary hover:text-ez-heading transition-[border-color,color] duration-ez outline-none"
                     [items]="helpCenterItems" anchor="bottom end">
                 </app-custom-dropdown>
 
-                <button (click)="openUserCalendar()" title="Calendar"
-                    class="flex items-center gap-2 p-2 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 hover:border-gray-300">
-                    <lucide-icon [img]="Calendar"
-                        class="h-4 w-4 shrink-0 text-gray-600 group-hover:text-gray-500 transition-colors"></lucide-icon>
-                </button>
+                <!-- <button (click)="openUserCalendar()" title="Calendar"
+                    class="flex items-center justify-center w-8 h-8 bg-ez-white border border-ez-border rounded hover:border-ez-subtle text-ez-secondary hover:text-ez-heading transition-[border-color,color] duration-ez outline-none">
+                    <lucide-icon [img]="Calendar" class="h-4 w-4 shrink-0"></lucide-icon>
+                </button> -->
 
                 <app-notifications></app-notifications>
 
-                <el-dropdown class="inline-block">
-                    <button
-                        class="flex items-center gap-3 border-l hover:transition-all duration-200 cursor-pointer border-gray-200 pl-4">
+                <el-dropdown class="inline-block ml-2 pl-4 border-l border-ez-border">
+                    <button class="flex items-center gap-2 outline-none">
                         <div
-                            class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold hover:bg-slate-700 transition-colors">
+                            class="w-8 h-8 rounded-full bg-ez-carbon text-white flex items-center justify-center text-ez-sm font-medium transition-colors duration-ez">
                             {{ user.initials }}
                         </div>
                     </button>
 
                     <el-menu [attr.anchor]="'bottom end'" popover
-                        class="m-0 w-72 origin-top-right rounded-xl bg-white p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-200 transition [--anchor-gap:12px] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:opacity-0">
+                        class="m-0 mt-2 w-72 rounded-none bg-ez-white border border-ez-border shadow-none p-0 focus:outline-none transition-opacity duration-ez data-[closed]:opacity-0">
 
-                        <div class="p-3 mb-2 bg-slate-50/50 rounded-lg border border-slate-200 flex items-center gap-3">
+                        <div class="p-4 border-b border-ez-border bg-ez-ash flex items-center gap-3">
                             <div
-                                class="size-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-lg ring-2 ring-white">
+                                class="w-10 h-10 rounded-full bg-ez-carbon text-white flex items-center justify-center font-medium">
                                 {{ user.initials }}
                             </div>
                             <div class="flex flex-col min-w-0">
-                                <span class="text-sm font-bold text-slate-900 truncate capitalize">{{ user.name
+                                <span class="text-ez-sm font-medium text-ez-heading truncate capitalize">{{ user.name
                                     }}</span>
-                                <span class="text-[11px] text-slate-500 font-medium truncate">{{ user.email }}</span>
+                                <span class="text-ez-xs text-ez-secondary truncate">{{ user.email }}</span>
                                 <div class="mt-1">
-                                    <span
-                                        class="px-1.5 py-0.5 rounded bg-indigo-100 text-[9px] font-bold text-indigo-700 uppercase tracking-wide">
-                                        {{ user.role }}
-                                    </span>
+                                    <span class="ez-micro-label">{{ user.role }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="space-y-0.5">
+                        <div class="py-2">
                             @for (item of userMenuItems; track item.label) {
                             <a (click)="item.action ? item.action() : null"
-                                class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 focus:outline-none hover:bg-slate-50 group cursor-pointer border border-transparent hover:border-slate-100">
-
-                                <div
-                                    [class]="'size-8 flex items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-110 ' + (item.iconBgClass || 'bg-slate-200')">
-                                    <lucide-icon [img]="item.icon"
-                                        [class]="'size-4 ' + (item.colorClass || 'text-slate-600')"></lucide-icon>
+                                class="flex items-center gap-3 px-4 py-2 text-ez-sm text-ez-body hover:bg-ez-ash hover:text-ez-heading transition-[background-color,color] duration-ez outline-none cursor-pointer">
+                                <div class="w-6 flex justify-center">
+                                    <lucide-icon [img]="item.icon" class="w-4 h-4 text-ez-secondary"></lucide-icon>
                                 </div>
-
                                 <div class="flex flex-col">
-                                    <span [class]="'text-xs font-semibold ' + (item.colorClass || 'text-slate-700')">{{
-                                        item.label }}</span>
+                                    <span class="font-medium">{{ item.label }}</span>
                                     @if (item.subLabel) {
-                                    <span class="text-[10px] text-slate-400 font-medium">{{ item.subLabel }}</span>
+                                    <span class="text-ez-xs text-ez-muted">{{ item.subLabel }}</span>
                                     }
                                 </div>
                             </a>
@@ -333,19 +304,18 @@
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto scroll-smooth bg-[#F5F5F5]">
+        <div class="flex-1 overflow-y-auto scroll-smooth bg-ez-white">
             <ng-component></ng-component>
         </div>
     </main>
 
-    <!--  AI Sidebar -->
     <aside id="ai-sidebar"
-        class="hidden lg:flex flex-col border-l border-slate-200 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] relative"
+        class="hidden lg:flex flex-col border-l border-ez-border transition-[width,opacity] duration-ez relative bg-ez-white"
         [ngClass]="isAiOpen ? 'w-[450px] opacity-100' : 'w-0 opacity-0 border-none'">
 
         <div class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-4 h-12 overflow-visible">
             <button (click)="isAiOpen = !isAiOpen"
-                class="absolute -left-0 top-0 h-12 w-4 z-50 bg-white border border-slate-200 rounded-l-md flex items-center justify-center text-slate-400 hover:text-indigo-600 shadow-sm transition-all active:scale-90">
+                class="absolute left-0 top-0 h-12 w-4 z-50 bg-ez-white border border-ez-border border-r-0 flex items-center justify-center text-ez-secondary hover:text-ez-primary transition-colors duration-ez outline-none">
                 <lucide-icon [img]="isAiOpen ? ChevronRight : ChevronLeft" class="w-3 h-3"></lucide-icon>
             </button>
         </div>

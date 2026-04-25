@@ -1,267 +1,199 @@
-<div class="font-sans antialiased text-[#1A1C1E] bg-[#F5F5F5]">
-  <div class="max-w-[1750px] p-2 mx-auto space-y-2">
+<div class="font-sans min-h-screen bg-ez-ash p-1 lg:p-4">
+  <div class="mx-auto space-y-4">
 
     @if (userData$ | async; as user) {
-    <div class="relative bg-[#131c2e] border border-slate-800/60 px-6 py-5 mt-2 overflow-hidden rounded-md">
+    <div class="border border-ez-border px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-8"
+      style="background: linear-gradient(180deg, #c8d6e5 0%, #dfe6ed 30%, #f0f0f0 70%, #e8e8e8 100%);">
 
-      <div class="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-
-        <!-- Left: User info -->
-        <div class="flex items-center gap-4">
-          <div class="relative flex-shrink-0">
-            <div
-              class="w-13 h-13 w-[52px] h-[52px] rounded-full bg-white/15 border border-white/20 text-white flex items-center justify-center font-black text-xl backdrop-blur-sm select-none">
-              {{ getInitials(user.fullName) }}
-            </div>
-            <span
-              class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#312E81] rounded-full shadow-sm"></span>
-          </div>
-          <div>
-            <p class="text-[11px] font-bold text-indigo-200 uppercase tracking-widest mb-0.5">{{ getGreeting() }}</p>
-            <h1 class="text-[20px] font-black text-white tracking-tight capitalize leading-tight">{{ user.fullName }}
-            </h1>
-            <div class="flex flex-wrap items-center gap-2 mt-1.5">
-              <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold tracking-wide backdrop-blur-sm">
-                {{ user.userRoles[0] || 'User' }}
-              </span>
-              <span class="text-white/30 text-xs">·</span>
-              <span class="text-[12px] text-white/60 font-semibold">{{ user.tenantName }}</span>
-            </div>
+      <div class="flex items-center gap-5">
+        <div
+          class="w-14 h-14 bg-white border border-ez-border text-ez-heading flex items-center justify-center font-medium text-ez-xl shrink-0">
+          {{ getInitials(user.fullName) }}
+        </div>
+        <div>
+          <h1 class="text-ez-hero font-medium text-ez-heading capitalize leading-tight mb-1">{{ user.fullName }}</h1>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-ez-muted text-ez-xs font-medium">{{ user.tenantName + ' - ' + user.userRoles[0] || 'User'
+              }}</span>
           </div>
         </div>
+      </div>
 
-        <!-- Right: Date + status -->
-        <div class="flex flex-col items-start sm:items-end gap-2.5">
-          <p class="text-[12px] text-white/50 font-medium">{{ today | date:'EEEE, MMMM d, y' }}</p>
-          <div class="flex items-center gap-2 flex-wrap">
-            @if(pendingApprovalsCount > 0) {
-            <span
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400/15 text-amber-300 text-[11px] font-bold border border-amber-400/25 backdrop-blur-sm">
-              <lucide-icon [img]="icons.bell" class="w-3 h-3"></lucide-icon>
-              {{ pendingApprovalsCount }} Pending Approval{{ pendingApprovalsCount > 1 ? 's' : '' }}
-            </span>
-            } @else {
-            <span
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-400/15 text-emerald-300 text-[11px] font-bold border border-emerald-400/25 backdrop-blur-sm">
-              <lucide-icon [img]="icons.packageCheck" class="w-3 h-3"></lucide-icon>
-              All caught up
-            </span>
-            }
-            <span
-              class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/8 text-white/50 text-[11px] font-bold border border-white/15">
-              Tenant #{{ user.tenantId }}
-            </span>
-          </div>
+      <div class="flex flex-col items-start sm:items-end gap-3">
+        <p class="text-ez-sm text-ez-secondary">{{ today | date:'EEEE, MMMM d, y' }}</p>
+        <div class="flex items-center gap-3 flex-wrap">
+          @if(pendingApprovalsCount > 0) {
+          <span
+            class="flex items-center gap-2 px-3 py-1.5 bg-white border border-ez-border text-ez-heading text-ez-xs font-medium">
+            <lucide-icon [img]="icons.bell" class="w-3.5 h-3.5"></lucide-icon>
+            {{ pendingApprovalsCount }} Pending
+          </span>
+          } @else {
+          <span
+            class="flex items-center gap-2 px-3 py-1.5 bg-white border border-ez-border text-ez-secondary text-ez-xs font-medium">
+            <lucide-icon [img]="icons.packageCheck" class="w-3.5 h-3.5"></lucide-icon>
+            All caught up
+          </span>
+          }
+          <span class="px-3 py-1.5 border border-transparent text-ez-secondary text-ez-xs font-medium">
+            Tenant #{{ user.tenantId }}
+          </span>
         </div>
-
       </div>
     </div>
     } @else {
-    <!-- Skeleton -->
     <div
-      class="bg-gradient-to-r from-slate-200 to-slate-100 rounded-2xl px-6 py-5 flex items-center justify-between gap-5 animate-pulse h-[100px]">
-      <div class="flex items-center gap-4">
-        <div class="w-[52px] h-[52px] rounded-2xl bg-slate-300/50"></div>
-        <div class="space-y-2">
-          <div class="h-2.5 w-20 bg-slate-300/70 rounded-full"></div>
-          <div class="h-5 w-44 bg-slate-300/70 rounded-full"></div>
-          <div class="h-2.5 w-32 bg-slate-300/70 rounded-full"></div>
+      class="bg-ez-white border border-ez-border px-8 py-10 flex flex-col sm:flex-row sm:items-center justify-between gap-8 h-[140px]">
+      <div class="flex items-center gap-5 w-full">
+        <div class="w-14 h-14 bg-ez-ash border border-ez-border shrink-0"></div>
+        <div class="space-y-3 w-full max-w-xs">
+          <div class="h-3 bg-ez-ash w-1/4"></div>
+          <div class="h-6 bg-ez-ash w-3/4"></div>
+          <div class="h-4 bg-ez-ash w-1/2"></div>
         </div>
       </div>
     </div>
     }
 
-    <!--Stat Cards Row -->
-    <div class="grid grid-cols-12 gap-2">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      <!-- Total Sale -->
-      <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-6 border border-slate-300/50">
-        <div class="flex justify-between items-start">
-          <div class="space-y-1">
-            <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Sale</h2>
-            <h1 class="text-5xl font-extrabold tracking-tight text-slate-900">₹1.992,34</h1>
-            <div class="flex items-center gap-2 pt-3">
-              <span
-                class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold">
-                <lucide-icon [img]="icons.trendingUp" class="w-3 h-3 mr-1"></lucide-icon>+19%
-              </span>
-              <p class="text-[14px] text-slate-400">
-                Yeay! your sales have surged by <span class="font-bold text-slate-700">₹723.12</span> from last month!
-              </p>
-            </div>
+      <div class="lg:col-span-2 bg-ez-white border border-ez-border p-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start gap-6">
+          <div>
+            <h2 class="ez-micro-label mb-3">Total Sale</h2>
+            <h1 class="text-[40px] font-medium text-ez-heading leading-tight mb-2">₹1.992,34</h1>
+            <p class="text-ez-sm text-ez-secondary flex items-center gap-2">
+              <span class="font-medium text-ez-heading">+19%</span>
+              <span class="text-ez-muted">·</span>
+              Up ₹723.12 from last month
+            </p>
           </div>
-          <div class="flex gap-2">
-            <button
-              class="group flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
-              Sales
-              <lucide-icon [img]="icons.chevronDown"
-                class="w-4 h-4 text-slate-400 group-hover:text-slate-600"></lucide-icon>
+          <div class="flex gap-3">
+            <button class="ez-btn ez-btn-secondary h-9 min-h-0 px-3 py-1">
+              Sales <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 ml-1 text-ez-muted"></lucide-icon>
             </button>
-            <button
-              class="group flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
-              Last 7 days
-              <lucide-icon [img]="icons.chevronDown"
-                class="w-4 h-4 text-slate-400 group-hover:text-slate-600"></lucide-icon>
+            <button class="ez-btn ez-btn-secondary h-9 min-h-0 px-3 py-1">
+              Last 7 days <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 ml-1 text-ez-muted"></lucide-icon>
             </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-          <div
-            class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group hover:border-slate-300 transition-colors">
-            <div class="flex items-center gap-2 mb-3">
-              <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
-              <span class="text-[11px] font-black text-slate-500 uppercase">In-Store Sales</span>
-            </div>
-            <div class="text-2xl font-bold text-slate-900">₹5,045.00</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
+          <div class="bg-ez-ash p-6">
+            <div class="ez-micro-label mb-3">In-Store Sales</div>
+            <div class="text-ez-2xl font-medium text-ez-heading">₹5,045.00</div>
           </div>
-          <div
-            class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group hover:border-slate-300 transition-colors">
-            <div class="flex items-center gap-2 mb-3">
-              <div class="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
-              <span class="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Online Sales</span>
-            </div>
-            <div class="text-2xl font-bold text-slate-900">₹1,001.00</div>
+          <div class="bg-ez-ash p-6">
+            <div class="ez-micro-label mb-3">Online Sales</div>
+            <div class="text-ez-2xl font-medium text-ez-heading">₹1,001.00</div>
           </div>
-          <div
-            class="relative bg-[#F9FAFB] rounded-lg p-6 border border-slate-100 group hover:border-slate-300 transition-colors">
-            <div class="flex items-center gap-2 mb-3">
-              <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-              <span class="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Total Sales</span>
-            </div>
-            <div class="text-2xl font-bold text-slate-900">₹6,460.00</div>
+          <div class="bg-ez-ash p-6 border border-ez-border">
+            <div class="ez-micro-label mb-3">Total Sales</div>
+            <div class="text-ez-2xl font-medium text-ez-primary">₹6,460.00</div>
           </div>
         </div>
       </div>
 
-      <!-- Total Orders -->
-      <div
-        class="col-span-12 lg:col-span-4 bg-white rounded-lg p-6 border border-slate-300/50 flex flex-col justify-between overflow-hidden">
+      <div class="bg-ez-white border border-ez-border p-8 flex flex-col justify-between">
         <div>
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-[15px] font-bold text-slate-500 uppercase tracking-widest">Total Orders</h2>
-            <button
-              class="w-10 h-10 flex items-center justify-center bg-slate-900 text-white rounded-full shadow-lg hover:scale-105 transition-transform">
-              <lucide-icon [img]="icons.eye" class="w-4 h-4"></lucide-icon>
+          <div class="flex justify-between items-center mb-8">
+            <h2 class="ez-micro-label">Total Orders</h2>
+            <button class="text-ez-secondary hover:text-ez-heading transition-colors duration-ez outline-none">
+              <lucide-icon [img]="icons.eye" class="w-5 h-5"></lucide-icon>
             </button>
           </div>
-          <div class="flex items-baseline gap-3">
-            <h1 class="text-5xl font-extrabold text-slate-900">352</h1>
-            <span class="text-emerald-500 font-bold text-sm flex items-center">
-              <lucide-icon [img]="icons.trendingUp" class="w-4 h-4 mr-0.5"></lucide-icon>+23%
-            </span>
-          </div>
-          <p class="text-sm text-slate-400 mt-4 leading-relaxed max-w-[200px]">
-            Year! your order have surged by <span class="font-bold text-slate-700">25</span> from last month!
+          <h1 class="text-[40px] font-medium text-ez-heading leading-tight mb-2">352</h1>
+          <p class="text-ez-sm text-ez-secondary flex items-center gap-2">
+            <span class="font-medium text-ez-heading">+23%</span>
+            <span class="text-ez-muted">·</span>
+            Up 25 from last month
           </p>
         </div>
-        <div class="h-32 -mx-4 -mb-4 opacity-80">
+        <div class="h-32 mt-8 -mx-4 -mb-4">
           <canvas #activityChart></canvas>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-12 gap-2">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      <div class="col-span-12 lg:col-span-8 bg-white rounded-lg p-4 border border-slate-300/50 flex flex-col">
-        <div class="flex justify-between items-center mb-6">
-          <div class="">
-            <div class="flex items-center gap-2">
-              <lucide-icon [img]="icons.ListChecks" [size]="18" class="text-gray-900"></lucide-icon>
-              <h2 class="text-[15px] font-semibold text-gray-900">Pending Approvals</h2>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">You have {{ pendingApprovalsCount }} pending approvals</p>
+      <div class="lg:col-span-2 bg-ez-white border border-ez-border p-8 flex flex-col">
+        <div class="flex justify-between items-start mb-8">
+          <div>
+            <h2 class="text-ez-lg font-medium text-ez-heading flex items-center gap-2 mb-1">
+              <lucide-icon [img]="icons.ListChecks" class="w-5 h-5"></lucide-icon>
+              Pending Approvals
+            </h2>
+            <p class="text-ez-sm text-ez-secondary">You have {{ pendingApprovalsCount }} pending approvals</p>
           </div>
           @if (pendingApprovalsCount > 0) {
-          <span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-600 text-[10px] font-black">
+          <span class="px-2 py-1 border border-ez-border text-ez-xs font-medium text-ez-heading">
             {{ pendingApprovalsCount }} NEW
           </span>
           }
         </div>
 
-        <div class="space-y-2">
+        <div class="flex-1">
           @if (pendingApprovals.length === 0) {
-          <div
-            class="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-md border border-dashed border-slate-200">
-            <div class="p-3 bg-white rounded-full shadow-sm mb-3">
-              <lucide-icon [img]="icons.packageCheck" class="w-6 h-6 text-emerald-500"></lucide-icon>
-            </div>
-            <p class="text-sm font-semibold text-slate-700">All caught up!</p>
-            <p class="text-xs text-slate-500">No pending approvals to review.</p>
+          <div class="flex flex-col items-center justify-center py-20 bg-ez-ash border border-ez-border">
+            <lucide-icon [img]="icons.packageCheck" class="w-8 h-8 text-ez-muted mb-4"></lucide-icon>
+            <p class="text-ez-base font-medium text-ez-heading mb-1">All caught up</p>
+            <p class="text-ez-sm text-ez-secondary">No pending approvals to review.</p>
           </div>
           } @else {
-          <div class="overflow-x-auto bg-white shadow-sm">
+          <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse whitespace-nowrap">
-              <thead class="bg-slate-50/80">
+              <thead>
                 <tr>
-                  <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 rounded-tl-lg">
-                    Approval ID &amp; Date</th>
-                  <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Ref ID &amp; Type
-                  </th>
-                  <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-right">Value
-                  </th>
-                  <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-center">Status
-                  </th>
-                  <th
-                    class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-right rounded-tr-lg">
-                    Actions</th>
+                  <th class="ez-micro-label pb-4 border-b border-ez-border">Approval ID & Date</th>
+                  <th class="ez-micro-label pb-4 border-b border-ez-border">Ref ID & Type</th>
+                  <th class="ez-micro-label pb-4 border-b border-ez-border text-right">Value</th>
+                  <th class="ez-micro-label pb-4 border-b border-ez-border text-center">Status</th>
+                  <th class="ez-micro-label pb-4 border-b border-ez-border text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
+              <tbody class="divide-y divide-ez-border">
                 @for (approval of pendingApprovals; track approval.id) {
-                <tr class="hover:bg-slate-50/50 transition-colors group">
-                  <td class="px-4 py-3">
-                    <div class="flex flex-col gap-0.5">
-                      <span class="text-[12px] font-bold text-indigo-600 cursor-pointer hover:underline">APP-{{
-                        approval.id }}</span>
-                      <span class="text-[11px] text-slate-500 font-medium">{{ approval.createdAt | date:'dd-MMM-yyyy'
-                        }}</span>
+                <tr class="hover:bg-ez-ash transition-colors duration-ez group">
+                  <td class="py-4 pr-4">
+                    <div class="flex flex-col gap-1">
+                      <span class="text-ez-sm font-medium text-ez-heading">APP-{{ approval.id }}</span>
+                      <span class="text-ez-xs text-ez-secondary">{{ approval.createdAt | date:'dd-MMM-yyyy' }}</span>
                     </div>
                   </td>
-                  <td class="px-4 py-3">
-                    <div class="flex flex-col gap-0.5">
-                      <span class="text-[12px] font-bold text-indigo-600 cursor-pointer hover:underline">{{
-                        approval.referenceCode || 'N/A' }}</span>
-                      <span class="text-[11px] text-slate-500 font-medium whitespace-nowrap">{{ (approval.approvalType |
-                        titlecase).replace('_', ' ') }}</span>
+                  <td class="py-4 px-4">
+                    <div class="flex flex-col gap-1">
+                      <span class="text-ez-sm font-medium text-ez-heading">{{ approval.referenceCode || 'N/A' }}</span>
+                      <span class="text-ez-xs text-ez-secondary">{{ (approval.approvalType | titlecase).replace('_', '
+                        ') }}</span>
                     </div>
                   </td>
-                  <td class="px-4 py-3 text-right">
-                    <span class="text-[12px] font-bold text-slate-700">
+                  <td class="py-4 px-4 text-right">
+                    <span class="text-ez-sm font-medium text-ez-heading">
                       {{ approval.valueAmount ? (approval.valueAmount | currency:'INR':'symbol':'1.2-2') : '-' }}
                     </span>
                   </td>
-                  <td class="px-4 py-3 text-center">
-                    <span
-                      class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                      [ngClass]="{
-                        'bg-amber-100 text-amber-700': approval.status === 'PENDING',
-                        'bg-emerald-100 text-emerald-700': approval.status === 'APPROVED',
-                        'bg-rose-100 text-rose-700': approval.status === 'REJECTED'
-                      }">
+                  <td class="py-4 px-4 text-center">
+                    <span class="ez-micro-label">
                       {{ approval.status }}
                     </span>
                   </td>
-                  <td class="px-4 py-3">
-                    <div class="flex items-center justify-end gap-2">
+                  <td class="py-4 pl-4 text-right">
+                    <div class="flex items-center justify-end gap-4 transition-opacity duration-ez">
                       <button
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-100/50"
+                        class="text-ez-sm font-medium text-green-600 hover:text-ez-heading transition-colors duration-ez outline-none"
                         (click)="approvalConformation('APPROVED', approval.id); $event.stopPropagation()">
-                        <lucide-icon [img]="icons.check" class="w-3.5 h-3.5"></lucide-icon>
-                        <span>Approve</span>
+                        Approve
                       </button>
                       <button
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors border border-rose-100/50"
+                        class="text-ez-sm font-medium text-red-600 hover:text-ez-heading transition-colors duration-ez outline-none"
                         (click)="approvalConformation('REJECTED', approval.id); $event.stopPropagation()">
-                        <lucide-icon [img]="icons.x" class="w-3.5 h-3.5"></lucide-icon>
-                        <span>Reject</span>
+                        Reject
                       </button>
                       <button
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-100/50"
+                        class="text-ez-sm font-medium text-ez-primary hover:text-ez-primary-hover transition-colors duration-ez outline-none"
                         (click)="navigateToApprovals()">
-                        <lucide-icon [img]="icons.list" class="w-3.5 h-3.5"></lucide-icon>
-                        <span>View</span>
+                        View
                       </button>
                     </div>
                   </td>
@@ -269,77 +201,56 @@
                 }
               </tbody>
             </table>
-            <div class="p-2 border-t border-slate-100 bg-slate-50/30 text-center">
-              <button (click)="navigateToApprovals()"
-                class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 underline-offset-4 hover:underline">
-                View All Pending Requests
-              </button>
-            </div>
           </div>
           }
         </div>
 
-        <button (click)="navigateToApprovals()"
-          class="mt-auto pt-6 text-[12px] font-bold text-indigo-600 underline hover:text-indigo-700 flex items-center gap-1 transition-colors self-start">
-          Go to Approval Console
-          <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 -rotate-90"></lucide-icon>
-        </button>
+        <div class="mt-8 pt-6 border-t border-ez-border flex justify-between items-center">
+          <button (click)="navigateToApprovals()"
+            class="text-ez-sm font-medium text-ez-primary hover:text-ez-primary-hover transition-colors duration-ez outline-none flex items-center gap-1">
+            Go to Approval Console <lucide-icon [img]="icons.chevronDown" class="w-4 h-4 -rotate-90"></lucide-icon>
+          </button>
+        </div>
       </div>
 
-      <div class="col-span-12 lg:col-span-4 bg-white rounded-lg p-4 border border-slate-300/50 flex flex-col">
-
-        <div class="mb-5">
-          <div class="flex items-center gap-2">
-            <lucide-icon [img]="icons.UsbIcon" [size]="18" class="text-gray-900"></lucide-icon>
-            <h2 class="text-[15px] font-semibold text-gray-900">Integrations</h2>
-          </div>
-          <p class="text-[11px] text-slate-400 mt-1">Connected apps and third-party services</p>
+      <div class="bg-ez-white border border-ez-border p-8 flex flex-col">
+        <div class="mb-8">
+          <h2 class="text-ez-lg font-medium text-ez-heading flex items-center gap-2 mb-1">
+            <lucide-icon [img]="icons.UsbIcon" class="w-5 h-5"></lucide-icon>
+            Integrations
+          </h2>
+          <p class="text-ez-sm text-ez-secondary">Connected apps and third-party services</p>
         </div>
 
-        <div class="flex flex-col gap-3 overflow-y-auto pr-1">
+        <div class="flex flex-col flex-1 overflow-y-auto">
           @for (app of integrations; track app.name) {
-          <div
-            class="flex items-center justify-between gap-3 p-3 border border-slate-100 rounded-xl bg-slate-50/50 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all group">
-
-            <div class="flex items-center gap-3 min-w-0">
+          <div class="flex items-center justify-between py-4 border-b border-ez-border last:border-0 group">
+            <div class="flex items-center gap-4 min-w-0">
               <div
-                class="w-10 h-10 rounded-xl flex items-center justify-center text-[12px] font-bold shrink-0 shadow-sm transition-colors"
-                [ngClass]="{
-                  'bg-blue-100 text-blue-700':   app.color === 'blue',
-                  'bg-emerald-100 text-emerald-700': app.color === 'green',
-                  'bg-purple-100 text-purple-700': app.color === 'purple',
-                  'bg-amber-100 text-amber-700': app.color === 'amber',
-                  'bg-slate-100 text-slate-600': app.color === 'gray'
-                }">
+                class="w-10 h-10 bg-ez-ash border border-ez-border flex items-center justify-center text-ez-sm font-medium text-ez-heading shrink-0">
                 {{ app.initials }}
               </div>
-
               <div class="min-w-0">
-                <p class="text-[13px] font-bold text-slate-800">{{ app.name }}</p>
-                <p class="text-[11px] text-slate-400 mt-0.5 truncate">{{ app.desc }}</p>
+                <p class="text-ez-base font-medium text-ez-heading truncate">{{ app.name }}</p>
+                <p class="text-ez-xs text-ez-secondary truncate mt-0.5">{{ app.desc }}</p>
               </div>
             </div>
 
-            <button type="button"
-              class="shrink-0 px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-colors shadow-sm"
-              [ngClass]="{
-                'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100': app.connected,
-                'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100': !app.connected
-              }">
+            <button type="button" class="shrink-0 text-ez-sm font-medium transition-colors duration-ez outline-none"
+              [ngClass]="app.connected ? 'text-ez-secondary hover:text-ez-heading' : 'text-ez-primary hover:text-ez-primary-hover'">
               {{ app.connected ? 'Disconnect' : 'Connect' }}
             </button>
           </div>
           }
         </div>
 
-        <div class="mt-2">
-          <button
-            class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-100 transition-colors">
-            <lucide-icon [img]="icons.plus" class="w-4 h-4"></lucide-icon>
+        <div class="mt-6 pt-6 border-t border-ez-border">
+          <button class="ez-btn ez-btn-secondary w-full">
             Add Integration
           </button>
         </div>
       </div>
+
     </div>
   </div>
 </div>
