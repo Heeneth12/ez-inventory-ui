@@ -1,132 +1,143 @@
-<div class="flex flex-col h-full bg-white border border-gray-200 font-sans overflow-hidden">
-    <div
-        class="px-6 py-3 border-b border-gray-200 bg-white flex flex-col sm:flex-row gap-4 justify-between items-center">
+<div class="flex flex-col h-full bg-ez-white border border-ez-border overflow-hidden">
 
-        <div class="flex items-center gap-3 w-full sm:w-auto">
+    <!-- ── Toolbar ── -->
+    <div
+        class="px-5 py-3 border-b border-ez-border bg-ez-white flex flex-col sm:flex-row gap-3 justify-between items-center">
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+
             @if(selectedIds().size === 0){
-            <div class="relative flex-1 sm:flex-none group">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="relative flex-1 sm:flex-none">
+                <div class=" absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-3.5 w-3.5 text-ez-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
                 <input type="text" [ngModel]="searchQuery()" (ngModelChange)="onSearchInput($event)"
-                    class="block w-full sm:w-80 pl-10 pr-3 py-2.5 border-none rounded-full bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all"
+                    class="block w-full sm:w-72 pl-9 pr-3 py-2 bg-ez-ash border border-ez-ash rounded text-ez-heading placeholder-ez-muted focus:outline-none focus:border-ez-subtle transition-[border-color] duration-ez text-ez-base"
                     placeholder="Search..." />
             </div>
-            }@else{
+            } @else {
             <div
-                class="flex items-center gap-4 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 animate-in fade-in duration-200">
-                <span class="text-sm font-semibold text-indigo-700">{{ selectedIds().size }} selected</span>
-                <div class="h-4 w-px bg-indigo-200"></div>
+                class="flex items-center gap-3 bg-ez-primary-tint px-3 py-1.5 border border-ez-primary animate-in fade-in duration-200">
+                <span class="text-ez-sm font-medium text-ez-primary">{{ selectedIds().size }} selected</span>
+                <div class="h-3.5 w-px bg-ez-primary opacity-30"></div>
                 <button (click)="selectedIds().clear(); selectionChange.emit([])"
-                    class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                    class="text-ez-xs text-ez-primary hover:text-ez-primary-hover font-medium transition-colors duration-ez">
                     Clear
                 </button>
             </div>
             }
+
             @if(filterConfig.length > 0){
             <app-filter-dropdown id="table-filter" [config]="filterConfig" (filterChanged)="handleFilterChange($event)"
                 [triggerReset]="triggerReset">
             </app-filter-dropdown>
             }
+
             @if(datePickerConfig){
             <app-date-picker [config]="datePickerConfig" (dateSelect)="handleDateSelect($event)"
                 [triggerReset]="triggerReset">
             </app-date-picker>
             }
+
             <div class="flex items-center gap-2">
-                <button id="table-reload" (click)="resetFilters()" title="Reset Filters"
-                    class="text-xs p-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 hover:text-indigo-800 font-medium">
-                    <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
+                <button id="table-reload" (click)="resetFilters()" title="Reset Filters" class="flex items-center gap-2 px-3 py-2.5 bg-ez-ash border border-ez-border rounded transition-[border-color,background-color,color] duration-ez outline-none
+                    hover:border-ez-subtle hover:bg-ez-ash">
+                    <lucide-icon [img]="RotateCcw" class="w-3.5 h-3.5"></lucide-icon>
                 </button>
             </div>
         </div>
 
-        <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+        <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
             @for(btn of headerActions; track btn.key){
             <button *ngIf="!btn.hidden" [id]="'table-action-' + btn.key" [class]="getBtnClasses(btn.variant)"
                 (click)="handleHeaderAction(btn)">
-                <lucide-icon *ngIf="btn.icon" [img]="btn.icon" class="w-4 h-4 font-bold"></lucide-icon>
+                <lucide-icon *ngIf="btn.icon" [img]="btn.icon" class="w-3.5 h-3.5"></lucide-icon>
                 <span>{{ btn.label }}</span>
             </button>
             }
-            <button title="Settings"
-                class="flex items-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors text-sm font-medium focus:outline-none"
-                (click)="showSettings.set(!showSettings())">
-                <lucide-icon [img]="Settings" class="w-4 h-4"></lucide-icon>
+            <button title="Settings" class="flex items-center gap-2 px-3 py-2.5 bg-ez-ash border border-ez-border rounded transition-[border-color,background-color,color] duration-ez outline-none
+                    hover:border-ez-subtle hover:bg-ez-ash" (click)="showSettings.set(!showSettings())">
+                <lucide-icon [img]="Settings" class="w-3.5 h-3.5"></lucide-icon>
             </button>
         </div>
     </div>
 
+    <!-- ── Settings Bar ── -->
     <div *ngIf="showSettings()"
-        class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex items-center gap-6 animate-in fade-in slide-in-from-top-2">
+        class="bg-ez-ash border-b border-ez-border px-5 py-2.5 flex items-center gap-6 animate-in fade-in slide-in-from-top-2">
 
-        <div class="flex items-center gap-3 border-r border-gray-100 pr-6 shrink-0">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Density</span>
-            <div class="flex bg-gray-100 p-1 rounded-lg">
+        <div class="flex items-center gap-3 border-r border-ez-border pr-6 shrink-0">
+            <span class="ez-micro-label">Density</span>
+            <div class="flex border border-ez-border overflow-hidden">
                 <button *ngFor="let d of ['compact', 'normal', 'comfortable']" (click)="setDensity(d)"
-                    class="px-3 py-1 text-xs font-semibold rounded-md transition-all capitalize"
-                    [ngClass]="density() === d ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'">
+                    class="px-3 py-1 text-ez-xs font-medium transition-[background-color,color] duration-ez capitalize"
+                    [ngClass]="density() === d
+            ? 'bg-ez-primary text-white'
+            : 'bg-ez-white text-ez-secondary hover:text-ez-heading'">
                     {{ d }}
                 </button>
             </div>
         </div>
 
-        <div class="flex items-center gap-4 border-r border-gray-100 pr-6 shrink-0">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Styling</span>
-            <label class="relative inline-flex items-center cursor-pointer group">
+        <div class="flex items-center gap-3 border-r border-ez-border pr-6 shrink-0">
+            <span class="ez-micro-label">Striped</span>
+            <label class="relative inline-flex items-center cursor-pointer gap-2">
                 <input type="checkbox" [(ngModel)]="stripedRows" class="sr-only peer">
                 <div
-                    class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4">
+                    class="w-8 h-4 bg-ez-border rounded-none peer peer-checked:bg-ez-primary after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:h-3 after:w-3 after:transition-all duration-ez peer-checked:after:translate-x-4">
                 </div>
-                <span
-                    class="ms-2 text-xs font-medium text-gray-600 group-hover:text-indigo-600 transition-colors">Striped</span>
+                <span class="text-ez-xs font-medium text-ez-secondary">Rows</span>
             </label>
         </div>
 
-        <div class="flex items-center gap-3 border-r border-gray-100 pr-6 shrink-0">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Engine</span>
+        <div class="flex items-center gap-3 border-r border-ez-border pr-6 shrink-0">
+            <span class="ez-micro-label">Engine</span>
             <div class="flex items-center gap-1">
-                <button (click)="searchMode = 'client'"
-                    [ngClass]="searchMode === 'client' ? 'text-indigo-600 bg-indigo-50 border-indigo-200' : 'text-gray-500 border-gray-200 hover:bg-gray-50'"
-                    class="px-2.5 py-1 text-[11px] font-bold border rounded transition-all">LOCAL</button>
-                <button (click)="searchMode = 'server'"
-                    [ngClass]="searchMode === 'server' ? 'text-indigo-600 bg-indigo-50 border-indigo-200' : 'text-gray-500 border-gray-200 hover:bg-gray-50'"
-                    class="px-2.5 py-1 text-[11px] font-bold border rounded transition-all">SERVER</button>
+                <button (click)="searchMode = 'client'" [ngClass]="searchMode === 'client'
+            ? 'text-ez-primary bg-ez-primary-tint border-ez-primary'
+            : 'text-ez-secondary border-ez-border hover:border-ez-subtle'"
+                    class="px-2.5 py-1 text-ez-2xs font-medium border transition-[border-color,background-color,color] duration-ez">LOCAL</button>
+                <button (click)="searchMode = 'server'" [ngClass]="searchMode === 'server'
+            ? 'text-ez-primary bg-ez-primary-tint border-ez-primary'
+            : 'text-ez-secondary border-ez-border hover:border-ez-subtle'"
+                    class="px-2.5 py-1 text-ez-2xs font-medium border transition-[border-color,background-color,color] duration-ez">SERVER</button>
             </div>
         </div>
 
+        <!-- Columns Toggle -->
         <div class="relative group ml-auto">
             <button
-                class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-indigo-300 hover:shadow-sm transition-all text-xs font-semibold text-gray-700">
-                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                class="flex items-center gap-2 px-3 py-1.5 bg-ez-white border border-ez-border hover:border-ez-subtle transition-[border-color] duration-ez text-ez-sm font-medium text-ez-secondary hover:text-ez-heading">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
                 </svg>
                 Columns
-                <span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">{{ columns.length }}</span>
-                <svg class="w-3 h-3 text-gray-400 group-hover:rotate-180 transition-transform" fill="none"
+                <span class="bg-ez-ash border border-ez-border text-ez-secondary px-1.5 py-0.5 text-ez-2xs">{{
+                    columns.length }}</span>
+                <svg class="w-3 h-3 text-ez-muted group-hover:rotate-180 transition-transform duration-ez" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M19 9l-7 7-7-7" stroke-width="2.5" />
+                    <path d="M19 9l-7 7-7-7" stroke-width="2" />
                 </svg>
             </button>
 
             <div
-                class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 origin-top-right">
-                <div class="p-2 border-b border-gray-50">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">Toggle
-                        Visibility</span>
+                class="absolute right-0 mt-0 w-52 bg-ez-white border border-ez-border z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-ez origin-top-right">
+                <div class="px-3 py-2 border-b border-ez-border">
+                    <span class="ez-micro-label">Toggle Visibility</span>
                 </div>
-                <div class="p-1 max-h-64 overflow-y-auto custom-scrollbar">
+                <div class="py-1 max-h-60 overflow-y-auto custom-scrollbar">
                     <button *ngFor="let col of columns" (click)="toggleColumn(col)"
-                        class="w-full flex items-center justify-between px-3 py-2 rounded-md hover:bg-indigo-50 group/item transition-colors">
-                        <span class="text-xs font-medium text-gray-700 group-hover/item:text-indigo-700">{{ col.label
-                            }}</span>
-                        <div class="w-4 h-4 rounded border flex items-center justify-center transition-all"
-                            [ngClass]="col.visible !== false ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-gray-300'">
-                            <svg *ngIf="col.visible !== false" class="w-3 h-3 text-white" viewBox="0 0 20 20"
+                        class="w-full flex items-center justify-between px-3 py-2 hover:bg-ez-ash transition-colors duration-ez">
+                        <span class="text-ez-sm font-medium text-ez-body">{{ col.label }}</span>
+                        <div class="w-4 h-4 border flex items-center justify-center transition-all duration-ez"
+                            [ngClass]="col.visible !== false
+                                            ? 'bg-ez-primary border-ez-primary'
+                                            : 'bg-ez-white border-ez-border'">
+                            <svg *ngIf="col.visible !== false" class="w-2.5 h-2.5 text-white" viewBox="0 0 20 20"
                                 fill="currentColor">
                                 <path fill-rule="evenodd"
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -139,31 +150,33 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-auto relative custom-scrollbar bg-white" (scroll)="onScroll($event)">
+    <!-- ── Table ── -->
+    <div class="flex-1 overflow-auto relative custom-scrollbar bg-ez-white" (scroll)="onScroll($event)">
         <table id="data-table" class="w-full text-left border-collapse">
-            <thead class="bg-gray-50 sticky z-10 top-0 shadow-sm">
+
+            <thead class="bg-ez-ash sticky z-10 top-0">
                 <tr>
-                    <th *ngIf="enableSelection" class="w-10 px-4 border-b border-gray-200 bg-gray-50">
+                    <th *ngIf="enableSelection" class="w-10 px-4 py-2.5 border-b border-ez-border bg-ez-ash">
                         <div class="flex items-center justify-center">
                             <input type="checkbox" [checked]="isAllSelected()" [indeterminate]="isIndeterminate()"
                                 (change)="toggleSelectAll()"
-                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                                class="h-3.5 w-3.5 border-ez-border text-ez-primary focus:outline-none cursor-pointer accent-[#3E6AE1]">
                         </div>
                     </th>
 
                     <th *ngFor="let col of visibleColumns()"
-                        class="font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200 select-none group hover:bg-gray-100 transition-colors cursor-pointer"
+                        class="font-medium text-ez-secondary border-b border-ez-border select-none hover:bg-ez-border transition-colors duration-ez cursor-pointer"
                         [ngClass]="[getCellPadding(true), 'text-' + (col.align || 'left')]" [style.width]="col.width"
                         (click)="sort(col.key)">
-
-                        <div class="flex items-center gap-1"
+                        <div class="flex items-center gap-1 text-ez-2xs uppercase tracking-[0.08em]"
                             [ngClass]="{'justify-end': col.align === 'right', 'justify-center': col.align === 'center'}">
                             {{ col.label }}
                             <span *ngIf="col.sortable !== false && col.type !== 'action'"
-                                class="text-[10px] text-gray-400 transition-opacity"
-                                [class.text-indigo-600]="sortKey() === col.key"
+                                class="text-[9px] transition-opacity duration-ez"
+                                [class.text-ez-primary]="sortKey() === col.key"
+                                [class.text-ez-muted]="sortKey() !== col.key"
                                 [class.opacity-0]="sortKey() !== col.key && !searchQuery()"
-                                [class.group-hover:opacity-100]="true">
+                                [class.opacity-100]="sortKey() === col.key">
                                 {{ sortKey() === col.key && sortDirection() === 'desc' ? '▼' : '▲' }}
                             </span>
                         </div>
@@ -171,129 +184,130 @@
                 </tr>
             </thead>
 
-            <tbody class="divide-y divide-gray-100">
-                <tr *ngFor="let row of displayedRows(); let i = index" class="group transition-colors duration-150"
-                    [class.bg-indigo-50]="selectedIds().has(row.id)"
-                    [class.bg-gray-50]="stripedRows && i % 2 === 1 && !selectedIds().has(row.id)"
-                    [class.hover:bg-gray-100]="!selectedIds().has(row.id)">
+            <tbody class="divide-y divide-ez-border">
+                <tr *ngFor="let row of displayedRows(); let i = index" class="transition-colors duration-ez"
+                    [class.bg-ez-primary-tint]="selectedIds().has(row.id)"
+                    [class.bg-ez-white]="stripedRows && i % 2 === 1 && !selectedIds().has(row.id)"
+                    [class.hover:bg-ez-ash]="!selectedIds().has(row.id)">
 
-                    <td *ngIf="enableSelection" class="whitespace-nowrap">
+                    <td *ngIf="enableSelection" class="whitespace-nowrap px-4">
                         <div class="flex items-center justify-center">
                             <input type="checkbox" [checked]="selectedIds().has(row.id)"
                                 (change)="toggleRowSelection(row)" (click)="$event.stopPropagation()"
-                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                                class="h-3.5 w-3.5 border-ez-border text-ez-primary focus:outline-none cursor-pointer accent-[#3E6AE1]">
                         </div>
                     </td>
 
-                    <td *ngFor="let col of visibleColumns()" class="text-sm text-gray-700 whitespace-nowrap"
+                    <td *ngFor="let col of visibleColumns()" class="text-ez-base text-ez-body whitespace-nowrap"
                         [ngClass]="[getCellPadding(), 'text-' + (col.align || 'left')]">
 
                         <ng-container [ngSwitch]="col.type || 'text'">
 
-                            <div *ngSwitchCase="'profile'" class="flex items-center gap-3">
-                                <div class="shrink-0 h-9 w-9">
-                                    <img class="h-9 w-9 rounded-full object-cover border border-gray-200"
-                                        [src]="'https://ui-avatars.com/api/?name=' + row[col.key] + '&background=eff6ff&color=3b82f6&bold=true'"
+                            <!-- Profile -->
+                            <div *ngSwitchCase="'profile'" class="flex items-center gap-2.5">
+                                <div class="shrink-0 h-8 w-8">
+                                    <img class="h-8 w-8 rounded-full object-cover border border-ez-border"
+                                        [src]="'https://ui-avatars.com/api/?name=' + row[col.key] + '&background=EBF0FC&color=3E6AE1&bold=true&font-size=0.4'"
                                         alt="">
                                 </div>
-                                <div class="flex flex-col">
-                                    <span class="font-medium text-gray-900">{{ row[col.key] }}</span>
-                                </div>
+                                <span class="font-medium text-ez-heading text-ez-sm">{{ row[col.key] }}</span>
                             </div>
 
-                            <!-- <div *ngSwitchCase="'stepper'" class="flex items-center">
-                                <app-status-stepper [completedStepCount]="row[col.key]"
-                                    (click)="$event.stopPropagation()">
-                                </app-status-stepper>
-                            </div> -->
-
+                            <!-- Full Profile -->
                             <div *ngSwitchCase="'fullProfile'" class="flex items-center">
-                                <app-user-card [data]="row[col.key]">
-                                </app-user-card>
+                                <app-user-card [data]="row[col.key]"></app-user-card>
                             </div>
 
+                            <!-- Badge -->
                             <span *ngSwitchCase="'badge'"
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                                class="inline-flex items-center px-2 py-0.5 text-ez-xs font-medium border"
                                 [ngClass]="getBadgeClass(row[col.key])">
                                 {{ row[col.key] }}
                             </span>
 
+                            <!-- Toggle -->
                             <button *ngSwitchCase="'toggle'"
                                 (click)="emitAction('toggle', row, col.key); $event.stopPropagation()"
-                                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out"
-                                [class.bg-indigo-600]="row[col.key]" [class.bg-gray-200]="!row[col.key]">
+                                class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer border-2 border-transparent transition-colors duration-ez ease-in-out"
+                                [class.bg-ez-primary]="row[col.key]" [class.bg-ez-border]="!row[col.key]">
                                 <span
-                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                                    [class.translate-x-5]="row[col.key]" [class.translate-x-0]="!row[col.key]"></span>
+                                    class="pointer-events-none inline-block h-4 w-4 bg-white shadow-none transition-transform duration-ez ease-in-out"
+                                    [class.translate-x-4]="row[col.key]" [class.translate-x-0]="!row[col.key]"></span>
                             </button>
 
+                            <!-- Link -->
                             <a *ngSwitchCase="'link'" href="#" (click)="$event.preventDefault()"
-                                class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                                class="text-ez-primary hover:text-ez-primary-hover font-medium transition-colors duration-ez text-ez-sm">
                                 {{ row[col.key] }}
                             </a>
 
-                            <span *ngSwitchCase="'currency'" class="font-medium text-gray-700">
+                            <!-- Currency -->
+                            <span *ngSwitchCase="'currency'" class="font-medium text-ez-heading">
                                 {{ row[col.key] | currency:'INR' }}
                             </span>
 
+                            <!-- Number -->
                             <span *ngSwitchCase="'number'" [class.text-red-600]="row[col.key] < 0">
                                 {{ row[col.key] | number:'1.0-2' }}
                             </span>
 
-                            <span *ngSwitchCase="'date'" class="text-gray-600 whitespace-nowrap">
-                                {{ row[col.key] | date : (col.dateFormat || 'dd-MMM-yyy') }}
+                            <!-- Date -->
+                            <span *ngSwitchCase="'date'" class="text-ez-secondary whitespace-nowrap">
+                                {{ row[col.key] | date : (col.dateFormat || 'dd-MMM-yyyy') }}
                             </span>
 
+                            <!-- Notes -->
                             <span *ngSwitchCase="'notes'"
-                                class="relative group/note inline-flex items-center justify-center text-gray-600 whitespace-nowrap">
-                                <!-- here on hover or click show the notes in a tooltip -->
+                                class="relative group/note inline-flex items-center justify-center text-ez-secondary whitespace-nowrap">
                                 <lucide-icon *ngIf="row[col.key]" [img]="Note"
-                                    class="w-4 h-4 cursor-pointer text-gray-400 hover:text-indigo-600 transition-colors"></lucide-icon>
-                                <span *ngIf="!row[col.key]">-</span>
+                                    class="w-3.5 h-3.5 cursor-pointer text-ez-muted hover:text-ez-primary transition-colors duration-ez"></lucide-icon>
+                                <span *ngIf="!row[col.key]" class="text-ez-muted">—</span>
                                 <div *ngIf="row[col.key]"
-                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-gray-900 text-white text-xs border border-gray-700 rounded-lg shadow-xl p-3 z-50 opacity-0 invisible group-hover/note:opacity-100 group-hover/note:visible transition-all whitespace-normal text-left pointer-events-none">
+                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-60 bg-ez-carbon text-white text-ez-xs border border-ez-border z-50 p-3 opacity-0 invisible group-hover/note:opacity-100 group-hover/note:visible transition-all duration-ez whitespace-normal text-left pointer-events-none">
                                     <div
-                                        class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-gray-900 transform rotate-45 border-r border-b border-gray-700">
+                                        class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-ez-carbon transform rotate-45 border-r border-b border-ez-border">
                                     </div>
                                     {{ row[col.key] }}
                                 </div>
                             </span>
 
+                            <!-- Action -->
                             <div *ngSwitchCase="'action'"
-                                class="flex items-center justify-end gap-2 relative action-menu-container">
+                                class="flex items-center justify-end gap-1.5 relative action-menu-container">
+
                                 <ng-container *ngFor="let act of customActions">
                                     <div class="relative inline-block" *ngIf="!act.condition || act.condition(row)">
 
                                         <button (click)="handleActionClick($event, act, row)"
-                                            class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors border"
+                                            class="hidden sm:flex items-center gap-1.5 px-3 py-1 text-ez-xs font-medium transition-[border-color,background-color,color] duration-ez border"
                                             [ngClass]="{
-                                                        'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100': !act.color || act.color === 'primary',
-                                                        'bg-green-50 text-green-700 border-green-200 hover:bg-green-100': act.color === 'success',
-                                                        'bg-red-50 text-red-700 border-red-200 hover:bg-red-100': act.color === 'danger',
-                                                        'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100': act.color === 'neutral'
-                                                    }">
-                                            <lucide-icon [img]="act.icon || ArrowRight"
-                                                class="w-3.5 h-3.5"></lucide-icon>
-                                            <span *ngIf="act.label" class="px-0.5">{{ act.label }}</span>
+                        'bg-ez-primary-tint text-ez-primary border-ez-primary hover:bg-[rgba(62,106,225,0.18)]': !act.color || act.color === 'primary',
+                        'bg-green-50 text-green-700 border-green-200 hover:bg-green-100': act.color === 'success',
+                        'bg-red-50 text-red-700 border-red-200 hover:bg-red-100': act.color === 'danger',
+                        'bg-ez-ash text-ez-body border-ez-border hover:border-ez-subtle': act.color === 'neutral'
+                      }">
+                                            <lucide-icon [img]="act.icon || ArrowRight" class="w-3 h-3"></lucide-icon>
+                                            <span *ngIf="act.label">{{ act.label }}</span>
                                         </button>
 
+                                        <!-- Confirm popover -->
                                         <div *ngIf="activeConfirm?.row === row && activeConfirm?.act === act"
-                                            class="absolute right-0 bottom-full mb-2 w-64 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 z-50 p-4 transform origin-bottom-right transition-all">
+                                            class="absolute right-0 bottom-full mb-2 w-60 bg-ez-white z-50 p-4 border border-ez-border origin-bottom-right">
 
                                             <div class="flex items-start gap-3 mb-4">
                                                 <div *ngIf="act.confirmationIcon" class="shrink-0 mt-0.5" [ngClass]="{
-                                                        'text-indigo-500': !act.confirmationColor || act.confirmationColor === 'primary',
-                                                        'text-green-500': act.confirmationColor === 'success',
-                                                        'text-red-500': act.confirmationColor === 'danger',
-                                                        'text-gray-500': act.confirmationColor === 'neutral'
-                                                    }">
+                            'text-ez-primary': !act.confirmationColor || act.confirmationColor === 'primary',
+                            'text-green-500': act.confirmationColor === 'success',
+                            'text-red-500': act.confirmationColor === 'danger',
+                            'text-ez-secondary': act.confirmationColor === 'neutral'
+                          }">
                                                     <lucide-icon [img]="act.confirmationIcon"
-                                                        class="w-5 h-5"></lucide-icon>
+                                                        class="w-4 h-4"></lucide-icon>
                                                 </div>
-
                                                 <div>
-                                                    <h4 class="text-sm font-semibold text-gray-900">Are you sure?</h4>
-                                                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                                                    <h4 class="text-ez-sm font-medium text-ez-heading">Are you sure?
+                                                    </h4>
+                                                    <p class="text-ez-xs text-ez-secondary mt-1 leading-relaxed">
                                                         {{ act.confirmationMessage || 'Do you want to proceed with this
                                                         action?' }}
                                                     </p>
@@ -302,70 +316,71 @@
 
                                             <div class="flex justify-end gap-2">
                                                 <button (click)="cancelConfirm($event)"
-                                                    class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-transparent">
+                                                    class="px-3 py-1.5 text-ez-xs font-medium text-ez-secondary bg-ez-ash border border-ez-border hover:border-ez-subtle transition-[border-color] duration-ez">
                                                     Cancel
                                                 </button>
                                                 <button (click)="confirmAction($event)"
-                                                    class="px-2 py-1 text-xs font-medium rounded-lg transition-colors border"
+                                                    class="px-3 py-1.5 text-ez-xs font-medium border transition-[border-color,background-color] duration-ez"
                                                     [ngClass]="{
-                                                            'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100': !act.confirmationColor || act.confirmationColor === 'primary',
-                                                            'bg-green-50 text-green-700 border-green-200 hover:bg-green-100': act.confirmationColor === 'success',
-                                                            'bg-red-50 text-red-700 border-red-200 hover:bg-red-100': act.confirmationColor === 'danger',
-                                                            'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100': act.confirmationColor === 'neutral'
-                                                        }">
+                            'bg-ez-primary-tint text-ez-primary border-ez-primary': !act.confirmationColor || act.confirmationColor === 'primary',
+                            'bg-green-50 text-green-700 border-green-200': act.confirmationColor === 'success',
+                            'bg-red-50 text-red-700 border-red-200': act.confirmationColor === 'danger',
+                            'bg-ez-ash text-ez-body border-ez-border': act.confirmationColor === 'neutral'
+                          }">
                                                     Proceed
                                                 </button>
                                             </div>
                                         </div>
-
                                     </div>
                                 </ng-container>
 
+                                <!-- More menu trigger -->
                                 <button (click)="toggleActionMenu(row.id, $event)"
-                                    class="p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                                    [class.bg-gray-100]="activeMenuRowId() === row.id"
-                                    [class.text-gray-600]="activeMenuRowId() === row.id">
-                                    <lucide-icon [img]="MoreVertical" class="w-4 h-4"></lucide-icon>
+                                    class="p-1.5 text-ez-muted hover:text-ez-heading hover:bg-ez-ash transition-[background-color,color] duration-ez focus:outline-none"
+                                    [class.bg-ez-ash]="activeMenuRowId() === row.id"
+                                    [class.text-ez-heading]="activeMenuRowId() === row.id">
+                                    <lucide-icon [img]="MoreVertical" class="w-3.5 h-3.5"></lucide-icon>
                                 </button>
 
+                                <!-- Dropdown menu -->
                                 <div *ngIf="activeMenuRowId() === row.id"
-                                    class="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-gray-100 z-50 py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                    class="absolute right-0 top-full mt-0.5 w-36 bg-ez-white border border-ez-border z-50 py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
 
                                     <button (click)="emitAction('view', row)"
-                                        class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 hover:text-indigo-600 flex items-center gap-2">
-                                        <lucide-icon [img]="View" class="w-3.5 h-3.5"></lucide-icon>
+                                        class="w-full text-left px-3 py-2 text-ez-xs text-ez-body hover:bg-ez-ash hover:text-ez-primary flex items-center gap-2 transition-colors duration-ez">
+                                        <lucide-icon [img]="View" class="w-3 h-3"></lucide-icon>
                                         View Details
                                     </button>
 
                                     <button (click)="emitAction('edit', row)"
-                                        class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 hover:text-amber-600 flex items-center gap-2">
-                                        <lucide-icon [img]="Edit" class="w-3.5 h-3.5"></lucide-icon>
+                                        class="w-full text-left px-3 py-2 text-ez-xs text-ez-body hover:bg-ez-ash hover:text-amber-600 flex items-center gap-2 transition-colors duration-ez">
+                                        <lucide-icon [img]="Edit" class="w-3 h-3"></lucide-icon>
                                         Edit
                                     </button>
 
-                                    <div class="h-px bg-gray-100 my-1"></div>
+                                    <div class="h-px bg-ez-border my-1"></div>
 
                                     <ng-container *ngFor="let act of customActions">
                                         <button *ngIf="!act.condition || act.condition(row)"
                                             (click)="emitCustomAction(act, row)"
-                                            class="sm:hidden w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-medium">
-                                            <lucide-icon [img]="act.icon || ArrowRight"
-                                                class="w-3.5 h-3.5"></lucide-icon>
+                                            class="sm:hidden w-full text-left px-3 py-2 text-ez-xs text-ez-body hover:bg-ez-ash flex items-center gap-2 font-medium transition-colors duration-ez">
+                                            <lucide-icon [img]="act.icon || ArrowRight" class="w-3 h-3"></lucide-icon>
                                             {{ act.label }}
                                         </button>
                                     </ng-container>
 
                                     <button (click)="emitAction('delete', row)"
-                                        class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                        <lucide-icon [img]="Delete" class="w-3.5 h-3.5"></lucide-icon>
+                                        class="w-full text-left px-3 py-2 text-ez-xs text-red-500 hover:bg-red-50 flex items-center gap-2 transition-colors duration-ez">
+                                        <lucide-icon [img]="Delete" class="w-3 h-3"></lucide-icon>
                                         Delete
                                     </button>
                                 </div>
                             </div>
 
+                            <!-- Default text -->
                             <ng-container *ngSwitchDefault>
                                 <ng-container *ngIf="isMatch(row[col.key]); else normalText">
-                                    <span class="bg-yellow-100 text-gray-900 font-medium px-0.5 rounded">
+                                    <span class="bg-yellow-100 text-ez-heading font-medium px-0.5">
                                         {{ row[col.key] }}
                                     </span>
                                 </ng-container>
@@ -373,24 +388,30 @@
                                     <span>{{ row[col.key] }}</span>
                                 </ng-template>
                             </ng-container>
+
                         </ng-container>
                     </td>
                 </tr>
 
+                <!-- Infinite scroll loading -->
                 <tr *ngIf="loadMode === 'infinite' && isLoading">
                     <td [attr.colspan]="visibleColumns().length + (enableSelection ? 1 : 0)"
-                        class="p-4 text-center bg-gray-50">
-                        <span class="text-sm text-gray-500">Loading...</span>
+                        class="p-4 text-center bg-ez-ash">
+                        <span class="text-ez-sm text-ez-muted">Loading...</span>
                     </td>
                 </tr>
+
+                <!-- Empty state -->
                 <tr *ngIf="displayedRows().length === 0 && !isLoading">
                     <td [attr.colspan]="visibleColumns().length + (enableSelection ? 1 : 0)">
                         <ng-container *ngTemplateOutlet="emptyStateTemplate || defaultEmptyState"></ng-container>
                     </td>
                 </tr>
+
+                <!-- Pagination loading skeleton -->
                 <tr *ngIf="loadMode === 'pagination' && isLoading">
                     <td [attr.colspan]="visibleColumns().length + (enableSelection ? 1 : 0)"
-                        class="text-center bg-gray-50">
+                        class="text-center bg-ez-ash">
                         <app-skeleton-loader [type]="'table'" [rows]="12"
                             [columns]="visibleColumns().length"></app-skeleton-loader>
                     </td>
@@ -399,21 +420,24 @@
         </table>
     </div>
 
-    <div class="bg-gray-50 border-t border-gray-200 px-4 py-2 flex items-center justify-between text-xs text-gray-500">
+    <!-- ── Footer / Pagination ── -->
+    <div
+        class="bg-ez-ash border-t border-ez-border px-4 py-2 flex items-center justify-between text-ez-xs text-ez-muted">
+
         <div *ngIf="loadMode === 'pagination'" class="flex items-center gap-4 w-full justify-between sm:justify-start">
-            <span class="hidden sm:inline">
-                Showing {{ getStartItem() }} - {{ getEndItem() }} of {{ pagination.totalItems }}
+            <span class="hidden sm:inline text-ez-secondary">
+                Showing {{ getStartItem() }}–{{ getEndItem() }} of {{ pagination.totalItems }}
             </span>
 
             <div class="flex items-center gap-2">
                 <button (click)="changePage(-1)" [disabled]="currentPageSignal() === 1"
-                    class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    class="px-3 py-1 bg-ez-white border border-ez-border hover:border-ez-subtle text-ez-secondary disabled:opacity-40 disabled:cursor-not-allowed transition-[border-color] duration-ez">
                     Previous
                 </button>
-                <span class="font-medium text-gray-700">Page {{ currentPageSignal() }}</span>
+                <span class="font-medium text-ez-heading">Page {{ currentPageSignal() }}</span>
                 <button (click)="changePage(1)"
                     [disabled]="(currentPageSignal() * pagination.pageSize) >= pagination.totalItems"
-                    class="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    class="px-3 py-1 bg-ez-white border border-ez-border hover:border-ez-subtle text-ez-secondary disabled:opacity-40 disabled:cursor-not-allowed transition-[border-color] duration-ez">
                     Next
                 </button>
             </div>
@@ -426,46 +450,42 @@
 </div>
 
 
+<!-- ── Default Empty State ── -->
 <ng-template #defaultEmptyState>
-    <div
-        class="relative flex min-h-[450px] w-full flex-col items-center justify-center overflow-hidden rounded-xl px-6 py-20 text-center">
-        <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-50 rounded-full blur-[100px] pointer-events-none opacity-60">
-        </div>
+    <div class="relative flex min-h-[400px] w-full flex-col items-center justify-center px-6 py-16 text-center">
 
-        <div class="relative mb-8 h-32 w-full max-w-[300px]">
+        <div class="relative mb-8 h-28 w-full max-w-[280px]">
             <div
-                class="absolute left-1/2 top-0 z-0 h-14 w-52 -translate-x-1/2 -rotate-6 rounded-3xl bg-white/60 backdrop-blur-md border border-slate-200/60 shadow-sm animate-pulse flex items-center px-4 gap-3">
-                <div class="h-6 w-6 rounded-lg bg-slate-100 flex items-center justify-center">
-                    <lucide-icon [img]="FileText" class="size-3 text-slate-400"></lucide-icon>
+                class="absolute left-1/2 top-0 z-0 h-12 w-48 -translate-x-1/2 -rotate-6 bg-ez-ash border border-ez-border flex items-center px-4 gap-3 animate-pulse">
+                <div class="h-5 w-5 bg-ez-border flex items-center justify-center">
+                    <lucide-icon [img]="FileText" class="size-3 text-ez-muted"></lucide-icon>
                 </div>
-                <div class="h-2 w-24 rounded-full bg-slate-200"></div>
+                <div class="h-2 w-20 bg-ez-border"></div>
             </div>
 
             <div
-                class="absolute left-1/2 top-8 z-10 h-16 w-64 -translate-x-1/2 rounded-3xl border border-slate-200 bg-white p-3 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] flex items-center px-4 gap-4 ring-1 ring-slate-100">
-                <div
-                    class="h-10 w-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
-                    <lucide-icon [img]="Package" class="size-5"></lucide-icon>
+                class="absolute left-1/2 top-7 z-10 h-14 w-60 -translate-x-1/2 border border-ez-border bg-ez-white p-3 flex items-center px-4 gap-4">
+                <div class="h-9 w-9 bg-ez-primary text-white flex items-center justify-center shrink-0">
+                    <lucide-icon [img]="Package" class="size-4"></lucide-icon>
                 </div>
                 <div class="flex flex-col gap-1.5 flex-1">
-                    <div class="h-2.5 w-full rounded-full bg-slate-100"></div>
-                    <div class="h-2 w-2/3 rounded-full bg-slate-50"></div>
+                    <div class="h-2 w-full bg-ez-ash"></div>
+                    <div class="h-1.5 w-2/3 bg-ez-ash"></div>
                 </div>
             </div>
 
             <div
-                class="absolute left-1/2 top-16 z-0 h-14 w-52 -translate-x-1/2 rotate-6 rounded-3xl bg-white/40 backdrop-blur-sm border border-slate-200/40 shadow-sm flex items-center px-4 gap-3">
-                <div class="h-6 w-6 rounded-lg bg-slate-100 flex items-center justify-center">
-                    <lucide-icon [img]="RotateCcw" class="size-3 text-slate-300"></lucide-icon>
+                class="absolute left-1/2 top-14 z-0 h-12 w-48 -translate-x-1/2 rotate-6 bg-ez-ash border border-ez-border flex items-center px-4 gap-3 opacity-50">
+                <div class="h-5 w-5 bg-ez-border flex items-center justify-center">
+                    <lucide-icon [img]="RotateCcw" class="size-3 text-ez-muted"></lucide-icon>
                 </div>
-                <div class="h-2 w-20 rounded-full bg-slate-200"></div>
+                <div class="h-2 w-16 bg-ez-border"></div>
             </div>
         </div>
 
-        <div class="z-20 max-w-sm">
-            <h2 class="text-2xl font-bold tracking-tight text-slate-900 mb-2">No records found</h2>
-            <p class="text-slate-500 font-medium leading-relaxed">
+        <div class="z-20 max-w-xs">
+            <h2 class="text-ez-xl font-medium text-ez-heading mb-2">No records found</h2>
+            <p class="text-ez-base text-ez-secondary leading-relaxed">
                 Your search didn't return any results. Try adjusting your filters or search terms.
             </p>
         </div>
