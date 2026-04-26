@@ -61,7 +61,7 @@ export class ItemsComponent implements OnInit {
     {
       label: 'Create Item',
       icon: Plus,
-      variant: 'primary',
+      variant: 'create',
       key: 'create_item',
       action: () => this.createItem()
     },

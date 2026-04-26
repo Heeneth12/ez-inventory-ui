@@ -46,7 +46,7 @@ export interface TableAction {
 export interface HeaderAction {
     label: string;
     icon?: any; // The Lucide icon component
-    variant?: 'primary' | 'secondary' | 'outline' | 'danger';
+    variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'create';
     key?: string; // Useful if you want to identify the button in a switch case
     action?: () => void; // Direct callback function
     hidden?: boolean; // Optional: to conditionally hide buttons

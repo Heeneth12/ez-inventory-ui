@@ -252,18 +252,26 @@ export class StandardTableComponent implements OnChanges {
   }
 
   getBtnClasses(variant: string = 'secondary'): string {
-    const base = "flex items-center gap-2 px-4 py-2.5 rounded-full transition-colors text-sm font-medium focus:outline-none shadow-sm";
+    // Base: 4px radius (rounded), 13px font (text-ez-base), medium weight, 0.33s transitions, NO shadows
+    const base = "flex items-center justify-center gap-2 px-4 min-h-[36px] rounded text-ez-base font-medium transition-[background-color,border-color,color] duration-ez outline-none";
 
     switch (variant) {
       case 'primary':
-        return `${base} bg-[#D97706] hover:bg-[#d07207] text-white`;
+        return `${base} bg-ez-primary border border-ez-primary text-white hover:bg-ez-primary-hover hover:border-ez-primary-hover`;
+
       case 'outline':
-        return `${base} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50`;
-      case 'danger':
-        return `${base} bg-red-50 text-red-600 hover:bg-red-100`;
       case 'secondary':
+        return `${base} bg-white border border-ez-border text-ez-secondary hover:border-ez-subtle hover:text-ez-heading`;
+
+      case 'danger':
+        return `${base} bg-white border border-ez-border text-red-500 hover:border-red-400 hover:text-red-600`;
+
+      case 'create':
+        // here i want orange colours instead of blue
+        return `${base} bg-[#D97706] border border-[#D97706] text-white hover:bg-[#d07207] hover:border-[#d07207]`;
+
       default:
-        return `${base} bg-gray-100 hover:bg-gray-200 text-gray-600`;
+        return `${base} bg-white border border-ez-border text-ez-secondary hover:border-ez-subtle hover:text-ez-heading`;
     }
   }
 

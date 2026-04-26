@@ -1,22 +1,45 @@
 <div class="fixed top-4 right-4 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none">
-    <!-- Loop through toasts -->
-    <div *ngFor="let toast of toastService.toasts$ | async" 
-           class="pointer-events-auto bg-white rounded-lg shadow-lg border border-gray-100 p-4 flex items-start gap-3 transform transition-all duration-300 animate-in slide-in-from-right"
-           [ngClass]="getBorderClass(toast.type)">
-        <!-- Icon based on type -->
-        <div [ngSwitch]="toast.type" class="shrink-0 mt-0.5">
-          <svg *ngSwitchCase="'success'" class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <svg *ngSwitchCase="'error'" class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <svg *ngSwitchCase="'warning'" class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-          <svg *ngSwitchDefault class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </div>
-        <!-- Content -->
-        <div class="flex-1 pt-0.5">
-          <p class="text-sm font-medium text-slate-800">{{ toast.message }}</p>
-        </div>
-        <!-- Close Button -->
-        <button (click)="toastService.remove(toast.id)" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
+  @for(toast of toastService.toasts$ | async; track toast.id) {
+  <div
+    class="pointer-events-auto bg-ez-white border border-ez-border p-4 flex items-start gap-3 transition-all duration-ez step-fade shadow-lg">
+    @switch(toast.type) {
+    @case('success') {
+    <svg class="w-4 h-4 text-ez-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    }
+    @case('error') {
+    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    }
+    @case('warning') {
+    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+      </path>
+    </svg>
+    }
+    @case('info') {
+    <svg class="w-4 h-4 text-ez-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    }
+    }
+
+    <div class="flex-1 pt-0.5">
+      <p class="text-ez-base font-medium text-ez-heading">{{ toast.message }}</p>
     </div>
+
+    <button (click)="toastService.remove(toast.id)"
+      class="text-ez-muted hover:text-ez-heading transition-colors duration-ez outline-none">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+  }
 </div>
