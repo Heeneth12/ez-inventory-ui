@@ -40,4 +40,20 @@ export class CommonService {
   verifyTenant(tenantId: any, otp: any, successfn: any, errorfn: any) {
     return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/verifyTenant?tenantId=${tenantId}&otp=${otp}`, null, successfn, errorfn);
   }
+
+  signOut(success: any, error: any) {
+    return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/signout`, null, success, error);
+  }
+
+  forgotPassword(request: any, success: any, error: any) {
+    return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/forgot-password`, request, success, error);
+  }
+
+  resetPassword(request: any, success: any, error: any) {
+    return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/reset-password`, request, success, error);
+  }
+
+  resendOtp(request: any, success: any, error: any) {
+    return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/resend-otp`, request, success, error);
+  }
 }

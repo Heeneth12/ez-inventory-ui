@@ -1,57 +1,421 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Overriding driver.js default styles for a clean SaaS look */
+/* DESIGN SYSTEM — Tesla-inspired */
+/* Source of truth for all tokens. Components reference these vars. */
+:root {
+
+  /* Font  */
+  --ez-font: 'DM Sans', 'Universal Sans Text', -apple-system, Arial, sans-serif;
+  --ez-font-display: 'DM Sans', 'Universal Sans Display', -apple-system, Arial, sans-serif;
+
+  /* Font sizes */
+  --ez-text-2xs: 10px;
+  /* labels: step counter, uppercase tags          */
+  --ez-text-xs: 11px;
+  /* error messages, fine print                    */
+  --ez-text-sm: 12px;
+  /* form labels, captions                         */
+  --ez-text-base: 13px;
+  /* body, inputs, buttons                         */
+  --ez-text-md: 14px;
+  /* subtitles, descriptions                       */
+  --ez-text-lg: 15px;
+  /* section sub-headings                          */
+  --ez-text-xl: 17px;
+  /* card titles, product names                    */
+  --ez-text-2xl: 22px;
+  /* prices, promo callouts                        */
+  --ez-text-hero: 28px;
+  /* step headings (onboarding / auth)             */
+
+  /* ── Font weights ──────────────────────────────────────────── */
+  --ez-weight-regular: 400;
+  --ez-weight-medium: 500;
+  /* only two weights in the system */
+
+  /* ── Line heights ──────────────────────────────────────────── */
+  --ez-leading-tight: 1.2;
+  --ez-leading-normal: 1.43;
+
+  /* ── Letter spacing ────────────────────────────────────────── */
+  --ez-tracking-normal: 0;
+  /* default — never manipulate body text */
+  --ez-tracking-wide: 0.1em;
+  /* uppercase micro-labels only          */
+
+  /* ── Primary (Electric Blue) ───────────────────────────────── */
+  --ez-color-primary: #3E6AE1;
+  /* CTA background, active accents       */
+  --ez-color-primary-hover: #2d5ac8;
+  /* hover darkening                      */
+  --ez-color-primary-tint: rgba(62, 106, 225, 0.10);
+  /* tinted badge / tag background   */
+
+  /* ── Surface (Light → Dark) ────────────────────────────────── */
+  --ez-color-white: #FFFFFF;
+  /* dominant background, panel fills      */
+  --ez-color-ash: #F4F4F4;
+  /* Light Ash — alternate surfaces, banners */
+  --ez-color-carbon: #171A20;
+  /* Carbon Dark — headings, dark surfaces */
+
+  /* ── Text hierarchy ────────────────────────────────────────── */
+  --ez-color-text-heading: #171A20;
+  /* Carbon Dark  — h1, model names, nav   */
+  --ez-color-text-body: #393C41;
+  /* Graphite     — paragraphs             */
+  --ez-color-text-secondary: #5C5E62;
+  /* Pewter       — labels, subtitles      */
+  --ez-color-text-muted: #8E8E8E;
+  /* Silver Fog   — placeholders, disabled */
+
+  /* ── Borders ───────────────────────────────────────────────── */
+  --ez-color-border: #EEEEEE;
+  /* Cloud Gray  — default input / divider  */
+  --ez-color-border-subtle: #D0D1D2;
+  /* Pale Silver — hover border escalation  */
+
+  /* ── Semantic (kept minimal — only error matters here) ─────── */
+  --ez-color-error: #ef4444;
+  /* red-500 */
+  --ez-color-error-light: #fca5a5;
+  /* red-300 */
+
+  /* ── Border radius ─────────────────────────────────────────── */
+  --ez-radius-none: 0px;
+  /* default for all surfaces and inputs   */
+  --ez-radius-button: 4px;
+  /* barely-perceptible rounding on CTAs   */
+  --ez-radius-icon: 4px;
+  /* icon containers, small badges         */
+  --ez-radius-pill: 50%;
+  /* carousel dots, status indicators      */
+
+  /*  Motion  */
+  --ez-duration: 0.33s;
+  --ez-ease: cubic-bezier(0.5, 0, 0, 0.75);
+  --ez-transition: var(--ez-duration) var(--ez-ease);
+
+  /*  Spacing (8px base unit)  */
+  --ez-space-1: 4px;
+  --ez-space-2: 8px;
+  --ez-space-3: 12px;
+  --ez-space-4: 16px;
+  --ez-space-5: 20px;
+  --ez-space-6: 24px;
+  --ez-space-8: 32px;
+  --ez-space-10: 40px;
+}
+
+/* GLOBAL BASE */
+*,
+*::before,
+*::after {
+  font-family: var(--ez-font);
+  box-sizing: border-box;
+}
+
+/* Thin scrollbar system-wide */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ez-color-border);
+  border-radius: 2px;
+}
+
+/* Remove number input spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+
+/* EZ COMPONENT UTILITIES
+   Shared primitives used across auth, onboarding, and app views.
+   Avoids duplicating the same classes in every component stylesheet. */
+
+/* Inputs */
+.ez-input {
+  display: block;
+  padding: var(--ez-space-2) var(--ez-space-3);
+  /* 8px 12px */
+  font-size: var(--ez-text-base);
+  /* 13px */
+  font-weight: var(--ez-weight-regular);
+  color: var(--ez-color-text-heading);
+  background-color: var(--ez-color-white);
+  border: 1px solid var(--ez-color-border);
+  border-radius: var(--ez-radius-none);
+  outline: none;
+  transition: border-color var(--ez-transition);
+}
+
+.ez-input::placeholder {
+  color: var(--ez-color-text-muted);
+}
+
+.ez-input:focus,
+.ez-input--default:focus {
+  border-color: var(--ez-color-primary);
+}
+
+.ez-input--default {
+  border-color: var(--ez-color-border);
+}
+
+.ez-input--error {
+  border-color: var(--ez-color-error-light);
+}
+
+.ez-input--error:focus {
+  border-color: var(--ez-color-error);
+}
+
+/* Selects */
+.ez-select {
+  display: block;
+  padding: var(--ez-space-2) var(--ez-space-3);
+  font-size: var(--ez-text-base);
+  font-weight: var(--ez-weight-regular);
+  color: var(--ez-color-text-heading);
+  background-color: var(--ez-color-white);
+  border: 1px solid var(--ez-color-border);
+  border-radius: var(--ez-radius-none);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color var(--ez-transition);
+}
+
+.ez-select:focus {
+  border-color: var(--ez-color-primary);
+}
+
+/*  Labels  */
+.ez-label {
+  display: block;
+  font-size: var(--ez-text-sm);
+  /* 12px */
+  font-weight: var(--ez-weight-medium);
+  color: var(--ez-color-text-secondary);
+  /* Pewter */
+  margin-bottom: var(--ez-space-1);
+}
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+.ez-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ez-space-2);
+  padding: var(--ez-space-2) var(--ez-space-4);
+  /* 8px 16px */
+  min-height: 40px;
+  font-size: var(--ez-text-base);
+  /* 13px */
+  font-weight: var(--ez-weight-medium);
+  border-radius: var(--ez-radius-button);
+  /* 4px */
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--ez-transition),
+    border-color var(--ez-transition),
+    color var(--ez-transition);
+}
+
+.ez-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Primary — Electric Blue */
+.ez-btn-primary {
+  background-color: var(--ez-color-primary);
+  color: var(--ez-color-white);
+  border-color: var(--ez-color-primary);
+}
+
+.ez-btn-primary:not(:disabled):hover {
+  background-color: var(--ez-color-primary-hover);
+  border-color: var(--ez-color-primary-hover);
+}
+
+/* Secondary — White / border */
+.ez-btn-secondary {
+  background-color: var(--ez-color-white);
+  color: var(--ez-color-text-body);
+  border-color: var(--ez-color-border);
+}
+
+.ez-btn-secondary:not(:disabled):hover {
+  border-color: var(--ez-color-border-subtle);
+  color: var(--ez-color-text-heading);
+}
+
+/* ── Surfaces ──────────────────────────────────────────────────── */
+.ez-surface {
+  background-color: var(--ez-color-ash);
+  /* Light Ash — no border, no shadow */
+}
+
+/* ── Divider ───────────────────────────────────────────────────── */
+.ez-divider {
+  height: 1px;
+  background-color: var(--ez-color-border);
+  border: none;
+}
+
+/* ── Micro-label (uppercase tracker) ──────────────────────────── */
+.ez-micro-label {
+  font-size: var(--ez-text-2xs);
+  /* 10px */
+  font-weight: var(--ez-weight-medium);
+  color: var(--ez-color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--ez-tracking-wide);
+}
+
+/* ── Step fade-in animation ────────────────────────────────────── */
+@keyframes ezStepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-fade {
+  animation: ezStepFadeIn 220ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   DRIVER.JS TOOLTIP — aligned to design system
+───────────────────────────────────────────────────────────────── */
+
+/* ─────────────────────────────────────────────────────────────────
+   SEMANTIC UTILITY CLASSES
+   Named wrappers around CSS variables so templates never use raw
+   hex values. Tailwind JIT generates hover/focus/etc. variants.
+───────────────────────────────────────────────────────────────── */
+@layer utilities {
+
+  /* ── Text colors ─────────────────────────────────────────── */
+  .text-ez-heading        { color: var(--ez-color-text-heading); }
+  .text-ez-body           { color: var(--ez-color-text-body); }
+  .text-ez-secondary      { color: var(--ez-color-text-secondary); }
+  .text-ez-muted          { color: var(--ez-color-text-muted); }
+  .text-ez-primary        { color: var(--ez-color-primary); }
+  .text-ez-primary-hover  { color: var(--ez-color-primary-hover); }
+  .text-ez-carbon         { color: var(--ez-color-carbon); }
+  .text-ez-carbon-80      { color: rgb(23 26 32 / 0.80); }  /* Carbon @ 80% — dark-surface sub-text */
+  .text-ez-carbon-50      { color: rgb(23 26 32 / 0.50); }  /* Carbon @ 50% — captions on light panels */
+
+  /* ── Background colors ───────────────────────────────────── */
+  .bg-ez-primary          { background-color: var(--ez-color-primary); }
+  .bg-ez-primary-hover    { background-color: var(--ez-color-primary-hover); }
+  .bg-ez-primary-tint     { background-color: var(--ez-color-primary-tint); }
+  .bg-ez-ash              { background-color: var(--ez-color-ash); }
+  .bg-ez-white            { background-color: var(--ez-color-white); }
+  .bg-ez-carbon           { background-color: var(--ez-color-carbon); }
+
+  /* ── Border colors ───────────────────────────────────────── */
+  .border-ez-border       { border-color: var(--ez-color-border); }
+  .border-ez-subtle       { border-color: var(--ez-color-border-subtle); }
+  .border-ez-primary      { border-color: var(--ez-color-primary); }
+  .bg-ez-border           { background-color: var(--ez-color-border); }
+
+  /* ── Transition duration token ───────────────────────────── */
+  .duration-ez            { transition-duration: var(--ez-duration); }
+
+  /* ── Font size tokens ────────────────────────────────────── */
+  .text-ez-2xs  { font-size: var(--ez-text-2xs); }   /* 10px */
+  .text-ez-xs   { font-size: var(--ez-text-xs); }    /* 11px */
+  .text-ez-sm   { font-size: var(--ez-text-sm); }    /* 12px */
+  .text-ez-base { font-size: var(--ez-text-base); }  /* 13px */
+  .text-ez-md   { font-size: var(--ez-text-md); }    /* 14px */
+  .text-ez-lg   { font-size: var(--ez-text-lg); }    /* 15px */
+  .text-ez-xl   { font-size: var(--ez-text-xl); }    /* 17px */
+  .text-ez-2xl  { font-size: var(--ez-text-2xl); }   /* 22px */
+  .text-ez-hero { font-size: var(--ez-text-hero); }  /* 28px */
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   DRIVER.JS TOOLTIP — aligned to design system
+───────────────────────────────────────────────────────────────── */
 .driverjs-theme {
-  background-color: #ffffff !important;
-  color: #1e293b !important;
-  border-radius: 12px !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  background-color: var(--ez-color-white) !important;
+  color: var(--ez-color-text-heading) !important;
+  border-radius: var(--ez-radius-button) !important;
+  /* 4px — no big radius */
+  box-shadow: none !important;
+  /* no shadows */
+  border: 1px solid var(--ez-color-border) !important;
   padding: 20px !important;
   max-width: 350px !important;
 
   .driver-popover-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    color: #0f172a !important;
-    margin-bottom: 8px !important;
+    font-family: var(--ez-font) !important;
+    font-size: var(--ez-text-md) !important;
+    /* 14px */
+    font-weight: var(--ez-weight-medium) !important;
+    /* 500 */
+    color: var(--ez-color-text-heading) !important;
+    margin-bottom: var(--ez-space-2) !important;
   }
 
   .driver-popover-description {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.95rem !important;
-    color: #64748b !important;
-    line-height: 1.5 !important;
+    font-family: var(--ez-font) !important;
+    font-size: var(--ez-text-base) !important;
+    /* 13px */
+    color: var(--ez-color-text-secondary) !important;
+    line-height: var(--ez-leading-normal) !important;
   }
 
-  /* Style the buttons (Next/Prev) */
   .driver-popover-footer {
-    margin-top: 16px !important;
-    
+    margin-top: var(--ez-space-4) !important;
+
     button {
-      background-color: #f1f5f9 !important;
-      color: #334155 !important;
-      border: 1px solid #e2e8f0 !important;
-      border-radius: 6px !important;
-      font-size: 0.85rem !important;
+      font-family: var(--ez-font) !important;
+      background-color: var(--ez-color-ash) !important;
+      color: var(--ez-color-text-body) !important;
+      border: 1px solid var(--ez-color-border) !important;
+      border-radius: var(--ez-radius-button) !important;
+      /* 4px */
+      font-size: var(--ez-text-sm) !important;
+      /* 12px */
+      font-weight: var(--ez-weight-medium) !important;
       padding: 6px 12px !important;
       text-shadow: none !important;
-      transition: all 0.2s;
+      transition: background-color var(--ez-transition) !important;
 
       &:hover {
-        background-color: #e2e8f0 !important;
+        background-color: var(--ez-color-border) !important;
       }
 
       &.driver-popover-next-btn {
-        background-color: #4f46e5 !important;
-        color: #ffffff !important;
+        background-color: var(--ez-color-primary) !important;
+        color: var(--ez-color-white) !important;
         border: none !important;
-        
+
         &:hover {
-          background-color: #4338ca !important;
+          background-color: var(--ez-color-primary-hover) !important;
         }
       }
     }

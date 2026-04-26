@@ -7,6 +7,7 @@ import { UserInitResponse } from '../models/Init-response.model';
 import { BannerLoaderService } from '../components/banner-loader/banner-loader.service';
 import { DrawerService } from '../components/drawer/drawerService';
 import { NgxPermissionsService } from 'ngx-permissions';
+import { ForgotPasswordModel, ResendOtpModel, ResetPasswordModel } from '../../../app/views/auth/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -129,6 +130,18 @@ export class AuthService {
     this.drawerSvc.close();
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
+  }
+
+  forgotPassword(payload: ForgotPasswordModel, success: (res: any) => void, error: (err: any) => void) {
+    this.commonService.forgotPassword(payload, success, error);
+  }
+
+  resendOtp(payload: ResendOtpModel, success: (res: any) => void, error: (err: any) => void) {
+    this.commonService.resendOtp(payload, success, error);
+  }
+
+  resetPassword(payload: ResetPasswordModel, success: (res: any) => void, error: (err: any) => void) {
+    this.commonService.resetPassword(payload, success, error);
   }
 
   getAccessToken() {

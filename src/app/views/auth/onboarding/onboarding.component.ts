@@ -17,12 +17,13 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { UserManagementService } from '../../user-management/userManagement.service';
 import { AuthService } from '../../../layouts/guards/auth.service';
 import { CommonService } from '../../../layouts/service/common/common.service';
 import { ToastService } from '../../../layouts/components/toast/toastService';
 import { SubscriptionsService } from '../../../layouts/components/subscriptions/subscriptions.service';
 import { SubscriptionPlanModel } from '../../../layouts/components/subscriptions/subscriptions.model';
+import { FeedbackComponent } from '../../../layouts/components/feedback/feedback.component';
+import { ModalService } from '../../../layouts/components/modal/modalService';
 
 export interface OnboardingResult {
   tenantId?: number;
@@ -32,24 +33,12 @@ export interface OnboardingResult {
   tenantDetails: any;
 }
 
-interface DocumentItem {
-  name: string;
-  hint: string;
-  required: boolean;
-  uploaded: boolean;
-  file?: File | null;
-  fileName?: string;
-}
-
 const APP_KEY = 'EZH_INV_APP';
 
-// Steps 
-// 0 → Company + Admin basics  (createTenant API)
-// 1 → OTP Verify              (verifyTenant API)
-// 2 → Tenant Details          (createTenantDetails API – optional)
-// 3 → Team & Intent           (UI only – optional preferences)
-// 4 → Documents               (file upload – mocked)
-// 5 → Success
+// Steps
+// 0 → Account setup   (createTenant API)
+// 1 → Verify email    (verifyTenant API)
+// 2 → Choose plan     (subscribeTenant API — free activates directly, paid shows inline payment)
 
 @Component({
   selector: 'app-onboarding',
@@ -58,7 +47,6 @@ const APP_KEY = 'EZH_INV_APP';
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-
 })
 export class OnboardingComponent implements OnInit, OnDestroy {
   @Output() onboardingComplete = new EventEmitter<OnboardingResult>();
@@ -68,7 +56,6 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   isLoading = false;
   loadingText = '';
 
-  // Tenant ID returned from createTenant API
   registeredTenantId: number | null = null;
 
   // OTP
@@ -80,13 +67,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   private expirySeconds = 299;
 
   steps = [
-    { label: 'Account setup',   icon: 'building',      desc: 'Company & admin basics' },
-    { label: 'Verify email',    icon: 'mail',          desc: 'Enter OTP' },
-    { label: 'Business profile',icon: 'briefcase',     desc: 'Optional details' },
-    { label: 'Team & goals',    icon: 'users',         desc: 'How you\'ll use it' },
-    { label: 'Documents',       icon: 'file',          desc: 'KYB verification' },
-    { label: 'Choose plan',     icon: 'tag',           desc: 'Pick your subscription' },
-    { label: 'Payment',         icon: 'credit-card',   desc: 'Complete purchase' },
+    { label: 'Account setup', icon: 'building', desc: 'Company & admin basics' },
+    { label: 'Verify email', icon: 'mail', desc: 'Enter OTP' },
+    { label: 'Choose plan', icon: 'tag', desc: 'Pick your subscription' },
   ];
 
   countries = [
@@ -107,38 +90,6 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     { value: 'SERVICE_PROVIDER', label: 'Service Provider' },
   ];
 
-  currencies = ['INR', 'USD', 'GBP', 'AED', 'AUD', 'SGD', 'EUR'];
-
-  timeZones = [
-    'Asia/Kolkata',
-    'America/New_York',
-    'America/Los_Angeles',
-    'Europe/London',
-    'Asia/Dubai',
-    'Asia/Singapore',
-    'Australia/Sydney',
-  ];
-
-  teamSizes = ['1–10', '11–50', '51–200', '201–500', '500+'];
-
-  usageGoals = [
-    { id: 'inventory', label: 'Inventory tracking', icon: '📦' },
-    { id: 'orders', label: 'Order management', icon: '🛒' },
-    { id: 'suppliers', label: 'Supplier management', icon: '🤝' },
-    { id: 'analytics', label: 'Analytics & reports', icon: '📊' },
-    { id: 'multi-warehouse', label: 'Multi-warehouse', icon: '🏭' },
-    { id: 'ecommerce', label: 'E-commerce sync', icon: '🌐' },
-  ];
-
-  selectedGoals: Set<string> = new Set();
-
-  // Plan & Payment
-  activePlans: SubscriptionPlanModel[] = [];
-  plansLoading = false;
-  selectedPlan: SubscriptionPlanModel | null = null;
-  billingCycle: 'monthly' | 'annual' = 'monthly';
-  paymentForm!: FormGroup;
-
   indianStates = [
     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
     'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
@@ -148,25 +99,22 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     'Uttarakhand', 'West Bengal',
   ];
 
-  documents: DocumentItem[] = [
-    { name: 'GST Certificate', hint: 'PDF or JPG · Max 5MB', required: true, uploaded: false },
-    { name: 'PAN Card', hint: 'PDF or JPG · Max 5MB', required: true, uploaded: false },
-    { name: 'Business Registration', hint: 'Certificate of incorporation', required: true, uploaded: false },
-    { name: 'Address Proof', hint: 'Utility bill / bank statement', required: false, uploaded: false },
-  ];
+  // Plan & Payment
+  activePlans: SubscriptionPlanModel[] = [];
+  plansLoading = false;
+  selectedPlan: SubscriptionPlanModel | null = null;
+  billingCycle: 'monthly' | 'annual' = 'monthly';
+  paymentForm!: FormGroup;
 
-  // Forms
-  accountForm!: FormGroup;   // Step 0
-  detailsForm!: FormGroup;   // Step 2
-  teamForm!: FormGroup;      // Step 3
+  accountForm!: FormGroup;
 
   constructor(
     private fb: FormBuilder,
     private commonService: CommonService,
     private toastService: ToastService,
-    private userManagementService: UserManagementService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
+    private modalService: ModalService,
     private router: Router,
     private subscriptionsService: SubscriptionsService,
   ) { }
@@ -181,20 +129,15 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   }
 
   private initForms() {
-    // Step 0 – required fields to create tenant
     this.accountForm = this.fb.group({
-      // Company
       companyName: ['', Validators.required],
       businessType: ['RETAIL', Validators.required],
-      // Admin
       adminFullName: ['', Validators.required],
       adminEmail: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
-      // Phone
       countryCode: ['+91'],
       adminPhone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      // Address
       addressLine1: ['', Validators.required],
       addressLine2: [''],
       city: ['', Validators.required],
@@ -203,29 +146,11 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       country: ['India'],
     }, { validators: this.passwordMatchValidator });
 
-    // Step 2 – optional tenant details
-    this.detailsForm = this.fb.group({
-      legalName: [''],
-      gstNumber: [''],
-      panNumber: [''],
-      baseCurrency: ['INR'],
-      timeZone: ['Asia/Kolkata'],
-      supportEmail: [''],
-      website: [''],
-      logoUrl: [''],
-    });
-
-    // Step 3 – team & goals
-    this.teamForm = this.fb.group({
-      teamSize: ['1–10'],
-    });
-
-    // Step 6 – mocked payment
     this.paymentForm = this.fb.group({
       cardholderName: ['', Validators.required],
-      cardNumber:     ['', [Validators.required, Validators.pattern('^[0-9 ]{16,19}$')]],
-      expiry:         ['', [Validators.required, Validators.pattern('^(0[1-9]|1[0-2])\\/[0-9]{2}$')]],
-      cvv:            ['', [Validators.required, Validators.pattern('^[0-9]{3,4}$')]],
+      cardNumber: ['', [Validators.required, Validators.pattern('^[0-9 ]{16,19}$')]],
+      expiry: ['', [Validators.required, Validators.pattern('^(0[1-9]|1[0-2])\\/[0-9]{2}$')]],
+      cvv: ['', [Validators.required, Validators.pattern('^[0-9]{3,4}$')]],
     });
   }
 
@@ -238,15 +163,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   // ── Computed ──────────────────────────────────────────────────────
 
   get progressPercent(): number {
-    return ((this.currentStep) / this.steps.length) * 100;
-  }
-
-  get uploadedCount(): number {
-    return this.documents.filter(d => d.uploaded).length;
-  }
-
-  get docUploadPercent(): number {
-    return (this.uploadedCount / this.documents.length) * 100;
+    return (this.currentStep / this.steps.length) * 100;
   }
 
   get filteredPlans(): SubscriptionPlanModel[] {
@@ -266,10 +183,6 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       case 0: this.handleStep0(); break;
       case 1: this.handleStep1(); break;
       case 2: this.handleStep2(); break;
-      case 3: this.advance(); break;
-      case 4: this.submitDocuments(); break;
-      case 5: this.handleStep5(); break;
-      case 6: this.handleStep6(); break;
     }
   }
 
@@ -282,6 +195,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
   private advance() {
     this.currentStep++;
+    if (this.currentStep === 2) {
+      this.loadActivePlans();
+    }
     this.cdr.markForCheck();
   }
 
@@ -289,15 +205,8 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     this.exitOnboardingEvent.emit();
   }
 
-  toggleGoal(id: string) {
-    if (this.selectedGoals.has(id)) {
-      this.selectedGoals.delete(id);
-    } else {
-      this.selectedGoals.add(id);
-    }
-  }
+  // ── Step 0: Create Tenant ─────────────────────────────────────────
 
-  // Step 0: Create Tenant
   private handleStep0() {
     this.accountForm.markAllAsTouched();
     if (this.accountForm.invalid) return;
@@ -341,9 +250,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Step 1: OTP
+  // ── Step 1: OTP ───────────────────────────────────────────────────
+
   private sendOtp() {
-    // OTP is auto-sent by backend on createTenant; just advance to OTP screen
     this.advance();
     this.startOtpTimer();
     this.startResendCooldown();
@@ -364,12 +273,8 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       (res: any) => {
         const accessToken = res?.data?.accessToken;
         const refreshToken = res?.data?.refreshToken;
-        if (accessToken) {
-          localStorage.setItem('access_token', accessToken);
-        }
-        if (refreshToken) {
-          localStorage.setItem('refresh_token', refreshToken);
-        }
+        if (accessToken) localStorage.setItem('access_token', accessToken);
+        if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
         this.isLoading = false;
         clearInterval(this.otpTimer);
         this.advance();
@@ -385,7 +290,6 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   resendOtp() {
     if (this.resendCooldown > 0) return;
     this.expirySeconds = 299;
-    // TODO: call resend OTP API
     this.startOtpTimer();
     this.startResendCooldown();
     this.toastService.show('OTP resent to your email!', 'success');
@@ -436,86 +340,57 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     (event.target as HTMLInputElement).select();
   }
 
-  // Step 2: Tenant Details
+  // ── Step 2: Choose Plan + Inline Payment ──────────────────────────
+
   private handleStep2() {
-    if (!this.registeredTenantId) { this.advance(); return; }
+    if (!this.selectedPlan) {
+      this.toastService.show('Please select a plan to continue.', 'error');
+      return;
+    }
 
-    // get tenant details ans set it to the details form
-    this.getTenantDetails(this.registeredTenantId);
+    if (this.selectedPlan.price === 0) {
+      this.isLoading = true;
+      this.loadingText = 'Activating free plan...';
+      this.subscriptionsService.subscribeTenant(
+        this.registeredTenantId!,
+        this.selectedPlan.id,
+        (_res: any) => {
+          this.isLoading = false;
+          this.currentStep = this.steps.length;
+          this.cdr.markForCheck();
+        },
+        (err: any) => {
+          this.isLoading = false;
+          this.toastService.show(err?.error?.message || 'Failed to activate plan.', 'error');
+          this.cdr.markForCheck();
+        }
+      );
+    } else {
+      this.paymentForm.markAllAsTouched();
+      if (this.paymentForm.invalid) return;
 
-    const v = this.detailsForm.value;
-    // Only send if at least one field is filled
-    const hasData = Object.values(v).some(val => val !== '' && val !== 'INR' && val !== 'Asia/Kolkata');
+      this.isLoading = true;
+      this.loadingText = 'Processing payment...';
 
-    if (!hasData) { this.advance(); return; }
-
-    this.isLoading = true;
-    this.loadingText = 'Saving business profile...';
-
-    const payload = {
-      businessType: this.accountForm.get('businessType')?.value,
-      legalName: v.legalName,
-      baseCurrency: v.baseCurrency,
-      timeZone: v.timeZone,
-      gstNumber: v.gstNumber,
-      panNumber: v.panNumber,
-      supportEmail: v.supportEmail,
-      contactPhone: `${this.accountForm.get('countryCode')?.value} ${this.accountForm.get('adminPhone')?.value}`,
-      logoUrl: v.logoUrl,
-      website: v.website,
-    };
-
-    this.userManagementService.updateTenantDetails(this.registeredTenantId, payload,
-      (res: any) => {
-        this.isLoading = false;
-        this.advance();
-      }, (err: any) => {
-        this.isLoading = false;
-        this.toastService.show(err?.error?.message || 'Failed to save business profile', 'error');
-        this.cdr.markForCheck();
-      });
+      setTimeout(() => {
+        this.subscriptionsService.subscribeTenant(
+          this.registeredTenantId!,
+          this.selectedPlan!.id,
+          (_res: any) => {
+            this.isLoading = false;
+            this.currentStep = this.steps.length;
+            this.cdr.markForCheck();
+          },
+          (err: any) => {
+            this.isLoading = false;
+            this.toastService.show(err?.error?.message || 'Payment failed. Please try again.', 'error');
+            this.cdr.markForCheck();
+          }
+        );
+      }, 1500);
+    }
   }
 
-  /**
-   * get tenant details - because we need to fetch the tenant details after creation
-   * we are setting some default values for currency and timezone in step 1
-   * so in this step we are just updating the tenant details as requied 
-   */
-  getTenantDetails(tenantId: number) {
-    this.userManagementService.getTenantDetails(tenantId, (res: any) => {
-      // set the tenant details to the details form
-      this.detailsForm.patchValue({
-        legalName: res?.data?.legalName,
-        baseCurrency: res?.data?.baseCurrency,
-        timeZone: res?.data?.timeZone,
-        gstNumber: res?.data?.gstNumber,
-        panNumber: res?.data?.panNumber,
-        supportEmail: res?.data?.supportEmail,
-        contactPhone: res?.data?.contactPhone,
-        logoUrl: res?.data?.logoUrl,
-        website: res?.data?.website,
-      });
-      this.isLoading = false;
-    }, (err: any) => {
-      this.isLoading = false;
-      this.toastService.show(err?.error?.message || 'Failed to get business profile', 'error');
-      this.cdr.markForCheck();
-    });
-  }
-
-  // Step 4: Documents (mocked)
-  private submitDocuments() {
-    this.isLoading = true;
-    this.loadingText = 'Submitting your application...';
-    setTimeout(() => {
-      this.isLoading = false;
-      this.currentStep = 5;
-      this.loadActivePlans();
-      this.cdr.markForCheck();
-    }, 1200);
-  }
-
-  // Step 5: Choose Plan
   loadActivePlans() {
     this.plansLoading = true;
     this.cdr.markForCheck();
@@ -533,84 +408,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     );
   }
 
-  getPlanAccent(type: string): { border: string; badge: string; iconBg: string; iconColor: string } {
-    const map: Record<string, any> = {
-      'BASIC':      { border: 'border-slate-200',  badge: 'bg-slate-100 text-slate-600',  iconBg: 'bg-slate-100',  iconColor: 'text-slate-500' },
-      'STANDARD':   { border: 'border-blue-100',   badge: 'bg-blue-50 text-blue-600',     iconBg: 'bg-blue-50',    iconColor: 'text-blue-500'  },
-      'PREMIUM':    { border: 'border-purple-100', badge: 'bg-purple-50 text-purple-600', iconBg: 'bg-purple-50',  iconColor: 'text-purple-500'},
-      'ENTERPRISE': { border: 'border-amber-100',  badge: 'bg-amber-50 text-amber-700',   iconBg: 'bg-amber-50',   iconColor: 'text-amber-500' },
-    };
-    return map[type] || map['BASIC'];
-  }
-
-  private handleStep5() {
-    if (!this.selectedPlan) {
-      this.toastService.show('Please select a plan to continue.', 'error');
-      return;
-    }
-    if (this.selectedPlan.price === 0) {
-      this.isLoading = true;
-      this.loadingText = 'Activating free plan...';
-      this.subscriptionsService.subscribeTenant(
-        this.registeredTenantId!,
-        this.selectedPlan.id,
-        (_res: any) => {
-          this.isLoading = false;
-          this.currentStep = this.steps.length; // jump to success
-          this.cdr.markForCheck();
-        },
-        (err: any) => {
-          this.isLoading = false;
-          this.toastService.show(err?.error?.message || 'Failed to activate plan.', 'error');
-          this.cdr.markForCheck();
-        }
-      );
-    } else {
-      this.advance();
-    }
-  }
-
-  // Step 6: Payment (mocked)
-  private handleStep6() {
-    this.paymentForm.markAllAsTouched();
-    if (this.paymentForm.invalid) return;
-
-    this.isLoading = true;
-    this.loadingText = 'Processing payment...';
-
-    setTimeout(() => {
-      this.subscriptionsService.subscribeTenant(
-        this.registeredTenantId!,
-        this.selectedPlan!.id,
-        (_res: any) => {
-          this.isLoading = false;
-          this.currentStep = this.steps.length; // jump to success
-          this.cdr.markForCheck();
-        },
-        (err: any) => {
-          this.isLoading = false;
-          this.toastService.show(err?.error?.message || 'Payment failed. Please try again.', 'error');
-          this.cdr.markForCheck();
-        }
-      );
-    }, 1500);
-  }
-
-  triggerUpload(index: number) {
-    (document.getElementById(`file-${index}`) as HTMLInputElement)?.click();
-  }
-
-  onFileSelected(event: Event, index: number) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    // TODO: upload to server
-    this.documents[index].uploaded = true;
-    this.documents[index].file = file;
-    this.documents[index].fileName = file.name;
-    this.cdr.markForCheck();
-  }
-
-  // Summary 
+  // ── Success ───────────────────────────────────────────────────────
 
   get summaryRows() {
     const v = this.accountForm.value;
@@ -622,7 +420,6 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       { label: 'Status', value: 'Under review' },
     ];
   }
-
 
   goToDashboard() {
     this.isLoading = true;
@@ -637,5 +434,14 @@ export class OnboardingComponent implements OnInit, OnDestroy {
         this.exitOnboardingEvent.emit();
       },
     });
+  }
+
+  openFeedbackModal(type: 'bug' | 'feature' | 'contact') {
+    this.modalService.openComponent(FeedbackComponent,
+      {
+        feedbackType: type,
+      },
+      'lg'
+    );
   }
 }

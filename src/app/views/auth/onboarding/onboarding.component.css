@@ -1,69 +1,8 @@
-/* Only what Tailwind can't do */
+/* Component-level overrides only — all tokens and utilities live in styles.css */
 
 :host {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-}
-
-/* Thin scrollbar */
-.scrollbar-thin::-webkit-scrollbar {
-    width: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 2px;
-}
-
-/* focus:ring-3 — Tailwind v3 only ships ring-2 by default */
-.focus\:ring-3:focus {
-    box-shadow: 0 0 0 3px var(--tw-ring-color, rgba(99, 102, 241, 0.15));
-}
-
-.focus-within\:ring-3:focus-within {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-}
-
-/* Remove number spinners */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-}
-
-/* Step fade-in animation */
-@keyframes stepFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.step-fade {
-    animation: stepFadeIn 200ms ease-out both;
-}
-
-/* Success ring pulse */
-@keyframes ring-pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.step-fade {
-    animation: stepFadeIn 220ms ease-out both;
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
