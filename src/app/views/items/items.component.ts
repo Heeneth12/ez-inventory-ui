@@ -10,7 +10,7 @@ import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { BulkUploadComponent } from '../../layouts/components/bulk-upload/bulk-upload.component';
 import { ITEMS_COLUMNS } from '../../layouts/config/tableConfig';
-import { CloudUpload, List, Plus, LucideAngularModule, FileText, RotateCcw, Package, Box, LayoutGrid, Wrench, Briefcase, PackageOpen, Sparkles, Zap } from 'lucide-angular';
+import { CloudUpload, List, Plus, LucideAngularModule, FileText, RotateCcw, Package, Box, LayoutGrid, Wrench, Briefcase, PackageOpen, Sparkles, Zap, X } from 'lucide-angular';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
 import { FilterOption } from '../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { AuthService } from '../../layouts/guards/auth.service';
@@ -43,6 +43,7 @@ export class ItemsComponent implements OnInit {
   readonly Briefcase = Briefcase;
   readonly Sparkles = Sparkles;
   readonly Zap = Zap;
+  readonly X = X;
 
   selectedItemDetail: ItemStockSearchModel | null = null;
   selectedMasterItem: ItemModel | null = null;
@@ -228,9 +229,13 @@ export class ItemsComponent implements OnInit {
   getExpiryStatusColor(timestamp: number, type: 'text' | 'bg'): string {
     const diff = timestamp - Date.now();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days < 0) return type === 'text' ? 'text-red-600' : 'bg-red-100';
-    if (days < 30) return type === 'text' ? 'text-amber-600' : 'bg-amber-100';
-    return type === 'text' ? 'text-emerald-600' : 'bg-emerald-100';
+    if (days < 0) {
+      return type === 'text' ? 'text-red-500' : 'bg-red-500';
+    }
+    if (days < 30) {
+      return type === 'text' ? 'text-amber-500' : 'bg-amber-500';
+    }
+    return type === 'text' ? 'text-ez-primary' : 'bg-ez-primary';
   }
 
   closeItemDetails() {
