@@ -5,11 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ItemService } from '../item.service';
 import { ItemModel } from '../models/Item.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
+import { InfoIcon, LucideAngularModule, UploadCloudIcon } from "lucide-angular";
 
 @Component({
   selector: 'app-add-items',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './add-items.component.html',
   styleUrl: './add-items.component.css'
 })
@@ -20,6 +21,11 @@ export class AddItemsComponent implements OnInit {
   itemId: string | null = null;
   categories = ['Electronics', 'Furniture', 'Stationery', 'Raw Material'];
   units = ['KG', 'GM', 'ML', 'LTR', 'PCS', 'BOX'];
+
+  //icon
+  readonly InfoIcon = InfoIcon;
+  readonly UploadCloudIcon = UploadCloudIcon;
+
   constructor(
     private fb: FormBuilder,
     private itemService: ItemService,

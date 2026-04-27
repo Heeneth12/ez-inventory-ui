@@ -19,6 +19,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BulkUploadService } from './bulk-upload.service';
 import { LoaderService } from '../loader/loaderService';
 import { ToastService } from '../toast/toastService';
+import { TabCardComponent, TabItem } from "../../UI/tab-card/tab-card.component";
 
 type UploadStatus = 'idle' | 'selected' | 'uploading' | 'success' | 'error';
 
@@ -34,7 +35,7 @@ interface UploadResult {
 @Component({
   selector: 'app-bulk-upload',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TabCardComponent],
   templateUrl: './bulk-upload.component.html',
   styles: [`
     :host { display: block; height: 100%; }
@@ -255,5 +256,25 @@ export class BulkUploadComponent implements OnInit {
   onDrop(e: DragEvent) {
     e.preventDefault(); e.stopPropagation(); this.isDragging.set(false);
     if (e.dataTransfer?.files.length) this.handleFile(e.dataTransfer.files[0]);
+  }
+
+  // tabs
+  tabs: TabItem[] = [
+    { id: "upload", label: "Upload", icon: UploadCloud },
+    { id: "download", label: "Download", icon: Download }
+  ];
+
+
+  tabChanged(tabId: any) {
+    this.activeTab.set(tabId);
+    this.reset();
+    if (tabId === 'download') {
+      this.filters = {
+        searchQuery: '',
+        brand: '',
+        category: '',
+        status: ''
+      }
+    }
   }
 }
