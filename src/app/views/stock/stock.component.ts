@@ -211,10 +211,13 @@ export class StockComponent implements OnInit {
   // 1. Get Color Class based on expiry (Background or Text)
   getExpiryStatusColor(expiryDate: number, type: 'bg' | 'text'): string {
     const days = this.getDaysDifference(expiryDate);
-
-    if (days < 0) return type === 'bg' ? 'bg-red-500' : 'text-red-600';
-    if (days < 30) return type === 'bg' ? 'bg-amber-400' : 'text-amber-600'; // Warning
-    return type === 'bg' ? 'bg-emerald-500' : 'text-emerald-600'; // Good
+    if (days < 0) {
+      return type === 'bg' ? 'bg-red-500' : 'text-red-500';
+    }
+    if (days < 30) {
+      return type === 'bg' ? 'bg-amber-500' : 'text-amber-500';
+    }
+    return type === 'bg' ? 'bg-ez-primary' : 'text-ez-primary';
   }
 
   // 2. Get readable text (e.g., "Expires in 5 days")

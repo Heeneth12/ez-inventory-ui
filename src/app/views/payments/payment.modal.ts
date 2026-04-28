@@ -56,6 +56,7 @@ export interface PaymentModal {
     remarks: string;
     allocatedAmount: number;
     unallocatedAmount: number;
+    allocations: PaymentAllocationItemModal[];
 }
 export interface CustomerFinancialSummaryModal {
     customerId: number;
@@ -66,7 +67,15 @@ export interface CustomerFinancialSummaryModal {
     creditNoteBalance: number;
 }
 
-// ─── Advance ────────────────────────────────────────────────────────────────
+export interface PaymentAllocationItemModal {
+    invoiceId: number;
+    invoiceNumber: string;
+    allocatedAmount: number;
+    allocationDate: Date;
+}
+
+
+// Advance
 
 export interface AdvanceCreateModal {
     customerId: number;

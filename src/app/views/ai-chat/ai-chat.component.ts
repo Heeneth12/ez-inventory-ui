@@ -10,7 +10,13 @@ import { AuthService } from '../../layouts/guards/auth.service';
 import { UserProfile } from '../../layouts/components/inventory-layout/inventory-layout.component';
 import {
   LucideAngularModule,
-  Sparkles, History, MoreHorizontal, Image, Mic, Send
+  Sparkles, History, MoreHorizontal, Image, Mic, Send,
+  X,
+  Maximize,
+  ChevronLeft,
+  Plus,
+  ChevronRight,
+  Menu
 } from 'lucide-angular';
 
 interface Conversation {
@@ -56,6 +62,12 @@ export class AiChatComponent implements OnInit {
   readonly Image = Image;
   readonly Mic = Mic;
   readonly Send = Send;
+  readonly XIcon = X;
+  readonly Maximize = Maximize;
+  readonly Plus = Plus;
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
+  readonly Menu = Menu;
 
   activeTab: 'chat' | 'automation' = 'chat';
 

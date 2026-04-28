@@ -19,7 +19,7 @@ export class PaymentService {
     }
 
     getPaymentsByInvoiceId(id: number, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/${id}`, successfn, errorfn)
+        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/invoice/${id}`, successfn, errorfn)
     }
 
     getAllPayments(page: number, size: number, filter: any, successfn: any, errorfn: any) {
@@ -31,7 +31,7 @@ export class PaymentService {
     }
 
     getPagetPaymentSummaryById(id: string | number, successfn: any, errorfn: any) {
-        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}?paymentId=${id}`, successfn, errorfn);
+        return this.httpService.getHttp(`${PaymentService.PAYMENT_BASE_URL}/${id}`, successfn, errorfn);
     }
 
     getPayments(page: number, size: number, filter: any, successfn: any, errorfn: any) {

@@ -13,6 +13,166 @@
 </div>
 
 <!-- DRAWER FORM TEMPLATE -->
-<ng-template #paymentDetails let-data>
+<ng-template #paymentDetailsTemplate>
+    @if (isPaymentDetailsLoading) {
+    <div class="flex flex-col items-center justify-center h-full bg-ez-white border-l border-ez-border">
+        <svg class="w-8 h-8 animate-spin text-ez-primary" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.2" />
+            <path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+        </svg>
+    </div>
+    } @else if (paymentDetails) {
+    <div class="flex flex-col h-full bg-ez-white font-sans border-l border-ez-border">
 
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-[800px] mx-auto space-y-8">
+
+                <div class="border-b border-ez-border pb-8 flex justify-between alingn-top">
+                    <div>
+                        <p class="ez-label text-ez-secondary mb-2">Payment Reference</p>
+                        <h1 class="text-ez-hero font-medium text-ez-heading mb-6 leading-tight">
+                            {{ paymentDetails.paymentNumber }}
+                        </h1>
+                    </div>
+
+                    <div class="inline-block border border-ez-border bg-ez-ash px-6 py-4">
+                        <span class="ez-miro-label text-ez-secondary block mb-1">Amount Paid</span>
+                        <div class="text-[32px] font-medium text-ez-heading leading-none">
+                            <span class="text-ez-base text-ez-secondary font-normal mr-1">₹</span>{{
+                            paymentDetails.amount | number:'1.2-2' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+
+                    <div class="space-y-1.5">
+                        <span class="ez-label text-ez-secondary block">Customer</span>
+                        <div class="flex items-center gap-3 text-ez-base font-medium text-ez-heading">
+                            <div
+                                class="w-8 h-8 border border-ez-border bg-ez-ash flex items-center justify-center text-ez-heading text-ez-sm shrink-0">
+                                {{ paymentDetails.customerName.charAt(0) }}
+                            </div>
+                            {{ paymentDetails.customerName }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <span class="ez-label text-ez-secondary block">Payment Date</span>
+                        <div class="text-ez-base font-medium text-ez-heading py-1">
+                            {{ paymentDetails.paymentDate | date:'dd MMMM yyyy' }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <span class="ez-label text-ez-secondary block">Status</span>
+                        <div class="py-1">
+                            <span
+                                class="border border-ez-border px-2 py-0.5 text-ez-xs font-medium uppercase tracking-[0.1em]"
+                                [ngClass]="{
+                                'bg-blue-100 text-ez-primary': paymentDetails.status === 'CONFIRMED',
+                                'bg-gray-100 text-ez-heading': paymentDetails.status === 'PENDING',
+                                'border-red-500 text-red-500': paymentDetails.status === 'FAILED'
+                              }">
+                                {{ paymentDetails.status }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <span class="ez-label text-ez-secondary block">Reference No.</span>
+                        <div class="text-ez-base font-medium text-ez-heading py-1">
+                            {{ paymentDetails.referenceNumber || 'N/A' }}
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-ez-border">
+
+                <div>
+                    <h3 class="text-ez-lg font-medium text-ez-heading mb-4">Customer Information</h3>
+                    <div class="p-6 bg-ez-ash border border-ez-border space-y-2">
+                        <p class="text-ez-sm text-ez-secondary">
+                            Contact email: <span class="text-ez-heading font-medium">{{ paymentDetails.contactMini.email
+                                }}</span>
+                        </p>
+                        <p class="text-ez-sm text-ez-secondary">
+                            Phone number: <span class="text-ez-heading font-medium">{{ paymentDetails.contactMini.phone
+                                }}</span>
+                        </p>
+                        @if (paymentDetails.remarks) {
+                        <div class="pt-4 mt-4 border-t border-ez-border">
+                            <span class="ez-label text-ez-muted block mb-1">Remarks</span>
+                            <p class="text-ez-sm text-ez-heading font-medium">"{{ paymentDetails.remarks }}"</p>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-ez-lg font-medium text-ez-heading mb-4">Allocations</h3>
+
+                    @if (paymentDetails.allocations && paymentDetails.allocations.length > 0) {
+                    <div class="space-y-4">
+                        @for (allocation of paymentDetails.allocations; track allocation.invoiceId) {
+                        <div
+                            class="flex items-start gap-4 p-4 border border-ez-border bg-white hover:border-ez-subtle transition-colors duration-ez">
+                            <div
+                                class="w-10 h-10 border border-ez-border bg-ez-ash flex items-center justify-center shrink-0 text-ez-heading">
+                                <lucide-icon [img]="fileText" class="w-4 h-4"></lucide-icon>
+                            </div>
+
+                            <div class="flex-1 min-w-0 flex flex-col justify-center">
+                                <div class="flex items-center gap-3 mb-1">
+                                    <span class="text-ez-base font-medium text-ez-heading">{{ allocation.invoiceNumber
+                                        }}</span>
+                                    <span class="ez-label text-ez-muted">{{ allocation.allocationDate | date:'dd
+                                        MMM HH:mm' }}</span>
+                                </div>
+                                <p class="text-ez-sm text-ez-secondary">
+                                    Allocated amount: <span class="font-medium text-ez-heading">₹{{
+                                        allocation.allocatedAmount | number:'1.2-2' }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    } @else {
+                    <div class="p-6 border border-ez-border bg-ez-ash text-center">
+                        <p class="text-ez-sm text-ez-secondary">No allocations found for this payment.</p>
+                    </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+        <div class="px-8 py-5 border-t border-ez-border bg-ez-white flex justify-between items-center shrink-0">
+            <button (click)="downloadReceiptPdf(paymentDetails.id)" class="ez-btn ez-btn-primary">
+                <lucide-icon [img]="fileText" class="w-4 h-4 mr-2"></lucide-icon>
+                Download Receipt
+            </button>
+
+            <div class="flex items-center gap-2">
+                <button title="Resend Payment Info"
+                    class="p-2 text-ez-secondary hover:text-ez-primary transition-colors duration-ez outline-none">
+                    <lucide-icon [img]="send" class="w-5 h-5"></lucide-icon>
+                </button>
+                <button title="Share Payment"
+                    class="p-2 text-ez-secondary hover:text-ez-primary transition-colors duration-ez outline-none">
+                    <lucide-icon [img]="share" class="w-5 h-5"></lucide-icon>
+                </button>
+            </div>
+        </div>
+
+    </div>
+    } @else {
+    <div class="flex flex-col items-center justify-center h-full bg-ez-white border-l border-ez-border text-center p-8">
+        <div class="w-12 h-12 border border-ez-border bg-ez-ash flex items-center justify-center mb-4 text-ez-muted">
+            <lucide-icon [img]="creditCard" class="w-5 h-5 opacity-50"></lucide-icon>
+        </div>
+        <p class="text-ez-base font-medium text-ez-heading mb-1">No Payment Selected</p>
+        <p class="text-ez-sm text-ez-secondary">Select a payment from the list to view its details.</p>
+    </div>
+    }
 </ng-template>
