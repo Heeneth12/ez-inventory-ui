@@ -13,156 +13,166 @@
 <!-- DRAWER FORM TEMPLATE -->
 <ng-template #stockItemDetail>
     @if(selectedMasterItem){
-    <div class="flex flex-col h-full bg-[#F8FAFC] font-sans">
+    <div class="flex flex-col h-full bg-ez-white font-sans border-l border-ez-border">
 
-        <div class="bg-white px-6 py-6 border-b border-gray-100">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+        <div class="bg-ez-white px-8 py-6 border-b border-ez-border shrink-0">
+            <div class="flex items-start justify-between gap-4">
                 <div>
-                    <h1 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <h1 class="text-ez-hero font-medium text-ez-heading leading-tight flex items-center gap-2">
                         {{ selectedMasterItem.name }}
                     </h1>
-                    <p class="text-xs text-gray-500">{{selectedMasterItem.description}}</p>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <button (click)="closeItemDetails()"
-                        class="bg-white border border-gray-200 px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 transition">
-                        Cancel
-                    </button>
-                    <button (click)="updateItem(selectedMasterItem.id)"
-                        class="bg-[#4338CA] text-white px-4 py-2 rounded text-sm font-semibold hover:bg-indigo-700 transition">
-                        Edit Item
-                    </button>
+                    <p class="text-ez-sm text-ez-secondary mt-1.5">{{selectedMasterItem.description}}</p>
                 </div>
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto">
-            <div class="bg-white rounded-lg border border-gray-100 p-4 space-y-10">
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="space-y-12 max-w-[1000px] mx-auto">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                    <div class="lg:col-span-4 flex flex-col items-center justify-start">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                    <div class="lg:col-span-4 flex flex-col items-center">
                         <div
-                            class="w-full aspect-square border-2 border-dashed border-blue-400 rounded-lg flex flex-col items-center justify-center bg-blue-50/30 text-blue-600 overflow-hidden">
+                            class="w-full aspect-square border border-ez-border bg-ez-ash flex flex-col items-center justify-center text-ez-muted overflow-hidden">
                             @if(selectedMasterItem.imageUrl) {
                             <img [src]="selectedMasterItem.imageUrl" class="w-full h-full object-cover">
                             } @else {
-                            <svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            <svg class="w-6 h-6 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span class="text-[11px] font-bold uppercase">No Image</span>
+                            <span class="ez-micro-label">No Image</span>
                             }
                         </div>
-                        <div class="mt-4 w-full text-center">
-                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Master Price</span>
-                            <p class="text-2xl font-bold text-emerald-600">{{ selectedMasterItem.sellingPrice |
-                                currency:'INR' }}</p>
+                        <div class="mt-6 w-full text-center">
+                            <span class="ez-micro-label block mb-1">Master Price</span>
+                            <p class="text-[32px] font-medium text-ez-heading leading-none">
+                                {{ selectedMasterItem.sellingPrice | currency:'INR' }}
+                            </p>
                         </div>
                     </div>
 
                     <div class="lg:col-span-8 space-y-6">
-                        <div class="grid grid-cols-1 gap-6">
-                            <div class="space-y-1">
-                                <label class="block text-xs font-medium text-gray-500">Item Code / SKU</label>
-                                <div
-                                    class="w-full bg-gray-50 border border-gray-100 rounded px-3 py-2 text-sm text-gray-800 font-medium">
-                                    {{ selectedMasterItem.itemCode }} {{ selectedMasterItem.sku ? '| ' +
-                                    selectedMasterItem.sku : '' }}
-                                </div>
+
+                        <div class="space-y-1.5">
+                            <label class="ez-label">Item Code / SKU</label>
+                            <div
+                                class="w-full bg-ez-ash border border-ez-border px-4 py-3 text-ez-base text-ez-heading font-medium">
+                                {{ selectedMasterItem.itemCode }} {{ selectedMasterItem.sku ? '| ' +
+                                selectedMasterItem.sku : '' }}
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Category</label>
-                                <div class="text-sm text-gray-700 font-medium">{{ selectedMasterItem.category }}</div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Brand</label>
-                                <div class="text-sm text-gray-700 font-medium">{{ selectedMasterItem.brand || '---' }}
+                            <div class="space-y-1.5">
+                                <label class="ez-label">Category</label>
+                                <div class="text-ez-base text-ez-heading font-medium">{{ selectedMasterItem.category }}
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">HSN Code</label>
-                                <div class="text-sm text-gray-700 font-medium">{{ selectedMasterItem.hsnSacCode || '---'
-                                    }}</div>
+                            <div class="space-y-1.5">
+                                <label class="ez-label">Brand</label>
+                                <div class="text-ez-base text-ez-heading font-medium">{{ selectedMasterItem.brand ||
+                                    '---' }}</div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="ez-label">HSN Code</label>
+                                <div class="text-ez-base text-ez-heading font-medium">{{ selectedMasterItem.hsnSacCode
+                                    || '---' }}</div>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                        <div class="space-y-1.5">
+                            <label class="ez-label">Description</label>
                             <p
-                                class="text-xs text-gray-600 leading-relaxed bg-slate-50 p-3 rounded border border-slate-100">
+                                class="text-ez-sm text-ez-secondary leading-relaxed bg-ez-ash p-4 border border-ez-border min-h-[100px]">
                                 {{ selectedMasterItem.description || 'No description provided for this item.' }}
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <hr class="border-gray-100">
+                <hr class="border-ez-border">
 
                 <div class="space-y-6">
-                    <div class="flex items-center justify-between">
+
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-800">Inventory & Batches</h3>
-                            <p class="text-xs text-gray-500">Real-time stock availability across all active batches</p>
+                            <h3 class="text-ez-lg font-medium text-ez-heading">Inventory & Batches</h3>
+                            <p class="text-ez-sm text-ez-secondary mt-1">Real-time stock availability across all active
+                                batches</p>
                         </div>
-                        <div class="flex gap-4">
-                            <div class="text-center px-4 border-r border-gray-100">
-                                <span class="block text-[10px] font-bold text-gray-400 uppercase">Total Stock</span>
-                                <span class="text-lg font-bold text-indigo-600">{{
+                        <div class="flex gap-6">
+                            <div class="text-center pr-6 border-r border-ez-border">
+                                <span class="ez-micro-label block mb-1">Total Stock</span>
+                                <span class="text-ez-2xl font-medium text-ez-heading">{{
                                     calculateTotalStock(selectedItemDetail?.batches || []) }}</span>
                             </div>
-                            <div class="text-center px-4">
-                                <span class="block text-[10px] font-bold text-gray-400 uppercase">Status</span>
+                            <div class="text-center">
+                                <span class="ez-micro-label block mb-2">Status</span>
                                 <span
-                                    class="text-xs px-2 py-0.5 rounded bg-green-50 text-green-600 font-bold uppercase">In
-                                    Stock</span>
+                                    class="px-2 py-1 border border-ez-border bg-ez-ash text-ez-heading text-ez-xs font-medium uppercase tracking-[0.1em]">
+                                    In Stock
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     @if(selectedItemDetail && selectedItemDetail.batches.length > 0) {
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4">
                         @for(batch of selectedItemDetail.batches; track batch.batchNumber) {
                         <div
-                            class="bg-gray-50 border border-gray-100 rounded-lg p-4 flex justify-between items-center group hover:bg-white hover:shadow-md transition-all">
+                            class="bg-white border border-ez-border p-5 flex justify-between items-center group hover:border-ez-subtle hover:bg-ez-ash transition-[border-color,background-color] duration-ez">
                             <div class="flex items-center gap-4">
-                                <div [ngClass]="getExpiryStatusColor(batch.expiryDate, 'bg')"
-                                    class="w-1 h-10 rounded-full"></div>
+                                <div [ngClass]="getExpiryStatusColor(batch.expiryDate, 'bg')" class="w-1 h-10"></div>
                                 <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm font-bold text-gray-800">{{ batch.batchNumber }}</span>
-                                        <span
-                                            class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Batch</span>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-ez-base font-medium text-ez-heading">{{ batch.batchNumber
+                                            }}</span>
+                                        <span class="ez-micro-label">Batch</span>
                                     </div>
-                                    <p class="text-[11px] text-gray-500 mt-0.5">
+                                    <p class="text-ez-xs text-ez-secondary">
                                         Exp: {{ batch.expiryDate | date:'MMM d, y' }}
                                         <span [ngClass]="getExpiryStatusColor(batch.expiryDate, 'text')"
-                                            class="font-bold ml-1">
+                                            class="font-medium ml-1">
                                             ({{ getDaysRemainingText(batch.expiryDate) }})
                                         </span>
                                     </p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase">Qty Available</p>
-                                <p class="text-lg font-bold text-slate-800">{{ batch.remainingQty }}</p>
+                                <p class="ez-micro-label mb-1">Qty Available</p>
+                                <p class="text-ez-xl font-medium text-ez-heading">{{ batch.remainingQty }}</p>
                             </div>
                         </div>
                         }
                     </div>
                     } @else {
                     <div
-                        class="w-full py-12 border-2 border-dashed border-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-400">
-                        <span class="material-icons opacity-20 text-4xl mb-2">inventory_2</span>
-                        <p class="text-sm font-medium">No active batches found for this item</p>
+                        class="w-full py-16 border border-ez-border bg-ez-ash flex flex-col items-center justify-center text-center">
+                        <svg class="w-8 h-8 text-ez-muted mb-3 opacity-50" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <p class="text-ez-base font-medium text-ez-heading mb-1">No active batches</p>
+                        <p class="text-ez-sm text-ez-secondary">No stock currently available for this item.</p>
                     </div>
                     }
+
                 </div>
             </div>
         </div>
+
+        <div class="bg-ez-white px-8 py-5 border-t border-ez-border shrink-0 flex items-center justify-end gap-3">
+            <button (click)="closeItemDetails()" class="ez-btn ez-btn-secondary">
+                Cancel
+            </button>
+            <button (click)="updateItem(selectedMasterItem.id)" class="ez-btn ez-btn-primary">
+                Edit Item
+            </button>
+        </div>
+
     </div>
     }
 </ng-template>

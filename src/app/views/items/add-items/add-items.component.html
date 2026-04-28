@@ -1,131 +1,197 @@
-<div class="w-full h-screen flex flex-col bg-white overflow-hidden">
-  <div class="flex items-center justify-between px-8 py-3 border-b border-gray-100 shrink-0">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ isEditMode ? 'Edit Item' : 'New Inventory Item' }}</h1>
-    </div>
-    <div class="flex gap-4">
-      <button type="button" (click)="onCancel()" 
-        class="px-6 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
-        Cancel
-      </button>
-      <button type="button" (click)="onSubmit()" 
-        class="px-8 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors">
-        Save Item
-      </button>
+<div class="flex w-full flex-col bg-white overflow-hidden">
+
+  <div class="shrink-0 bg-white sticky top-0 z-20">
+    <div class="px-8 lg:px-10 h-16 flex items-center justify-between gap-3">
+      <h1 class="text-ez-2xl font-medium text-ez-heading leading-tight">{{ isEditMode ? 'Edit Item' : 'New Item' }}</h1>
+      <div class="flex items-center gap-3">
+        <button type="button" (click)="onCancel()" class="ez-btn bg-ez-ash">Cancel</button>
+        <button type="button" (click)="onSubmit()" class="ez-btn ez-btn-primary">Save Item</button>
+      </div>
     </div>
   </div>
 
-  <form [formGroup]="itemForm" class="flex-1 flex flex-col px-8 py-6 gap-8 overflow-y-auto lg:overflow-hidden">
-    
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-6">
-      <div class="lg:col-span-4 flex items-center gap-8 mb-2">
-        <label class="text-sm font-semibold text-gray-900">Item Type:</label>
-        <div class="flex items-center gap-6">
-          <label class="flex items-center gap-2 cursor-pointer group">
-            <input type="radio" formControlName="itemType" value="PRODUCT" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-            <span class="text-sm text-gray-700 group-hover:text-gray-900">Product</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer group">
-            <input type="radio" formControlName="itemType" value="SERVICE" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-            <span class="text-sm text-gray-700 group-hover:text-gray-900">Service</span>
-          </label>
+  <div class="flex-1 overflow-y-auto px-8 lg:px-10 pt-8 pb-8 bg-white">
+    <form [formGroup]="itemForm" class="flex flex-col gap-8 h-full">
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-6">
+
+        <div class="lg:col-span-4 space-y-2">
+          <label class="ez-label">Item Type</label>
+          <div class="flex items-center gap-6">
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input type="radio" formControlName="itemType" value="PRODUCT"
+                style="accent-color: var(--ez-color-primary);" class="w-4 h-4 cursor-pointer outline-none">
+              <span
+                class="text-ez-base text-ez-body group-hover:text-ez-heading transition-colors duration-ez">Product</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input type="radio" formControlName="itemType" value="SERVICE"
+                style="accent-color: var(--ez-color-primary);" class="w-4 h-4 cursor-pointer outline-none">
+              <span
+                class="text-ez-base text-ez-body group-hover:text-ez-heading transition-colors duration-ez">Service</span>
+            </label>
+          </div>
         </div>
-      </div>
 
-      <div class="space-y-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Name <span class="text-red-500">*</span></label>
-        <input type="text" formControlName="name" class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors placeholder-gray-300" placeholder="Item Name">
-      </div>
+        <div class="space-y-1.5">
+          <label class="ez-label">Name <span class="text-red-500">*</span></label>
+          <input type="text" formControlName="name" class="ez-input ez-input--default w-full" placeholder="Item Name">
+        </div>
 
-      <div class="space-y-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Code <span class="text-red-500">*</span></label>
-        <input type="text" formControlName="itemCode" class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent transition-colors" placeholder="Unique Code">
-      </div>
-
-      <div class="space-y-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Category <span class="text-red-500">*</span></label>
-        <select formControlName="category" class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent cursor-pointer">
-          <option value="" disabled selected>Select Category</option>
-          <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
-        </select>
-      </div>
-
-      <div class="space-y-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Unit <span class="text-red-500">*</span></label>
-        <select formControlName="unitOfMeasure" class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent cursor-pointer">
-          <option value="" disabled selected>Select Unit</option>
-          <option *ngFor="let unit of units" [value]="unit">{{unit}}</option>
-        </select>
-      </div>
-
-      <div class="space-y-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">SKU</label>
-        <input type="text" formControlName="sku" class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent" placeholder="Stock Keeping Unit">
-      </div>
-
-      <div class="space-y-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">HSN / SAC</label>
-        <input type="text" formControlName="hsnSacCode" class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent" placeholder="Tax Code">
-      </div>
-
-      <div class="space-y-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Brand</label>
-        <input type="text" formControlName="brand" class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent" placeholder="Brand Name">
-      </div>
-
-      <div class="space-y-1">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Manufacturer</label>
-        <input type="text" formControlName="manufacturer" class="w-full border-b border-gray-300 py-2 text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent" placeholder="Manufacturer Name">
-      </div>
-
-      <div class="lg:col-span-4 grid grid-cols-4 gap-x-8 gap-y-6 bg-gray-50 -mx-8 px-8 py-6 mt-2 border-y border-gray-100">
-        <div class="space-y-1">
-            <label class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Selling Price *</label>
-            <div class="flex items-center">
-                <span class="text-gray-400 mr-2">₹</span>
-                <input type="number" formControlName="sellingPrice" class="w-full border-b border-gray-300 py-1 text-lg font-medium text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent">
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-1.5 mb-1">
+            <label class="ez-label !mb-0">Item Code <span class="text-red-500">*</span></label>
+            <div class="relative group/tooltip flex">
+              <lucide-icon [img]="InfoIcon"
+                class="w-3.5 h-3.5 text-ez-muted cursor-help transition-colors duration-ez group-hover/tooltip:text-ez-heading outline-none"></lucide-icon>
+              <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-ez-carbon text-white text-ez-xs text-center opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity duration-ez z-50">
+                A unique internal identifier used across your system.
+              </div>
             </div>
+          </div>
+          <input type="text" formControlName="itemCode" class="ez-input ez-input--default w-full"
+            placeholder="Unique Code">
         </div>
-        <div class="space-y-1">
-            <label class="text-xs font-semibold text-green-600 uppercase tracking-wider">Cost Price *</label>
-            <div class="flex items-center">
-                <span class="text-gray-400 mr-2">₹</span>
-                <input type="number" formControlName="purchasePrice" class="w-full border-b border-gray-300 py-1 text-lg font-medium text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent">
+
+        <div class="space-y-1.5">
+          <label class="ez-label">Category <span class="text-red-500">*</span></label>
+          <select formControlName="category" class="ez-select w-full">
+            <option value="" disabled selected>Select Category</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
+          </select>
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-1.5 mb-1">
+            <label class="ez-label !mb-0">Unit <span class="text-red-500">*</span></label>
+            <div class="relative group/tooltip flex">
+              <lucide-icon [img]="InfoIcon"
+                class="w-3.5 h-3.5 text-ez-muted cursor-help transition-colors duration-ez group-hover/tooltip:text-ez-heading outline-none"></lucide-icon>
+              <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-ez-carbon text-white text-ez-xs text-center opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity duration-ez z-50">
+                The standard unit of measure (e.g., kg, pcs, boxes).
+              </div>
             </div>
+          </div>
+          <select formControlName="unitOfMeasure" class="ez-select w-full">
+            <option value="" disabled selected>Select Unit</option>
+            <option *ngFor="let unit of units" [value]="unit">{{unit}}</option>
+          </select>
         </div>
-        <div class="space-y-1">
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tax (%)</label>
-            <input type="number" formControlName="taxPercentage" class="w-full border-b border-gray-300 py-1 text-lg text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent">
-        </div>
-        <div class="space-y-1">
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Discount (%)</label>
-            <input type="number" formControlName="discountPercentage" class="w-full border-b border-gray-300 py-1 text-lg text-gray-900 focus:border-blue-500 focus:outline-none bg-transparent">
-        </div>
-      </div>
 
-    </div>
-
-    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-0">
-      
-      <div class="lg:col-span-9 flex flex-col">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Description / Notes</label>
-        <textarea formControlName="description" 
-            class="flex-1 w-full border border-gray-200 rounded-lg p-4 text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none bg-gray-50 hover:bg-white transition-colors"
-            placeholder="Enter detailed product description, warranty info, or internal notes here..."></textarea>
-      </div>
-
-      <div class="lg:col-span-3 flex flex-col">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Image</label>
-        <div class="flex-1 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group relative bg-white">
-            <svg class="w-10 h-10 text-gray-300 group-hover:text-blue-500 mb-3 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            
-            <p class="text-sm font-medium text-gray-600 group-hover:text-blue-600">Upload Image</p>
-            <p class="text-xs text-gray-400 mt-1">or drag & drop</p>
-            <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-1.5 mb-1">
+            <label class="ez-label !mb-0">SKU</label>
+            <div class="relative group/tooltip flex">
+              <lucide-icon [img]="InfoIcon"
+                class="w-3.5 h-3.5 text-ez-muted cursor-help transition-colors duration-ez group-hover/tooltip:text-ez-heading outline-none"></lucide-icon>
+              <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-ez-carbon text-white text-ez-xs text-center opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity duration-ez z-50">
+                Stock Keeping Unit. The scannable barcode or alphanumeric tracking ID.
+              </div>
+            </div>
+          </div>
+          <input type="text" formControlName="sku" class="ez-input ez-input--default w-full"
+            placeholder="Stock Keeping Unit">
         </div>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-1.5 mb-1">
+            <label class="ez-label !mb-0">HSN / SAC</label>
+            <div class="relative group/tooltip flex">
+              <lucide-icon [img]="InfoIcon"
+                class="w-3.5 h-3.5 text-ez-muted cursor-help transition-colors duration-ez group-hover/tooltip:text-ez-heading outline-none"></lucide-icon>
+              <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-ez-carbon text-white text-ez-xs text-center opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity duration-ez z-50">
+                Harmonized System of Nomenclature / Services Accounting Code required for GST filing.
+              </div>
+            </div>
+          </div>
+          <input type="text" formControlName="hsnSacCode" class="ez-input ez-input--default w-full"
+            placeholder="Tax Code">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="ez-label">Brand</label>
+          <input type="text" formControlName="brand" class="ez-input ez-input--default w-full" placeholder="Brand Name">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="ez-label">Manufacturer</label>
+          <input type="text" formControlName="manufacturer" class="ez-input ez-input--default w-full"
+            placeholder="Manufacturer Name">
+        </div>
+
+        <div
+          class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-6 bg-ez-ash -mx-8 lg:-mx-10 px-8 lg:px-10 py-8 mt-4 border-y border-ez-border">
+          <div class="space-y-1.5">
+            <label class="ez-label">Selling Price <span class="text-red-500">*</span></label>
+            <div
+              class="flex bg-white border border-ez-border focus-within:border-ez-primary transition-[border-color] duration-ez">
+              <span class="flex items-center pl-3 text-ez-muted text-ez-base">₹</span>
+              <input type="number" formControlName="sellingPrice"
+                class="flex-1 px-3 py-2 bg-transparent text-ez-base text-ez-heading outline-none">
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="ez-label">Cost Price <span class="text-red-500">*</span></label>
+            <div
+              class="flex bg-white border border-ez-border focus-within:border-ez-primary transition-[border-color] duration-ez">
+              <span class="flex items-center pl-3 text-ez-muted text-ez-base">₹</span>
+              <input type="number" formControlName="purchasePrice"
+                class="flex-1 px-3 py-2 bg-transparent text-ez-base text-ez-heading outline-none">
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-1.5 mb-1">
+              <label class="ez-label !mb-0">Tax (%)</label>
+              <div class="relative group/tooltip flex">
+                <lucide-icon [img]="InfoIcon"
+                  class="w-3.5 h-3.5 text-ez-muted cursor-help transition-colors duration-ez group-hover/tooltip:text-ez-heading outline-none"></lucide-icon>
+                <div
+                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-ez-carbon text-white text-ez-xs text-center opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity duration-ez z-50">
+                  Applicable GST rate.
+                </div>
+              </div>
+            </div>
+            <input type="number" formControlName="taxPercentage" class="ez-input ez-input--default w-full">
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="ez-label">Discount (%)</label>
+            <input type="number" formControlName="discountPercentage" class="ez-input ez-input--default w-full">
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 grid grid-cols-1 lg:grid-cols-12 gap-8 mt-4 flex-1 min-h-[200px]">
+
+          <div class="lg:col-span-9 flex flex-col space-y-1.5">
+            <label class="ez-label">Description / Notes</label>
+            <textarea formControlName="description"
+              class="ez-input ez-input--default bg-white w-full h-full resize-none flex-1"
+              placeholder="Enter detailed product description, warranty info, or internal notes here..."></textarea>
+          </div>
+
+          <div class="lg:col-span-3 flex flex-col space-y-1.5">
+            <label class="ez-label">Image</label>
+            <div
+              class="flex-1 border border-dashed border-ez-border bg-ez-ash flex flex-col items-center justify-center p-6 text-center cursor-pointer hover:border-ez-subtle transition-[border-color] duration-ez group relative min-h-[150px]">
+              <lucide-icon [img]="UploadCloudIcon"
+                class="w-6 h-6 text-ez-muted group-hover:text-ez-heading mb-3 transition-colors duration-ez"></lucide-icon>
+              <p
+                class="text-ez-sm font-medium text-ez-secondary group-hover:text-ez-heading transition-colors duration-ez">
+                Upload Image</p>
+              <p class="text-ez-xs text-ez-muted mt-1">or drag & drop</p>
+              <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+            </div>
+          </div>
+
+        </div>
+
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

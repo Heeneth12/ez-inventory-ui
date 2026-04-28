@@ -1,63 +1,54 @@
 <el-dropdown class="inline-block">
 
-  <!-- Bell trigger -->
   <button title="Notifications"
-    class="relative p-2 text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-lg hover:text-gray-600 transition-colors focus:outline-none group inline-flex items-center justify-center">
-    <lucide-icon [img]="BellIcon" class="w-4 h-4 shrink-0 text-gray-600 group-hover:text-gray-500"></lucide-icon>
+    class="relative flex items-center justify-center w-8 h-8 bg-ez-white border border-ez-border rounded hover:border-ez-subtle text-ez-secondary hover:text-ez-heading transition-[border-color,color] duration-ez outline-none">
+    <lucide-icon [img]="BellIcon" class="w-4 h-4 shrink-0"></lucide-icon>
 
-    <span *ngIf="unreadCount() > 0" class="absolute top-0 right-0 flex h-2.5 w-2.5 pointer-events-none">
+    <span *ngIf="unreadCount() > 0" class="absolute -top-1 -right-1 flex h-2 w-2 pointer-events-none">
       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+      <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
     </span>
   </button>
 
-  <!-- Dropdown panel -->
   <el-menu [attr.anchor]="'bottom end'" popover
-    class="m-0 w-80 origin-top-right rounded-xl bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] ring-1 ring-slate-200 transition [--anchor-gap:8px] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:opacity-0 z-50">
+    class="m-2 w-80 origin-top-right bg-ez-white border border-ez-ash rounded shadow-lg p-0">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between py-3 px-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
-      <div class="flex items-center gap-2">
-        <lucide-icon [img]="BellIcon" class="w-3.5 h-3.5 text-gray-600"></lucide-icon>
-        <span class="text-gray-600 font-semibold text-sm">Notifications</span>
+    <div class="flex items-center justify-between py-4 px-4 border-b border-ez-border bg-white shrink-0">
+      <div class="flex items-center gap-2.5">
+        <lucide-icon [img]="BellIcon" class="w-4 h-4 text-ez-heading"></lucide-icon>
+        <span class="text-ez-heading font-medium text-ez-base">Notifications</span>
       </div>
-      <span *ngIf="unreadCount() > 0"
-        class="text-[10px] font-semibold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
+      <span *ngIf="unreadCount() > 0" class="text-ez-xs font-medium text-ez-secondary">
         {{ unreadCount() }} new
       </span>
     </div>
 
     <div class="flex flex-col overflow-hidden" style="max-height: 480px;">
 
-      <!-- Filter + actions bar -->
-      <div class="px-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
-        <div class="flex items-center justify-between py-3">
+      <div class="px-4 border-b border-ez-border bg-ez-ash shrink-0">
+        <div class="flex items-center justify-between py-2">
 
-          <div class="flex gap-1">
+          <div class="flex gap-4">
             <button (click)="filter.set('all')"
-              [class]="filter() === 'all'
-                ? 'bg-white text-blue-600 border-gray-200 shadow-sm'
-                : 'text-gray-500 border-transparent hover:bg-gray-100'"
-              class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all">
+              class="text-ez-sm transition-colors duration-ez outline-none pb-1 border-b-2"
+              [ngClass]="filter() === 'all' ? 'text-ez-heading font-medium border-ez-heading' : 'text-ez-secondary border-transparent hover:text-ez-heading'">
               All
             </button>
             <button (click)="filter.set('unread')"
-              [class]="filter() === 'unread'
-                ? 'bg-white text-blue-600 border-gray-200 shadow-sm'
-                : 'text-gray-500 border-transparent hover:bg-gray-100'"
-              class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5">
+              class="text-ez-sm transition-colors duration-ez outline-none pb-1 border-b-2 flex items-center gap-1.5"
+              [ngClass]="filter() === 'unread' ? 'text-ez-heading font-medium border-ez-heading' : 'text-ez-secondary border-transparent hover:text-ez-heading'">
               Unread
-              <span *ngIf="unreadCount() > 0" class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+              <span *ngIf="unreadCount() > 0" class="w-1.5 h-1.5 bg-ez-primary rounded-full"></span>
             </button>
           </div>
 
-          <div class="flex gap-1">
+          <div class="flex items-center gap-2">
             <button (click)="markAllAsRead()" title="Mark all as read"
-              class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+              class="text-ez-secondary hover:text-ez-primary transition-colors duration-ez outline-none">
               <lucide-icon [img]="CheckIcon" class="w-4 h-4"></lucide-icon>
             </button>
             <button (click)="clearAll()" title="Clear all"
-              class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+              class="text-ez-secondary hover:text-ez-heading transition-colors duration-ez outline-none">
               <lucide-icon [img]="TrashIcon" class="w-4 h-4"></lucide-icon>
             </button>
           </div>
@@ -65,66 +56,54 @@
         </div>
       </div>
 
-      <!-- Feed -->
-      <div class="overflow-y-auto divide-y divide-gray-50">
+      <div class="overflow-y-auto bg-white">
 
-        <!-- Empty state -->
         <div *ngIf="notifications().length === 0"
-          class="flex flex-col items-center justify-center py-12 px-6 text-center">
-          <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
-            <lucide-icon [img]="BellIcon" class="w-6 h-6 text-gray-300"></lucide-icon>
+          class="flex flex-col items-center justify-center py-16 px-6 text-center border-b border-ez-border">
+          <div class="w-10 h-10 border border-ez-border bg-ez-ash flex items-center justify-center mb-4">
+            <lucide-icon [img]="BellIcon" class="w-5 h-5 text-ez-muted"></lucide-icon>
           </div>
-          <h3 class="text-sm font-medium text-gray-900">All caught up!</h3>
-          <p class="text-xs text-gray-500 mt-1">No new notifications.</p>
+          <h3 class="text-ez-sm font-medium text-ez-heading">All caught up</h3>
+          <p class="text-ez-xs text-ez-secondary mt-1">No new notifications.</p>
         </div>
 
-        <!-- Notification row -->
         <ng-container *ngFor="let note of notifications()">
           <div (click)="markAsRead(note)"
-            class="relative group flex gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-all border-l-[3px]"
-            [ngClass]="{
-              'bg-blue-50/40 border-blue-500': !note.isRead,
-              'border-transparent opacity-80':  note.isRead
-            }">
+            class="relative group flex items-start gap-4 p-4 border-b border-ez-border last:border-0 hover:bg-ez-ash cursor-pointer transition-colors duration-ez outline-none">
 
-            <!-- Type icon -->
-            <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-0.5"
-              [ngClass]="{
-                'bg-amber-100 text-amber-600': note.type === 'WARNING',
-                'bg-green-100 text-green-600': note.type === 'SUCCESS',
-                'bg-red-100   text-red-600':   note.type === 'ERROR',
-                'bg-blue-100  text-blue-600':  note.type === 'INFO' || !note.type
+            <div class="shrink-0 mt-0.5" [ngClass]="{
+                'text-amber-500': note.type === 'WARNING',
+                'text-ez-primary': note.type === 'SUCCESS',
+                'text-red-500': note.type === 'ERROR',
+                'text-ez-secondary': note.type === 'INFO' || !note.type
               }">
-              <lucide-icon *ngIf="note.type === 'WARNING'" [img]="AlertIcon"  class="w-4 h-4"></lucide-icon>
-              <lucide-icon *ngIf="note.type === 'SUCCESS'" [img]="CheckIcon"  class="w-4 h-4"></lucide-icon>
-              <lucide-icon *ngIf="note.type === 'ERROR'"   [img]="ErrorIcon"  class="w-4 h-4"></lucide-icon>
+              <lucide-icon *ngIf="note.type === 'WARNING'" [img]="AlertIcon" class="w-4 h-4"></lucide-icon>
+              <lucide-icon *ngIf="note.type === 'SUCCESS'" [img]="CheckIcon" class="w-4 h-4"></lucide-icon>
+              <lucide-icon *ngIf="note.type === 'ERROR'" [img]="ErrorIcon" class="w-4 h-4"></lucide-icon>
               <lucide-icon *ngIf="note.type === 'INFO' || !note.type" [img]="InfoIcon" class="w-4 h-4"></lucide-icon>
             </div>
 
-            <!-- Content -->
             <div class="flex-1 min-w-0">
 
-              <!-- Subject + time -->
-              <div class="flex justify-between items-start mb-0.5">
-                <h4 class="text-sm font-semibold text-gray-900 truncate pr-4">{{ note.subject }}</h4>
-                <span class="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
+              <div class="flex justify-between items-start mb-1">
+                <h4 class="text-ez-sm font-medium truncate pr-4"
+                  [ngClass]="note.isRead ? 'text-ez-secondary' : 'text-ez-heading'">
+                  {{ note.subject }}
+                </h4>
+                <span class="text-ez-xs text-ez-muted whitespace-nowrap shrink-0">
                   {{ note.receivedAt | date:'shortTime' }}
                 </span>
               </div>
 
-              <!-- Body -->
-              <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">{{ note.body }}</p>
+              <p class="text-ez-xs text-ez-secondary leading-relaxed line-clamp-2">{{ note.body }}</p>
 
-              <!-- Channel badge (single — which channel delivered this item) -->
-              <div class="mt-1.5">
+              <div class="mt-2">
                 <ng-container *ngTemplateOutlet="channelBadgeTpl; context: { $implicit: note }"></ng-container>
               </div>
 
             </div>
 
-            <!-- Unread dot -->
-            <div *ngIf="!note.isRead"
-              class="absolute top-4 right-3 w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+            <div *ngIf="!note.isRead" class="absolute top-4 right-4 w-1.5 h-1.5 bg-ez-primary rounded-full"></div>
 
           </div>
         </ng-container>
@@ -134,26 +113,25 @@
   </el-menu>
 </el-dropdown>
 
-<!-- Channel badge template -->
 <ng-template #channelBadgeTpl let-note>
   <span *ngIf="note.channel === 'IN_APP'"
-    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-600">
-    <lucide-icon [img]="InAppIcon" class="w-2.5 h-2.5"></lucide-icon>
+    class="inline-flex items-center gap-1.5 px-1.5 py-0.5 border border-ez-border bg-white text-ez-xs font-medium text-ez-secondary">
+    <lucide-icon [img]="InAppIcon" class="w-3 h-3 text-ez-muted"></lucide-icon>
     In-App
   </span>
   <span *ngIf="note.channel === 'EMAIL'"
-    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-600">
-    <lucide-icon [img]="MailIcon" class="w-2.5 h-2.5"></lucide-icon>
+    class="inline-flex items-center gap-1.5 px-1.5 py-0.5 border border-ez-border bg-white text-ez-xs font-medium text-ez-secondary">
+    <lucide-icon [img]="MailIcon" class="w-3 h-3 text-ez-muted"></lucide-icon>
     Email
   </span>
   <span *ngIf="note.channel === 'WHATSAPP'"
-    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-600">
-    <lucide-icon [img]="WhatsAppIcon" class="w-2.5 h-2.5"></lucide-icon>
+    class="inline-flex items-center gap-1.5 px-1.5 py-0.5 border border-ez-border bg-white text-ez-xs font-medium text-ez-secondary">
+    <lucide-icon [img]="WhatsAppIcon" class="w-3 h-3 text-ez-muted"></lucide-icon>
     WhatsApp
   </span>
   <span *ngIf="note.channel === 'PUSH'"
-    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-50 text-orange-600">
-    <lucide-icon [img]="PushIcon" class="w-2.5 h-2.5"></lucide-icon>
+    class="inline-flex items-center gap-1.5 px-1.5 py-0.5 border border-ez-border bg-white text-ez-xs font-medium text-ez-secondary">
+    <lucide-icon [img]="PushIcon" class="w-3 h-3 text-ez-muted"></lucide-icon>
     Push
   </span>
 </ng-template>
