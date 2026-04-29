@@ -15,13 +15,15 @@ import {
 } from '../paymentConfig';
 import { AdvanceModal, AdvanceRefundItem } from '../payment.modal';
 import { PaymentService } from '../payment.service';
+import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { LucideAngularModule, CreditCard, FileText } from 'lucide-angular';
 
 type PanelMode = 'none' | 'create' | 'utilize' | 'refund' | 'detail';
 
 @Component({
     selector: 'app-advance-payment',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent, LucideAngularModule],
     templateUrl: './advance-payment.component.html',
     styleUrl: './advance-payment.component.css'
 })
@@ -44,6 +46,12 @@ export class AdvancePaymentComponent implements OnInit {
     selectedAdvance: AdvanceModal | null = null;
     panelMode: PanelMode = 'none';
     isSubmitting = signal(false);
+    isAdvanceDetailsLoading = false;
+
+    @ViewChild('advanceDetails') advanceDetailsTemplate!: TemplateRef<any>;
+
+    readonly creditCard = CreditCard;
+    readonly fileText = FileText;
 
     createForm!: FormGroup;
     utilizeForm!: FormGroup;
@@ -54,7 +62,8 @@ export class AdvancePaymentComponent implements OnInit {
     constructor(
         private fb: FormBuilder,
         private paymentService: PaymentService,
-        private toastSvc: ToastService
+        private toastSvc: ToastService,
+        private drawerService: DrawerService
     ) { }
 
     ngOnInit(): void {
@@ -153,12 +162,26 @@ export class AdvancePaymentComponent implements OnInit {
     }
 
     openDetail(advance: AdvanceModal): void {
-        this.selectedAdvance = advance;
-        this.panelMode = 'detail';
+        this.selectedAdvance = null;
+        this.closePanel();
+        this.isAdvanceDetailsLoading = true;
+
+        this.drawerService.openTemplate(
+            this.advanceDetailsTemplate,
+            'Advance Details',
+            'lg'
+        );
+
         this.paymentService.getAdvance(
             advance.id,
-            (res: any) => { this.selectedAdvance = res.data; },
-            () => { }
+            (res: any) => { 
+                this.selectedAdvance = res.data; 
+                this.isAdvanceDetailsLoading = false;
+            },
+            () => { 
+                this.isAdvanceDetailsLoading = false;
+                this.toastSvc.show('Failed to load advance details', 'error');
+            }
         );
     }
 

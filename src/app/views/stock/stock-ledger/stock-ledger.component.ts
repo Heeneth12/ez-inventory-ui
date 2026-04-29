@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { StandardTableComponent } from "../../../layouts/components/standard-table/standard-table.component";
 import { Router } from '@angular/router';
 import { PaginationConfig, TableColumn, TableAction, TableActionConfig } from '../../../layouts/components/standard-table/standard-table.model';
@@ -8,23 +8,25 @@ import { StockLedger, StockLedgerFilter } from '../models/stock-ledger.model';
 import { LoaderService } from '../../../layouts/components/loader/loaderService';
 import { FilterOption } from '../../../layouts/UI/filter-dropdown/filter-dropdown.component';
 import { DatePickerConfig, DateRangeEmit } from '../../../layouts/UI/date-picker/date-picker.component';
-import { List, Download } from 'lucide-angular';
+import { List, Download, Filter, LucideAngularModule } from 'lucide-angular';
 import { HeaderAction } from '../../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../../layouts/components/drawer/drawerService';
-import { BulkUploadComponent } from '../../../layouts/components/bulk-upload/bulk-upload.component';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 
 @Component({
   selector: 'app-stock-ledger',
   standalone: true,
-  imports: [StandardTableComponent],
+  imports: [CommonModule, StandardTableComponent, FormsModule, LucideAngularModule],
   templateUrl: './stock-ledger.component.html',
   styleUrl: './stock-ledger.component.css'
 })
 export class StockLedgerComponent {
 
+  @ViewChild('stockLedgerDownload') stockLedgerDownload!: any;
 
   stockLedgerList: StockLedger[] = [];
   stockLedgerFilter: StockLedgerFilter = new StockLedgerFilter();
@@ -102,6 +104,13 @@ export class StockLedgerComponent {
   size: number = 10;
   tabs: any;
 
+  icons = {
+    Filter: Filter,
+    Download: Download
+  };
+
+  isDownloadingReport = false;
+
   constructor(
     private stockService: StockService,
     private router: Router,
@@ -158,14 +167,40 @@ export class StockLedgerComponent {
   }
 
   openReport() {
-    this.drawerSvc.openComponent(BulkUploadComponent,
-      {
-        type: 'download',
-        serviceType: 'stock-ledger',
-        customFilters: this.stockLedgerFilter
-      },
+    this.stockLedgerFilter = new StockLedgerFilter();
+    this.drawerSvc.openTemplate(this.stockLedgerDownload,
       "Report Download",
       'lg'
+    );
+  }
+
+  resetFilters() {
+    this.stockLedgerFilter = new StockLedgerFilter();
+  }
+
+  startDownload() {
+    this.isDownloadingReport = true;
+    this.stockService.downloadStockTransactions(
+      this.stockLedgerFilter,
+      'excel',
+      (response: Blob) => {
+        this.isDownloadingReport = false;
+        const url = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Stock_Ledger_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.toastService.show('Report downloaded successfully', 'success');
+        this.drawerSvc.close();
+      },
+      (error: any) => {
+        this.isDownloadingReport = false;
+        this.toastService.show('Error downloading report', 'error');
+      }
     );
   }
 
