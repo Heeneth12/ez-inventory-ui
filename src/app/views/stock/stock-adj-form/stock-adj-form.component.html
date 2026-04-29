@@ -1,190 +1,252 @@
-<div class="min-h-screen bg-[#F8FAFC] p-2 md:p-4 font-sans">
+<div class="min-h-screen bg-ez-white p-2 lg:p-4 font-sans">
+  <div class="mx-auto">
 
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-    <div>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mt-4 mb-8 gap-4">
       <div>
-        <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <h1 class="text-ez-hero font-medium text-ez-heading leading-tight flex items-center gap-2">
           New Stock Adjustment
         </h1>
-        <p class="text-xs text-gray-500 mt-1">Manage stock adjustment, contact information, and role access.</p>
-      </div>
-      <div class="text-xs text-gray-500 mt-1 flex items-center gap-2">
-        <span *ngIf="totalAdjustmentValue > 0">Est. Value: <b class="text-gray-700">{{ totalAdjustmentValue |
-            currency:'INR' }}</b></span>
-        <span *ngIf="totalAdjustmentValue > 0 && requiresApproval" class="text-gray-300">|</span>
-        <span *ngIf="requiresApproval" class="text-[#D97706] font-medium flex items-center gap-1">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          Requires Approval
-        </span>
-      </div>
-    </div>
+        <p class="text-ez-sm text-ez-secondary mt-1">Manage stock quantities, correct discrepancies, and track inventory
+          losses.</p>
 
-    <div class="flex flex-wrap items-center gap-2">
-      <button type="button" (click)="back()"
-        class="bg-white border border-gray-200 px-6 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 transition-colors">
-        Cancel
-      </button>
-
-      <button type="button" (click)="onSubmit()" [disabled]="!stockAdjustmentForm.valid" [ngClass]="requiresApproval 
-          ? 'bg-[#D97706] hover:bg-orange-600 text-white' 
-          : 'bg-[#C7D2FE] text-[#4338CA] hover:opacity-90'"
-        class="px-6 py-2 rounded text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-        <span *ngIf="requiresApproval">Send for Approval</span>
-        <span *ngIf="!requiresApproval">Save Adjustment</span>
-      </button>
-    </div>
-  </div>
-
-  <div *ngIf="requiresApproval"
-    class="mb-6 bg-orange-50 border border-orange-100 rounded-lg p-4 flex items-start gap-3">
-    <div
-      class="mt-0.5 flex items-center justify-center w-5 h-5 rounded-full bg-orange-200 text-orange-800 text-xs font-bold shrink-0">
-      !
-    </div>
-    <div class="text-xs text-orange-800 space-y-1">
-      <div class="font-semibold uppercase tracking-wider">Approval Required</div>
-      <p class="text-orange-700">This adjustment exceeds the auto-approval limit and will be sent to an approver. It
-        will not update stock until the request is approved.</p>
-    </div>
-  </div>
-
-  <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 md:p-8">
-    <form [formGroup]="stockAdjustmentForm" class="flex flex-col gap-8">
-
-      <div>
-        <h2 class="text-sm font-bold text-gray-800 border-b border-gray-100 pb-2 mb-4">General Details</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Warehouse <span
-                class="text-red-500">*</span></label>
-            <select formControlName="warehouseId"
-              class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none bg-white cursor-pointer">
-              <option [ngValue]="null" disabled selected>Select Warehouse</option>
-              <option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Reason <span
-                class="text-red-500">*</span></label>
-            <select formControlName="reasonType"
-              class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none bg-white cursor-pointer">
-              <option *ngFor="let r of reasons" [value]="r">{{ formatReason(r) }}</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Reference No</label>
-            <input type="text" formControlName="reference"
-              class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none placeholder-gray-300"
-              placeholder="Auto-generated if empty">
-          </div>
-
-          <div class="md:col-span-3">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Remarks</label>
-            <textarea formControlName="remarks" rows="2"
-              class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none placeholder-gray-300 resize-none"
-              placeholder="Optional notes..."></textarea>
-          </div>
+        <div class="flex items-center gap-3 mt-3">
+          <span *ngIf="totalAdjustmentValue > 0" class="text-ez-sm text-ez-secondary">
+            Est. Value: <span class="font-medium text-ez-heading">{{ totalAdjustmentValue | currency:'INR' }}</span>
+          </span>
+          <span *ngIf="totalAdjustmentValue > 0 && requiresApproval" class="text-ez-border">|</span>
+          <span *ngIf="requiresApproval" class="flex items-center gap-1.5 text-ez-sm font-medium text-amber-600">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            Requires Approval
+          </span>
         </div>
       </div>
 
+      <div class="flex flex-wrap items-center gap-3 shrink-0">
+        <button type="button" (click)="back()" class="ez-btn ez-btn-secondary">
+          Cancel
+        </button>
+
+        <button type="button" (click)="onSubmit()" [disabled]="!stockAdjustmentForm.valid"
+          class="ez-btn transition-colors duration-ez outline-none"
+          [ngClass]="requiresApproval ? 'border-amber-500 bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50' : 'ez-btn-primary'">
+          <span *ngIf="requiresApproval">Send for Approval</span>
+          <span *ngIf="!requiresApproval">Save Adjustment</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="requiresApproval" class="mb-8 bg-ez-ash border-l-2 border-amber-500 p-4 flex items-start gap-3">
+      <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
       <div>
-        <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-4">
-          <h2 class="text-sm font-bold text-gray-800">Adjustment Items</h2>
-          <button type="button" (click)="addItem()"
-            class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
-            <span class="material-icons text-sm leading-none">+</span> Add Line Item
-          </button>
-        </div>
+        <div class="text-ez-sm font-medium text-ez-heading mb-1">Approval Required</div>
+        <p class="text-ez-sm text-ez-secondary">This adjustment exceeds the auto-approval limit and will be sent to an
+          approver. It will not update stock until the request is approved.</p>
+      </div>
+    </div>
 
-        <div formArrayName="items">
+    <div class="bg-white border border-ez-border flex flex-col step-fade">
+      <form [formGroup]="stockAdjustmentForm" class="flex flex-col">
 
-          <div class="hidden lg:grid grid-cols-12 gap-4 mb-2 px-2">
-            <div class="col-span-5 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Product <span
-                class="text-red-500">*</span></div>
-            <div class="col-span-4 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Batch</div>
-            <div class="col-span-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Qty <span
-                class="text-red-500">*</span></div>
-            <div class="col-span-1"></div>
-          </div>
+        <div class="p-6 md:p-10 space-y-12">
 
-          <div class="space-y-4">
-            <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
-              class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start p-4 lg:p-2 border border-gray-100 lg:border-none rounded bg-gray-50 lg:bg-transparent relative animate-fade-in">
+          <div>
+            <h2 class="text-ez-lg font-medium text-ez-heading border-b border-ez-border pb-3 mb-6">General Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
 
-              <div class="col-span-1 lg:col-span-5 relative">
-                <label class="lg:hidden block text-xs font-medium text-gray-500 mb-1">Product</label>
-
-                <div *ngIf="item.get('itemId')?.value"
-                  class="flex items-center justify-between border border-gray-200 rounded px-3 py-2 bg-white">
-                  <span class="text-sm text-gray-800 font-medium truncate">{{ item.get('itemName')?.value }}</span>
-                  <button type="button"
-                    (click)="item.patchValue({itemId: null, itemName: '', batchNumber: '', unitPrice: 0})"
-                    class="text-[10px] text-red-500 hover:text-red-700 uppercase font-bold tracking-wider">Change</button>
-                </div>
-
-                <input *ngIf="!item.get('itemId')?.value" type="text" (input)="onSearch($event, i)"
-                  class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none bg-white placeholder-gray-300"
-                  placeholder="Search Item Name/Code...">
-
-                <div *ngIf="!item.get('itemId')?.value && activeSearchRowIndex === i && searchResults.length > 0"
-                  class="absolute z-10 top-full left-0 w-full mt-1 bg-white border border-gray-200 shadow-lg rounded max-h-60 overflow-y-auto">
-                  <div *ngFor="let result of searchResults" (click)="onItemSelected(result, i)"
-                    class="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0">
-                    <div class="text-sm font-medium text-gray-800">{{ result.name }}</div>
-                    <div class="text-[10px] text-gray-500 mt-0.5">{{ result.code }}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-span-1 lg:col-span-4">
-                <label class="lg:hidden block text-xs font-medium text-gray-500 mb-1">Batch</label>
-                <select formControlName="batchNumber" (change)="onBatchChange(i, $event)"
-                  class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none bg-white cursor-pointer disabled:bg-gray-50 disabled:text-gray-400">
-                  <option value="">Auto / No Batch</option>
-                  <option *ngFor="let batch of getBatchesForItem(i)" [value]="batch.batchNumber">
-                    {{ batch.batchNumber }} (Qty: {{ batch.remainingQty }})
-                  </option>
+              <div class="space-y-1.5">
+                <label class="ez-label">Warehouse <span class="text-red-500">*</span></label>
+                <select formControlName="warehouseId" class="ez-select w-full">
+                  <option [ngValue]="null" disabled selected>Select Warehouse</option>
+                  <option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</option>
                 </select>
               </div>
 
-              <div class="col-span-1 lg:col-span-2">
-                <label class="lg:hidden block text-xs font-medium text-gray-500 mb-1">Quantity</label>
-                <input type="number" formControlName="quantity" min="1"
-                  class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none bg-white placeholder-gray-300"
-                  placeholder="0">
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-1.5 mb-1">
+                  <label class="ez-label !mb-0">Reason <span class="text-red-500">*</span></label>
+                  <div class="relative group/tooltip flex">
+                    <svg
+                      class="w-3.5 h-3.5 text-ez-muted cursor-help transition-colors duration-ez group-hover/tooltip:text-ez-heading outline-none"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div
+                      class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-ez-carbon text-white text-ez-xs text-center opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity duration-ez z-50">
+                      Why is this stock being adjusted? (e.g., Damage, Theft, Miscount).
+                    </div>
+                  </div>
+                </div>
+                <select formControlName="reasonType" class="ez-select w-full">
+                  <option *ngFor="let r of reasons" [value]="r">{{ formatReason(r) }}</option>
+                </select>
               </div>
 
-              <div class="col-span-1 flex justify-end lg:justify-center lg:pt-1">
-                <button type="button" (click)="removeItem(i)"
-                  class="text-gray-400 hover:text-red-500 p-1 rounded hover:bg-red-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                    </path>
-                  </svg>
-                </button>
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-1.5 mb-1">
+                  <label class="ez-label !mb-0">Reference No</label>
+                  <div class="relative group/tooltip flex">
+                    <svg
+                      class="w-3.5 h-3.5 text-ez-muted cursor-help transition-colors duration-ez group-hover/tooltip:text-ez-heading outline-none"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div
+                      class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-ez-carbon text-white text-ez-xs text-center opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity duration-ez z-50">
+                      Leave blank to auto-generate a unique ID.
+                    </div>
+                  </div>
+                </div>
+                <input type="text" formControlName="reference" class="ez-input ez-input--default w-full"
+                  placeholder="Auto-generated if empty">
               </div>
-            </div>
 
-            <div *ngIf="items.length === 0"
-              class="text-center py-10 bg-gray-50/50 rounded border border-dashed border-gray-200">
-              <p class="text-xs text-gray-400 mb-2">No items added to this adjustment.</p>
-              <button type="button" (click)="addItem()"
-                class="text-xs font-medium text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded transition">
-                + Add First Item
-              </button>
+              <div class="md:col-span-3 space-y-1.5">
+                <label class="ez-label">Remarks</label>
+                <textarea formControlName="remarks" rows="2" class="ez-input ez-input--default w-full resize-none"
+                  placeholder="Optional notes..."></textarea>
+              </div>
             </div>
           </div>
 
-        </div>
-      </div>
+          <div>
+            <div class="flex items-center justify-between border-b border-ez-border pb-3 mb-6">
+              <h2 class="text-ez-lg font-medium text-ez-heading">Adjustment Items</h2>
+              <button type="button" (click)="addItem()"
+                class="text-ez-sm font-medium text-ez-primary hover:text-ez-primary-hover transition-colors duration-ez flex items-center gap-1.5 outline-none">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Line Item
+              </button>
+            </div>
 
-    </form>
+            <div formArrayName="items">
+
+              <div class="hidden lg:grid grid-cols-12 gap-4 mb-3 px-4">
+                <div class="col-span-5 ez-micro-label text-ez-secondary">Product <span class="text-red-500">*</span>
+                </div>
+                <div class="col-span-4 ez-micro-label text-ez-secondary">Batch</div>
+                <div class="col-span-2 ez-micro-label text-ez-secondary">Qty <span class="text-red-500">*</span></div>
+                <div class="col-span-1"></div>
+              </div>
+
+              <div class="space-y-4">
+                <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
+                  class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start p-4 lg:p-0 border border-ez-border lg:border-none bg-ez-ash lg:bg-transparent relative step-fade">
+
+                  <div class="col-span-1 lg:col-span-5 relative">
+                    <label class="lg:hidden ez-label">Product</label>
+
+                    <div *ngIf="item.get('itemId')?.value"
+                      class="flex items-center justify-between border border-ez-border bg-white px-3 py-2">
+                      <span class="text-ez-sm font-medium text-ez-heading truncate">{{ item.get('itemName')?.value
+                        }}</span>
+                      <button type="button"
+                        (click)="item.patchValue({itemId: null, itemName: '', batchNumber: '', unitPrice: 0})"
+                        class="text-ez-2xs font-medium text-red-500 hover:text-red-600 uppercase tracking-[0.1em] outline-none transition-colors duration-ez">
+                        Change
+                      </button>
+                    </div>
+
+                    <input *ngIf="!item.get('itemId')?.value" type="text" (input)="onSearch($event, i)"
+                      class="ez-input ez-input--default w-full bg-white" placeholder="Search Item Name/Code...">
+
+                    <div *ngIf="!item.get('itemId')?.value && activeSearchRowIndex === i && searchResults.length > 0"
+                      class="absolute z-10 top-full left-0 w-full mt-1 bg-white border border-ez-border shadow-none max-h-60 overflow-y-auto">
+                      <div *ngFor="let result of searchResults" (click)="onItemSelected(result, i)"
+                        class="px-4 py-3 hover:bg-ez-ash cursor-pointer border-b border-ez-border last:border-0 transition-colors duration-ez">
+                        <div class="text-ez-sm font-medium text-ez-heading mb-0.5">{{ result.name }}</div>
+                        <div class="ez-micro-label text-ez-muted">{{ result.code }}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-span-1 lg:col-span-4">
+                    <label class="lg:hidden ez-label">Batch</label>
+                    <select formControlName="batchNumber" (change)="onBatchChange(i, $event)"
+                      class="ez-select w-full bg-white disabled:bg-ez-ash disabled:text-ez-muted">
+                      <option value="">Auto / No Batch</option>
+                      <option *ngFor="let batch of getBatchesForItem(i)" [value]="batch.batchNumber">
+                        {{ batch.batchNumber }} (Qty: {{ batch.remainingQty }})
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="col-span-1 lg:col-span-2">
+                    <label class="lg:hidden ez-label">Quantity</label>
+                    <input type="number" formControlName="quantity" min="1"
+                      class="ez-input ez-input--default w-full bg-white" placeholder="0">
+                  </div>
+
+                  <div class="col-span-1 flex justify-end lg:justify-center lg:pt-1">
+                    <button type="button" (click)="removeItem(i)"
+                      class="p-2 text-ez-muted hover:text-red-500 transition-colors duration-ez outline-none">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div *ngIf="items.length === 0"
+                  class="text-center py-12 border border-dashed border-ez-border bg-ez-ash">
+                  <p class="text-ez-sm text-ez-secondary mb-3">No items added to this adjustment.</p>
+                  <button type="button" (click)="addItem()" class="ez-btn ez-btn-secondary h-8 min-h-0 px-3">
+                    <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add First Item
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="bg-ez-ash border-t border-ez-border mt-2 p-4 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+          <div
+            class="w-12 h-12 border border-ez-border bg-white flex items-center justify-center shrink-0 text-ez-heading">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-ez-lg font-medium text-ez-heading mb-4">How Stock Adjustments Work</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-ez-sm text-ez-secondary leading-relaxed">
+              <div>
+                <strong class="text-ez-heading font-medium block mb-1">Stock Impact</strong>
+                Adjustments instantly add or remove stock based on the reason provided. This ensures your physical
+                counts match your digital records.
+              </div>
+              <div>
+                <strong class="text-ez-heading font-medium block mb-1">Batch Allocation</strong>
+                Deductions are pulled directly from the specified batch number. If "Auto" is used, the system processes
+                it using standard FIFO logic.
+              </div>
+              <div>
+                <strong class="text-ez-heading font-medium block mb-1">Permanent Record</strong>
+                This action creates an irreversible ledger entry. All adjustments are logged with a timestamp and user
+                ID for audit compliance.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
   </div>
 </div>
