@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Banknote, PieChart, ShoppingCart, Users } from 'lucide-angular';
+import { Banknote, Calendar, CreditCard, Mail, Phone, PieChart, ShoppingCart, Users, LucideAngularModule, Send, Share, Download, IndianRupeeIcon, FileText } from 'lucide-angular';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
@@ -19,7 +19,7 @@ import { PAYMENTS_COLUMNS, PAYMENTS_FILTER_OPTIONS, PAYMENTS_DATE_CONFIG, PAYMEN
 @Component({
   selector: 'app-payments',
   standalone: true,
-  imports: [CommonModule, StandardTableComponent, StatGroupComponent],
+  imports: [CommonModule, StandardTableComponent, StatGroupComponent, LucideAngularModule],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.css'
 })
@@ -30,8 +30,27 @@ export class PaymentsComponent {
   paymentList: PaymentModal[] = [];
   paymentDetails: PaymentModal | null = null;
 
+  @ViewChild('paymentDetailsTemplate') paymentDetailsTemplate!: any;
+
+  //icon
+  readonly creditCard = CreditCard;
+  readonly mail = Mail;
+  readonly phone = Phone;
+  readonly calendar = Calendar;
+  readonly users = Users;
+  readonly shoppingCart = ShoppingCart;
+  readonly pieChart = PieChart;
+  readonly banknote = Banknote;
+  readonly send = Send;
+  readonly share = Share;
+  readonly download = Download;
+  readonly indianRupeeIcon = IndianRupeeIcon;
+  readonly fileText = FileText;
+
+
   pagination: PaginationConfig = { pageSize: 15, currentPage: 1, totalItems: 0 };
   isLoading = false;
+  isPaymentDetailsLoading = false;
   selectedItemIds: (string | number)[] = [];
 
   columns: TableColumn[] = PAYMENTS_COLUMNS;
@@ -93,11 +112,14 @@ export class PaymentsComponent {
   }
 
   getPaymentDetailsById(paymentId: string | number) {
+    this.isPaymentDetailsLoading = true;
     this.paymentService.getPagetPaymentSummaryById(paymentId,
       (response: any) => {
         this.paymentDetails = response.data;
+        this.isPaymentDetailsLoading = false;
       },
       (error: any) => {
+        this.isPaymentDetailsLoading = false;
         this.toastService.show("", 'error')
       }
     );
@@ -112,7 +134,7 @@ export class PaymentsComponent {
 
   handleTableAction(event: TableAction) {
     if (event.type === 'custom' && event.key === 'payment_details') {
-      this.getPaymentDetailsById(event.row.id);
+      this.openPaymentSummaryDrawer(event.row.id);
 
     }
     if (event.type === 'custom' && event.key === 'download_receipt') {
@@ -141,6 +163,27 @@ export class PaymentsComponent {
     );
   }
 
+
+  getPaymentSummary(paymentId: string | number) {
+    this.paymentService.getPaymentById(paymentId,
+      (response: any) => {
+        this.paymentDetails = response.data;
+
+      },
+      (error: any) => {
+        this.toastService.show("", 'error')
+      }
+    );
+  }
+
+  openPaymentSummaryDrawer(paymentId: string | number) {
+    this.getPaymentDetailsById(paymentId);
+    this.drawerService.openTemplate(
+      this.paymentDetailsTemplate,
+      'Payment Details',
+      'lg'
+    )
+  }
 
   onTableAction(event: TableAction) {
     const { type, row, key } = event;

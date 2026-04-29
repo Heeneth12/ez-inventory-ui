@@ -13,98 +13,122 @@
 
 <ng-template #stockItemDetail>
   @if(selectedItemDetail){
-  <div class="flex flex-col h-full bg-[#F8FAFC] font-sans">
+  <div class="flex flex-col h-full bg-ez-white font-sans border-l border-ez-border">
 
-    <div class="bg-white px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+    <div class="bg-ez-white px-8 py-6 border-b border-ez-border shrink-0 flex justify-between items-start gap-4">
       <div class="flex items-center gap-4">
         <div
-          class="h-12 w-12 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 border border-dashed border-slate-300">
-          <lucide-icon [img]="packageIcon" [size]="24"></lucide-icon>
+          class="w-12 h-12 border border-ez-border bg-ez-ash flex items-center justify-center text-ez-muted shrink-0">
+          <lucide-icon [img]="packageIcon" [size]="20"></lucide-icon>
         </div>
         <div>
-          <h2 class="text-lg font-semibold text-slate-800">{{ selectedItemDetail.name }}</h2>
-          <p class="text-xs text-slate-500">Inventory Management / Stock Details</p>
+          <h2 class="text-ez-hero font-medium text-ez-heading leading-tight">{{ selectedItemDetail.name }}</h2>
+          <p class="text-ez-sm text-ez-secondary mt-1">Inventory Management / Stock Details</p>
         </div>
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+    <div class="flex-1 overflow-y-auto p-4">
+      <div class="space-y-12 max-w-[1000px] mx-auto">
 
-      <div class="grid grid-cols-3 gap-4">
-        <div class="bg-white p-4 rounded-md border border-slate-200">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Total Inventory</span>
-          <div class="text-2xl font-bold text-slate-900 mt-1">
-            {{ calculateTotalStock(selectedItemDetail.batches) }} <span
-              class="text-sm font-normal text-slate-500">Units</span>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-ez-border border border-ez-border">
+          <div class="bg-white p-6">
+            <span class="ez-micro-label text-ez-secondary block mb-2">Total Inventory</span>
+            <div class="text-[32px] font-medium text-ez-heading leading-none">
+              {{ calculateTotalStock(selectedItemDetail.batches) }}
+              <span class="text-ez-base text-ez-secondary font-normal">Units</span>
+            </div>
+          </div>
+          <div class="bg-white p-6">
+            <span class="ez-micro-label text-ez-secondary block mb-2">Product Code</span>
+            <div class="text-ez-xl font-medium text-ez-heading leading-none mt-1.5">{{ selectedItemDetail.code }}</div>
+          </div>
+          <div class="bg-white p-6">
+            <span class="ez-micro-label text-ez-secondary block mb-2">SKU Reference</span>
+            <div class="text-ez-xl font-medium text-ez-heading leading-none mt-1.5">{{ selectedItemDetail.sku }}</div>
           </div>
         </div>
-        <div class="bg-white p-4 rounded-md border border-slate-200">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Product Code</span>
-          <div class="text-lg font-medium text-slate-700 mt-1">{{ selectedItemDetail.code }}</div>
-        </div>
-        <div class="bg-white p-4 rounded-md border border-slate-200">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-tight">SKU Reference</span>
-          <div class="text-lg font-medium text-slate-700 mt-1">{{ selectedItemDetail.sku }}</div>
-        </div>
-      </div>
 
-      <div class="border-b border-slate-200 pb-2">
-        <h3 class="text-sm font-bold text-slate-600 uppercase tracking-wider">Active Batches ({{
-          selectedItemDetail.batches.length }})</h3>
-      </div>
+        <hr class="border-ez-border">
 
-      <div class="grid gap-3">
-        <div *ngFor="let batch of selectedItemDetail.batches"
-          class="group bg-white rounded-md border border-slate-200 p-4 hover:border-indigo-300 transition-all">
+        <div class="space-y-6">
+          <h3 class="text-ez-lg font-medium text-ez-heading">
+            Active Batches ({{ selectedItemDetail.batches.length }})
+          </h3>
 
-          <div class="flex items-center justify-between">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span
-                  class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase">Batch</span>
-                <span class="text-sm font-semibold text-slate-700">{{ batch.batchNumber }}</span>
-              </div>
-              <div class="flex items-center gap-2 text-xs text-slate-500">
-                <lucide-icon [img]="calendarIcon" [size]="12"></lucide-icon>
-                <span>Expires: {{ batch.expiryDate | date:'mediumDate' }}</span>
-                <span [ngClass]="getExpiryStatusColor(batch.expiryDate, 'text')" class="font-medium">
-                  ({{ getDaysRemainingText(batch.expiryDate) }})
-                </span>
-              </div>
-            </div>
+          <div class="grid gap-4">
+            @for(batch of selectedItemDetail.batches; track batch.batchNumber){
+            <div
+              class="bg-white border border-ez-border p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group hover:border-ez-subtle hover:bg-ez-ash transition-[border-color,background-color] duration-ez">
 
-            <div class="flex items-center gap-8">
-              <div class="text-right">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Unit Cost</p>
-                <p class="text-sm font-semibold text-slate-800">{{ batch.buyPrice | currency:'INR' }}</p>
-              </div>
-
-              <div class="flex flex-col items-center min-w-[80px]">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Available</p>
-                <div class="bg-[#5347D1] text-white px-4 py-1.5 rounded-md text-sm font-bold">
-                  {{ batch.remainingQty }}
+              <div class="flex items-center gap-4">
+                <div [ngClass]="getExpiryStatusColor(batch.expiryDate, 'bg')" class="w-1 h-10 shrink-0"></div>
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-ez-base font-medium text-ez-heading">{{ batch.batchNumber }}</span>
+                    <span class="ez-micro-label">Batch</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-ez-xs text-ez-secondary">
+                    <lucide-icon [img]="calendarIcon" [size]="12"></lucide-icon>
+                    <span>Expires: {{ batch.expiryDate | date:'MMM d, y' }}</span>
+                    <span [ngClass]="getExpiryStatusColor(batch.expiryDate, 'text')" class="font-medium">
+                      ({{ getDaysRemainingText(batch.expiryDate) }})
+                    </span>
+                  </div>
                 </div>
               </div>
+
+              <div
+                class="flex items-center gap-8 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t border-ez-border sm:border-0">
+                <div class="text-left sm:text-right flex-1 sm:flex-auto">
+                  <p class="ez-micro-label mb-1">Unit Cost</p>
+                  <p class="text-ez-base font-medium text-ez-heading">{{ batch.buyPrice | currency:'INR' }}</p>
+                </div>
+
+                <div class="flex flex-col items-center min-w-[80px]">
+                  <p class="ez-micro-label mb-2">Available</p>
+                  <div
+                    class="border border-ez-border bg-white group-hover:bg-ez-white px-4 py-1.5 text-ez-base font-medium text-ez-heading min-w-[60px] text-center transition-colors duration-ez">
+                    {{ batch.remainingQty }}
+                  </div>
+                </div>
+              </div>
+
             </div>
+            }@empty{
+            <div
+              class="flex flex-col items-center justify-center h-full bg-ez-white border-l border-ez-border text-center p-8">
+              <div
+                class="w-12 h-12 border border-ez-border bg-ez-ash flex items-center justify-center mb-4 text-ez-muted">
+                <lucide-icon [img]="searchIcon" class="w-5 h-5 opacity-50"></lucide-icon>
+              </div>
+              <p class="text-ez-base font-medium text-ez-heading mb-1">No Batches Found</p>
+              <p class="text-ez-sm text-ez-secondary">No batches found for this item.</p>
+            </div>
+            }
           </div>
         </div>
+
       </div>
     </div>
 
-    <div class="bg-white p-4 border-t border-slate-200 flex justify-end">
-      <div class="text-xs text-slate-400 italic flex items-center mr-auto">
-        Note: Batch availability is updated in real-time.
+    <div class="bg-ez-white px-8 py-5 border-t border-ez-border shrink-0 flex items-center justify-between">
+      <div class="text-ez-xs text-ez-muted">
+        Batch availability is updated in real-time.
       </div>
-      <button (click)="drawerSvc.close()"
-        class="px-6 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50">
+      <button (click)="drawerSvc.close()" class="ez-btn ez-btn-secondary">
         Go Back
       </button>
     </div>
+
   </div>
   }@else {
-  <div class="flex flex-col items-center justify-center h-full bg-[#F8FAFC] text-slate-400">
-    <lucide-icon [img]="searchIcon" [size]="48" class="mb-2 opacity-20"></lucide-icon>
-    <p class="text-sm font-medium">No Item Selected</p>
+  <div class="flex flex-col items-center justify-center h-full bg-ez-white border-l border-ez-border text-center p-8">
+    <div class="w-12 h-12 border border-ez-border bg-ez-ash flex items-center justify-center mb-4 text-ez-muted">
+      <lucide-icon [img]="searchIcon" class="w-5 h-5 opacity-50"></lucide-icon>
+    </div>
+    <p class="text-ez-base font-medium text-ez-heading mb-1">No Item Selected</p>
+    <p class="text-ez-sm text-ez-secondary">Select an item from the list to view its inventory details.</p>
   </div>
   }
 </ng-template>

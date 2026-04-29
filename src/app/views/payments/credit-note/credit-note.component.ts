@@ -15,13 +15,16 @@ import {
 } from '../paymentConfig';
 import { CreditNoteModal, CreditNoteRefundItem } from '../payment.modal';
 import { PaymentService } from '../payment.service';
+import { DrawerService } from '../../../layouts/components/drawer/drawerService';
+import { LucideAngularModule, CreditCard, FileText } from 'lucide-angular';
+import { TemplateRef, ViewChild } from '@angular/core';
 
 type PanelMode = 'none' | 'utilize' | 'refund' | 'detail';
 
 @Component({
     selector: 'app-credit-note',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, StandardTableComponent, LucideAngularModule],
     templateUrl: './credit-note.component.html',
     styleUrl: './credit-note.component.css'
 })
@@ -44,6 +47,12 @@ export class CreditNoteComponent implements OnInit {
     selectedNote: CreditNoteModal | null = null;
     panelMode: PanelMode = 'none';
     isSubmitting = signal(false);
+    isCreditNoteDetailsLoading = false;
+
+    @ViewChild('creditNoteDetails') creditNoteDetailsTemplate!: TemplateRef<any>;
+
+    readonly creditCard = CreditCard;
+    readonly fileText = FileText;
 
     utilizeForm!: FormGroup;
     refundForm!: FormGroup;
@@ -53,7 +62,8 @@ export class CreditNoteComponent implements OnInit {
     constructor(
         private fb: FormBuilder,
         private paymentService: PaymentService,
-        private toastSvc: ToastService
+        private toastSvc: ToastService,
+        private drawerService: DrawerService
     ) { }
 
     ngOnInit(): void {
@@ -138,12 +148,26 @@ export class CreditNoteComponent implements OnInit {
     // ── Panel actions ─────────────────────────────────────────────────────────
 
     openDetail(note: CreditNoteModal): void {
-        this.selectedNote = note;
-        this.panelMode = 'detail';
+        this.selectedNote = null;
+        this.closePanel();
+        this.isCreditNoteDetailsLoading = true;
+
+        this.drawerService.openTemplate(
+            this.creditNoteDetailsTemplate,
+            'Credit Note Details',
+            'lg'
+        );
+
         this.paymentService.getCreditNote(
             note.id,
-            (res: any) => { this.selectedNote = res.data; },
-            () => { }
+            (res: any) => { 
+                this.selectedNote = res.data; 
+                this.isCreditNoteDetailsLoading = false;
+            },
+            () => { 
+                this.isCreditNoteDetailsLoading = false;
+                this.toastSvc.show('Failed to load credit note details', 'error');
+            }
         );
     }
 

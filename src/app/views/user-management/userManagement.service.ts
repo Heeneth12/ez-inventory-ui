@@ -58,6 +58,18 @@ export class UserManagementService {
         return this.httpService.postHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/address`, data, successfn, errorfn);
     }
 
+    getCurrentTenant(successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${UserManagementService.TENANT_BASE_URL}/current`, successfn, errorfn);
+    }
+
+    toggleTenantStatus(tenantId: number, successfn: any, errorfn: any) {
+        return this.httpService.putHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/toggle-status`, {}, successfn, errorfn);
+    }
+
+    deleteTenantAddress(tenantId: number, addressId: number, successfn: any, errorfn: any) {
+        return this.httpService.deleteHttp(`${UserManagementService.TENANT_BASE_URL}/${tenantId}/address/${addressId}`, successfn, errorfn);
+    }
+
     // users
     createUser(requestBody: CreateUserModel, successfn: any, errorfn: any) {
         return this.httpService.postHttp(`${UserManagementService.USER_BASE_URL}/create`, requestBody, successfn, errorfn);
@@ -94,6 +106,19 @@ export class UserManagementService {
     updateUserAddress(userId: number, addressId: number, data: any, successfn: any, errorfn: any) {
         return this.httpService.putHttp(`${UserManagementService.USER_BASE_URL}/${userId}/address/${addressId}`, data, successfn, errorfn);
     }
+
+    getCurrentUser(successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${UserManagementService.USER_BASE_URL}/me`, successfn, errorfn);
+    }
+
+    getUserAddresses(userId: number, successfn: any, errorfn: any) {
+        return this.httpService.getHttp(`${UserManagementService.USER_BASE_URL}/${userId}/addresses`, successfn, errorfn);
+    }
+
+    deleteUserAddress(userId: number, addressId: number, successfn: any, errorfn: any) {
+        return this.httpService.deleteHttp(`${UserManagementService.USER_BASE_URL}/${userId}/address/${addressId}`, successfn, errorfn);
+    }
+
 
     // common / REFERENCE
     getAllApplications(successfn: any, errorfn: any) {

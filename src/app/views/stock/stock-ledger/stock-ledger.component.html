@@ -10,7 +10,81 @@
 </div>
 
 <!-- DRAWER FORM TEMPLATE -->
-<ng-template #contactProfile let-data>
-    <div class="flex flex-col h-full bg-white">
+<ng-template #stockLedgerDetail>
+
+</ng-template>
+
+<ng-template #stockLedgerDownload>
+    <div class="bg-white border border-ez-border font-sans flex flex-col max-w-2xl mx-auto">
+
+        <div class="px-8 py-6 border-b border-ez-border bg-ez-ash shrink-0">
+            <h3 class="text-ez-lg font-medium text-ez-heading flex items-center gap-3">
+                <lucide-icon [img]="icons.Filter" class="w-5 h-5 text-ez-muted"></lucide-icon>
+                Export Ledger
+            </h3>
+            <p class="text-ez-sm text-ez-secondary mt-2 pl-8">Refine the date range and transaction types to include in
+                your spreadsheet export.</p>
+        </div>
+
+        <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 bg-white">
+
+            <div class="space-y-1.5">
+                <label class="ez-label">Reference Type</label>
+                <select [(ngModel)]="stockLedgerFilter.referenceTypes" class="ez-select w-full bg-white"
+                    placeholder="Select Reference Type">
+                    <option value="">All References</option>
+                    <option value="GRN">GRN (Goods Receipt)</option>
+                    <option value="SALE">SALE</option>
+                    <option value="PURCHASE_RETURN">PURCHASE_RETURN</option>
+                    <option value="ADJUSTMENT">ADJUSTMENT</option>
+                    <option value="TRANSFER">TRANSFER</option>
+                </select>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="ez-label">Transaction Direction</label>
+                <select [(ngModel)]="stockLedgerFilter.transactionTypes" class="ez-select w-full bg-white"
+                    placeholder="Select Transaction Direction">
+                    <option value="">All Directions</option>
+                    <option value="IN">Stock IN</option>
+                    <option value="OUT">Stock OUT</option>
+                </select>
+            </div>
+
+            <div class="space-y-1.5 border-t border-ez-border pt-6 md:border-t-0 md:pt-0">
+                <label class="ez-label">From Date</label>
+                <input type="date" [(ngModel)]="stockLedgerFilter.fromDate"
+                    class="ez-input ez-input--default w-full bg-white">
+            </div>
+
+            <div class="space-y-1.5 border-t border-ez-border pt-6 md:border-t-0 md:pt-0">
+                <label class="ez-label">To Date</label>
+                <input type="date" [(ngModel)]="stockLedgerFilter.toDate"
+                    class="ez-input ez-input--default w-full bg-white">
+            </div>
+
+        </div>
+
+        <div class="px-8 py-5 bg-ez-ash border-t border-ez-border flex items-center justify-between shrink-0">
+            <button (click)="resetFilters()" class="text-ez-sm font-medium text-ez-secondary hover:text-ez-heading
+                transition-colors duration-ez outline-none">
+                Reset Filters
+            </button>
+
+            <button (click)="startDownload()" [disabled]="isDownloadingReport"
+                class="ez-btn ez-btn-primary min-w-[180px]">
+                @if (isDownloadingReport) {
+                <svg class="w-4 h-4 animate-spin text-white/50" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.3"></circle>
+                    <path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+                </svg>
+                Generating Excel...
+                } @else {
+                <lucide-icon [img]="icons.Download" class="w-4 h-4"></lucide-icon>
+                Export to Excel
+                }
+            </button>
+        </div>
+
     </div>
 </ng-template>
