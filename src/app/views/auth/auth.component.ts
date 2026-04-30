@@ -33,6 +33,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly APP_KEY = 'EZH_INV_APP';
   private forgotTenantId: number = 0;
   forgotEmail: string = '';
+  errorMessage: string = '';
 
   countries = [
     { code: '+91', label: 'IN (+91)', countryName: 'India' },
@@ -287,7 +288,11 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   private executeLogin(credentials: any) {
     this.authSvc.login(credentials,
       () => { this.isLoading = false; this.toastService.show('Login Successful!', 'success'); },
-      (error: any) => { console.error(error); this.isLoading = false; }
+      (error: any) => {
+        this.toastService.show(error?.error?.message || 'An unexpected error occurred', 'error');
+        this.errorMessage = error.error?.message || 'An unexpected error occurred';
+        this.isLoading = false;
+      }
     );
   }
 
