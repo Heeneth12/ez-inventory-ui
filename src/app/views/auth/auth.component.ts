@@ -7,6 +7,8 @@ import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { ToastService } from '../../layouts/components/toast/toastService';
 import { ForgotPasswordModel, ResendOtpModel, ResetPasswordModel } from './auth.model';
+import { CommonService } from '../../layouts/service/common/common.service';
+import { MarketingRequestDto, SupportCategory, SupportPriority } from '../../layouts/models/user-request.model';
 
 
 declare const google: any;
@@ -58,7 +60,8 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     private authSvc: AuthService,
     private route: ActivatedRoute,
     private ngZone: NgZone,
-    private router: Router
+    private router: Router,
+    private commonService: CommonService
   ) {
     this.initForm();
   }
@@ -118,7 +121,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
         countryCode: ['+91', Validators.required],
         phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
         reason: ['Request a Demo', Validators.required],
-        message: ['', [Validators.required, Validators.minLength(10)]],
+        message: ['', [Validators.required]],
       });
     } else {
       // login (default)
@@ -219,12 +222,30 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private executeBooking() {
-    console.log('Booking payload:', this.authForm.value);
-    setTimeout(() => {
-      this.isLoading = false;
-      this.toastService.show('Request sent successfully!', 'success');
-      this.switchMode('login');
-    }, 1500);
+    this.isLoading = true;
+    this.loadingText = 'Sending request...';
+    const payload: MarketingRequestDto = {
+      contactEmail: this.authForm.get('email')!.value,
+      contactName: this.authForm.get('name')!.value,
+      subject: this.authForm.get('reason')!.value,
+      description: this.authForm.get('message')!.value,
+      category: SupportCategory.SALES_CONTACT,
+      priority: SupportPriority.MEDIUM,
+      sourceUrl: this.router.url,
+      sourceName: 'Auth Page',
+      metadata: this.authForm.value,
+    };
+    this.commonService.createRequest('mkt', payload,
+      (res: any) => {
+        this.isLoading = false;
+        this.toastService.show('Request sent successfully!', 'success');
+        this.switchMode('login');
+      },
+      (err: any) => {
+        this.isLoading = false;
+        this.toastService.show(err?.error?.message ?? 'Failed to send request', 'error');
+      }
+    );
   }
 
   private executeForgotPassword() {

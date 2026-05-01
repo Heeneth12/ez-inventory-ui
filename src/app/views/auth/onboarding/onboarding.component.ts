@@ -439,6 +439,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   openFeedbackModal(type: 'bug' | 'feature' | 'contact') {
     this.modalService.openComponent(FeedbackComponent,
       {
+        type: 'mkt',
         feedbackType: type,
       },
       'lg'

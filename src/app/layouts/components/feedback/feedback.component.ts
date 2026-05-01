@@ -7,6 +7,9 @@ import {
   CheckCircle2, ChevronRight, ChevronLeft, BarChart2, X, Paperclip
 } from 'lucide-angular';
 import { ModalService } from '../modal/modalService';
+import { CommonService } from '../../service/common/common.service';
+import { ToastService } from '../toast/toastService';
+import { CreateAppRequestModel, SupportCategory, SupportPriority } from '../../models/user-request.model';
 
 export type FeedbackTab = 'rating' | 'feature' | 'bug' | 'contact' | 'nps';
 
@@ -37,6 +40,8 @@ export interface BugForm {
 
 export interface ContactForm {
   topic: string;
+  name: string;
+  email: string;
   subject: string;
   message: string;
   replyMethod: string;
@@ -58,6 +63,7 @@ export class FeedbackComponent implements OnInit {
 
   @Output() feedbackSubmitted = new EventEmitter<any>();
   @Input() feedbackType: FeedbackTab = 'rating';
+  @Input() type: 'app' | 'mkt' = 'mkt';
 
   // Lucide icons
   Bug = Bug;
@@ -117,7 +123,11 @@ export class FeedbackComponent implements OnInit {
   ];
   bugForm: BugForm = { title: '', severity: 'medium', description: '', steps: '', browser: '', frequency: '', attachmentName: '' };
 
-  constructor(private modalService: ModalService) {
+  constructor(
+    private modalService: ModalService,
+    private commonService: CommonService,
+    private toastService: ToastService
+  ) {
     //this.setTab(this.feedbackType);
   }
   ngOnInit(): void {
@@ -129,13 +139,13 @@ export class FeedbackComponent implements OnInit {
   }
 
   // Contact
-  topicOptions = ['Billing', 'Account', 'Technical', 'Partnership', 'Other'];
+  topicOptions = ['On Boarding', 'Billing', 'Account', 'Technical', 'Partnership', 'Other'];
   replyOptions = [
     { label: '✉️ Email', value: 'email' },
     { label: '💬 In-app', value: 'inapp' },
     { label: 'No reply needed', value: 'none' },
   ];
-  contactForm: ContactForm = { topic: '', subject: '', message: '', replyMethod: '' };
+  contactForm: ContactForm = { topic: '', subject: '', message: '', replyMethod: '', name: '', email: '' };
 
   // NPS
   npsScores = Array.from({ length: 11 }, (_, i) => i);
@@ -235,21 +245,91 @@ export class FeedbackComponent implements OnInit {
   // Submit
   submitFeedback() {
     this.isSubmitting = true;
-    const payload = this.buildPayload();
-    setTimeout(() => {
-      this.feedbackSubmitted.emit(payload);
-      this.isSubmitting = false;
-      this.isSubmitted = true;
-    }, 700);
+    const request = this.buildPayload();
+    this.createRequest(this.type, request);
   }
 
-  private buildPayload() {
+  private buildPayload(): CreateAppRequestModel {
+    const request = new CreateAppRequestModel();
+    request.sourceUrl = window.location.href;
+    request.sourceName = window.document.title;
+    request.contactEmail = '';
+    request.contactName = '';
+
     switch (this.activeTab) {
-      case 'rating': return { type: 'rating', ...this.ratingForm };
-      case 'feature': return { type: 'feature', ...this.featureForm };
-      case 'bug': return { type: 'bug', ...this.bugForm };
-      case 'contact': return { type: 'contact', ...this.contactForm };
-      case 'nps': return { type: 'nps', ...this.npsForm };
+      case 'rating':
+        request.category = SupportCategory.RATING;
+        request.priority = SupportPriority.LOW;
+        request.subject = `App Rating: ${this.ratingForm.score} Stars`;
+        request.description = this.ratingForm.comment || `User rated ${this.ratingForm.score} stars`;
+        request.metadata = {
+          score: this.ratingForm.score,
+          mood: this.ratingForm.mood,
+          aspects: this.ratingForm.aspects
+        };
+        break;
+      case 'feature':
+        request.category = SupportCategory.FEATURE_REQUEST;
+        request.priority = this.getPriority(this.featureForm.priority);
+        request.subject = this.featureForm.title;
+        request.description = this.featureForm.problem;
+        request.metadata = {
+          useCase: this.featureForm.useCase,
+          teamSize: this.featureForm.teamSize
+        };
+        break;
+      case 'bug':
+        request.category = SupportCategory.BUG_REPORT;
+        request.priority = this.getSeverityToPriority(this.bugForm.severity);
+        request.subject = this.bugForm.title;
+        request.description = this.bugForm.description;
+        request.metadata = {
+          steps: this.bugForm.steps,
+          browser: this.bugForm.browser,
+          frequency: this.bugForm.frequency,
+          attachmentName: this.bugForm.attachmentName
+        };
+        break;
+      case 'contact':
+        request.contactEmail = this.contactForm.replyMethod === 'email' ? this.contactForm.replyMethod : '';
+        request.contactName = this.contactForm.replyMethod === 'email' ? this.contactForm.replyMethod : '';
+        request.category = SupportCategory.CONTACT;
+        request.priority = SupportPriority.MEDIUM;
+        request.subject = this.contactForm.subject;
+        request.description = this.contactForm.message;
+        request.metadata = {
+          topic: this.contactForm.topic,
+          replyMethod: this.contactForm.replyMethod
+        };
+        break;
+      case 'nps':
+        request.category = SupportCategory.NPS;
+        request.priority = SupportPriority.LOW;
+        request.subject = `NPS Score: ${this.npsForm.score}`;
+        request.description = this.npsForm.comment || `User gave NPS score of ${this.npsForm.score}`;
+        request.metadata = {
+          score: this.npsForm.score,
+          reasons: this.npsForm.reasons
+        };
+        break;
+    }
+    return request;
+  }
+
+  private getPriority(priority: string): SupportPriority {
+    switch (priority) {
+      case 'low': return SupportPriority.LOW;
+      case 'high': return SupportPriority.HIGH;
+      case 'medium': default: return SupportPriority.MEDIUM;
+    }
+  }
+
+  private getSeverityToPriority(severity: string): SupportPriority {
+    switch (severity) {
+      case 'low': return SupportPriority.LOW;
+      case 'high': return SupportPriority.HIGH;
+      case 'critical': return SupportPriority.URGENT;
+      case 'medium': default: return SupportPriority.MEDIUM;
     }
   }
 
@@ -260,7 +340,22 @@ export class FeedbackComponent implements OnInit {
     this.ratingForm = { score: 0, mood: '', aspects: [], comment: '' };
     this.featureForm = { title: '', problem: '', useCase: '', priority: 'medium', teamSize: '' };
     this.bugForm = { title: '', severity: 'medium', description: '', steps: '', browser: '', frequency: '', attachmentName: '' };
-    this.contactForm = { topic: '', subject: '', message: '', replyMethod: '' };
+    this.contactForm = { topic: '', subject: '', message: '', replyMethod: '', name: '', email: '' };
     this.npsForm = { score: null, reasons: [], comment: '' };
+  }
+
+  createRequest(type: 'app' | 'mkt', request: CreateAppRequestModel) {
+    this.commonService.createRequest(type, request,
+      (response: any) => {
+        this.modalService.close();
+        this.toastService.show('Feedback submitted successfully', 'success');
+        this.feedbackSubmitted.emit(request);
+        this.isSubmitting = false;
+        this.isSubmitted = true;
+      }, (error: any) => {
+        this.modalService.close();
+        this.toastService.show('Failed to submit feedback', 'error');
+        this.isSubmitting = false;
+      });
   }
 }

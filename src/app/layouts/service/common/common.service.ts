@@ -11,6 +11,8 @@ export class CommonService {
 
   private static AUTH_BASE_URL = CommonService.BASE_URL + '/api/v1/auth';
 
+  private static USER_REQUEST_BASE_URL = CommonService.BASE_URL + '/api/v1/userrequests';
+
   constructor(private httpService: HttpService) { }
 
   signIn(request: any, successfn: any, errorfn: any) {
@@ -55,5 +57,22 @@ export class CommonService {
 
   resendOtp(request: any, success: any, error: any) {
     return this.httpService.postHttp(`${CommonService.AUTH_BASE_URL}/resend-otp`, request, success, error);
+  }
+
+  createRequest(type: 'app' | 'mkt', request: any, success: any, error: any) {
+    const url = type == 'app' ? `${CommonService.USER_REQUEST_BASE_URL}` : `${CommonService.USER_REQUEST_BASE_URL}/mkt`;
+    return this.httpService.postHttp(url, request, success, error);
+  }
+
+  getRequestById(userReqUuid: any, success: any, error: any) {
+    return this.httpService.getHttp(`${CommonService.USER_REQUEST_BASE_URL}/${userReqUuid}`, success, error);
+  }
+
+  updateRequest(userReqUuid: any, request: any, success: any, error: any) {
+    return this.httpService.putHttp(`${CommonService.USER_REQUEST_BASE_URL}/${userReqUuid}`, request, success, error);
+  }
+
+  getRequestsWithPagination(tenantUuid: any, page: any, size: any, sortBy: any, sortDir: any, success: any, error: any) {
+    return this.httpService.getHttp(`${CommonService.USER_REQUEST_BASE_URL}?tenantUuid=${tenantUuid}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`, success, error);
   }
 }
