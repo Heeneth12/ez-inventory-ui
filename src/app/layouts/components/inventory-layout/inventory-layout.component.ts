@@ -404,6 +404,7 @@ export class InventoryLayoutComponent implements OnInit {
     this.modalService.openComponent(
       FeedbackComponent,
       {
+        type: 'app',
         feedbackType: feedbackType
       },
       'md'

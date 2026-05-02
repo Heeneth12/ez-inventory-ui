@@ -301,6 +301,19 @@
       </div>
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-2">
+      <div>
+        <label class="ez-label">Name</label>
+        <input [(ngModel)]="contactForm.name" type="text" placeholder="Your name"
+          class="ez-input ez-input--default w-full">
+      </div>
+      <div>
+        <label class="ez-label">Email</label>
+        <input [(ngModel)]="contactForm.email" type="email" placeholder="Your email"
+          class="ez-input ez-input--default w-full">
+      </div>
+    </div>
+
     <div class="mb-5">
       <label class="ez-label">Subject</label>
       <input [(ngModel)]="contactForm.subject" type="text" placeholder="What's your question about?"

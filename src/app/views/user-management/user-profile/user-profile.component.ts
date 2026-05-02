@@ -41,8 +41,8 @@ export class UserProfileComponent implements OnInit {
   isDropdownOpen = false;
 
   financialSummary: any = {
-    totalOutstandingAmount: 0,
-    walletBalance: 0
+    totalOutstandingAmount: 0.00,
+    walletBalance: 0.00
   };
 
   selectedItemIds: (string | number)[] = [];
@@ -148,9 +148,14 @@ export class UserProfileComponent implements OnInit {
     this.paymentService.getCustomerSummary(id,
       (res: any) => {
         this.financialSummary = res.data;
+        this.financialSummary.walletBalance = res.data.walletBalance?.toFixed(2);
+        this.financialSummary.totalOutstandingAmount = res.data.totalOutstandingAmount?.toFixed(2);
         this.isLoading = false;
       },
-      (err: any) => console.error("Could not load summary", err)
+      (err: any) => {
+        this.toast.show('Failed to load financial summary.', 'error');
+        this.isLoading = false;
+      }
     );
   }
 

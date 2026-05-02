@@ -24,6 +24,7 @@ import { SubscriptionsService } from '../../../layouts/components/subscriptions/
 import { SubscriptionPlanModel } from '../../../layouts/components/subscriptions/subscriptions.model';
 import { FeedbackComponent } from '../../../layouts/components/feedback/feedback.component';
 import { ModalService } from '../../../layouts/components/modal/modalService';
+import { Contact, HeadsetIcon, Info, LucideAngularModule } from 'lucide-angular';
 
 export interface OnboardingResult {
   tenantId?: number;
@@ -43,7 +44,7 @@ const APP_KEY = 'EZH_INV_APP';
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,6 +58,13 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   loadingText = '';
 
   registeredTenantId: number | null = null;
+
+  //icons
+  readonly icon = {
+    Contact: Contact,
+    HeadsetIcon: HeadsetIcon,
+    Info: Info,
+  }
 
   // OTP
   otpControls: FormControl[] = Array.from({ length: 6 }, () => new FormControl(''));
@@ -439,6 +447,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   openFeedbackModal(type: 'bug' | 'feature' | 'contact') {
     this.modalService.openComponent(FeedbackComponent,
       {
+        type: 'mkt',
         feedbackType: type,
       },
       'lg'
