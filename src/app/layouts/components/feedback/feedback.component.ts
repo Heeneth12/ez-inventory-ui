@@ -291,9 +291,9 @@ export class FeedbackComponent implements OnInit {
         };
         break;
       case 'contact':
-        request.contactEmail = this.contactForm.replyMethod === 'email' ? this.contactForm.replyMethod : '';
-        request.contactName = this.contactForm.replyMethod === 'email' ? this.contactForm.replyMethod : '';
-        request.category = SupportCategory.CONTACT;
+        request.contactEmail = this.contactForm.email;
+        request.contactName = this.contactForm.name;
+        request.category = SupportCategory.GENERAL_INQUIRY;
         request.priority = SupportPriority.MEDIUM;
         request.subject = this.contactForm.subject;
         request.description = this.contactForm.message;
