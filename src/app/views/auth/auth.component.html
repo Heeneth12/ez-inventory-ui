@@ -163,6 +163,22 @@
                     </div>
                 </ng-container>
 
+                <!-- Demo Request mode -->
+                <ng-container *ngIf="currentMode === 'demo-request'">
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="ez-label">Full Name</label>
+                            <input type="text" formControlName="name" class="ez-input ez-input--default w-full"
+                                placeholder="John Doe">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ez-label">Reason for trying the demo</label>
+                            <textarea formControlName="reason" rows="3" class="ez-input ez-input--default w-full resize-none"
+                                placeholder="E.g., Evaluating for my company, testing features, etc."></textarea>
+                        </div>
+                    </div>
+                </ng-container>
+
                 <!-- Booking mode -->
                 <ng-container *ngIf="currentMode === 'booking'">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -214,19 +230,21 @@
                             <ng-container *ngIf="currentMode === 'booking'">Send request</ng-container>
                             <ng-container *ngIf="currentMode === 'forgot-password'">Send OTP</ng-container>
                             <ng-container *ngIf="currentMode === 'otp-verification'">Reset password</ng-container>
+                            <ng-container *ngIf="currentMode === 'demo-request'">Start Demo</ng-container>
                         </span>
                         <span *ngIf="isLoading">
                             <ng-container *ngIf="currentMode === 'login'">Signing in…</ng-container>
                             <ng-container *ngIf="currentMode === 'booking'">Sending…</ng-container>
                             <ng-container *ngIf="currentMode === 'forgot-password'">Sending…</ng-container>
                             <ng-container *ngIf="currentMode === 'otp-verification'">Resetting…</ng-container>
+                            <ng-container *ngIf="currentMode === 'demo-request'">Starting…</ng-container>
                         </span>
                     </button>
                 </div>
             </form>
 
             <!-- Bottom links -->
-            <div class="text-center pt-1" *ngIf="currentMode !== 'booking'">
+            <div class="text-center pt-1" *ngIf="currentMode !== 'booking' && currentMode !== 'demo-request'">
                 <p class="text-ez-base text-ez-secondary">
                     Don't have an account?
                     <button type="button" (click)="toggleMode()"
@@ -235,7 +253,7 @@
                     </button>
                 </p>
             </div>
-            <div class="text-center pt-1" *ngIf="currentMode === 'booking'">
+            <div class="text-center pt-1" *ngIf="currentMode === 'booking' || currentMode === 'demo-request'">
                 <button type="button" (click)="switchMode('login')"
                     class="text-ez-base font-medium text-ez-primary hover:text-ez-primary-hover transition-colors duration-ez">
                     ← Back to login
