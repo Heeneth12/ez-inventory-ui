@@ -12,7 +12,7 @@ import { MarketingRequestDto, SupportCategory, SupportPriority } from '../../lay
 
 
 declare const google: any;
-type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password' | 'otp-verification';
+type AuthMode = 'login' | 'register' | 'booking' | 'forgot-password' | 'otp-verification' | 'demo-request';
 
 @Component({
   selector: 'app-auth',
@@ -87,12 +87,14 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   get isBookingMode() { return this.currentMode === 'booking'; }
   get isForgotPassMode() { return this.currentMode === 'forgot-password'; }
   get isOtpVerificationMode() { return this.currentMode === 'otp-verification'; }
+  get isDemoRequestMode() { return this.currentMode === 'demo-request'; }
 
   get headerTitle(): string {
     if (this.isLoginMode) return 'Welcome back';
     if (this.isBookingMode) return 'Book Consultation';
     if (this.isForgotPassMode) return 'Reset Password';
     if (this.isOtpVerificationMode) return 'Verify & Reset';
+    if (this.isDemoRequestMode) return 'Try Demo Account';
     return 'Welcome back';
   }
 
@@ -101,6 +103,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.isBookingMode) return 'Tell us your requirements.';
     if (this.isForgotPassMode) return 'Enter your email to receive reset instructions.';
     if (this.isOtpVerificationMode) return `Enter the OTP sent to ${this.forgotEmail}`;
+    if (this.isDemoRequestMode) return 'Please tell us your name and reason for trying the demo.';
     return 'Please enter your details to sign in.';
   }
 
@@ -113,6 +116,11 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       this.authForm = this.fb.group({
         otp: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]],
         newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      });
+    } else if (this.isDemoRequestMode) {
+      this.authForm = this.fb.group({
+        name: ['', Validators.required],
+        reason: ['', Validators.required],
       });
     } else if (this.isBookingMode) {
       this.authForm = this.fb.group({
@@ -195,12 +203,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   // Auth actions 
 
   onDemoLogin() {
-    this.switchMode('login');
-    this.isLoading = true;
-    this.loadingText = 'Spinning up demo environment...';
-    setTimeout(() => {
-      this.executeLogin({ email: 'demo@ezh.com', password: 'Pass1234' });
-    }, 1500);
+    this.switchMode('demo-request');
   }
 
   onSubmit() {
@@ -218,7 +221,36 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     } else if (this.isOtpVerificationMode) {
       this.loadingText = 'Resetting password...';
       this.executeResetPassword();
+    } else if (this.isDemoRequestMode) {
+      this.loadingText = 'Starting demo...';
+      this.executeDemoRequestAndLogin();
     }
+  }
+
+  private executeDemoRequestAndLogin() {
+    this.isLoading = true;
+    this.loadingText = 'Starting demo...';
+    const payload: MarketingRequestDto = {
+      contactEmail: 'demo-user@ezh.com',
+      contactName: this.authForm.get('name')!.value,
+      subject: 'Demo Account Request',
+      description: `Reason for demo: ${this.authForm.get('reason')!.value}`,
+      category: SupportCategory.SALES_CONTACT,
+      priority: SupportPriority.LOW,
+      sourceUrl: this.router.url,
+      sourceName: 'Auth Page Demo Login',
+      metadata: { reason: this.authForm.get('reason')!.value },
+    };
+    
+    this.commonService.createRequest('mkt', payload,
+      (res: any) => {
+        this.executeLogin({ email: 'demo@ezh.com', password: 'Pass1234' });
+      },
+      (err: any) => {
+        // Proceed anyway so the user isn't blocked if request fails
+        this.executeLogin({ email: 'demo@ezh.com', password: 'Pass1234' });
+      }
+    );
   }
 
   private executeBooking() {
