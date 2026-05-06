@@ -1,11 +1,17 @@
 <div class="flex w-full flex-col bg-white overflow-hidden">
 
   <div class="shrink-0 bg-white sticky top-0 z-20">
-    <div class="px-8 lg:px-10 h-16 flex items-center justify-between gap-3">
-      <h1 class="text-ez-2xl font-medium text-ez-heading leading-tight">{{ isEditMode ? 'Edit Item' : 'New Item' }}</h1>
+    <div class="px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <div>
+        <h1 class="text-ez-2xl font-medium text-ez-heading leading-tight">{{
+          isEditMode ? 'Edit Item' : 'New Item' }}</h1>
+        <p class="text-ez-xs text-ez-secondary mt-0.5">Catalog product or service for sales & inventory</p>
+      </div>
       <div class="flex items-center gap-3">
         <button type="button" (click)="onCancel()" class="ez-btn bg-ez-ash">Cancel</button>
-        <button type="button" (click)="onSubmit()" class="ez-btn ez-btn-primary">Save Item</button>
+        <button type="button" (click)="onSubmit()" class="ez-btn ez-btn-primary">
+          <lucide-icon [img]="SaveIcon" class="w-3.5 h-3.5"></lucide-icon>
+          Save Item</button>
       </div>
     </div>
   </div>
@@ -193,5 +199,42 @@
 
       </div>
     </form>
+
+    <!-- Documentation Panel -->
+    <div class="border border-ez-border bg-ez-ash p-5 space-y-4 mt-2 w-fit rounded">
+      <h3 class="text-ez-base font-medium text-ez-heading flex items-center gap-2">
+        <lucide-icon [img]="BookOpenIcon"
+          class="w-4 h-4 text-ez-muted group-hover:text-ez-heading  transition-colors duration-ez"></lucide-icon>Item
+        Catalog Guide
+      </h3>
+
+      <p class="text-ez-sm text-ez-secondary leading-relaxed">
+        Items defined here populate your master catalog. This data acts as the single source of truth across the
+        platform.
+      </p>
+
+      <ul class="space-y-3">
+        <li class="flex items-start gap-2 text-ez-xs text-ez-secondary leading-relaxed">
+          <div class="w-1.5 h-1.5 rounded-full bg-ez-muted mt-1.5 shrink-0"></div>
+          <span><strong>Products</strong> are physical goods tracked in your warehouse via Inventory
+            ledgers.</span>
+        </li>
+        <li class="flex items-start gap-2 text-ez-xs text-ez-secondary leading-relaxed">
+          <div class="w-1.5 h-1.5 rounded-full bg-ez-muted mt-1.5 shrink-0"></div>
+          <span><strong>Services</strong> are non-tangible offerings (labor, consulting) that bypass inventory
+            stock logic.</span>
+        </li>
+        <li class="flex items-start gap-2 text-ez-xs text-ez-secondary leading-relaxed">
+          <div class="w-1.5 h-1.5 rounded-full bg-ez-muted mt-1.5 shrink-0"></div>
+          <span><strong>Item Codes</strong> must be entirely unique to prevent transaction collisions.</span>
+        </li>
+      </ul>
+
+      <div class="border-t border-ez-border mt-1">
+        <a href="#" class="text-ez-xs font-medium text-ez-primary hover:underline flex items-center gap-1">
+          Read full documentation
+        </a>
+      </div>
+    </div>
   </div>
 </div>
