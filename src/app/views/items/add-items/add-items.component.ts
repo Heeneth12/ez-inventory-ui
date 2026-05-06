@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ItemService } from '../item.service';
 import { ItemModel } from '../models/Item.model';
 import { ToastService } from '../../../layouts/components/toast/toastService';
-import { InfoIcon, LucideAngularModule, UploadCloudIcon } from "lucide-angular";
+import { BookOpenIcon, InfoIcon, LucideAngularModule, Save, UploadCloudIcon } from "lucide-angular";
 
 @Component({
   selector: 'app-add-items',
@@ -25,6 +25,8 @@ export class AddItemsComponent implements OnInit {
   //icon
   readonly InfoIcon = InfoIcon;
   readonly UploadCloudIcon = UploadCloudIcon;
+  readonly BookOpenIcon = BookOpenIcon;
+  readonly SaveIcon = Save;
 
   constructor(
     private fb: FormBuilder,
