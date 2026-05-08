@@ -10,121 +10,121 @@
 </div>
 
 <ng-template #stockAdjestemnt let-data>
-    <div class="flex flex-col h-full bg-white relative">
+    <div class="flex flex-col h-full bg-ez-white font-sans border-l border-ez-border relative">
 
-        <div *ngIf="!stockAdjustmentSummary" class="flex flex-col items-center justify-center h-full space-y-3">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p class="text-sm text-gray-500">Loading adjustment details...</p>
+        <div *ngIf="!stockAdjustmentSummary" class="flex flex-col items-center justify-center h-full space-y-4">
+            <svg class="w-8 h-8 animate-spin text-ez-primary" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.2"></circle>
+                <path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+            </svg>
+            <p class="text-ez-sm text-ez-secondary">Loading adjustment details...</p>
         </div>
 
-        <div *ngIf="stockAdjustmentSummary" class="flex flex-col h-full">
+        <div *ngIf="stockAdjustmentSummary" class="flex flex-col h-full step-fade">
 
-            <div class="bg-gray-50 px-6 py-5 border-b border-gray-200">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900">{{ stockAdjustmentSummary.adjustmentNumber }}</h2>
-                        <p class="text-sm text-gray-500 mt-1">
-                            Adjusted on {{ stockAdjustmentSummary.adjustmentDate | date:'mediumDate' }}
-                            at {{ stockAdjustmentSummary.adjustmentDate | date:'shortTime' }}
-                        </p>
-                    </div>
-                    <span [ngClass]="{
-                        'bg-green-100 text-green-800': stockAdjustmentSummary.status === 'COMPLETED',
-                        'bg-yellow-100 text-yellow-800': stockAdjustmentSummary.status === 'DRAFT',
-                        'bg-red-100 text-red-800': stockAdjustmentSummary.status === 'CANCELLED'
-                    }" class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
-                        {{ stockAdjustmentSummary.status }}
-                    </span>
+            <div class="bg-white px-8 py-6 border-b border-ez-border shrink-0 flex items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-ez-xl font-medium text-ez-heading leading-tight">{{
+                        stockAdjustmentSummary.adjustmentNumber }}</h2>
+                    <p class="text-ez-sm text-ez-secondary mt-1.5">
+                        Adjusted on <span class="font-medium text-ez-heading">{{ stockAdjustmentSummary.adjustmentDate |
+                            date:'mediumDate' }}</span>
+                        at {{ stockAdjustmentSummary.adjustmentDate | date:'shortTime' }}
+                    </p>
                 </div>
+                <span class="px-2 py-1 border text-ez-xs font-medium uppercase tracking-[0.1em] shrink-0" [ngClass]="{
+                    'text-ez-primary border-ez-primary bg-ez-primary-tint': stockAdjustmentSummary.status === 'COMPLETED',
+                    'text-ez-heading border-ez-border bg-ez-ash': stockAdjustmentSummary.status === 'DRAFT',
+                    'text-red-500 border-red-500 bg-red-50': stockAdjustmentSummary.status === 'CANCELLED'
+                }">
+                    {{ stockAdjustmentSummary.status }}
+                </span>
             </div>
 
-            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 border-b border-gray-200">
-                <div>
-                    <span class="block text-xs font-semibold text-gray-500 uppercase">Warehouse</span>
-                    <span class="text-sm font-medium text-gray-900">
-                        {{ stockAdjustmentSummary.warehouseId }} </span>
-                </div>
-                <div>
-                    <span class="block text-xs font-semibold text-gray-500 uppercase">Reference</span>
-                    <span class="text-sm font-medium text-gray-900">{{ stockAdjustmentSummary.reference || 'N/A'
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-ez-border border-b border-ez-border shrink-0">
+                <div class="bg-white p-6">
+                    <span class="ez-micro-label text-ez-secondary block mb-1">Warehouse</span>
+                    <span class="text-ez-base font-medium text-ez-heading">{{ stockAdjustmentSummary.warehouseId
                         }}</span>
                 </div>
-                <div class="md:col-span-3">
-                    <span class="block text-xs font-semibold text-gray-500 uppercase">Remarks</span>
-                    <span class="text-sm text-gray-700 italic">{{ stockAdjustmentSummary.remarks || 'No remarks
+                <div class="bg-white p-6">
+                    <span class="ez-micro-label text-ez-secondary block mb-1">Reference</span>
+                    <span class="text-ez-base font-medium text-ez-heading">{{ stockAdjustmentSummary.reference || 'N/A'
+                        }}</span>
+                </div>
+                <div class="bg-white p-6 md:col-span-2">
+                    <span class="ez-micro-label text-ez-secondary block mb-1">Remarks</span>
+                    <span class="text-ez-sm text-ez-secondary">{{ stockAdjustmentSummary.remarks || 'No remarks
                         provided.' }}</span>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6">
-                <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">Adjusted Items</h3>
+            <div class="flex-1 overflow-y-auto p-8 bg-ez-white">
+                <div class="max-w-[1000px] mx-auto">
+                    <h3 class="text-ez-lg font-medium text-ez-heading mb-4">Adjusted Items</h3>
 
-                <div class="overflow-hidden border border-gray-200 rounded-lg shadow-sm">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Item Details</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    System Qty</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actual Qty</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Difference</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Reason</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr *ngFor="let item of stockAdjustmentSummary.items">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ item.itemName }}</div>
-                                    <div class="text-xs text-gray-500">ID: {{ item.itemId }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
-                                    {{ item.systemQty }}
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-gray-900 bg-gray-50">
-                                    {{ item.countedQty }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold">
-                                    <span [ngClass]="{
-                                        'text-green-600': item.differenceQty > 0,
-                                        'text-red-600': item.differenceQty < 0,
-                                        'text-gray-400': item.differenceQty === 0
-                                    }">
-                                        {{ item.differenceQty > 0 ? '+' : '' }}{{ item.differenceQty }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                        {{ item.reasonType.replace('_', ' ') }}
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr *ngIf="stockAdjustmentSummary.items.length === 0">
-                                <td colspan="5" class="px-6 py-10 text-center text-gray-500 text-sm">
-                                    No items found in this adjustment.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="border border-ez-border overflow-hidden bg-white">
+                        <table class="w-full text-left">
+                            <thead class="bg-ez-ash border-b border-ez-border">
+                                <tr>
+                                    <th scope="col" class="px-5 py-3 ez-micro-label text-ez-secondary">Item Details</th>
+                                    <th scope="col" class="px-5 py-3 ez-micro-label text-ez-secondary text-right">System
+                                        Qty</th>
+                                    <th scope="col"
+                                        class="px-5 py-3 ez-micro-label text-ez-heading text-right bg-ez-white">Actual
+                                        Qty</th>
+                                    <th scope="col" class="px-5 py-3 ez-micro-label text-ez-secondary text-right">
+                                        Difference</th>
+                                    <th scope="col" class="px-5 py-3 ez-micro-label text-ez-secondary">Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-ez-border">
+                                <tr *ngFor="let item of stockAdjustmentSummary.items"
+                                    class="hover:bg-ez-ash transition-colors duration-ez group">
+                                    <td class="px-5 py-4 whitespace-nowrap">
+                                        <div class="text-ez-sm font-medium text-ez-heading">{{ item.itemName }}</div>
+                                        <div class="text-ez-xs text-ez-muted mt-0.5">ID: {{ item.itemId }}</div>
+                                    </td>
+                                    <td class="px-5 py-4 whitespace-nowrap text-right text-ez-sm text-ez-secondary">
+                                        {{ item.systemQty }}
+                                    </td>
+                                    <td
+                                        class="px-5 py-4 whitespace-nowrap text-right text-ez-sm font-medium text-ez-heading bg-ez-ash group-hover:bg-ez-white transition-colors duration-ez">
+                                        {{ item.countedQty }}
+                                    </td>
+                                    <td class="px-5 py-4 whitespace-nowrap text-right text-ez-sm font-medium">
+                                        <span [ngClass]="{
+                                            'text-ez-primary': item.differenceQty > 0,
+                                            'text-red-500': item.differenceQty < 0,
+                                            'text-ez-muted': item.differenceQty === 0
+                                        }">
+                                            {{ item.differenceQty > 0 ? '+' : '' }}{{ item.differenceQty }}
+                                        </span>
+                                    </td>
+                                    <td class="px-5 py-4 whitespace-nowrap">
+                                        <span
+                                            class="inline-block border border-ez-border bg-white text-ez-heading px-2 py-0.5 ez-micro-label">
+                                            {{ item.reasonType.replace('_', ' ') }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="stockAdjustmentSummary.items.length === 0">
+                                    <td colspan="5" class="px-5 py-12 text-center">
+                                        <p class="text-ez-sm text-ez-secondary">No items found in this adjustment.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end">
-                <button (click)="drawerService.close()"
-                    class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <div class="bg-white px-8 py-5 border-t border-ez-border flex justify-end shrink-0">
+                <button (click)="drawerService.close()" class="ez-btn ez-btn-secondary min-w-[120px]">
                     Close
                 </button>
             </div>
+
         </div>
     </div>
 </ng-template>

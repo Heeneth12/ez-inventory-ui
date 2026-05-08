@@ -59,7 +59,7 @@ export class StockAdjustmentComponent implements OnInit {
     {
       label: 'Create',
       icon: FilePlusCorner,
-      variant: 'secondary',
+      variant: 'create',
       action: () => this.moveToCreateStockAdj()
     },
   ];
