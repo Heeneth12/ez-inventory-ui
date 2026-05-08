@@ -136,6 +136,14 @@ export class InventoryLayoutComponent implements OnInit {
       action: () => this.router.navigate(['items/create'])
     },
     {
+      label: 'Stock Adjustment',
+      subLabel: 'Stock Adjustments',
+      icon: Package,
+      iconBgClass: 'bg-gray-50 border border-gray-200',
+      colorClass: 'text-gray-700',
+      action: () => this.router.navigate(['stock/adjustment/create'])
+    },
+    {
       label: 'Purchase Request',
       subLabel: 'Create a new internal PRQ',
       icon: ClipboardList,
