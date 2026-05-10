@@ -6,7 +6,7 @@
       <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
 
         <el-dialog-panel [ngClass]="getWidthClass(modalService.size$ | async)"
-          class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:w-full sm:my-8 will-change-transform">
+          class="relative transform overflow-hidden rounded-sm bg-white text-left shadow-xl transition-all sm:w-full sm:my-8 will-change-transform">
 
           <ng-container *ngIf="modalService.state$ | async as modalState">
             <ng-container *ngIf="modalState.template">

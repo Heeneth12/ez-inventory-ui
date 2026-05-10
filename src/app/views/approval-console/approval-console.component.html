@@ -12,69 +12,90 @@
 </div>
 
 <ng-template #configDrawer>
-    <div class="flex flex-col h-full bg-white p-4 space-y-4 overflow-y-auto relative">
+    <div class="flex flex-col h-full bg-ez-white border-l border-ez-border font-sans">
 
-        <div class="flex justify-end">
-            <button (click)="toggleCreateNew()"
-                class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition">
-                <span *ngIf="!isCreatingNew">+ Create New Rule</span>
+        <!-- Header -->
+        <div class="bg-white px-8 py-5 border-b border-ez-border shrink-0 flex items-center justify-between">
+            <div>
+                <h2 class="text-ez-lg font-medium text-ez-heading leading-tight">Approval Configurations</h2>
+                <p class="text-ez-xs text-ez-secondary mt-0.5">Manage automated approval thresholds</p>
+            </div>
+            <button (click)="toggleCreateNew()" class="ez-btn h-8 min-h-0 px-4"
+                [ngClass]="isCreatingNew ? 'ez-btn-secondary' : 'bg-[#D97706] border border-[#D97706] text-white hover:bg-[#d07207] hover:border-[#d07207]'">
+                <span *ngIf="!isCreatingNew" class="flex items-center gap-1.5"><lucide-icon [img]="Plus"
+                        class="w-3.5 h-3.5"></lucide-icon> Create Rule</span>
                 <span *ngIf="isCreatingNew">Cancel</span>
             </button>
         </div>
 
-        <div *ngIf="isCreatingNew" class="border-2 border-blue-100 bg-blue-50 p-4 rounded-lg shadow-sm animate-fade-in">
-            <h3 class="font-bold text-blue-800 mb-3">New Configuration</h3>
+        <div class="flex-1 overflow-y-auto p-2 bg-ez-white space-y-6">
 
-            <div class="grid grid-cols-1 gap-3">
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Approval Type</label>
-                    <select [(ngModel)]="newConfig.approvalType"
-                        class="w-full border rounded p-2 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white">
-                        <option [ngValue]="null" disabled>Select Type</option>
-                        <option *ngFor="let type of approvalTypeOptions" [value]="type">{{ type }}</option>
-                    </select>
+            <!-- Create New Form -->
+            <div *ngIf="isCreatingNew"
+                class="bg-white border border-ez-primary step-fade outline outline-4 outline-white">
+                <div class="px-6 py-4 border-b border-ez-border bg-ez-primary-tint">
+                    <h3 class="text-ez-sm font-medium text-ez-primary">New Configuration</h3>
                 </div>
 
-                <ng-container *ngTemplateOutlet="configInputs; context: { $implicit: newConfig }"></ng-container>
+                <div class="p-6 space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="ez-label">Approval Type <span class="text-red-500">*</span></label>
+                        <select [(ngModel)]="newConfig.approvalType" class="ez-select w-full bg-white">
+                            <option [ngValue]="null" disabled>Select Type</option>
+                            <option *ngFor="let type of approvalTypeOptions" [value]="type">{{ type }}</option>
+                        </select>
+                    </div>
 
-                <div class="flex justify-end mt-2">
-                    <button (click)="saveConfig(newConfig)"
-                        class="bg-green-600 text-white text-xs px-4 py-2 rounded hover:bg-green-700 font-medium">
-                        Create Rule
-                    </button>
-                </div>
-            </div>
-        </div>
+                    <ng-container *ngTemplateOutlet="configInputs; context: { $implicit: newConfig }"></ng-container>
 
-        <hr *ngIf="isCreatingNew" class="border-gray-200">
-
-        <div *ngIf="configs.length === 0 && !isCreatingNew" class="text-center text-gray-500 py-10">
-            No configurations found.
-        </div>
-
-        <div *ngFor="let config of configs"
-            class="border p-4 rounded-lg shadow-sm bg-gray-50 hover:border-gray-300 transition">
-            <div class="flex justify-between items-center mb-2">
-                <h3 class="font-bold text-gray-700">{{ config.approvalType }}</h3>
-                <div class="flex items-center">
-                    <label class="mr-2 text-xs text-gray-500 font-medium uppercase tracking-wide">Enabled</label>
-                    <input type="checkbox" [(ngModel)]="config.isEnabled"
-                        class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                    <div class="pt-4 border-t border-ez-border flex justify-end">
+                        <button (click)="saveConfig(newConfig)" class="ez-btn ez-btn-primary px-6">
+                            Create Rule
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-3" [class.opacity-50]="!config.isEnabled">
-                <ng-container *ngTemplateOutlet="configInputs; context: { $implicit: config }"></ng-container>
+            <!-- Empty State -->
+            <div *ngIf="configs.length === 0 && !isCreatingNew"
+                class="text-center py-16 border border-dashed border-ez-border bg-ez-ash">
+                <p class="text-ez-sm text-ez-secondary mb-3">No approval configurations found.</p>
+                <button (click)="toggleCreateNew()" class="ez-btn ez-btn-secondary h-8 min-h-0 px-3">
+                    <lucide-icon [img]="Plus" class="w-3.5 h-3.5 mr-1.5"></lucide-icon> Create First Rule
+                </button>
+            </div>
 
-                <div class="flex justify-end mt-2">
-                    <button (click)="saveConfig(config)" [disabled]="!config.isEnabled"
-                        class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 disabled:bg-gray-400">
-                        Update
-                    </button>
+            <!-- List of Configs -->
+            <div *ngFor="let config of configs"
+                class="bg-white border border-ez-border hover:border-ez-subtle transition-colors duration-ez">
+
+                <div class="px-6 py-4 border-b border-ez-border bg-ez-ash flex items-center justify-between">
+                    <h3 class="text-ez-base font-medium text-ez-heading">{{ config.approvalType }}</h3>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <span class="ez-micro-label text-ez-secondary">Enabled</span>
+                        <!-- Custom Toggle Switch -->
+                        <div class="relative inline-block w-8 h-4 rounded-full transition-colors duration-ez"
+                            [ngClass]="config.isEnabled ? 'bg-ez-primary' : 'bg-ez-muted'">
+                            <input type="checkbox" [(ngModel)]="config.isEnabled" class="sr-only">
+                            <div class="absolute w-3 h-3 bg-white rounded-full top-0.5 transition-transform duration-ez"
+                                [ngClass]="config.isEnabled ? 'translate-x-4' : 'translate-x-0.5'"></div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="p-6 space-y-5 transition-opacity duration-ez" [class.opacity-50]="!config.isEnabled">
+                    <ng-container *ngTemplateOutlet="configInputs; context: { $implicit: config }"></ng-container>
+
+                    <div class="pt-4 flex justify-end">
+                        <button (click)="saveConfig(config)" [disabled]="!config.isEnabled"
+                            class="ez-btn ez-btn-secondary h-8 min-h-0 px-4 disabled:opacity-50">
+                            Update Rule
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
 </ng-template>
 
