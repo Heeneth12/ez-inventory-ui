@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms'; // Import FormsModule for the draw
 import { LoaderService } from '../../layouts/components/loader/loaderService';
 import { ModalService } from '../../layouts/components/modal/modalService';
 import { ToastService } from '../../layouts/components/toast/toastService';
-import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight, ClipboardListIcon, Clock, FileText, ShieldCheck, Search, RotateCcw, CheckCircle, FileSignature, Check } from 'lucide-angular';
+import { Settings2Icon, CircleX, CircleCheckBig, Package, AlertCircle, TrendingUp, Zap, List, LucideAngularModule, FileTextIcon, Loader2, Calendar, Percent, CheckCircle2, XCircle, ArrowRight, ClipboardListIcon, Clock, FileText, ShieldCheck, Search, RotateCcw, CheckCircle, FileSignature, Check, Plus } from 'lucide-angular';
 import { StandardTableComponent } from "../../layouts/components/standard-table/standard-table.component";
 import { HeaderAction, PaginationConfig, TableAction, TableActionConfig, TableColumn } from '../../layouts/components/standard-table/standard-table.model';
 import { DrawerService } from '../../layouts/components/drawer/drawerService';
@@ -115,6 +115,7 @@ export class ApprovalConsoleComponent implements OnInit {
   readonly CheckCircle = CheckCircle;
   readonly FileSignature = FileSignature;
   readonly Check = Check;
+  readonly Plus = Plus;
 
   //table config
   columns: TableColumn[] = APPROVAL_COLUMN;
@@ -123,7 +124,7 @@ export class ApprovalConsoleComponent implements OnInit {
     {
       label: 'Config',
       icon: Settings2Icon,
-      variant: 'primary',
+      variant: 'create',
       action: () => this.openApprovalConfig()
     },
   ];

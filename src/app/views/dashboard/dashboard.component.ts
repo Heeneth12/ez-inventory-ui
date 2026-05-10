@@ -204,6 +204,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/approval']);
   }
 
+  navigateToIntegrations() {
+    this.router.navigate(['/settings']);
+  }
+
   approvalConformation(status: 'APPROVED' | 'REJECTED', approvalId: number | string) {
     const action = status === 'APPROVED' ? 'Approve' : 'Reject';
     this.confirmationModalSvc.open({

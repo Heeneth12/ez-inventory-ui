@@ -514,7 +514,7 @@ export class InventoryLayoutComponent implements OnInit {
     this.modalService.openComponent(
       SearchModalComponent,
       {},
-      'md'
+      'lg'
     )
   }
 

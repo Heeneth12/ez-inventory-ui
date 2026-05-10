@@ -1,1 +1,25 @@
-<app-feedback></app-feedback>
+<app-feedback [feedbackType]="'contact'"></app-feedback>
+
+<div class="flex gap-2 mt-4">
+    <button class="px-4 py-2 bg-green-500 text-white rounded" (click)="showSuccess()">Success</button>
+    <button class="px-4 py-2 bg-red-500 text-white rounded" (click)="showError()">Error</button>
+    <button class="px-4 py-2 bg-yellow-500 text-white rounded" (click)="showWarning()">Warning</button>
+    <button class="px-4 py-2 bg-blue-500 text-white rounded" (click)="showInfo()">Info</button>
+</div>
+
+
+<div class="flex gap-2 mt-4">
+    <button class="px-4 py-2 bg-green-500 text-white rounded" (click)="openBanner()">Show Banner</button>
+    <button class="px-4 py-2 bg-red-500 text-white rounded" (click)="closeBanner()">Hide Banner</button>
+</div>
+
+<div class="flex gap-2 mt-4">
+    <button class="px-4 py-2 bg-purple-500 text-white rounded" (click)="openPromoModal()">Show Promo Modal</button>
+</div>
+
+
+<!-- <div class="flex gap-4 bg-gray-800 p-4 rounded">
+    <button
+        class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+        (click)="openAIWorkflow()">🟢 Start Workflow</button>
+</div> -->

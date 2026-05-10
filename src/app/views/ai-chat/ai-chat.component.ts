@@ -376,4 +376,74 @@ export class AiChatComponent implements OnInit {
       }
     }
   }
+
+
+  // testAiWorkflow: IAIWorkflowPlan = {
+  //   workflow_id: "demo_create_item_001",
+  //   goal: "Create a new inventory item and verify it in the stock list",
+  //   total_stages: 2,
+  //   stages: [
+  //     {
+  //       stage_id: "STG_01",
+  //       name: "Item Creation",
+  //       description: "Navigating to Items module to add a new product...",
+  //       route: "/items",
+  //       tasks: [
+  //         {
+  //           task_id: "TSK_101",
+  //           name: "Click Add Item",
+  //           description: "Opening the item creation form",
+  //           type: "BUTTON",
+  //           action: "CLICK",
+  //           // IMPORTANT: Make sure you have a button with this ID on your /items page
+  //           selector: "#add-new-item-btn",
+  //           is_required: false // Set to false so the test doesn't crash if the button is missing
+  //         },
+  //         {
+  //           task_id: "TSK_102",
+  //           name: "Enter Item Name",
+  //           description: "Typing 'Premium Wireless Mouse'",
+  //           type: "INPUT",
+  //           action: "TYPE",
+  //           // Change this selector to match your actual input field
+  //           selector: "input[name='itemName']",
+  //           value: "Premium Wireless Mouse",
+  //           is_required: false
+  //         },
+  //         {
+  //           task_id: "TSK_103",
+  //           name: "Save Item",
+  //           description: "Saving the new item to the database",
+  //           type: "BUTTON",
+  //           action: "CLICK",
+  //           selector: "#save-item-btn",
+  //           is_required: false
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       stage_id: "STG_02",
+  //       name: "Verify Stock",
+  //       description: "Navigating to Stock module to verify the new entry...",
+  //       route: "/stock",
+  //       tasks: [
+  //         {
+  //           task_id: "TSK_201",
+  //           name: "Search New Item",
+  //           description: "Searching for 'Premium Wireless Mouse' in stock",
+  //           type: "INPUT",
+  //           action: "TYPE",
+  //           // Change this selector to match your stock search bar
+  //           selector: "input[type='search']",
+  //           value: "Premium Wireless Mouse",
+  //           is_required: false
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // };
+
+  // openAIWorkflow() {
+  //   this.aiFlowService.executeWorkflow(this.testAiWorkflow);
+  // }
 }
